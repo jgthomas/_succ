@@ -6,6 +6,8 @@ import Data.Char
 
 data Token = TokOpenParen
            | TokCloseParen
+           | TokOpenBrace
+           | TokCloseBrace
            | TokEnd
            deriving (Show, Eq)
 
@@ -15,6 +17,8 @@ tokenize [] = []
 tokenize (c:cs)
     | c == '('      = TokOpenParen       : tokenize cs
     | c == ')'      = TokCloseParen      : tokenize cs
+    | c == '{'      = TokOpenBrace       : tokenize cs
+    | c == '}'      = TokCloseBrace      : tokenize cs
     | isSpace c     = tokenize cs
     | otherwise     = error $ "Cannot tokenize " ++ [c]
 
