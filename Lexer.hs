@@ -11,6 +11,8 @@ data Token = TokOpenParen
            | TokSemiColon
            | TokIdent String
            | TokConstInt Int
+           | TokKeywordInt
+           | TokKeywordReturn
            | TokEnd
            deriving (Show, Eq)
 
@@ -40,8 +42,11 @@ accept (t:ts) = ts
 
 
 identifier :: Char -> String -> [Token]
-identifier c cs = let (str, cs') = span isAlphaNum cs in
-                  TokIdent (c:str) : tokenize cs'
+identifier c cs = let (str, cs') = span isAlphaNum cs
+                      in case (c:str) of
+                              "int"    -> TokKeywordInt     : tokenize cs'
+                              "return" -> TokKeywordReturn  : tokenize cs'
+                              _        -> TokIdent (c:str)  : tokenize cs'
 
 
 number :: Char -> String -> [Token]

@@ -6,4 +6,4 @@ import Lexer (tokenize)
 
 main :: IO()
 main = do
-        print $ tokenize "main(){100;}"
+        print $ tokenize "int main(){return 100;}"
