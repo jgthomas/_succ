@@ -9,6 +9,7 @@ data Token = TokOpenParen
            | TokOpenBrace
            | TokCloseBrace
            | TokSemiColon
+           | TokIdent String
            | TokIntConst Int
            | TokEnd
            deriving (Show, Eq)
@@ -22,6 +23,7 @@ tokenize (c:cs)
     | c == '{'      = TokOpenBrace       : tokenize cs
     | c == '}'      = TokCloseBrace      : tokenize cs
     | c == ';'      = TokSemiColon       : tokenize cs
+    | isAlpha c     = identifier c cs
     | isDigit c     = number c cs
     | isSpace c     = tokenize cs
     | otherwise     = error $ "Cannot tokenize " ++ [c]
@@ -37,11 +39,11 @@ accept [] = error "Nothing to accept"
 accept (t:ts) = ts
 
 
---identifier :: Char -> String -> [Token]
---identifier c cs = let (str, cs') = span isAlphaNum cs in
---                  TokIdent (c:str) : tokenize cs'
---
---
+identifier :: Char -> String -> [Token]
+identifier c cs = let (str, cs') = span isAlphaNum cs in
+                  TokIdent (c:str) : tokenize cs'
+
+
 number :: Char -> String -> [Token]
 number c cs =
     let (digs, cs') = span isDigit cs in
