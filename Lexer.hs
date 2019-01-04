@@ -1,4 +1,4 @@
-module Lexer (Token(..), tokenize) where
+module Lexer (Token(..), tokenize, lookAhead, accept) where
 
 
 import Data.Char
@@ -8,7 +8,8 @@ data Token = TokOpenParen
            | TokCloseParen
            | TokOpenBrace
            | TokCloseBrace
-           | TokNumConst Double
+           | TokSemiColon
+           | TokIntConst Int
            | TokEnd
            deriving (Show, Eq)
 
@@ -20,6 +21,7 @@ tokenize (c:cs)
     | c == ')'      = TokCloseParen      : tokenize cs
     | c == '{'      = TokOpenBrace       : tokenize cs
     | c == '}'      = TokCloseBrace      : tokenize cs
+    | c == ';'      = TokSemiColon       : tokenize cs
     | isDigit c     = number c cs
     | isSpace c     = tokenize cs
     | otherwise     = error $ "Cannot tokenize " ++ [c]
@@ -43,4 +45,4 @@ accept (t:ts) = ts
 number :: Char -> String -> [Token]
 number c cs =
     let (digs, cs') = span isDigit cs in
-    TokNumConst (read (c:digs)) : tokenize cs'
+    TokIntConst (read (c:digs)) : tokenize cs'

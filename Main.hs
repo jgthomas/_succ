@@ -6,4 +6,4 @@ import Lexer (tokenize)
 
 main :: IO()
 main = do
-        print $ tokenize "()100{}"
+        print $ tokenize "(){100;}"
