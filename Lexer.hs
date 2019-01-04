@@ -10,7 +10,7 @@ data Token = TokOpenParen
            | TokCloseBrace
            | TokSemiColon
            | TokIdent String
-           | TokIntConst Int
+           | TokConstInt Int
            | TokEnd
            deriving (Show, Eq)
 
@@ -47,4 +47,4 @@ identifier c cs = let (str, cs') = span isAlphaNum cs in
 number :: Char -> String -> [Token]
 number c cs =
     let (digs, cs') = span isDigit cs in
-    TokIntConst (read (c:digs)) : tokenize cs'
+    TokConstInt (read (c:digs)) : tokenize cs'
