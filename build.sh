@@ -1,7 +1,7 @@
 #!/bin/bash
 
 main="Main.hs"
-outfile="chask"
+outfile="c-hasker"
 
 if [[ "$1" == "clean" ]]; then
         rm *.hi *.o &&
