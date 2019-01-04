@@ -8,6 +8,7 @@ data Token = TokOpenParen
            | TokCloseParen
            | TokOpenBrace
            | TokCloseBrace
+           | TokNumConst Double
            | TokEnd
            deriving (Show, Eq)
 
@@ -19,6 +20,7 @@ tokenize (c:cs)
     | c == ')'      = TokCloseParen      : tokenize cs
     | c == '{'      = TokOpenBrace       : tokenize cs
     | c == '}'      = TokCloseBrace      : tokenize cs
+    | isDigit c     = number c cs
     | isSpace c     = tokenize cs
     | otherwise     = error $ "Cannot tokenize " ++ [c]
 
@@ -38,7 +40,7 @@ accept (t:ts) = ts
 --                  TokIdent (c:str) : tokenize cs'
 --
 --
---number :: Char -> String -> [Token]
---number c cs =
---    let (digs, cs') = span isDigit cs in
---    TokNum (read (c:digs)) : tokenize cs'
+number :: Char -> String -> [Token]
+number c cs =
+    let (digs, cs') = span isDigit cs in
+    TokNumConst (read (c:digs)) : tokenize cs'
