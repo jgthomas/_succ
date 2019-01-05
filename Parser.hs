@@ -52,13 +52,6 @@ statement toks =
 
 expression :: [Token] -> (Tree, [Token])
 expression toks =
-        let (tokTree, toks') = token toks
-            in case lookAhead toks' of
-                    _ -> (tokTree, toks')
-
-
-token :: [Token] -> (Tree, [Token])
-token toks =
         case lookAhead toks of
              (TokConstInt n)  ->  (ExpressionNode n, accept toks)
              _                ->  error $ "Parse error on token: " ++ show toks
