@@ -55,3 +55,7 @@ expression toks =
         case lookAhead toks of
              (TokConstInt n)  ->  (ExpressionNode n, accept toks)
              _                ->  error $ "Parse error on token: " ++ show toks
+
+
+funcParens :: [Token] -> Bool
+funcParens (op:cl:toks) = op == TokOpenParen && cl == TokCloseParen
