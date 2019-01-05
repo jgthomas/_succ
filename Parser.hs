@@ -23,7 +23,7 @@ program :: [Token] -> (Tree, [Token])
 program toks =
         let (funcTree, toks') = function toks
             in case lookAhead toks' of
-                    _ -> (funcTree, toks')
+                    _ -> (ProgramNode funcTree, toks')
 
 
 function :: [Token] -> (Tree, [Token])
