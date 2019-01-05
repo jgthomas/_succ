@@ -7,8 +7,9 @@ import Lexer
 
 data Tree = ProgramNode Tree
           | FunctionNode String Tree
-          | StatementNode Keyword Tree
+          | StatementNode Tree Tree
           | ExpressionNode Int
+          | KeywordNode Keyword
           deriving Show
 
 
@@ -42,13 +43,13 @@ statement toks =
 
 expression :: [Token] -> (Tree, [Token])
 expression toks =
+        let (tokTree, toks') = token toks
+            in case lookAhead toks' of
+                    _ -> (tokTree, toks')
+
+
+token :: [Token] -> (Tree, [Token])
+token toks =
         case lookAhead toks of
              (TokConstInt n)  ->  (ExpressionNode n, accept toks)
              _                ->  error $ "Parse error on token: " ++ show toks
-
-
---token :: [Token] -> (Tree, [Token])
---token toks =
---        case lookAhead toks of
---             (TokConstInt n)  ->  (Expression n, accept toks)
---             _                ->  error $ "Parse error on token: " ++ show toks
