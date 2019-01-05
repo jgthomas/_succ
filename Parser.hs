@@ -7,7 +7,7 @@ import Lexer
 
 data Tree = Program Tree
           | Function String Tree
-          | Statement String Tree
+          | Statement Keyword Tree
           | Expression Int
           deriving Show
 
