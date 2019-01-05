@@ -22,17 +22,15 @@ parse toks = let (tree, toks') = program toks
 program :: [Token] -> (Tree, [Token])
 program toks =
         let (funcTree, toks') = function toks
-            in
-        case lookAhead toks' of
-             _ -> (funcTree, toks')
+            in case lookAhead toks' of
+                    _ -> (funcTree, toks')
 
 
 function :: [Token] -> (Tree, [Token])
 function toks =
         let (stmentTree, toks') = statement toks
-            in
-        case lookAhead toks' of
-             _ -> (stmentTree, toks')
+            in case lookAhead toks' of
+                    _ -> (stmentTree, toks')
 
 
 statement :: [Token] -> (Tree, [Token])
