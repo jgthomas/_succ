@@ -5,10 +5,10 @@ module Parser (Tree(..), parse) where
 import Lexer
 
 
-data Tree = Program Tree
-          | Function String Tree
-          | Statement Keyword Tree
-          | Expression Int
+data Tree = ProgramNode Tree
+          | FunctionNode String Tree
+          | StatementNode Keyword Tree
+          | ExpressionNode Int
           deriving Show
 
 
@@ -43,7 +43,7 @@ statement toks =
 expression :: [Token] -> (Tree, [Token])
 expression toks =
         case lookAhead toks of
-             (TokConstInt n)  ->  (Expression n, accept toks)
+             (TokConstInt n)  ->  (ExpressionNode n, accept toks)
              _                ->  error $ "Parse error on token: " ++ show toks
 
 
