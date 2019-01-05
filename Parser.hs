@@ -43,7 +43,10 @@ statement toks =
         case lookAhead toks of
              (TokKeyword kwd) | elem kwd [Return] ->
                      let (exprsnTree, toks') = expression (accept toks)
-                         in (StatementNode kwd exprsnTree, toks')
+                         in
+                            if lookAhead toks' /= TokSemiColon
+                            then error "Missing semicolon"
+                            else (StatementNode kwd exprsnTree, accept toks')
              _ -> expression toks
 
 
