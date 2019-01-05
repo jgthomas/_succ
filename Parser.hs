@@ -7,9 +7,8 @@ import Lexer
 
 data Tree = ProgramNode Tree
           | FunctionNode String Tree
-          | StatementNode Tree Tree
+          | StatementNode Keyword Tree
           | ExpressionNode Int
-          | KeywordNode Keyword
           deriving Show
 
 
@@ -36,9 +35,11 @@ function toks =
 
 statement :: [Token] -> (Tree, [Token])
 statement toks =
-        let (exprsnTree, toks') = expression toks
-            in case lookAhead toks' of
-                    _ -> (exprsnTree, toks')
+        case lookAhead toks of
+             (TokKeyword kwd) | elem kwd [Return] ->
+                     let (exprsnTree, toks') = expression (accept toks)
+                         in (StatementNode kwd exprsnTree, toks')
+             _ -> expression toks
 
 
 expression :: [Token] -> (Tree, [Token])
