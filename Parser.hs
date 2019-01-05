@@ -46,3 +46,9 @@ expression toks =
              (TokConstInt n)  ->  (Expression n, accept toks)
              _                ->  error $ "Parse error on token: " ++ show toks
 
+
+--token :: [Token] -> (Tree, [Token])
+--token toks =
+--        case lookAhead toks of
+--             (TokConstInt n)  ->  (Expression n, accept toks)
+--             _                ->  error $ "Parse error on token: " ++ show toks
