@@ -28,9 +28,13 @@ program toks =
 
 function :: [Token] -> (Tree, [Token])
 function toks =
-        let (stmentTree, toks') = statement toks
-            in case lookAhead toks' of
-                    _ -> (stmentTree, toks')
+        case lookAhead toks of
+             (TokKeyword kwd) | elem kwd [Int] -> case lookAhead (accept toks) of
+                                                       (TokIdent id) ->
+                                                               let (stmentTree, toks') = statement (accept (accept toks))
+                                                                   in (FunctionNode id stmentTree, toks')
+                                                       _ -> error "No identifier supplied"
+             _ -> statement toks
 
 
 statement :: [Token] -> (Tree, [Token])
