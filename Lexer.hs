@@ -1,8 +1,13 @@
 
-module Lexer (Token(..), tokenize, lookAhead, accept) where
+module Lexer (Token(..), Keyword(..), tokenize, lookAhead, accept) where
 
 
 import Data.Char
+
+
+data Keyword = Int
+             | Return
+             deriving (Show, Eq)
 
 
 data Token = TokOpenParen
@@ -12,8 +17,7 @@ data Token = TokOpenParen
            | TokSemiColon
            | TokIdent String
            | TokConstInt Int
-           | TokKeywordInt
-           | TokKeywordReturn
+           | TokKeyword Keyword
            | TokEnd
            deriving (Show, Eq)
 
@@ -45,8 +49,8 @@ accept (t:ts) = ts
 identifier :: Char -> String -> [Token]
 identifier c cs = let (str, cs') = span isAlphaNum cs
                       in case (c:str) of
-                              "int"    -> TokKeywordInt     : tokenize cs'
-                              "return" -> TokKeywordReturn  : tokenize cs'
+                              "int"    -> TokKeyword Int    : tokenize cs'
+                              "return" -> TokKeyword Return : tokenize cs'
                               _        -> TokIdent (c:str)  : tokenize cs'
 
 
