@@ -30,4 +30,5 @@ main = do
         print outfileText
         writeFile outfileName outfileText
         system $ "gcc " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
+        system $ "rm " ++ outfileName
         hClose handle
