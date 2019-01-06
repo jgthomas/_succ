@@ -19,4 +19,12 @@ extractFrom (UnaryNode unop tree) = [(show unop)] ++ extractFrom tree
 
 
 progString :: [String] -> String
-progString (f:e:str) = ".globl " ++ f ++ "\n" ++ f ++ ":\n" ++ "movq $" ++ e ++ ", %rax\nret\n"
+progString (f:n:str) = (header f) ++ (returnVal n)
+
+
+header :: String -> String
+header f = ".globl " ++ f ++ "\n" ++ f ++ ":\n"
+
+
+returnVal :: String -> String
+returnVal n = "movq $" ++ n ++ ", %rax\nret\n"
