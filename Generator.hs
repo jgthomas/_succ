@@ -1,19 +1,19 @@
 
-module Generator (generate, progString) where
+module Generator (extractFrom, progString) where
 
 
 import Parser
 
 
-generate :: Tree -> [String]
+extractFrom :: Tree -> [String]
 
-generate (ProgramNode tree) = generate tree
+extractFrom (ProgramNode tree) = extractFrom tree
 
-generate (FunctionNode name tree) = [name] ++ generate tree
+extractFrom (FunctionNode name tree) = [name] ++ extractFrom tree
 
-generate (StatementNode kwd tree) = generate tree
+extractFrom (StatementNode kwd tree) = extractFrom tree
 
-generate (ExpressionNode n) = [(show n)]
+extractFrom (ExpressionNode n) = [(show n)]
 
 
 progString :: [String] -> String

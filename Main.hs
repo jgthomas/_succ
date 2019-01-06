@@ -24,7 +24,7 @@ main = do
         print tokens
         let parsedTree = parse tokens
         print parsedTree
-        let extractedNodes = generate parsedTree
+        let extractedNodes = extractFrom parsedTree
         print extractedNodes
         let outfileText = progString extractedNodes
         print outfileText
