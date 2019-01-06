@@ -61,7 +61,7 @@ expression toks =
 
 isFuncStart :: [Token] -> Bool
 isFuncStart (op:cp:ob:toks)
-    | op /= TokOpenParen  = False
-    | cp /= TokCloseParen = False
-    | ob /= TokOpenBrace  = False
+    | op /= TokOpenParen  = error "Missing opening parenthesis"
+    | cp /= TokCloseParen = error "Missing closing parenthesis"
+    | ob /= TokOpenBrace  = error "Missing opening brace"
     | otherwise           = True
