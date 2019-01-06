@@ -6,4 +6,4 @@ import Parser
 
 
 generate :: Tree -> String
-generate x = ".globl main\nmain:\nmovq $5, %rax\nret"
+generate x = ".globl main\nmain:\nmovq $5, %rax\nret\n"
