@@ -31,8 +31,8 @@ program toks =
 function :: [Token] -> (Tree, [Token])
 function toks =
         case lookAhead toks of
-             (TokIdent id) ->
-                     let (stmentTree, toks') = statement (accept toks)
+             (TokIdent id) | funcParens (accept toks) ->
+                     let (stmentTree, toks') = statement (accept (accept (accept (accept toks))))
                          in
                      if lookAhead toks' /= TokCloseBrace
                         then error "Missing closing brace"
@@ -60,4 +60,4 @@ expression toks =
 
 
 funcParens :: [Token] -> Bool
-funcParens (op:cl:toks) = op == TokOpenParen && cl == TokCloseParen
+funcParens (op:cl:ob:toks) = op == TokOpenParen && cl == TokCloseParen && ob == TokOpenBrace
