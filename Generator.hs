@@ -15,6 +15,8 @@ extractFrom (StatementNode kwd tree) = extractFrom tree
 
 extractFrom (ConstantNode n) = [(show n)]
 
+extractFrom (UnaryNode unop tree) = [(show unop)] ++ extractFrom tree
+
 
 progString :: [String] -> String
 progString (f:e:str) = ".globl " ++ f ++ "\n" ++ f ++ ":\n" ++ "movq $" ++ e ++ ", %rax\nret\n"
