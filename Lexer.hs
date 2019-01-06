@@ -1,11 +1,16 @@
 
-module Lexer (Token(..), Keyword(..), tokenize, lookAhead, accept) where
+module Lexer (Token(..),
+              Keyword(..),
+              UnaryOperator(..),
+              tokenize, lookAhead, accept) where
 
 
 import Data.Char
 
 
-data UnaryOperator = Negation | BitwiseCompl | LogicNegation
+data UnaryOperator = Negation
+                   | BitwiseCompl
+                   | LogicNegation
                    deriving (Show, Eq)
 
 
