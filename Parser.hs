@@ -33,7 +33,10 @@ function toks =
         case lookAhead toks of
              (TokIdent id) ->
                      let (stmentTree, toks') = statement (accept toks)
-                         in (FunctionNode id stmentTree, toks')
+                         in
+                     if lookAhead toks' /= TokCloseBrace
+                        then error "Missing closing brace"
+                        else (FunctionNode id stmentTree, accept toks')
              _ -> error "No identifier supplied"
 
 
