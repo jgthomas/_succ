@@ -8,8 +8,8 @@ import Lexer
 data Tree = ProgramNode Tree
           | FunctionNode String Tree
           | StatementNode Keyword Tree
-          | ExpressionNode Tree
           | ConstantNode Int
+          | UnaryNode UnaryOperator Tree
           deriving Show
 
 
@@ -56,18 +56,12 @@ statement toks =
 expression :: [Token] -> (Tree, [Token])
 expression toks =
         case lookAhead toks of
-             (TokConstInt n)  ->
-                     let (constTree, toks') = constant toks
+             (TokConstInt n) -> (ConstantNode n, (accept toks))
+             (TokUnary unop) | elem unop [Negation,BitwiseCompl,LogicNegation] ->
+                     let (constTree, toks') = expression (accept toks)
                          in
-                     (ExpressionNode constTree, toks')
-             _ -> error "Wut!"
-
-
-constant :: [Token] -> (Tree, [Token])
-constant toks =
-        case lookAhead toks of
-             (TokConstInt n) ->  (ConstantNode n, accept toks)
-             _               ->  error $ "Parse error on token: " ++ show toks
+                     (UnaryNode unop constTree, toks')
+             _ ->  error $ "Parse error on token: " ++ show toks
 
 
 isFuncStart :: [Token] -> Bool

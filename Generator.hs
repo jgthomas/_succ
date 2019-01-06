@@ -13,8 +13,6 @@ extractFrom (FunctionNode name tree) = [name] ++ extractFrom tree
 
 extractFrom (StatementNode kwd tree) = extractFrom tree
 
-extractFrom (ExpressionNode tree) = extractFrom tree
-
 extractFrom (ConstantNode n) = [(show n)]
 
 
