@@ -19,10 +19,13 @@ main = do
         print infileName
         handle <- openFile infileName ReadMode
         contents <- hGetContents handle
-        print $ tokenize contents
-        print $ parse $ tokenize contents
-        print $ generate $ parse $ tokenize contents
-        let outfileText = progString $ generate $ parse $ tokenize contents
+        let tokens = tokenize contents
+        print tokens
+        let parsedTree = parse tokens
+        print parsedTree
+        let extractedNodes = generate parsedTree
+        print extractedNodes
+        let outfileText = progString extractedNodes
         print outfileText
         writeFile outfileName outfileText
         hClose handle
