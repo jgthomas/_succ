@@ -3,7 +3,7 @@ module Main (main) where
 
 
 import System.IO
-import System.Environment
+import System.Environment (getArgs)
 
 import Lexer (tokenize)
 import Parser (parse)
