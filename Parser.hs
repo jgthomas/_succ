@@ -21,21 +21,20 @@ parse toks = let (tree, toks') = program toks
 
 program :: [Token] -> (Tree, [Token])
 program toks =
-        let (funcTree, toks') = function toks
-            in case lookAhead toks' of
-                    _ -> (ProgramNode funcTree, toks')
+        case lookAhead toks of
+             (TokKeyword kwd) | elem kwd [Int] ->
+                     let (funcTree, toks') = function (accept toks)
+                         in (ProgramNode funcTree, toks')
+             _ -> error "Invalid start of function"
 
 
 function :: [Token] -> (Tree, [Token])
 function toks =
         case lookAhead toks of
-             (TokKeyword kwd) | elem kwd [Int] ->
-                     case lookAhead (accept toks) of
-                          (TokIdent id) ->
-                                  let (stmentTree, toks') = statement (accept (accept toks))
-                                      in (FunctionNode id stmentTree, toks')
-                          _ -> error "No identifier supplied"
-             _ -> statement toks
+             (TokIdent id) ->
+                     let (stmentTree, toks') = statement (accept toks)
+                         in (FunctionNode id stmentTree, toks')
+             _ -> error "No identifier supplied"
 
 
 statement :: [Token] -> (Tree, [Token])
