@@ -31,7 +31,7 @@ program toks =
 function :: [Token] -> (Tree, [Token])
 function toks =
         case lookAhead toks of
-             (TokIdent id) | funcParens (accept toks) ->
+             (TokIdent id) | isFuncStart (accept toks) ->
                      let (stmentTree, toks') = statement (accept (accept (accept (accept toks))))
                          in
                      if lookAhead toks' /= TokCloseBrace
@@ -59,5 +59,9 @@ expression toks =
              _                ->  error $ "Parse error on token: " ++ show toks
 
 
-funcParens :: [Token] -> Bool
-funcParens (op:cl:ob:toks) = op == TokOpenParen && cl == TokCloseParen && ob == TokOpenBrace
+isFuncStart :: [Token] -> Bool
+isFuncStart (op:cp:ob:toks)
+    | op /= TokOpenParen  = False
+    | cp /= TokCloseParen = False
+    | ob /= TokOpenBrace  = False
+    | otherwise           = True
