@@ -14,6 +14,9 @@ import Generator
 
 main :: IO()
 main = do
+        --print $ tokenize "int main() {return -1;}"
+        --print $ tokenize "int main() {return !1;}"
+        --print $ tokenize "int main() {return ~1;}"
         args <- getArgs
         let infileName = head args
         let outfileName = (dropExtension infileName) ++ ".s"
