@@ -15,6 +15,9 @@ data Token = TokOpenParen
            | TokOpenBrace
            | TokCloseBrace
            | TokSemiColon
+           | TokNegation
+           | TokBitCompl
+           | TokLogicNeg
            | TokIdent String
            | TokConstInt Int
            | TokKeyword Keyword
@@ -30,6 +33,9 @@ tokenize (c:cs)
     | c == '{'      = TokOpenBrace       : tokenize cs
     | c == '}'      = TokCloseBrace      : tokenize cs
     | c == ';'      = TokSemiColon       : tokenize cs
+    | c == '-'      = TokNegation        : tokenize cs
+    | c == '~'      = TokBitCompl        : tokenize cs
+    | c == '!'      = TokLogicNeg        : tokenize cs
     | isAlpha c     = identifier c cs
     | isDigit c     = number c cs
     | isSpace c     = tokenize cs
