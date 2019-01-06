@@ -13,7 +13,9 @@ import Generator
 main :: IO()
 main = do
         args <- getArgs
-        handle <- openFile (head args) ReadMode
+        let infileName = head args
+        print infileName
+        handle <- openFile infileName ReadMode
         contents <- hGetContents handle
         print $ tokenize contents
         print $ parse $ tokenize contents
