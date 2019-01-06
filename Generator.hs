@@ -13,7 +13,9 @@ extractFrom (FunctionNode name tree) = [name] ++ extractFrom tree
 
 extractFrom (StatementNode kwd tree) = extractFrom tree
 
-extractFrom (ExpressionNode n) = [(show n)]
+extractFrom (ExpressionNode tree) = extractFrom tree
+
+extractFrom (ConstantNode n) = [(show n)]
 
 
 progString :: [String] -> String

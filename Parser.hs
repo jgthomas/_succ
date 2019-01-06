@@ -8,7 +8,8 @@ import Lexer
 data Tree = ProgramNode Tree
           | FunctionNode String Tree
           | StatementNode Keyword Tree
-          | ExpressionNode Int
+          | ExpressionNode Tree
+          | ConstantNode Int
           deriving Show
 
 
@@ -55,8 +56,18 @@ statement toks =
 expression :: [Token] -> (Tree, [Token])
 expression toks =
         case lookAhead toks of
-             (TokConstInt n)  ->  (ExpressionNode n, accept toks)
-             _                ->  error $ "Parse error on token: " ++ show toks
+             (TokConstInt n)  ->
+                     let (constTree, toks') = constant toks
+                         in
+                     (ExpressionNode constTree, toks')
+             _ -> error "Wut!"
+
+
+constant :: [Token] -> (Tree, [Token])
+constant toks =
+        case lookAhead toks of
+             (TokConstInt n) ->  (ConstantNode n, accept toks)
+             _               ->  error $ "Parse error on token: " ++ show toks
 
 
 isFuncStart :: [Token] -> Bool

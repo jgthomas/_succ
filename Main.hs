@@ -16,6 +16,8 @@ main :: IO()
 main = do
         print $ tokenize "int main() {return 1;}"
         print $ tokenize "int main() {return -1;}"
+        print $ parse $ tokenize "int main() {return 1;}"
+        print $ extractFrom $ parse $ tokenize "int main() {return 1;}"
         --print $ tokenize "int main() {return ~1;}"
         args <- getArgs
         let infileName = head args
