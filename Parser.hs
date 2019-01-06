@@ -32,7 +32,7 @@ function :: [Token] -> (Tree, [Token])
 function toks =
         case lookAhead toks of
              (TokIdent id) | isFuncStart (accept toks) ->
-                     let (stmentTree, toks') = statement (accept (accept (accept (accept toks))))
+                     let (stmentTree, toks') = statement (drop 4 toks)
                          in
                      if lookAhead toks' /= TokCloseBrace
                         then error "Missing closing brace"
