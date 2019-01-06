@@ -5,6 +5,7 @@ module Main (main) where
 import System.IO
 import System.Environment (getArgs)
 import System.FilePath (dropExtension)
+import System.Process (system)
 
 import Lexer (tokenize)
 import Parser (parse)
@@ -15,7 +16,7 @@ main :: IO()
 main = do
         args <- getArgs
         let infileName = head args
-        let outfileName = dropExtension infileName
+        let outfileName = (dropExtension infileName) ++ ".s"
         print infileName
         handle <- openFile infileName ReadMode
         contents <- hGetContents handle
@@ -28,4 +29,5 @@ main = do
         let outfileText = progString extractedNodes
         print outfileText
         writeFile outfileName outfileText
+        system $ "gcc " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
         hClose handle
