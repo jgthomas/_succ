@@ -2,11 +2,18 @@
 module Main (main) where
 
 
+import System.IO
+import System.Environment
+
 import Lexer (tokenize)
 import Parser (parse)
 
 
 main :: IO()
 main = do
-        print $ tokenize "int main(){return 100;}"
-        print $ parse $ tokenize "int main() {return 100;}"
+        args <- getArgs
+        handle <- openFile (head args) ReadMode
+        contents <- hGetContents handle
+        print $ tokenize contents
+        print $ parse $ tokenize contents
+        hClose handle
