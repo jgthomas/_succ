@@ -1,22 +1,22 @@
 
-module Generator (extractFrom) where
+module Generator (genASM) where
 
 
 import Lexer
 import Parser
 
 
-extractFrom :: Tree -> String
+genASM :: Tree -> String
 
-extractFrom (ProgramNode tree) = extractFrom tree
+genASM (ProgramNode tree) = genASM tree
 
-extractFrom (FunctionNode name tree) = functionName name ++ extractFrom tree
+genASM (FunctionNode name tree) = functionName name ++ genASM tree
 
-extractFrom (ReturnNode tree) = extractFrom tree ++ returnStatement
+genASM (ReturnNode tree) = genASM tree ++ returnStatement
 
-extractFrom (ConstantNode n) = returnValue (show n)
+genASM (ConstantNode n) = returnValue (show n)
 
-extractFrom (UnaryNode tree unop) = extractFrom tree ++ unary unop
+genASM (UnaryNode tree unop) = genASM tree ++ unary unop
 
 
 functionName :: String -> String

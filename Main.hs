@@ -9,17 +9,17 @@ import System.Process (system)
 
 import Lexer (tokenize)
 import Parser (parse)
-import Generator
+import Generator (genASM)
 
 
 main :: IO()
 main = do
         print $ tokenize "int main() {return 1;}"
         print $ parse $ tokenize "int main() {return 1;}"
-        print $ extractFrom $ parse $ tokenize "int main() {return 1;}"
+        print $ genASM $ parse $ tokenize "int main() {return 1;}"
         print $ tokenize "int main() {return -1;}"
         print $ parse $ tokenize "int main() {return -1;}"
-        print $ extractFrom $ parse $ tokenize "int main() {return -1;}"
+        print $ genASM $ parse $ tokenize "int main() {return -1;}"
 
         args <- getArgs
         let infileName = head args
@@ -34,7 +34,7 @@ main = do
         let parsedTree = parse tokens
         print parsedTree
 
-        let assembly = extractFrom parsedTree
+        let assembly = genASM parsedTree
         print assembly
 
         writeFile outfileName assembly
