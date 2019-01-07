@@ -78,6 +78,12 @@ factor toks =
                      let (facTree, toks') = factor (accept toks)
                          in
                      (UnaryNode facTree op, toks')
+             TokOpenParen ->
+                     let (exprTree, toks') = expression (accept toks)
+                         in
+                     if lookAhead toks' /= TokCloseParen
+                        then error "Missing right parentheses"
+                        else (exprTree, accept toks')
              _ ->  error $ "Parse error on token: " ++ show toks
 
 
