@@ -10,6 +10,7 @@ data Tree = ProgramNode Tree
           | ReturnNode Tree
           | ConstantNode Int
           | UnaryNode Tree Operator
+          | BinaryNode Operator Tree Tree
           deriving Show
 
 
