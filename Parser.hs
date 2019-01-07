@@ -9,7 +9,7 @@ data Tree = ProgramNode Tree
           | FunctionNode String Tree
           | ReturnNode Tree
           | ConstantNode Int
-          | UnaryNode UnaryOperator Tree
+          | UnaryNode Tree UnaryOperator
           deriving Show
 
 
@@ -60,7 +60,7 @@ expression toks =
              (TokUnary unop) | elem unop [Negation,BitwiseCompl,LogicNegation] ->
                      let (constTree, toks') = expression (accept toks)
                          in
-                     (UnaryNode unop constTree, toks')
+                     (UnaryNode constTree unop, toks')
              _ ->  error $ "Parse error on token: " ++ show toks
 
 

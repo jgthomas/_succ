@@ -15,7 +15,7 @@ extractFrom (ReturnNode tree) = extractFrom tree
 
 extractFrom (ConstantNode n) = [(show n)]
 
-extractFrom (UnaryNode unop tree) = [(show unop)] ++ extractFrom tree
+extractFrom (UnaryNode tree unop) = [(show unop)] ++ extractFrom tree
 
 
 progString :: [String] -> String
