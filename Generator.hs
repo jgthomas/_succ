@@ -2,8 +2,8 @@
 module Generator (genASM) where
 
 
-import Lexer
-import Parser
+import Lexer (UnaryOperator(..))
+import Parser (Tree(..))
 
 
 genASM :: Tree -> String
