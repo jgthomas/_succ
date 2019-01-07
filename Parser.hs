@@ -54,13 +54,21 @@ statement toks =
 
 
 expression :: [Token] -> (Tree, [Token])
-expression toks =
+expression toks = term toks
+
+
+term :: [Token] -> (Tree, [Token])
+term toks = factor toks
+
+
+factor :: [Token] -> (Tree, [Token])
+factor toks =
         case lookAhead toks of
              (TokConstInt n) -> (ConstantNode n, (accept toks))
              (TokUnary unop) | elem unop [Negation,BitwiseCompl,LogicNegation] ->
-                     let (constTree, toks') = expression (accept toks)
+                     let (facTree, toks') = factor (accept toks)
                          in
-                     (UnaryNode constTree unop, toks')
+                     (UnaryNode facTree unop, toks')
              _ ->  error $ "Parse error on token: " ++ show toks
 
 
