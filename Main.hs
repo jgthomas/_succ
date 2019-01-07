@@ -14,13 +14,6 @@ import Generator (genASM)
 
 main :: IO()
 main = do
-        print $ tokenize "int main() {return 1;}"
-        print $ parse $ tokenize "int main() {return 1;}"
-        print $ genASM $ parse $ tokenize "int main() {return 1;}"
-        print $ tokenize "int main() {return -1;}"
-        print $ parse $ tokenize "int main() {return -1;}"
-        print $ genASM $ parse $ tokenize "int main() {return -1;}"
-
         args <- getArgs
         let infileName = head args
         let outfileName = (dropExtension infileName) ++ ".s"
@@ -28,17 +21,12 @@ main = do
         handle <- openFile infileName ReadMode
         contents <- hGetContents handle
 
-        let tokens = tokenize contents
-        --print tokens
+        let assembly = genASM $ parse $ tokenize contents
 
-        let parsedTree = parse tokens
-        print parsedTree
+        if (length assembly > 0)
+           then writeFile outfileName assembly
+           else error "error"
 
-        let assembly = genASM parsedTree
-        --print assembly
-
-        writeFile outfileName assembly
-        --writeFile outfileName $ genASM $ parse $ tokenize contents
         system $ "gcc " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
         system $ "rm " ++ outfileName
         hClose handle
