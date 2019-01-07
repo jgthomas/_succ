@@ -9,7 +9,7 @@ data Tree = ProgramNode Tree
           | FunctionNode String Tree
           | ReturnNode Tree
           | ConstantNode Int
-          | UnaryNode Tree UnaryOperator
+          | UnaryNode Tree Operator
           deriving Show
 
 
@@ -65,10 +65,10 @@ factor :: [Token] -> (Tree, [Token])
 factor toks =
         case lookAhead toks of
              (TokConstInt n) -> (ConstantNode n, (accept toks))
-             (TokUnary unop) | elem unop [Negation,BitwiseCompl,LogicNegation] ->
+             (TokOp op) | elem op [Negation,BitwiseCompl,LogicNegation] ->
                      let (facTree, toks') = factor (accept toks)
                          in
-                     (UnaryNode facTree unop, toks')
+                     (UnaryNode facTree op, toks')
              _ ->  error $ "Parse error on token: " ++ show toks
 
 

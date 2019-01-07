@@ -2,7 +2,7 @@
 module Generator (genASM) where
 
 
-import Lexer (UnaryOperator(..))
+import Lexer (Operator(..))
 import Parser (Tree(..))
 
 
@@ -16,7 +16,7 @@ genASM (ReturnNode tree) = genASM tree ++ returnStatement
 
 genASM (ConstantNode n) = returnValue (show n)
 
-genASM (UnaryNode tree unop) = genASM tree ++ unary unop
+genASM (UnaryNode tree op) = genASM tree ++ unary op
 
 
 functionName :: String -> String
@@ -28,7 +28,7 @@ returnValue n = "movq $" ++ n ++ ", %rax\n"
 returnStatement :: String
 returnStatement = "ret\n"
 
-unary :: UnaryOperator -> String
+unary :: Operator -> String
 unary o
    | o == Negation      = "neg %rax\n"
    | o == BitwiseCompl  = "not %rax\n"

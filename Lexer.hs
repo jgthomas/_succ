@@ -1,17 +1,17 @@
 
 module Lexer (Token(..),
               Keyword(..),
-              UnaryOperator(..),
+              Operator(..),
               tokenize, lookAhead, accept) where
 
 
 import Data.Char
 
 
-data UnaryOperator = Negation
-                   | BitwiseCompl
-                   | LogicNegation
-                   deriving (Show, Eq)
+data Operator = Negation
+              | BitwiseCompl
+              | LogicNegation
+              deriving (Show, Eq)
 
 
 data Keyword = Int
@@ -24,7 +24,7 @@ data Token = TokOpenParen
            | TokOpenBrace
            | TokCloseBrace
            | TokSemiColon
-           | TokUnary UnaryOperator
+           | TokOp Operator
            | TokIdent String
            | TokConstInt Int
            | TokKeyword Keyword
@@ -40,7 +40,7 @@ tokenize (c:cs)
     | c == '{'      = TokOpenBrace                  : tokenize cs
     | c == '}'      = TokCloseBrace                 : tokenize cs
     | c == ';'      = TokSemiColon                  : tokenize cs
-    | elem c "-~!"  = TokUnary (unaryOperator c)    : tokenize cs
+    | elem c "-~!"  = TokOp (operator c)            : tokenize cs
     | isAlpha c     = identifier c cs
     | isDigit c     = number c cs
     | isSpace c     = tokenize cs
@@ -71,7 +71,7 @@ number c cs =
     TokConstInt (read (c:digs)) : tokenize cs'
 
 
-unaryOperator :: Char -> UnaryOperator
-unaryOperator c | c == '-' = Negation
-                | c == '~' = BitwiseCompl
-                | c == '!' = LogicNegation
+operator :: Char -> Operator
+operator c | c == '-' = Negation
+           | c == '~' = BitwiseCompl
+           | c == '!' = LogicNegation
