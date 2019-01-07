@@ -6,6 +6,7 @@ import System.IO
 import System.Environment (getArgs)
 import System.FilePath (dropExtension)
 import System.Process (system)
+import Control.Monad (when)
 
 import Lexer (tokenize)
 import Parser (parse)
@@ -23,9 +24,8 @@ main = do
 
         let assembly = genASM $ parse $ tokenize contents
 
-        if (length assembly > 0)
-           then writeFile outfileName assembly
-           else error "error"
+        when (length assembly > 0) $
+           writeFile outfileName assembly
 
         system $ "gcc " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
         system $ "rm " ++ outfileName
