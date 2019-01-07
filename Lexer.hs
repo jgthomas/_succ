@@ -8,7 +8,7 @@ module Lexer (Token(..),
 import Data.Char
 
 
-data Operator = Negation
+data Operator = Minus
               | BitwiseCompl
               | LogicNegation
               deriving (Show, Eq)
@@ -72,6 +72,6 @@ number c cs =
 
 
 operator :: Char -> Operator
-operator c | c == '-' = Negation
+operator c | c == '-' = Minus
            | c == '~' = BitwiseCompl
            | c == '!' = LogicNegation

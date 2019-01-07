@@ -65,7 +65,7 @@ factor :: [Token] -> (Tree, [Token])
 factor toks =
         case lookAhead toks of
              (TokConstInt n) -> (ConstantNode n, (accept toks))
-             (TokOp op) | elem op [Negation,BitwiseCompl,LogicNegation] ->
+             (TokOp op) | elem op [Minus,BitwiseCompl,LogicNegation] ->
                      let (facTree, toks') = factor (accept toks)
                          in
                      (UnaryNode facTree op, toks')

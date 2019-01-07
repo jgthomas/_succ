@@ -30,6 +30,6 @@ returnStatement = "ret\n"
 
 unary :: Operator -> String
 unary o
-   | o == Negation      = "neg %rax\n"
+   | o == Minus         = "neg %rax\n"
    | o == BitwiseCompl  = "not %rax\n"
    | o == LogicNegation = "cmpq $0, %rax\nmovq $0, %rax\nsete %al\n"
