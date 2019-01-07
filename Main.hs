@@ -17,11 +17,10 @@ main :: IO()
 main = do
         args <- getArgs
         let infileName = head args
-        let outfileName = (dropExtension infileName) ++ ".s"
-        print infileName
         handle <- openFile infileName ReadMode
         contents <- hGetContents handle
 
+        let outfileName = (dropExtension infileName) ++ ".s"
         let assembly = genASM $ parse $ tokenize contents
 
         when (length assembly > 0) $
