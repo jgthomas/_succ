@@ -15,17 +15,23 @@ import Generator (genASM)
 
 main :: IO()
 main = do
-        args <- getArgs
-        let infileName = head args
-        handle <- openFile infileName ReadMode
-        contents <- hGetContents handle
+        --print $ tokenize "int main() { return 1 + 1;}"
+        --print $ parse $ tokenize "int main() { return 1 + 1;}"
+        --print $ tokenize "int main() { return (1 + 1) + 2;}"
+        print $ parse $ tokenize "int main() { return (1 + 1) + 2;}"
+        print $ tokenize "int main() { return 2 - 1 + 2;}"
+        print $ parse $ tokenize "int main() { return 2 - 1 + 2;}"
+        --args <- getArgs
+        --let infileName = head args
+        --handle <- openFile infileName ReadMode
+        --contents <- hGetContents handle
 
-        let outfileName = (dropExtension infileName) ++ ".s"
-        let assembly = genASM $ parse $ tokenize contents
+        --let outfileName = (dropExtension infileName) ++ ".s"
+        --let assembly = genASM $ parse $ tokenize contents
 
-        when (length assembly > 0) $
-           writeFile outfileName assembly
+        --when (length assembly > 0) $
+        --   writeFile outfileName assembly
 
-        system $ "gcc " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
-        system $ "rm " ++ outfileName
-        hClose handle
+        --system $ "gcc " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
+        --system $ "rm " ++ outfileName
+        --hClose handle
