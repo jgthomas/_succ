@@ -10,7 +10,7 @@ data Tree = ProgramNode Tree
           | ReturnNode Tree
           | ConstantNode Int
           | UnaryNode Tree Operator
-          | BinaryNode Operator Tree Tree
+          | BinaryNode Tree Tree Operator
           deriving Show
 
 
@@ -55,7 +55,15 @@ statement toks =
 
 
 expression :: [Token] -> (Tree, [Token])
-expression toks = term toks
+expression toks =
+        let (firstTermTree, toks') = term toks
+            in
+        case lookAhead toks' of
+             (TokOp op) | elem op [Plus, Minus] ->
+                     let (secondTermTree, toks'') = expression (accept toks')
+                         in
+                     (BinaryNode firstTermTree secondTermTree op, toks'')
+             _ -> (firstTermTree, toks')
 
 
 term :: [Token] -> (Tree, [Token])
@@ -66,7 +74,7 @@ factor :: [Token] -> (Tree, [Token])
 factor toks =
         case lookAhead toks of
              (TokConstInt n) -> (ConstantNode n, (accept toks))
-             (TokOp op) | elem op [Minus,BitwiseCompl,LogicNegation] ->
+             (TokOp op) | elem op [Minus, BitwiseCompl, LogicNegation] ->
                      let (facTree, toks') = factor (accept toks)
                          in
                      (UnaryNode facTree op, toks')
