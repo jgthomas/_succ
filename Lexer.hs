@@ -8,7 +8,10 @@ module Lexer (Token(..),
 import Data.Char
 
 
-data Operator = Minus
+data Operator = Plus
+              | Minus
+              | Multiply
+              | Divide
               | BitwiseCompl
               | LogicNegation
               deriving (Show, Eq)
@@ -35,16 +38,16 @@ data Token = TokOpenParen
 tokenize :: String -> [Token]
 tokenize [] = []
 tokenize (c:cs)
-    | c == '('      = TokOpenParen                  : tokenize cs
-    | c == ')'      = TokCloseParen                 : tokenize cs
-    | c == '{'      = TokOpenBrace                  : tokenize cs
-    | c == '}'      = TokCloseBrace                 : tokenize cs
-    | c == ';'      = TokSemiColon                  : tokenize cs
-    | elem c "-~!"  = TokOp (operator c)            : tokenize cs
-    | isAlpha c     = identifier c cs
-    | isDigit c     = number c cs
-    | isSpace c     = tokenize cs
-    | otherwise     = error $ "Cannot tokenize " ++ [c]
+    | c == '('          = TokOpenParen                  : tokenize cs
+    | c == ')'          = TokCloseParen                 : tokenize cs
+    | c == '{'          = TokOpenBrace                  : tokenize cs
+    | c == '}'          = TokCloseBrace                 : tokenize cs
+    | c == ';'          = TokSemiColon                  : tokenize cs
+    | elem c opSymbols  = TokOp (operator c)            : tokenize cs
+    | isAlpha c         = identifier c cs
+    | isDigit c         = number c cs
+    | isSpace c         = tokenize cs
+    | otherwise         = error $ "Cannot tokenize " ++ [c]
 
 
 lookAhead :: [Token] -> Token
@@ -72,6 +75,13 @@ number c cs =
 
 
 operator :: Char -> Operator
-operator c | c == '-' = Minus
+operator c | c == '+' = Plus
+           | c == '-' = Minus
+           | c == '*' = Multiply
+           | c == '/' = Divide
            | c == '~' = BitwiseCompl
            | c == '!' = LogicNegation
+
+
+opSymbols :: String
+opSymbols = "+-*/~!"
