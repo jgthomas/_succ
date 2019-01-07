@@ -29,15 +29,16 @@ main = do
         contents <- hGetContents handle
 
         let tokens = tokenize contents
-        print tokens
+        --print tokens
 
         let parsedTree = parse tokens
         print parsedTree
 
         let assembly = genASM parsedTree
-        print assembly
+        --print assembly
 
         writeFile outfileName assembly
+        --writeFile outfileName $ genASM $ parse $ tokenize contents
         system $ "gcc " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
         system $ "rm " ++ outfileName
         hClose handle
