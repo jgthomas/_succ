@@ -7,7 +7,7 @@ import Lexer
 
 data Tree = ProgramNode Tree
           | FunctionNode String Tree
-          | StatementNode Keyword Tree
+          | ReturnNode Tree
           | ConstantNode Int
           | UnaryNode UnaryOperator Tree
           deriving Show
@@ -49,7 +49,7 @@ statement toks =
                          in
                             if lookAhead toks' /= TokSemiColon
                             then error "Missing semicolon"
-                            else (StatementNode kwd exprsnTree, accept toks')
+                            else (ReturnNode exprsnTree, accept toks')
              _ -> expression toks
 
 
