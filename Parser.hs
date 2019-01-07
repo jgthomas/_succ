@@ -60,14 +60,30 @@ expression toks =
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Plus, Minus] ->
-                     let (secondTermTree, toks'') = expression (accept toks')
-                         in
-                     (BinaryNode firstTermTree secondTermTree op, toks'')
+                     parseBin firstTermTree toks'
              _ -> (firstTermTree, toks')
 
 
+parseBin :: Tree -> [Token] -> (Tree, [Token])
+parseBin tree toks =
+        case lookAhead toks of
+             (TokOp op) | elem op [Plus, Minus] ->
+                     let (termTree, toks') = factor (accept toks)
+                         in
+                     parseBin (BinaryNode tree termTree op) toks'
+             _ -> (tree, toks)
+
+
 term :: [Token] -> (Tree, [Token])
-term toks = factor toks
+term toks =
+        let (facTree, toks') = factor toks
+            in
+        case lookAhead toks' of
+             (TokOp op) | elem op [Multiply, Divide] ->
+                     let (termTree, toks'') = term (accept toks')
+                         in
+                     (BinaryNode facTree termTree op, toks'')
+             _ -> (facTree, toks')
 
 
 factor :: [Token] -> (Tree, [Token])
