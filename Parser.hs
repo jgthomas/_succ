@@ -60,7 +60,7 @@ expression toks =
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Plus, Minus] ->
-                     parseBinaryExp firstTermTree toks'
+                     parseBinaryExp firstTermTree [Minus, Plus] toks'
              _ -> (firstTermTree, toks')
 
 
@@ -93,13 +93,13 @@ factor toks =
              _ ->  error $ "Parse error on token: " ++ show toks
 
 
-parseBinaryExp :: Tree -> [Token] -> (Tree, [Token])
-parseBinaryExp tree toks =
+parseBinaryExp :: Tree -> [Operator] -> [Token] -> (Tree, [Token])
+parseBinaryExp tree ops toks =
         case lookAhead toks of
-             (TokOp op) | elem op [Plus, Minus] ->
+             (TokOp op) | elem op ops ->
                      let (termTree, toks') = factor (accept toks)
                          in
-                     parseBinaryExp (BinaryNode tree termTree op) toks'
+                     parseBinaryExp (BinaryNode tree termTree op) ops toks'
              _ -> (tree, toks)
 
 
