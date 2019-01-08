@@ -127,7 +127,5 @@ isFuncStart (op:cp:ob:toks)
 
 
 opPrecedence :: Operator -> Int
-opPrecedence op | op == Minus    = 1
-                | op == Plus     = 1
-                | op == Multiply = 2
-                | op == Divide   = 2
+opPrecedence op | elem op [Minus, Plus]      = 1
+                | elem op [Multiply, Divide] = 2
