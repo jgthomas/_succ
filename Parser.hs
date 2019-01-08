@@ -60,9 +60,10 @@ expression toks =
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Plus, Minus] ->
-                     let (expTree, toks'') = expression (accept toks')
-                         in
-                     (BinaryNode termTree expTree op, toks'')
+                     --let (expTree, toks'') = expression (accept toks')
+                     --    in
+                     --(BinaryNode termTree expTree op, toks'')
+                     parseBinaryExp termTree [Plus,Minus] toks'
              _ -> (termTree, toks')
 
 
@@ -72,9 +73,10 @@ term toks =
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Multiply, Divide] ->
-                     let (termTree, toks'') = term (accept toks')
-                         in
-                     (BinaryNode facTree termTree op, toks'')
+                     --let (termTree, toks'') = term (accept toks')
+                     --    in
+                     --(BinaryNode facTree termTree op, toks'')
+                     parseBinaryExp facTree [Multiply,Divide] toks'
              _ -> (facTree, toks')
 
 
@@ -95,14 +97,14 @@ factor toks =
              _ ->  error $ "Parse error on token: " ++ show toks
 
 
---parseBinaryExp :: Tree -> [Operator] -> [Token] -> (Tree, [Token])
---parseBinaryExp tree ops toks =
---        case lookAhead toks of
---             (TokOp op) | elem op ops ->
---                     let (termTree, toks') = factor (accept toks)
---                         in
---                     parseBinaryExp (BinaryNode tree termTree op) ops toks'
---             _ -> (tree, toks)
+parseBinaryExp :: Tree -> [Operator] -> [Token] -> (Tree, [Token])
+parseBinaryExp tree ops toks =
+        case lookAhead toks of
+             (TokOp op) | elem op ops ->
+                     let (termTree, toks') = term (accept toks)
+                         in
+                     parseBinaryExp (BinaryNode tree termTree op) ops toks'
+             _ -> (tree, toks)
 
 
 isFuncStart :: [Token] -> Bool
