@@ -70,9 +70,7 @@ term toks =
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Multiply, Divide] ->
-                     let (termTree, toks'') = term (accept toks')
-                         in
-                     (BinaryNode facTree termTree op, toks'')
+                     parseBinaryExp facTree [Multiply, Divide] toks'
              _ -> (facTree, toks')
 
 
