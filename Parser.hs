@@ -95,7 +95,7 @@ parseBinaryExp :: Tree -> [Operator] -> [Token] -> (Tree, [Token])
 parseBinaryExp tree ops toks =
         case lookAhead toks of
              (TokOp op) | elem op ops ->
-                     let (termTree, toks') = factor (accept toks)
+                     let (termTree, toks') = term (accept toks)
                          in
                      parseBinaryExp (BinaryNode tree termTree op) ops toks'
              _ -> (tree, toks)
