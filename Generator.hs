@@ -42,3 +42,4 @@ binary i1 i2 o
    | o == Plus          = i1 ++ "pushq %rax\n" ++ i2 ++ "popq %rcx\n" ++ "addq %rcx, %rax\n"
    | o == Multiply      = i1 ++ "pushq %rax\n" ++ i2 ++ "popq %rcx\n" ++ "imul %rcx, %rax\n"
    | o == Minus         = i2 ++ "pushq %rax\n" ++ i1 ++ "popq %rcx\n" ++ "subq %rcx, %rax\n"
+   | o == Divide        = i2 ++ "movq %rax, %rbx\n" ++ i1 ++ "cqto\n" ++ "idivq %rbx\n"
