@@ -64,14 +64,6 @@ expression toks =
              _ -> (firstTermTree, toks')
 
 
-parseBin :: Tree -> [Token] -> (Tree, [Token])
-parseBin tree toks =
-        case lookAhead toks of
-             (TokOp op) | elem op [Plus, Minus] ->
-                     let (termTree, toks') = factor (accept toks)
-                         in
-                     parseBin (BinaryNode tree termTree op) toks'
-             _ -> (tree, toks)
 
 
 term :: [Token] -> (Tree, [Token])
@@ -101,6 +93,16 @@ factor toks =
                         then error "Missing right parentheses"
                         else (exprTree, accept toks')
              _ ->  error $ "Parse error on token: " ++ show toks
+
+
+parseBin :: Tree -> [Token] -> (Tree, [Token])
+parseBin tree toks =
+        case lookAhead toks of
+             (TokOp op) | elem op [Plus, Minus] ->
+                     let (termTree, toks') = factor (accept toks)
+                         in
+                     parseBin (BinaryNode tree termTree op) toks'
+             _ -> (tree, toks)
 
 
 isFuncStart :: [Token] -> Bool
