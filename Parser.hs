@@ -100,8 +100,12 @@ factor toks =
 parseBinaryExp :: Tree -> [Operator] -> [Token] -> (Tree, [Token])
 parseBinaryExp tree ops toks =
         case lookAhead toks of
-             (TokOp op) | elem op ops ->
+             (TokOp op) | elem op ops && opPrecedence op == 1 ->
                      let (termTree, toks') = term (accept toks)
+                         in
+                     parseBinaryExp (BinaryNode tree termTree op) ops toks'
+                        | elem op ops && opPrecedence op == 2 ->
+                     let (termTree, toks') = factor (accept toks)
                          in
                      parseBinaryExp (BinaryNode tree termTree op) ops toks'
              _ -> (tree, toks)
@@ -120,3 +124,10 @@ isFuncStart (op:cp:ob:toks)
 --        case t of
 --             (TokOp op) -> [op] ++ allOps toks
 --             _ -> [] ++ allOps toks
+
+
+opPrecedence :: Operator -> Int
+opPrecedence op | op == Minus    = 1
+                | op == Plus     = 1
+                | op == Multiply = 2
+                | op == Divide   = 2
