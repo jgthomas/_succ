@@ -26,7 +26,7 @@ main = do
         --print $ tokenize "int main() { return 1 * 2;}"
         --print $ parse $ tokenize "int main() { return 1 * 2;}"
         --print $ genASM $ parse $ tokenize "int main() {return 1 + 2;}"
-        --print $ genASM $ parse $ tokenize "int main() {return (1 + 2) + 2;}"
+        --print $ genASM $ parse $ tokenize "int main() {return 2 / 2;}"
 
         args <- getArgs
         let infileName = head args
