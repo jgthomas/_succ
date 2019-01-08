@@ -56,12 +56,14 @@ statement toks =
 
 expression :: [Token] -> (Tree, [Token])
 expression toks =
-        let (firstTermTree, toks') = term toks
+        let (termTree, toks') = term toks
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Plus, Minus] ->
-                     parseBinaryExp firstTermTree [Minus, Plus] toks'
-             _ -> (firstTermTree, toks')
+                     let (expTree, toks'') = expression (accept toks')
+                         in
+                     (BinaryNode termTree expTree op, toks'')
+             _ -> (termTree, toks')
 
 
 term :: [Token] -> (Tree, [Token])
@@ -70,7 +72,9 @@ term toks =
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Multiply, Divide] ->
-                     parseBinaryExp facTree [Multiply, Divide] toks'
+                     let (termTree, toks'') = term (accept toks')
+                         in
+                     (BinaryNode facTree termTree op, toks'')
              _ -> (facTree, toks')
 
 
@@ -91,14 +95,14 @@ factor toks =
              _ ->  error $ "Parse error on token: " ++ show toks
 
 
-parseBinaryExp :: Tree -> [Operator] -> [Token] -> (Tree, [Token])
-parseBinaryExp tree ops toks =
-        case lookAhead toks of
-             (TokOp op) | elem op ops ->
-                     let (termTree, toks') = factor (accept toks)
-                         in
-                     parseBinaryExp (BinaryNode tree termTree op) ops toks'
-             _ -> (tree, toks)
+--parseBinaryExp :: Tree -> [Operator] -> [Token] -> (Tree, [Token])
+--parseBinaryExp tree ops toks =
+--        case lookAhead toks of
+--             (TokOp op) | elem op ops ->
+--                     let (termTree, toks') = factor (accept toks)
+--                         in
+--                     parseBinaryExp (BinaryNode tree termTree op) ops toks'
+--             _ -> (tree, toks)
 
 
 isFuncStart :: [Token] -> Bool
@@ -107,3 +111,10 @@ isFuncStart (op:cp:ob:toks)
     | cp /= TokCloseParen = error "Missing closing parenthesis"
     | ob /= TokOpenBrace  = error "Missing opening brace"
     | otherwise           = True
+
+
+--allOps :: [Token] -> [Operator]
+--allOps (t:toks) =
+--        case t of
+--             (TokOp op) -> [op] ++ allOps toks
+--             _ -> [] ++ allOps toks

@@ -33,6 +33,7 @@ main = do
         --print $ parse $ tokenize "int main() {return 3 - 3 + 3;}"
         --print $ parse $ tokenize "int main() {return 3 / 3 * 3;}"
         --print $ parse $ tokenize "int main() {return 6 - 3 + 2;}"
+        --print $ parse $ tokenize "int main() {return 6 + 3 * 2;}"
 
         args <- getArgs
         let infileName = head args
@@ -50,5 +51,5 @@ main = do
            writeFile outfileName assembly
 
         system $ "gcc " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
-        --system $ "rm " ++ outfileName
+        system $ "rm " ++ outfileName
         hClose handle
