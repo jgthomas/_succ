@@ -52,5 +52,5 @@ main = do
            writeFile outfileName assembly
 
         system $ "gcc " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
-        --system $ "rm " ++ outfileName
+        system $ "rm " ++ outfileName
         hClose handle
