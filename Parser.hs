@@ -55,7 +55,17 @@ parseStatement toks =
 
 
 parseExpression :: [Token] -> (Tree, [Token])
-parseExpression toks = parseRelationalExp toks
+parseExpression toks = parseEqualityExp toks
+
+
+parseEqualityExp :: [Token] -> (Tree, [Token])
+parseEqualityExp toks =
+        let (equTree, toks') = parseRelationalExp toks
+            in
+        case lookAhead toks' of
+             (TokOp op) | elem op [Equal,NotEqual] ->
+                     parseBinaryExp equTree toks' parseRelationalExp
+             _ -> (equTree, toks')
 
 
 parseRelationalExp :: [Token] -> (Tree, [Token])
