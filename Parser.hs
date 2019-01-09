@@ -55,7 +55,27 @@ parseStatement toks =
 
 
 parseExpression :: [Token] -> (Tree, [Token])
-parseExpression toks = parseEqualityExp toks
+parseExpression toks = parseLogicalOrExp toks
+
+
+parseLogicalOrExp :: [Token] -> (Tree, [Token])
+parseLogicalOrExp toks =
+        let (orTree, toks') = parseLogicalAndExp toks
+            in
+        case lookAhead toks' of
+             (TokOp op) | op == LogicalOR ->
+                        parseBinaryExp orTree toks' parseLogicalAndExp
+             _ -> (orTree, toks')
+
+
+parseLogicalAndExp :: [Token] -> (Tree, [Token])
+parseLogicalAndExp toks =
+        let (andTree, toks') = parseEqualityExp toks
+            in
+        case lookAhead toks' of
+             (TokOp op) | op == LogicalAND ->
+                        parseBinaryExp andTree toks' parseEqualityExp
+             _ -> (andTree, toks')
 
 
 parseEqualityExp :: [Token] -> (Tree, [Token])
