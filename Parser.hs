@@ -56,30 +56,30 @@ parseStatement toks =
 
 parseExpression :: [Token] -> (Tree, [Token])
 parseExpression toks =
-        let (termTree, toks') = term toks
+        let (termTree, toks') = parseTerm toks
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Plus, Minus] ->
-                     parseBinaryExp termTree toks' term
+                     parseBinaryExp termTree toks' parseTerm
              _ -> (termTree, toks')
 
 
-term :: [Token] -> (Tree, [Token])
-term toks =
-        let (facTree, toks') = factor toks
+parseTerm :: [Token] -> (Tree, [Token])
+parseTerm toks =
+        let (facTree, toks') = parseFactor toks
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Multiply, Divide] ->
-                     parseBinaryExp facTree toks' factor
+                     parseBinaryExp facTree toks' parseFactor
              _ -> (facTree, toks')
 
 
-factor :: [Token] -> (Tree, [Token])
-factor toks =
+parseFactor :: [Token] -> (Tree, [Token])
+parseFactor toks =
         case lookAhead toks of
              (TokConstInt n) -> (ConstantNode n, (accept toks))
              (TokOp op) | elem op [Minus, BitwiseCompl, LogicNegation] ->
-                     let (facTree, toks') = factor (accept toks)
+                     let (facTree, toks') = parseFactor (accept toks)
                          in
                      (UnaryNode facTree op, toks')
              TokOpenParen ->
