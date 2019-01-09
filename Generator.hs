@@ -14,7 +14,7 @@ genASM (FunctionNode name tree) = functionName name ++ genASM tree
 
 genASM (ReturnNode tree) = genASM tree ++ returnStatement
 
-genASM (ConstantNode n) = returnValue n
+genASM (ConstantNode n) = pushValue n
 
 genASM (UnaryNode tree op) = genASM tree ++ unary op
 
@@ -24,8 +24,8 @@ genASM (BinaryNode left right op) = binary (genASM left) (genASM right) op
 functionName :: String -> String
 functionName f = ".globl " ++ f ++ "\n" ++ f ++ ":\n"
 
-returnValue :: Int -> String
-returnValue n = "movq $" ++ (show n) ++ ", %rax\n"
+pushValue :: Int -> String
+pushValue n = "movq $" ++ (show n) ++ ", %rax\n"
 
 returnStatement :: String
 returnStatement = "ret\n"
