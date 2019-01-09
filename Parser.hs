@@ -46,16 +46,16 @@ parseStatement :: [Token] -> (Tree, [Token])
 parseStatement toks =
         case lookAhead toks of
              (TokKeyword kwd) | elem kwd [Return] ->
-                     let (exprsnTree, toks') = expression (accept toks)
+                     let (exprsnTree, toks') = parseExpression (accept toks)
                          in
                             if lookAhead toks' /= TokSemiColon
                             then error "Missing semicolon"
                             else (ReturnNode exprsnTree, accept toks')
-             _ -> expression toks
+             _ -> parseExpression toks
 
 
-expression :: [Token] -> (Tree, [Token])
-expression toks =
+parseExpression :: [Token] -> (Tree, [Token])
+parseExpression toks =
         let (termTree, toks') = term toks
             in
         case lookAhead toks' of
@@ -83,7 +83,7 @@ factor toks =
                          in
                      (UnaryNode facTree op, toks')
              TokOpenParen ->
-                     let (exprTree, toks') = expression (accept toks)
+                     let (exprTree, toks') = parseExpression (accept toks)
                          in
                      if lookAhead toks' /= TokCloseParen
                         then error "Missing right parentheses"
