@@ -107,8 +107,3 @@ isFuncStart (op:cp:ob:toks)
     | cp /= TokCloseParen = error "Missing closing parenthesis"
     | ob /= TokOpenBrace  = error "Missing opening brace"
     | otherwise           = True
-
-
-opPrecedence :: Operator -> Int
-opPrecedence op | elem op [Minus, Plus]      = 1
-                | elem op [Multiply, Divide] = 2
