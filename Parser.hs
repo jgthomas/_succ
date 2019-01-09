@@ -25,13 +25,13 @@ parseProgram :: [Token] -> (Tree, [Token])
 parseProgram toks =
         case lookAhead toks of
              (TokKeyword kwd) | elem kwd [Int] ->
-                     let (funcTree, toks') = function (accept toks)
+                     let (funcTree, toks') = parseFunction (accept toks)
                          in (ProgramNode funcTree, toks')
              _ -> error "Invalid start of function"
 
 
-function :: [Token] -> (Tree, [Token])
-function toks =
+parseFunction :: [Token] -> (Tree, [Token])
+parseFunction toks =
         case lookAhead toks of
              (TokIdent id) | isFuncStart (accept toks) ->
                      let (stmentTree, toks') = statement (drop 4 toks)
