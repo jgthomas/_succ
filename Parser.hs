@@ -15,14 +15,14 @@ data Tree = ProgramNode Tree
 
 
 parse :: [Token] -> Tree
-parse toks = let (tree, toks') = program toks
+parse toks = let (tree, toks') = parseProgram toks
                  in if null toks'
                        then tree
                        else error $ "Unparsed tokens: " ++ show toks
 
 
-program :: [Token] -> (Tree, [Token])
-program toks =
+parseProgram :: [Token] -> (Tree, [Token])
+parseProgram toks =
         case lookAhead toks of
              (TokKeyword kwd) | elem kwd [Int] ->
                      let (funcTree, toks') = function (accept toks)
