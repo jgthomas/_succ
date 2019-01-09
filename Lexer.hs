@@ -14,6 +14,7 @@ data Operator = Plus
               | Divide
               | BitwiseCompl
               | LogicNegation
+              | LogicalOR
               deriving (Show, Eq)
 
 
@@ -43,6 +44,7 @@ tokenize (c:cs)
     | c == '{'          = TokOpenBrace                  : tokenize cs
     | c == '}'          = TokCloseBrace                 : tokenize cs
     | c == ';'          = TokSemiColon                  : tokenize cs
+    | isTwoCharOp c cs  = twoCharOperator c cs
     | elem c opSymbols  = TokOp (operator c)            : tokenize cs
     | isAlpha c         = identifier c cs
     | isDigit c         = number c cs
@@ -74,6 +76,17 @@ number c cs =
     TokConstInt (read (c:digs)) : tokenize cs'
 
 
+twoCharOperator :: Char -> String -> [Token]
+twoCharOperator c cs = let (so, cs') = span (\x -> elem x secondOpSymbols) cs
+                         in case (c:so) of
+                                 "||" -> TokOp LogicalOR : tokenize cs'
+                                 _    -> error "Unrecognised two character operator"
+
+
+isTwoCharOp :: Char -> String -> Bool
+isTwoCharOp c cs = elem c opSymbols && elem (head cs) secondOpSymbols
+
+
 operator :: Char -> Operator
 operator c | c == '+' = Plus
            | c == '-' = Minus
@@ -84,4 +97,7 @@ operator c | c == '+' = Plus
 
 
 opSymbols :: String
-opSymbols = "+-*/~!"
+opSymbols = "+-*/~!|"
+
+secondOpSymbols :: String
+secondOpSymbols = "=|&"
