@@ -15,6 +15,13 @@ data Operator = Plus
               | BitwiseCompl
               | LogicNegation
               | LogicalOR
+              | LogicalAND
+              | GreaterThan
+              | GreaterThanOrEqual
+              | LessThan
+              | LessThanOrEqual
+              | Equal
+              | NotEqual
               deriving (Show, Eq)
 
 
@@ -79,7 +86,12 @@ number c cs =
 twoCharOperator :: Char -> String -> [Token]
 twoCharOperator c cs = let (so, cs') = span (\x -> elem x secondOpSymbols) cs
                          in case (c:so) of
-                                 "||" -> TokOp LogicalOR : tokenize cs'
+                                 "||" -> TokOp LogicalOR          : tokenize cs'
+                                 "&&" -> TokOp LogicalAND         : tokenize cs'
+                                 ">=" -> TokOp GreaterThanOrEqual : tokenize cs'
+                                 "<=" -> TokOp LessThanOrEqual    : tokenize cs'
+                                 "==" -> TokOp Equal              : tokenize cs'
+                                 "!=" -> TokOp NotEqual           : tokenize cs'
                                  _    -> error "Unrecognised two character operator"
 
 
@@ -94,10 +106,12 @@ operator c | c == '+' = Plus
            | c == '/' = Divide
            | c == '~' = BitwiseCompl
            | c == '!' = LogicNegation
+           | c == '>' = GreaterThan
+           | c == '<' = LessThan
 
 
 opSymbols :: String
-opSymbols = "+-*/~!|"
+opSymbols = "+-*/~!|&<>="
 
 secondOpSymbols :: String
 secondOpSymbols = "=|&"
