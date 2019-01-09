@@ -96,6 +96,7 @@ twoCharOperator c cs = let (so, cs') = span (\x -> elem x secondOpSymbols) cs
 
 
 isTwoCharOp :: Char -> String -> Bool
+isTwoCharOp c [] = False
 isTwoCharOp c cs = elem c opSymbols && elem (head cs) secondOpSymbols
 
 
