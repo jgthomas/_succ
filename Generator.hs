@@ -44,7 +44,7 @@ unary o
 
 binary :: String -> String -> Operator -> String
 binary push1 push2 o
-   | o == Plus          = push1 ++ "pushq %rax\n" ++ push2 ++ "popq %rcx\n" ++ "addq %rcx, %rax\n"
-   | o == Multiply      = push1 ++ "pushq %rax\n" ++ push2 ++ "popq %rcx\n" ++ "imul %rcx, %rax\n"
-   | o == Minus         = push2 ++ "pushq %rax\n" ++ push1 ++ "popq %rcx\n" ++ "subq %rcx, %rax\n"
-   | o == Divide        = push2 ++ "movq %rax, %rbx\n" ++ push1 ++ "cqto\n" ++ "idivq %rbx\n"
+   | o == Plus       = push1 ++ "pushq %rax\n" ++ push2 ++ "popq %rcx\n" ++ "addq %rcx, %rax\n"
+   | o == Multiply   = push1 ++ "pushq %rax\n" ++ push2 ++ "popq %rcx\n" ++ "imul %rcx, %rax\n"
+   | o == Minus      = push2 ++ "pushq %rax\n" ++ push1 ++ "popq %rcx\n" ++ "subq %rcx, %rax\n"
+   | o == Divide     = push2 ++ "movq %rax, %rbx\n" ++ push1 ++ "cqto\n" ++ "idivq %rbx\n"
