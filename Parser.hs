@@ -60,7 +60,7 @@ expression toks =
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Plus, Minus] ->
-                     parseBinaryExp termTree toks'
+                     parseBinaryExp termTree toks' term
              _ -> (termTree, toks')
 
 
@@ -70,7 +70,7 @@ term toks =
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Multiply, Divide] ->
-                     parseBinaryExp facTree toks'
+                     parseBinaryExp facTree toks' factor
              _ -> (facTree, toks')
 
 
@@ -91,17 +91,13 @@ factor toks =
              _ ->  error $ "Parse error on token: " ++ show toks
 
 
-parseBinaryExp :: Tree -> [Token] -> (Tree, [Token])
-parseBinaryExp tree toks =
+parseBinaryExp :: Tree -> [Token] -> ([Token] -> (Tree, [Token])) -> (Tree, [Token])
+parseBinaryExp tree toks nextVal =
         case lookAhead toks of
-             (TokOp op) | opPrecedence op == 1 ->
-                     let (termTree, toks') = term (accept toks)
+             (TokOp op) ->
+                     let (nexTree, toks') = nextVal (accept toks)
                          in
-                     parseBinaryExp (BinaryNode tree termTree op) toks'
-                        | opPrecedence op == 2 ->
-                     let (termTree, toks') = factor (accept toks)
-                         in
-                     parseBinaryExp (BinaryNode tree termTree op) toks'
+                     parseBinaryExp (BinaryNode tree nexTree op) toks' nextVal
              _ -> (tree, toks)
 
 
