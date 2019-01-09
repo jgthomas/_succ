@@ -55,7 +55,11 @@ parseStatement toks =
 
 
 parseExpression :: [Token] -> (Tree, [Token])
-parseExpression toks =
+parseExpression toks = parseAdditiveExp toks
+
+
+parseAdditiveExp :: [Token] -> (Tree, [Token])
+parseAdditiveExp toks =
         let (termTree, toks') = parseTerm toks
             in
         case lookAhead toks' of
