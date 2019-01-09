@@ -60,9 +60,6 @@ expression toks =
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Plus, Minus] ->
-                     --let (expTree, toks'') = expression (accept toks')
-                     --    in
-                     --(BinaryNode termTree expTree op, toks'')
                      parseBinaryExp termTree [Plus,Minus] toks'
              _ -> (termTree, toks')
 
@@ -73,9 +70,6 @@ term toks =
             in
         case lookAhead toks' of
              (TokOp op) | elem op [Multiply, Divide] ->
-                     --let (termTree, toks'') = term (accept toks')
-                     --    in
-                     --(BinaryNode facTree termTree op, toks'')
                      parseBinaryExp facTree [Multiply,Divide] toks'
              _ -> (facTree, toks')
 
@@ -117,13 +111,6 @@ isFuncStart (op:cp:ob:toks)
     | cp /= TokCloseParen = error "Missing closing parenthesis"
     | ob /= TokOpenBrace  = error "Missing opening brace"
     | otherwise           = True
-
-
---allOps :: [Token] -> [Operator]
---allOps (t:toks) =
---        case t of
---             (TokOp op) -> [op] ++ allOps toks
---             _ -> [] ++ allOps toks
 
 
 opPrecedence :: Operator -> Int
