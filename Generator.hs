@@ -27,6 +27,9 @@ functionName f = ".globl " ++ f ++ "\n" ++ f ++ ":\n"
 pushValue :: Int -> String
 pushValue n = "movq $" ++ (show n) ++ ", %rax\n"
 
+popResult :: String
+popResult = "popq %rax\n"
+
 returnStatement :: String
 returnStatement = "ret\n"
 
