@@ -15,26 +15,6 @@ import Generator (genASM)
 
 main :: IO()
 main = do
-        --print $ tokenize "int main() { return 1 + 1;}"
-        --print $ parse $ tokenize "int main() { return 1 + 1;}"
-        --print $ tokenize "int main() { return (1 + 1) + 2;}"
-        --print $ parse $ tokenize "int main() { return (1 + 1) + 2;}"
-        --print $ tokenize "int main() { return 2 - 1 + 2;}"
-        --print $ parse $ tokenize "int main() { return 2 - 1 + 2;}"
-        --print $ parse $ tokenize "int main() { return 2 * 1 / 2;}"
-        --print $ parse $ tokenize "int main() { return 2 - 1 - 2;}"
-        --print $ tokenize "int main() { return 1 * 2;}"
-        --print $ parse $ tokenize "int main() { return 1 * 2;}"
-        --print $ genASM $ parse $ tokenize "int main() {return 1 + 2;}"
-        --print $ genASM $ parse $ tokenize "int main() {return 2 / 2;}"
-
-        --print $ parse $ tokenize "int main() {return 6 / 3 / 2;}"
-        --print $ parse $ tokenize "int main() {return 6 * 3 / 2;}"
-        --print $ parse $ tokenize "int main() {return 3 - 3 + 3;}"
-        --print $ parse $ tokenize "int main() {return 3 / 3 * 3;}"
-        --print $ parse $ tokenize "int main() {return 6 - 3 + 2;}"
-        --print $ parse $ tokenize "int main() {return 6 + 3 * 2;}"
-
         args <- getArgs
         let infileName = head args
         handle <- openFile infileName ReadMode
