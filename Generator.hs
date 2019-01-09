@@ -30,6 +30,9 @@ pushValue n = "movq $" ++ (show n) ++ ", %rax\n"
 popResult :: String
 popResult = "popq %rax\n"
 
+storeResult :: String
+storeResult = "pushq %rax\n"
+
 returnStatement :: String
 returnStatement = "ret\n"
 
