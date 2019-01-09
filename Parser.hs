@@ -55,7 +55,17 @@ parseStatement toks =
 
 
 parseExpression :: [Token] -> (Tree, [Token])
-parseExpression toks = parseAdditiveExp toks
+parseExpression toks = parseRelationalExp toks
+
+
+parseRelationalExp :: [Token] -> (Tree, [Token])
+parseRelationalExp toks =
+        let (relaTree, toks') = parseAdditiveExp toks
+            in
+        case lookAhead toks' of
+             (TokOp op) | elem op [GreaterThan,LessThan,GreaterThanOrEqual,LessThanOrEqual] ->
+                     parseBinaryExp relaTree toks' parseAdditiveExp
+             _ -> (relaTree, toks')
 
 
 parseAdditiveExp :: [Token] -> (Tree, [Token])
