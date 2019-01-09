@@ -41,4 +41,4 @@ binary val1 val2 o
    | o == Plus       = val1 ++ "pushq %rax\n" ++ val2 ++ "popq %rcx\n" ++ "addq %rcx, %rax\n"
    | o == Multiply   = val1 ++ "pushq %rax\n" ++ val2 ++ "popq %rcx\n" ++ "imul %rcx, %rax\n"
    | o == Minus      = val2 ++ "pushq %rax\n" ++ val1 ++ "popq %rcx\n" ++ "subq %rcx, %rax\n"
-   | o == Divide     = val2 ++ "movq %rax, %rbx\n" ++ val1 ++ "cqto\n" ++ "idivq %rbx\n"
+   | o == Divide     = val1 ++ "pushq %rax\n" ++ val2 ++ "movq %rax, %rbx\n" ++ "popq %rax\n" ++ "cqto\n" ++ "idivq %rbx\n"
