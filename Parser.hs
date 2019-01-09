@@ -34,7 +34,7 @@ parseFunction :: [Token] -> (Tree, [Token])
 parseFunction toks =
         case lookAhead toks of
              (TokIdent id) | isFuncStart (accept toks) ->
-                     let (stmentTree, toks') = statement (drop 4 toks)
+                     let (stmentTree, toks') = parseStatement (drop 4 toks)
                          in
                      if lookAhead toks' /= TokCloseBrace
                         then error "Missing closing brace"
@@ -42,8 +42,8 @@ parseFunction toks =
              _ -> error "No identifier supplied"
 
 
-statement :: [Token] -> (Tree, [Token])
-statement toks =
+parseStatement :: [Token] -> (Tree, [Token])
+parseStatement toks =
         case lookAhead toks of
              (TokKeyword kwd) | elem kwd [Return] ->
                      let (exprsnTree, toks') = expression (accept toks)
