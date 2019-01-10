@@ -48,6 +48,8 @@ binary loadVal1 loadVal2 o
    | o == GreaterThan        = comparison loadVal1 loadVal2 ++ "setg %al\n"
    | o == LessThan           = comparison loadVal1 loadVal2 ++ "setl %al\n"
    | o == GreaterThanOrEqual = comparison loadVal1 loadVal2 ++ "setge %al\n"
+   | o == LogicalOR          = loadTwoValues loadVal1 loadVal2
+                               ++ "orq %rcx, %rax\n" ++ "movq $0, %rax\n" ++ "setne %al\n"
 
 
 loadTwoValues :: String -> String -> String
