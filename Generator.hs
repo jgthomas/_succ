@@ -69,6 +69,6 @@ loadTwoValues loadVal1 loadVal2 = loadVal1
 
 
 comparison :: String -> String -> String
-comparison loadVal1 loadVal2 = (loadTwoValues loadVal1 loadVal2)
+comparison loadVal1 loadVal2 = loadTwoValues loadVal1 loadVal2
                                ++ "cmpq %rax, %rcx\n"
                                ++ "movq $0, %rax\n"
