@@ -38,8 +38,8 @@ unary o
 
 binary :: String -> String -> Operator -> String
 binary loadVal1 loadVal2 o
-   | o == Plus         = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "popq %rcx\n" ++ "addq %rcx, %rax\n"
-   | o == Multiply     = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "popq %rcx\n" ++ "imul %rcx, %rax\n"
+   | o == Plus         = loadTwoValues loadVal1 loadVal2 ++ "addq %rcx, %rax\n"
+   | o == Multiply     = loadTwoValues loadVal1 loadVal2 ++ "imul %rcx, %rax\n"
    | o == Minus        = loadVal2 ++ "pushq %rax\n" ++ loadVal1 ++ "popq %rcx\n" ++ "subq %rcx, %rax\n"
    | o == Divide       = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "movq %rax, %rbx\n"
                          ++ "popq %rax\n" ++ "cqto\n" ++ "idivq %rbx\n"
@@ -53,3 +53,16 @@ binary loadVal1 loadVal2 o
                          ++ "movq $0, %rax\n" ++ "setl %al\n"
    | o == GreaterThanOrEqual = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "popq %rcx\n" ++ "cmpq %rax, %rcx\n"
                              ++ "movq $0, %rax\n" ++ "setge %al\n"
+
+
+loadTwoValues :: String -> String -> String
+loadTwoValues loadVal1 loadVal2 = loadVal1
+                                  ++ "pushq %rax\n"
+                                  ++ loadVal2
+                                  ++ "popq %rcx\n"
+
+
+comparison :: String -> String -> String
+comparison loadVal1 loadVal2 = (loadTwoValues loadVal1 loadVal2)
+                               ++ "cmpq %rax, %rcx\n"
+                               ++ "movq $0, %rax\n"
