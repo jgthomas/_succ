@@ -37,11 +37,11 @@ unary o
    | o == LogicNegation = "cmpq $0, %rax\nmovq $0, %rax\nsete %al\n"
 
 binary :: String -> String -> Operator -> String
-binary val1 val2 o
-   | o == Plus       = val1 ++ "pushq %rax\n" ++ val2 ++ "popq %rcx\n" ++ "addq %rcx, %rax\n"
-   | o == Multiply   = val1 ++ "pushq %rax\n" ++ val2 ++ "popq %rcx\n" ++ "imul %rcx, %rax\n"
-   | o == Minus      = val2 ++ "pushq %rax\n" ++ val1 ++ "popq %rcx\n" ++ "subq %rcx, %rax\n"
-   | o == Divide     = val1 ++ "pushq %rax\n" ++ val2 ++ "movq %rax, %rbx\n"
+binary loadVal1 loadVal2 o
+   | o == Plus       = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "popq %rcx\n" ++ "addq %rcx, %rax\n"
+   | o == Multiply   = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "popq %rcx\n" ++ "imul %rcx, %rax\n"
+   | o == Minus      = loadVal2 ++ "pushq %rax\n" ++ loadVal1 ++ "popq %rcx\n" ++ "subq %rcx, %rax\n"
+   | o == Divide     = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "movq %rax, %rbx\n"
                        ++ "popq %rax\n" ++ "cqto\n" ++ "idivq %rbx\n"
-   | o == Equal      = val1 ++ "pushq %rax\n" ++ val2 ++ "popq %rcx\n" ++ "cmpq %rax, %rcx\n"
+   | o == Equal      = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "popq %rcx\n" ++ "cmpq %rax, %rcx\n"
                        ++ "movq $0, %rax\n" ++ "sete %al\n"
