@@ -1,14 +1,20 @@
 
-module Generator (genASM) where
+module Generator (genASM, genAssembly) where
 
 
 import Lexer (Operator(..))
 import Parser (Tree(..))
 
 
+genAssembly :: Tree -> String
+
+genAssembly (ProgramNode functionList)
+        = concat $ map genASM functionList
+
+
 genASM :: Tree -> String
 
-genASM (ProgramNode tree) = genASM tree
+--genASM (ProgramNode tree) = genASM tree
 
 genASM (FunctionNode name tree) = functionName name ++ genASM tree
 

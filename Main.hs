@@ -10,7 +10,7 @@ import Control.Monad (when)
 
 import Lexer (tokenize)
 import Parser (parse)
-import Generator (genASM)
+import Generator (genASM, genAssembly)
 
 
 main :: IO()
@@ -26,7 +26,7 @@ main = do
         print $ parse $ tokenize contents
 
         let outfileName = (dropExtension infileName) ++ ".s"
-        let assembly = genASM $ parse $ tokenize contents
+        let assembly = genAssembly $ parse $ tokenize contents
 
         when (length assembly > 0) $
            writeFile outfileName assembly

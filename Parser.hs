@@ -5,7 +5,7 @@ module Parser (Tree(..), parse) where
 import Lexer
 
 
-data Tree = ProgramNode Tree
+data Tree = ProgramNode [Tree]
           | FunctionNode String Tree
           | ReturnNode Tree                      -- statements
           | ConstantNode Int                     -- expressions
@@ -26,7 +26,7 @@ parseProgram toks =
         if isValidType toks
            then let (funcTree, toks') = parseFunction (accept toks)
                     in
-           (ProgramNode funcTree, toks')
+           (ProgramNode [funcTree], toks')
            else error "Invalid start of function"
 
 
