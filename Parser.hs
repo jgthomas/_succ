@@ -158,3 +158,7 @@ isValidType toks =
         case lookAhead toks of
              (TokKeyword kwd) | elem kwd [Int] -> True
              _                                 -> False
+
+
+validType :: Token -> Bool
+validType (TokKeyword kwd) = elem kwd [Int]
