@@ -46,11 +46,11 @@ parseStatement :: [Token] -> (Tree, [Token])
 parseStatement toks =
         let (exprsnTree, toks') = parseExpression (accept toks)
             in
+        if lookAhead toks' /= TokSemiColon
+           then error "Missing semicolon"
+           else
         case lookAhead toks of
-             (TokKeyword kwd) | kwd == Return ->
-                     if lookAhead toks' /= TokSemiColon
-                        then error "Missing semicolon"
-                        else (ReturnNode exprsnTree, accept toks')
+             (TokKeyword kwd) | kwd == Return -> (ReturnNode exprsnTree, accept toks')
              _ -> error "Unrecognised statement type"
 
 
