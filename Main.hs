@@ -10,7 +10,7 @@ import Control.Monad (when)
 
 import Lexer (tokenize)
 import Parser (parse)
-import Generator (genASM, genAssembly)
+import Generator (genAssembly)
 
 
 main :: IO()

@@ -1,5 +1,5 @@
 
-module Generator (genASM, genAssembly) where
+module Generator (genAssembly) where
 
 
 import Lexer (Operator(..))
@@ -16,10 +16,6 @@ genAssembly (FunctionNode name statementList)
 
 
 genASM :: Tree -> String
-
---genASM (ProgramNode tree) = genASM tree
-
---genASM (FunctionNode name tree) = functionName name ++ genASM tree
 
 genASM (ReturnNode tree) = genASM tree ++ returnStatement
 
