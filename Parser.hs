@@ -23,11 +23,11 @@ parse toks = let (tree, toks') = parseProgram toks
 
 parseProgram :: [Token] -> (Tree, [Token])
 parseProgram toks =
-        case lookAhead toks of
-             (TokKeyword kwd) | elem kwd [Int] ->
-                     let (funcTree, toks') = parseFunction (accept toks)
-                         in (ProgramNode funcTree, toks')
-             _ -> error "Invalid start of function"
+        if isValidType toks
+           then let (funcTree, toks') = parseFunction (accept toks)
+                    in
+           (ProgramNode funcTree, toks')
+           else error "Invalid start of function"
 
 
 parseFunction :: [Token] -> (Tree, [Token])
@@ -151,3 +151,10 @@ isFuncStart (op:cp:ob:toks)
     | cp /= TokCloseParen = error "Missing closing parenthesis"
     | ob /= TokOpenBrace  = error "Missing opening brace"
     | otherwise           = True
+
+
+isValidType :: [Token] -> Bool
+isValidType toks =
+        case lookAhead toks of
+             (TokKeyword kwd) | elem kwd [Int] -> True
+             _                                 -> False
