@@ -8,9 +8,12 @@ import Lexer
 data Tree = ProgramNode [Tree]
           | FunctionNode String [Tree]
           | ReturnNode Tree                      -- statements
+          | DeclStmtNode String (Maybe Tree)
+          | ExprStmtNode Tree
           | ConstantNode Int                     -- expressions
           | UnaryNode Tree Operator
           | BinaryNode Tree Tree Operator
+          | AssignNode String Tree
           deriving Show
 
 
