@@ -6,7 +6,7 @@ import Lexer
 
 
 data Tree = ProgramNode [Tree]
-          | FunctionNode String Tree
+          | FunctionNode String [Tree]
           | ReturnNode Tree                      -- statements
           | ConstantNode Int                     -- expressions
           | UnaryNode Tree Operator
@@ -38,7 +38,7 @@ parseFunction toks =
                          in
                      if lookAhead toks' /= TokCloseBrace
                         then error "Missing closing brace"
-                        else (FunctionNode id stmentTree, accept toks')
+                        else (FunctionNode id [stmentTree], accept toks')
              _ -> error "No identifier supplied"
 
 

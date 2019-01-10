@@ -9,14 +9,17 @@ import Parser (Tree(..))
 genAssembly :: Tree -> String
 
 genAssembly (ProgramNode functionList)
-        = concat $ map genASM functionList
+        = concat $ map genAssembly functionList
+
+genAssembly (FunctionNode name statementList)
+        = functionName name ++ (concat $ map genASM statementList)
 
 
 genASM :: Tree -> String
 
 --genASM (ProgramNode tree) = genASM tree
 
-genASM (FunctionNode name tree) = functionName name ++ genASM tree
+--genASM (FunctionNode name tree) = functionName name ++ genASM tree
 
 genASM (ReturnNode tree) = genASM tree ++ returnStatement
 
