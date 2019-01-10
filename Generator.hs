@@ -45,3 +45,5 @@ binary loadVal1 loadVal2 o
                        ++ "popq %rax\n" ++ "cqto\n" ++ "idivq %rbx\n"
    | o == Equal      = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "popq %rcx\n" ++ "cmpq %rax, %rcx\n"
                        ++ "movq $0, %rax\n" ++ "sete %al\n"
+   | o == NotEqual   = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "popq %rcx\n" ++ "cmpq %rax, %rcx\n"
+                       ++ "movq $0, %rax\n" ++ "setne %al\n"
