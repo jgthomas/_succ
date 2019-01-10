@@ -38,15 +38,15 @@ unary o
 
 binary :: String -> String -> Operator -> String
 binary loadVal1 loadVal2 o
-   | o == Plus         = loadTwoValues loadVal1 loadVal2 ++ "addq %rcx, %rax\n"
-   | o == Multiply     = loadTwoValues loadVal1 loadVal2 ++ "imul %rcx, %rax\n"
-   | o == Minus        = loadTwoValues loadVal2 loadVal1 ++ "subq %rcx, %rax\n"
-   | o == Divide       = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "movq %rax, %rbx\n"
-                         ++ "popq %rax\n" ++ "cqto\n" ++ "idivq %rbx\n"
-   | o == Equal        = comparison loadVal1 loadVal2 ++ "sete %al\n"
-   | o == NotEqual     = comparison loadVal1 loadVal2 ++ "setne %al\n"
-   | o == GreaterThan  = comparison loadVal1 loadVal2 ++ "setg %al\n"
-   | o == LessThan     = comparison loadVal1 loadVal2 ++ "setl %al\n"
+   | o == Plus               = loadTwoValues loadVal1 loadVal2 ++ "addq %rcx, %rax\n"
+   | o == Multiply           = loadTwoValues loadVal1 loadVal2 ++ "imul %rcx, %rax\n"
+   | o == Minus              = loadTwoValues loadVal2 loadVal1 ++ "subq %rcx, %rax\n"
+   | o == Divide             = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "movq %rax, %rbx\n"
+                               ++ "popq %rax\n" ++ "cqto\n" ++ "idivq %rbx\n"
+   | o == Equal              = comparison loadVal1 loadVal2 ++ "sete %al\n"
+   | o == NotEqual           = comparison loadVal1 loadVal2 ++ "setne %al\n"
+   | o == GreaterThan        = comparison loadVal1 loadVal2 ++ "setg %al\n"
+   | o == LessThan           = comparison loadVal1 loadVal2 ++ "setl %al\n"
    | o == GreaterThanOrEqual = comparison loadVal1 loadVal2 ++ "setge %al\n"
 
 
