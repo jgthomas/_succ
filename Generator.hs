@@ -40,7 +40,7 @@ binary :: String -> String -> Operator -> String
 binary loadVal1 loadVal2 o
    | o == Plus         = loadTwoValues loadVal1 loadVal2 ++ "addq %rcx, %rax\n"
    | o == Multiply     = loadTwoValues loadVal1 loadVal2 ++ "imul %rcx, %rax\n"
-   | o == Minus        = loadVal2 ++ "pushq %rax\n" ++ loadVal1 ++ "popq %rcx\n" ++ "subq %rcx, %rax\n"
+   | o == Minus        = loadTwoValues loadVal2 loadVal1 ++ "subq %rcx, %rax\n"
    | o == Divide       = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "movq %rax, %rbx\n"
                          ++ "popq %rax\n" ++ "cqto\n" ++ "idivq %rbx\n"
    | o == Equal        = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "popq %rcx\n" ++ "cmpq %rax, %rcx\n"
