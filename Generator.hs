@@ -45,12 +45,9 @@ binary loadVal1 loadVal2 o
                          ++ "popq %rax\n" ++ "cqto\n" ++ "idivq %rbx\n"
    | o == Equal        = comparison loadVal1 loadVal2 ++ "sete %al\n"
    | o == NotEqual     = comparison loadVal1 loadVal2 ++ "setne %al\n"
-   | o == GreaterThan  = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "popq %rcx\n" ++ "cmpq %rax, %rcx\n"
-                         ++ "movq $0, %rax\n" ++ "setg %al\n"
-   | o == LessThan     = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "popq %rcx\n" ++ "cmpq %rax, %rcx\n"
-                         ++ "movq $0, %rax\n" ++ "setl %al\n"
-   | o == GreaterThanOrEqual = loadVal1 ++ "pushq %rax\n" ++ loadVal2 ++ "popq %rcx\n" ++ "cmpq %rax, %rcx\n"
-                             ++ "movq $0, %rax\n" ++ "setge %al\n"
+   | o == GreaterThan  = comparison loadVal1 loadVal2 ++ "setg %al\n"
+   | o == LessThan     = comparison loadVal1 loadVal2 ++ "setl %al\n"
+   | o == GreaterThanOrEqual = comparison loadVal1 loadVal2 ++ "setge %al\n"
 
 
 loadTwoValues :: String -> String -> String
