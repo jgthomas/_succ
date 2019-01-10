@@ -44,14 +44,14 @@ parseFunction toks =
 
 parseStatement :: [Token] -> (Tree, [Token])
 parseStatement toks =
+        let (exprsnTree, toks') = parseExpression (accept toks)
+            in
         case lookAhead toks of
-             (TokKeyword kwd) | elem kwd [Return] ->
-                     let (exprsnTree, toks') = parseExpression (accept toks)
-                         in
-                            if lookAhead toks' /= TokSemiColon
-                            then error "Missing semicolon"
-                            else (ReturnNode exprsnTree, accept toks')
-             _ -> parseExpression toks
+             (TokKeyword kwd) | kwd == Return ->
+                     if lookAhead toks' /= TokSemiColon
+                        then error "Missing semicolon"
+                        else (ReturnNode exprsnTree, accept toks')
+             _ -> error "Unrecognised statement type"
 
 
 parseExpression :: [Token] -> (Tree, [Token])
