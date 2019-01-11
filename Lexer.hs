@@ -35,6 +35,7 @@ data Token = TokOpenParen
            | TokOpenBrace
            | TokCloseBrace
            | TokSemiColon
+           | TokAssign
            | TokOp Operator
            | TokIdent String
            | TokConstInt Int
@@ -51,6 +52,7 @@ tokenize (c:cs)
     | c == '{'          = TokOpenBrace                  : tokenize cs
     | c == '}'          = TokCloseBrace                 : tokenize cs
     | c == ';'          = TokSemiColon                  : tokenize cs
+    | c == '='          = TokAssign                     : tokenize cs
     | isTwoCharOp c cs  = twoCharOperator c cs
     | elem c opSymbols  = TokOp (operator c)            : tokenize cs
     | isAlpha c         = identifier c cs
