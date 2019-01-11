@@ -58,14 +58,33 @@ parseAllStatements stmts toks =
 
 parseStatement :: [Token] -> (Tree, [Token])
 parseStatement toks =
+        case lookAhead toks of
+             (TokKeyword kwd) | kwd == Return ->
+                              let (stmtTree, toks') = parseReturnStmt toks
+                                  in
+                              if lookAhead toks' /= TokSemiColon
+                                 then error "Missing semicolon"
+                                 else (stmtTree, accept toks')
+                              | elem kwd [Int] ->
+                              let (stmtTree, toks') = parseDeclStmt toks
+                                  in
+                              if lookAhead toks' /= TokSemiColon
+                                 then error "Missing semicolon"
+                                 else (stmtTree, accept toks')
+
+
+parseReturnStmt :: [Token] -> (Tree, [Token])
+parseReturnStmt toks =
         let (exprsnTree, toks') = parseExpression (accept toks)
             in
-        if lookAhead toks' /= TokSemiColon
-           then error "Missing semicolon"
-           else
-        case lookAhead toks of
-             (TokKeyword kwd) | kwd == Return -> (ReturnNode exprsnTree, accept toks')
-             _ -> error "Unrecognised statement type"
+        (ReturnNode exprsnTree, toks')
+
+
+parseDeclStmt :: [Token] -> (Tree, [Token])
+parseDeclStmt (ty:id:toks) =
+        case id of
+             (TokIdent varName) -> (DeclStmtNode varName Nothing, toks)
+             _ -> error "Wut"
 
 
 parseExpression :: [Token] -> (Tree, [Token])
