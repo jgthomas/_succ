@@ -39,9 +39,11 @@ parseFunction toks =
              (TokIdent id) | isFuncStart (accept toks) ->
                      let (stmentTree, toks') = parseStatement (drop 4 toks)
                          in
-                     if lookAhead toks' /= TokCloseBrace
+                     let (stmentList, toks'') = parseAllStatements [stmentTree] toks'
+                         in
+                     if lookAhead toks'' /= TokCloseBrace
                         then error "Missing closing brace"
-                        else (FunctionNode id [stmentTree], accept toks')
+                        else (FunctionNode id stmentList, accept toks'')
              _ -> error "No identifier supplied"
 
 
