@@ -81,10 +81,17 @@ parseReturnStmt toks =
 
 
 parseDeclStmt :: [Token] -> (Tree, [Token])
-parseDeclStmt (ty:id:toks) =
+parseDeclStmt (ty:id:equ:toks) =
         case id of
              (TokIdent varName) -> (DeclStmtNode varName Nothing, toks)
              _ -> error "Wut"
+
+
+parseExprStmt :: [Token] -> (Tree, [Token])
+parseExprStmt (equ:toks) =
+        let (exprTree, toks') = parseExpression toks
+            in
+        (ExprStmtNode exprTree, toks')
 
 
 parseExpression :: [Token] -> (Tree, [Token])
