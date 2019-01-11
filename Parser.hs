@@ -45,6 +45,15 @@ parseFunction toks =
              _ -> error "No identifier supplied"
 
 
+parseAllStatements :: [Tree] -> [Token] -> ([Tree], [Token])
+parseAllStatements stmts toks =
+        let (nextStmt, toks') = parseStatement toks
+            in
+        case lookAhead toks' of
+             TokCloseBrace -> (nextStmt : stmts, toks')
+             _             -> parseAllStatements (nextStmt : stmts) toks'
+
+
 parseStatement :: [Token] -> (Tree, [Token])
 parseStatement toks =
         let (exprsnTree, toks') = parseExpression (accept toks)
