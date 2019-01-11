@@ -38,8 +38,7 @@ parseFunction toks =
         case lookAhead toks of
              (TokIdent id) | isFuncStart (accept toks) ->
                      let (stmentTree, toks') = parseStatement (drop 4 toks)
-                         in
-                     let (stmentList, toks'') = parseAllStatements [stmentTree] toks'
+                         (stmentList, toks'') = parseAllStatements [stmentTree] toks'
                          in
                      if lookAhead toks'' /= TokCloseBrace
                         then error "Missing closing brace"
