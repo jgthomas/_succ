@@ -47,11 +47,12 @@ parseFunction toks =
 
 parseAllStatements :: [Tree] -> [Token] -> ([Tree], [Token])
 parseAllStatements stmts toks =
-        let (nextStmt, toks') = parseStatement toks
-            in
-        case lookAhead toks' of
-             TokCloseBrace -> (nextStmt : stmts, toks')
-             _             -> parseAllStatements (nextStmt : stmts) toks'
+        case lookAhead toks of
+             TokCloseBrace -> (stmts, toks)
+             _ ->
+                     let (nextStmt, toks') = parseStatement toks
+                         in
+                     parseAllStatements (stmts ++ [nextStmt]) toks'
 
 
 parseStatement :: [Token] -> (Tree, [Token])
