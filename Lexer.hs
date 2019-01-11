@@ -52,8 +52,8 @@ tokenize (c:cs)
     | c == '{'          = TokOpenBrace                  : tokenize cs
     | c == '}'          = TokCloseBrace                 : tokenize cs
     | c == ';'          = TokSemiColon                  : tokenize cs
-    | c == '='          = TokAssign                     : tokenize cs
     | isTwoCharOp c cs  = twoCharOperator c cs
+    | c == '='          = TokAssign                     : tokenize cs
     | elem c opSymbols  = TokOp (operator c)            : tokenize cs
     | isAlpha c         = identifier c cs
     | isDigit c         = number c cs
