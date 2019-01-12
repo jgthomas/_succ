@@ -1,6 +1,4 @@
 
-module Main (main) where
-
 
 import System.IO
 import System.Environment (getArgs)
@@ -18,6 +16,7 @@ main = do
         print $ parse $ tokenize "int main() { int a; return 4; }"
         print $ parse $ tokenize "int main() { int a = 5; return 4; }"
         print $ parse $ tokenize "int main() { int a; a = 5; return 4; }"
+        print $ parse $ tokenize "int main() { int a = 2 || 3; return 5; }"
         args <- getArgs
         let infileName = head args
         handle <- openFile infileName ReadMode
