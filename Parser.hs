@@ -81,15 +81,15 @@ parseDeclStmt :: [Token] -> (Tree, [Token])
 parseDeclStmt (ty:id:toks) =
         case id of
              (TokIdent varName) ->
-                     let (exprTree, toks') = parseMaybeExpr toks
+                     let (exprTree, toks') = parseOptionalAssign toks
                          in
                      if lookAhead toks' /= TokSemiColon
                         then error "Missing semicolon"
                         else (DeclStmtNode varName exprTree, accept toks')
 
 
-parseMaybeExpr :: [Token] -> (Maybe Tree, [Token])
-parseMaybeExpr (equ:toks) =
+parseOptionalAssign :: [Token] -> (Maybe Tree, [Token])
+parseOptionalAssign (equ:toks) =
         case equ of
              TokAssign ->
                      let (exprTree, toks') = parseExprStmt (equ:toks)
