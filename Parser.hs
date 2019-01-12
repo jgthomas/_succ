@@ -8,8 +8,8 @@ import Lexer
 data Tree = ProgramNode [Tree]
           | FunctionNode String [Tree]
           | ReturnNode Tree                      -- statements
-          | DeclarationNode String (Maybe Tree)
-          | ExpressionStatementNode String Tree Operator
+          | DeclarationNode Tree (Maybe Tree)
+          | ExpressionStatementNode Tree Tree Operator
           | ConstantNode Int                     -- expressions
           | VarNode String
           | UnaryNode Tree Operator
@@ -86,7 +86,7 @@ parseDeclStmt (ty:id:toks) =
                          in
                      if lookAhead toks' /= TokSemiColon
                         then error "Missing semicolon"
-                        else (DeclarationNode varName exprTree, accept toks')
+                        else (DeclarationNode (VarNode varName) exprTree, accept toks')
 
 
 parseOptionalAssign :: [Token] -> (Maybe Tree, [Token])
@@ -109,7 +109,7 @@ parseExpression toks =
                           VarNode str ->
                                   let (exTree, toks'') = parseExpression (accept toks')
                                       in
-                                  (ExpressionStatementNode str exTree Assign, toks'')
+                                  (ExpressionStatementNode expressTree exTree Assign, toks'')
                           _ -> error "Can only assign to variables"
              _ -> (expressTree, toks')
 
