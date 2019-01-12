@@ -9,7 +9,7 @@ data Tree = ProgramNode [Tree]
           | FunctionNode String [Tree]
           | ReturnNode Tree                      -- statements
           | DeclStmtNode String (Maybe Tree)
-          | ExprStmtNode Tree
+          | ExprStmtNode String Tree
           | ConstantNode Int                     -- expressions
           | UnaryNode Tree Operator
           | BinaryNode Tree Tree Operator
@@ -61,7 +61,7 @@ parseStatement toks =
         case lookAhead toks of
              (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
                               | kwd == Int    -> parseDeclStmt toks
-             (TokIdent id) -> let (exprTree, toks') = parseExprStmt (accept toks)
+             (TokIdent id) -> let (exprTree, toks') = parseExprStmt toks
                                   in
                               if lookAhead toks' /= TokSemiColon
                                  then error "Missing semicolon"
@@ -81,7 +81,7 @@ parseDeclStmt :: [Token] -> (Tree, [Token])
 parseDeclStmt (ty:id:toks) =
         case id of
              (TokIdent varName) ->
-                     let (exprTree, toks') = parseOptionalAssign toks
+                     let (exprTree, toks') = parseOptionalAssign (id:toks)
                          in
                      if lookAhead toks' /= TokSemiColon
                         then error "Missing semicolon"
@@ -89,20 +89,20 @@ parseDeclStmt (ty:id:toks) =
 
 
 parseOptionalAssign :: [Token] -> (Maybe Tree, [Token])
-parseOptionalAssign (equ:toks) =
+parseOptionalAssign (id:equ:toks) =
         case equ of
              TokAssign ->
-                     let (exprTree, toks') = parseExprStmt (equ:toks)
+                     let (exprTree, toks') = parseExprStmt (id:equ:toks)
                          in
                      (Just exprTree, toks')
              _ -> (Nothing, (equ:toks))
 
 
 parseExprStmt :: [Token] -> (Tree, [Token])
-parseExprStmt (equ:toks) =
+parseExprStmt (id:equ:toks) =
         let (exprTree, toks') = parseExpression toks
             in
-        (ExprStmtNode exprTree, toks')
+        (ExprStmtNode (getName id) exprTree, toks')
 
 
 parseExpression :: [Token] -> (Tree, [Token])
@@ -213,3 +213,7 @@ isValidType toks =
 
 validType :: Token -> Bool
 validType (TokKeyword kwd) = elem kwd [Int]
+
+
+getName :: Token -> String
+getName (TokIdent n) = n
