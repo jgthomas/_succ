@@ -93,7 +93,7 @@ parseMaybeExpr :: [Token] -> (Maybe Tree, [Token])
 parseMaybeExpr (equ:toks) =
         case equ of
              TokAssign ->
-                     let (exprTree, toks') = parseExprStmt toks
+                     let (exprTree, toks') = parseExprStmt (equ:toks)
                          in
                      (Just exprTree, toks')
              _ -> (Nothing, (equ:toks))
