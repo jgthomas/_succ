@@ -9,7 +9,7 @@ data Tree = ProgramNode [Tree]
           | FunctionNode String [Tree]
           | ReturnNode Tree                      -- statements
           | DeclarationNode String (Maybe Tree)
-          | ExpressionStatementNode String Tree
+          | ExpressionStatementNode String Tree Operator
           | ConstantNode Int                     -- expressions
           | VarNode String
           | UnaryNode Tree Operator
@@ -109,7 +109,7 @@ parseExpression toks =
                           VarNode str ->
                                   let (exTree, toks'') = parseExpression (accept toks')
                                       in
-                                  (ExpressionStatementNode str exTree, toks'')
+                                  (ExpressionStatementNode str exTree Assign, toks'')
                           _ -> error "Can only assign to variables"
              _ -> (expressTree, toks')
 
