@@ -118,60 +118,42 @@ parseLogicalOrExp :: [Token] -> (Tree, [Token])
 parseLogicalOrExp toks =
         let (orTree, toks') = parseLogicalAndExp toks
             in
-        case lookAhead toks' of
-             (TokOp op) | op == LogicalOR ->
-                        parseBinaryExp orTree toks' parseLogicalAndExp
-             _ -> (orTree, toks')
+        parseBinaryExp orTree toks' parseLogicalAndExp [LogicalOR]
 
 
 parseLogicalAndExp :: [Token] -> (Tree, [Token])
 parseLogicalAndExp toks =
         let (andTree, toks') = parseEqualityExp toks
             in
-        case lookAhead toks' of
-             (TokOp op) | op == LogicalAND ->
-                        parseBinaryExp andTree toks' parseEqualityExp
-             _ -> (andTree, toks')
+        parseBinaryExp andTree toks' parseEqualityExp [LogicalAND]
 
 
 parseEqualityExp :: [Token] -> (Tree, [Token])
 parseEqualityExp toks =
         let (equTree, toks') = parseRelationalExp toks
             in
-        case lookAhead toks' of
-             (TokOp op) | elem op [Equal,NotEqual] ->
-                     parseBinaryExp equTree toks' parseRelationalExp
-             _ -> (equTree, toks')
+        parseBinaryExp equTree toks' parseRelationalExp [Equal,NotEqual]
 
 
 parseRelationalExp :: [Token] -> (Tree, [Token])
 parseRelationalExp toks =
         let (relaTree, toks') = parseAdditiveExp toks
             in
-        case lookAhead toks' of
-             (TokOp op) | elem op [GreaterThan,LessThan,GreaterThanOrEqual,LessThanOrEqual] ->
-                     parseBinaryExp relaTree toks' parseAdditiveExp
-             _ -> (relaTree, toks')
+        parseBinaryExp relaTree toks' parseAdditiveExp [GreaterThan,LessThan,GreaterThanOrEqual,LessThanOrEqual]
 
 
 parseAdditiveExp :: [Token] -> (Tree, [Token])
 parseAdditiveExp toks =
         let (termTree, toks') = parseTerm toks
             in
-        case lookAhead toks' of
-             (TokOp op) | elem op [Plus, Minus] ->
-                     parseBinaryExp termTree toks' parseTerm
-             _ -> (termTree, toks')
+        parseBinaryExp termTree toks' parseTerm [Plus,Minus]
 
 
 parseTerm :: [Token] -> (Tree, [Token])
 parseTerm toks =
         let (facTree, toks') = parseFactor toks
             in
-        case lookAhead toks' of
-             (TokOp op) | elem op [Multiply, Divide] ->
-                     parseBinaryExp facTree toks' parseFactor
-             _ -> (facTree, toks')
+        parseBinaryExp facTree toks' parseFactor [Multiply,Divide]
 
 
 parseFactor :: [Token] -> (Tree, [Token])
@@ -192,13 +174,13 @@ parseFactor toks =
              _ ->  error $ "Parse error on token: " ++ show toks
 
 
-parseBinaryExp :: Tree -> [Token] -> ([Token] -> (Tree, [Token])) -> (Tree, [Token])
-parseBinaryExp tree toks nextVal =
+parseBinaryExp :: Tree -> [Token] -> ([Token] -> (Tree, [Token])) -> [Operator] -> (Tree, [Token])
+parseBinaryExp tree toks nextVal ops =
         case lookAhead toks of
-             (TokOp op) ->
+             (TokOp op) | elem op ops ->
                      let (nexTree, toks') = nextVal (accept toks)
                          in
-                     parseBinaryExp (BinaryNode tree nexTree op) toks' nextVal
+                     parseBinaryExp (BinaryNode tree nexTree op) toks' nextVal ops
              _ -> (tree, toks)
 
 
