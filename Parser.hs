@@ -8,7 +8,7 @@ import Lexer
 data Tree = ProgramNode [Tree]
           | FunctionNode String [Tree]
           | ReturnNode Tree                      -- statements
-          | DeclStmtNode String (Maybe Tree)
+          | DeclarationNode String (Maybe Tree)
           | ExprStmtNode String Tree
           | ConstantNode Int                     -- expressions
           | VarNode String
@@ -86,7 +86,7 @@ parseDeclStmt (ty:id:toks) =
                          in
                      if lookAhead toks' /= TokSemiColon
                         then error "Missing semicolon"
-                        else (DeclStmtNode varName exprTree, accept toks')
+                        else (DeclarationNode varName exprTree, accept toks')
 
 
 parseOptionalAssign :: [Token] -> (Maybe Tree, [Token])
