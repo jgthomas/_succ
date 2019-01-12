@@ -59,13 +59,8 @@ parseAllStatements stmts toks =
 parseStatement :: [Token] -> (Tree, [Token])
 parseStatement toks =
         case lookAhead toks of
-             (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
-                              | elem kwd [Int] ->
-                              let (stmtTree, toks') = parseDeclStmt toks
-                                  in
-                              if lookAhead toks' /= TokSemiColon
-                                 then error "Missing semicolon"
-                                 else (stmtTree, accept toks')
+             (TokKeyword kwd) | kwd == Return  -> parseReturnStmt toks
+                              | elem kwd [Int] -> parseDeclStmt toks
              (TokIdent id) -> let (exprTree, toks') = parseExprStmt (accept toks)
                                   in
                               if lookAhead toks' /= TokSemiColon
@@ -88,7 +83,9 @@ parseDeclStmt (ty:id:toks) =
              (TokIdent varName) ->
                      let (exprTree, toks') = parseMaybeExpr toks
                          in
-                     (DeclStmtNode varName exprTree, toks')
+                     if lookAhead toks' /= TokSemiColon
+                        then error "Missing semicolon"
+                        else (DeclStmtNode varName exprTree, accept toks')
 
 
 parseMaybeExpr :: [Token] -> (Maybe Tree, [Token])
