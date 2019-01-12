@@ -175,7 +175,11 @@ parseFactor toks =
              _ ->  error $ "Parse error on token: " ++ show toks
 
 
-parseBinaryExp :: Tree -> [Token] -> ([Token] -> (Tree, [Token])) -> [Operator] -> (Tree, [Token])
+parseBinaryExp :: Tree
+               -> [Token]
+               -> ([Token] -> (Tree, [Token]))
+               -> [Operator]
+               -> (Tree, [Token])
 parseBinaryExp tree toks nextVal ops =
         case lookAhead toks of
              (TokOp op) | elem op ops ->
