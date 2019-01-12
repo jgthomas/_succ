@@ -139,7 +139,8 @@ parseRelationalExp :: [Token] -> (Tree, [Token])
 parseRelationalExp toks =
         let (relaTree, toks') = parseAdditiveExp toks
             in
-        parseBinaryExp relaTree toks' parseAdditiveExp [GreaterThan,LessThan,GreaterThanOrEqual,LessThanOrEqual]
+        parseBinaryExp relaTree toks' parseAdditiveExp
+             [GreaterThan,LessThan,GreaterThanOrEqual,LessThanOrEqual]
 
 
 parseAdditiveExp :: [Token] -> (Tree, [Token])
