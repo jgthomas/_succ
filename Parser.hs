@@ -71,6 +71,11 @@ parseStatement toks =
                               if lookAhead toks' /= TokSemiColon
                                  then error "Missing semicolon"
                                  else (stmtTree, accept toks')
+             (TokIdent id) -> let (exprTree, toks') = parseExprStmt (accept toks)
+                                  in
+                              if lookAhead toks' /= TokSemiColon
+                                 then error "Missing semicolon"
+                                 else (exprTree, accept toks')
 
 
 parseReturnStmt :: [Token] -> (Tree, [Token])
