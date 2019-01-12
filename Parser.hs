@@ -87,6 +87,16 @@ parseDeclStmt (ty:id:toks) =
              _ -> error "Wut"
 
 
+parseMaybeExpr :: [Token] -> (Maybe Tree, [Token])
+parseMaybeExpr (equ:toks) =
+        case equ of
+             TokAssign ->
+                     let (exprTree, toks') = parseExprStmt toks
+                         in
+                     (Just exprTree, toks')
+             _ -> (Nothing, toks)
+
+
 parseExprStmt :: [Token] -> (Tree, [Token])
 parseExprStmt (equ:toks) =
         let (exprTree, toks') = parseExpression toks
