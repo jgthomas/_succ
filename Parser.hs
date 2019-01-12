@@ -83,8 +83,10 @@ parseReturnStmt toks =
 parseDeclStmt :: [Token] -> (Tree, [Token])
 parseDeclStmt (ty:id:toks) =
         case id of
-             (TokIdent varName) -> (DeclStmtNode varName Nothing, toks)
-             _ -> error "Wut"
+             (TokIdent varName) ->
+                     let (exprTree, toks') = parseMaybeExpr toks
+                         in
+                     (DeclStmtNode varName exprTree, toks')
 
 
 parseMaybeExpr :: [Token] -> (Maybe Tree, [Token])
@@ -94,7 +96,7 @@ parseMaybeExpr (equ:toks) =
                      let (exprTree, toks') = parseExprStmt toks
                          in
                      (Just exprTree, toks')
-             _ -> (Nothing, toks)
+             _ -> (Nothing, (equ:toks))
 
 
 parseExprStmt :: [Token] -> (Tree, [Token])
