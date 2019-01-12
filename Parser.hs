@@ -59,8 +59,8 @@ parseAllStatements stmts toks =
 parseStatement :: [Token] -> (Tree, [Token])
 parseStatement toks =
         case lookAhead toks of
-             (TokKeyword kwd) | kwd == Return  -> parseReturnStmt toks
-                              | elem kwd [Int] -> parseDeclStmt toks
+             (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
+                              | kwd == Int    -> parseDeclStmt toks
              (TokIdent id) -> let (exprTree, toks') = parseExprStmt (accept toks)
                                   in
                               if lookAhead toks' /= TokSemiColon
