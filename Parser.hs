@@ -62,7 +62,7 @@ parseStatement toks =
         case lookAhead toks of
              (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
                               | kwd == Int    -> parseDeclStmt toks
-             (TokIdent id) -> let (exprTree, toks') = parseExprStmt toks
+             (TokIdent id) -> let (exprTree, toks') = parseExpression toks
                                   in
                               if lookAhead toks' /= TokSemiColon
                                  then error "Missing semicolon"
@@ -97,10 +97,6 @@ parseOptionalAssign (id:equ:toks) =
                          in
                      (Just exprTree, toks')
              _ -> (Nothing, (equ:toks))
-
-
-parseExprStmt :: [Token] -> (Tree, [Token])
-parseExprStmt (id:equ:toks) = parseExpression (id:equ:toks)
 
 
 parseExpression :: [Token] -> (Tree, [Token])
