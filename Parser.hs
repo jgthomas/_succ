@@ -11,6 +11,7 @@ data Tree = ProgramNode [Tree]
           | DeclStmtNode String (Maybe Tree)
           | ExprStmtNode String Tree
           | ConstantNode Int                     -- expressions
+          | VarNode String
           | UnaryNode Tree Operator
           | BinaryNode Tree Tree Operator
           | AssignNode String Tree
@@ -92,21 +93,29 @@ parseOptionalAssign :: [Token] -> (Maybe Tree, [Token])
 parseOptionalAssign (id:equ:toks) =
         case equ of
              TokAssign ->
-                     let (exprTree, toks') = parseExprStmt (id:equ:toks)
+                     let (exprTree, toks') = parseExpression (id:equ:toks)
                          in
                      (Just exprTree, toks')
              _ -> (Nothing, (equ:toks))
 
 
 parseExprStmt :: [Token] -> (Tree, [Token])
-parseExprStmt (id:equ:toks) =
-        let (exprTree, toks') = parseExpression toks
-            in
-        (ExprStmtNode (getName id) exprTree, toks')
+parseExprStmt (id:equ:toks) = parseExpression (id:equ:toks)
 
 
 parseExpression :: [Token] -> (Tree, [Token])
-parseExpression toks = parseLogicalOrExp toks
+parseExpression toks =
+        let (expressTree, toks') = parseLogicalOrExp toks
+            in
+        case lookAhead toks' of
+             TokAssign ->
+                     case expressTree of
+                          VarNode str ->
+                                  let (exTree, toks'') = parseExpression (accept toks')
+                                      in
+                                  (ExprStmtNode str exTree, toks'')
+                          _ -> error "Can only assign to variables"
+             _ -> (expressTree, toks')
 
 
 parseLogicalOrExp :: [Token] -> (Tree, [Token])
@@ -173,6 +182,7 @@ parseFactor :: [Token] -> (Tree, [Token])
 parseFactor toks =
         case lookAhead toks of
              (TokConstInt n) -> (ConstantNode n, (accept toks))
+             (TokIdent str)  -> (VarNode str, accept toks)
              (TokOp op) | elem op [Minus, BitwiseCompl, LogicNegation] ->
                      let (facTree, toks') = parseFactor (accept toks)
                          in
