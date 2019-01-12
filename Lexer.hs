@@ -22,6 +22,7 @@ data Operator = Plus
               | LessThanOrEqual
               | Equal
               | NotEqual
+              | Assign
               deriving (Show, Eq)
 
 
