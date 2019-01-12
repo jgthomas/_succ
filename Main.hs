@@ -15,6 +15,9 @@ import Generator (genASM)
 
 main :: IO()
 main = do
+        --print $ parse $ tokenize "int main() { int a; return 4; }"
+        --print $ parse $ tokenize "int main() { int a = 5; return 4; }"
+        --print $ parse $ tokenize "int main() { int a; a = 5; return 4; }"
         args <- getArgs
         let infileName = head args
         handle <- openFile infileName ReadMode
