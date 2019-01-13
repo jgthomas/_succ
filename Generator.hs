@@ -49,6 +49,14 @@ loadValue :: Int -> String
 loadValue n = "movq $" ++ (show n) ++ ", %rax\n"
 
 
+varOnStack :: Int -> String
+varOnStack n = "movq %rax, " ++ (show n) ++ "(%rbp)\n"
+
+
+varOffStack :: Int -> String
+varOffStack n = "movq " ++ (show n) ++ "(%rbp), %rax\n"
+
+
 returnStatement :: String
 returnStatement = "movq %rbp, %rsp\n"
                   ++ "popq %rbp\n"
