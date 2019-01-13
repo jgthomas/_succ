@@ -7,21 +7,32 @@ import Parser (Tree(..))
 import SymTab
 
 
-genASM :: Tree -> String
+genASM :: Tree -> Evaluator String
 
-genASM (ProgramNode functionList)
-        = concat $ map genASM functionList
+genASM (ProgramNode functionList) = do
+        prog <- mapM genASM functionList
+        -- concat $ map genASM functionList
+        return $ concat prog
 
-genASM (FunctionNode name statementList)
-        = functionName name ++ (concat $ map genASM statementList)
+genASM (FunctionNode name statementList) = do
+        func <- mapM genASM statementList
+        return $ functionName name ++ concat func
+        --functionName name ++ (concat $ map genASM statementList)
 
-genASM (ReturnNode tree) = genASM tree ++ returnStatement
+genASM (ReturnNode tree) = do
+        rtn <- genASM tree
+        return $ rtn ++ returnStatement
 
-genASM (ConstantNode n) = loadValue n
+genASM (ConstantNode n) = return $ loadValue n
 
-genASM (UnaryNode tree op) = genASM tree ++ unary op
+genASM (UnaryNode tree op) = do
+        unode <- genASM tree
+        return $ unode ++ (unary op)
 
-genASM (BinaryNode left right op) = binary (genASM left) (genASM right) op
+genASM (BinaryNode left right op) = do
+        lft <- genASM left
+        rgt <- genASM right
+        return $ binary lft rgt op
 
 
 functionName :: String -> String
