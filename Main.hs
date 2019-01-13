@@ -5,13 +5,14 @@ import System.Environment (getArgs)
 import System.FilePath (dropExtension)
 import System.Process (system)
 import Control.Monad (when)
+import qualified Data.Map as M
 
 import Lexer (tokenize)
 import Parser (parse)
 import Generator (genASM)
 import SymTab
 
-type SymTab = ()
+--type SymTab = ()
 
 
 main :: IO()
@@ -36,7 +37,7 @@ main = do
         let parsed = parse $ tokenize contents
         --let assembly = genASM $ parse $ tokenize contents
 
-        let symTab = ()
+        let symTab = M.empty
             Ev act = genASM parsed
             (asm, symTab') = act symTab
             in do
