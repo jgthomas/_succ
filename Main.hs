@@ -17,9 +17,9 @@ import SymTab
 
 main :: IO()
 main = do
-        --print $ parse $ tokenize "int main() { int a; return 4; }"
-        --print $ parse $ tokenize "int main() { int a = 5; return 4; }"
-        --print $ parse $ tokenize "int main() { int a; a = 5; return 4; }"
+        --print $ parse $ tokenize "int main() { int a; return 5; }"
+        print $ parse $ tokenize "int main() { int a = 5; return a; }"
+        print $ parse $ tokenize "int main() { int a; a = 5; return a; }"
         --print $ parse $ tokenize "int main() { int a = 2 || 3; return 5; }"
         --print $ parse $ tokenize "int main() { int a = 2; int b = a + 1; return b; }"
         --print $ parse $ tokenize "int main() { int a = 2 * (7 + 3); return a; }"
