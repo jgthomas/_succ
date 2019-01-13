@@ -36,7 +36,13 @@ genASM (BinaryNode left right op) = do
 
 
 functionName :: String -> String
-functionName f = ".globl " ++ f ++ "\n" ++ f ++ ":\n"
+functionName f = ".globl "
+                 ++ f
+                 ++ "\n"
+                 ++ f
+                 ++ ":\n"
+                 ++ "pushq %rbp\n"
+                 ++ "movq %rsp, %rbp\n"
 
 
 loadValue :: Int -> String
@@ -44,7 +50,9 @@ loadValue n = "movq $" ++ (show n) ++ ", %rax\n"
 
 
 returnStatement :: String
-returnStatement = "ret\n"
+returnStatement = "movq %rbp, %rsp\n"
+                  ++ "popq %rbp\n"
+                  ++ "ret\n"
 
 
 unary :: Operator -> String
