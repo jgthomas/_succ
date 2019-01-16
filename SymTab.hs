@@ -60,6 +60,14 @@ instance Monad Evaluator where
 --            in (val, symTab')
 
 
+lookUp :: String -> Evaluator Int
+lookUp str = Ev $ \symTab ->
+        let tab = variables symTab
+            in case M.lookup str tab of
+                    Just v  -> (v, symTab)
+                    Nothing -> error $ "Undefined variable: '" ++ str ++ "'"
+
+
 addSymbol :: String -> Evaluator Int
 addSymbol str = Ev $ \symTab ->
         let tab = variables symTab
