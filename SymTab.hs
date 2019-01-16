@@ -1,5 +1,5 @@
 
-module SymTab (Evaluator(..), SymTab(..), addSymbol) where
+module SymTab (Evaluator(..), SymTab(..), addSymbol, lookUp) where
 
 
 import Lexer
