@@ -46,20 +46,6 @@ instance Monad Evaluator where
         return x = Ev (\symTab -> (x, symTab))
 
 
-
---lookUp :: String -> Evaluator Int
---lookUp str = Ev $ \symTab ->
---        case M.lookup str symTab of
---             Just v  -> (v, symTab)
---             Nothing -> error $ "Undefined variable: " ++ str
---
---
---addSymbol :: String -> Int -> Evaluator Int
---addSymbol str val = Ev $ \symTab ->
---        let symTab' = M.insert str val symTab
---            in (val, symTab')
-
-
 lookUp :: String -> Evaluator Int
 lookUp str = Ev $ \symTab ->
         let tab = variables symTab
