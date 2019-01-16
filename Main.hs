@@ -15,6 +15,10 @@ import SymTab
 --type SymTab = ()
 
 
+newSymTab :: SymTab
+newSymTab = Tab (-8) M.empty
+
+
 main :: IO()
 main = do
         --print $ parse $ tokenize "int main() { int a; return 5; }"
@@ -37,7 +41,7 @@ main = do
         let parsed = parse $ tokenize contents
         --let assembly = genASM $ parse $ tokenize contents
 
-        let symTab = M.empty
+        let symTab = newSymTab --M.empty
             Ev act = genASM parsed
             (asm, symTab') = act symTab
             in do

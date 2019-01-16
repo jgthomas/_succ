@@ -1,5 +1,5 @@
 
-module SymTab (Evaluator(..)) where
+module SymTab (Evaluator(..), SymTab(..)) where
 
 
 import Lexer
@@ -8,8 +8,13 @@ import qualified Data.Map as M
 import Control.Monad (liftM, ap)
 
 
-type SymTab = M.Map String Int
+--type SymTab = M.Map String Int
 --type SymTab = ()
+
+
+data SymTab = Tab { offset    :: Int
+                  , variables :: M.Map String Int}
+            deriving Show
 
 
 newtype Evaluator a = Ev (SymTab -> (a, SymTab))
@@ -42,14 +47,14 @@ instance Monad Evaluator where
 
 
 
-lookUp :: String -> Evaluator Int
-lookUp str = Ev $ \symTab ->
-        case M.lookup str symTab of
-             Just v  -> (v, symTab)
-             Nothing -> error $ "Undefined variable: " ++ str
-
-
-addSymbol :: String -> Int -> Evaluator Int
-addSymbol str val = Ev $ \symTab ->
-        let symTab' = M.insert str val symTab
-            in (val, symTab')
+--lookUp :: String -> Evaluator Int
+--lookUp str = Ev $ \symTab ->
+--        case M.lookup str symTab of
+--             Just v  -> (v, symTab)
+--             Nothing -> error $ "Undefined variable: " ++ str
+--
+--
+--addSymbol :: String -> Int -> Evaluator Int
+--addSymbol str val = Ev $ \symTab ->
+--        let symTab' = M.insert str val symTab
+--            in (val, symTab')
