@@ -21,7 +21,7 @@ genASM (FunctionNode name statementList) = do
 
 genASM (ReturnNode tree) = do
         rtn <- genASM tree
-        addSymbol "hello" 9
+        addSymbol "hello"
         return $ rtn ++ returnStatement
 
 genASM (ConstantNode n) = return $ loadValue n

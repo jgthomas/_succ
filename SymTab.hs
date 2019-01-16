@@ -60,9 +60,10 @@ instance Monad Evaluator where
 --            in (val, symTab')
 
 
-addSymbol :: String -> Int -> Evaluator Int
-addSymbol str val = Ev $ \symTab ->
+addSymbol :: String -> Evaluator Int
+addSymbol str = Ev $ \symTab ->
         let tab = variables symTab
-            symTab' = symTab { variables = M.insert str val tab }
+            off = offset symTab
+            symTab' = symTab { variables = M.insert str off tab }
             in
-        (val, symTab')
+        (off, symTab')
