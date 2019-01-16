@@ -47,6 +47,7 @@ main = do
             in do
                     --writeFile outfileName asm
 
+                    print symTab'
                     when (length asm > 0) $
                        writeFile outfileName asm
 
