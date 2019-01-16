@@ -1,5 +1,5 @@
 
-module SymTab (Evaluator(..), SymTab(..)) where
+module SymTab (Evaluator(..), SymTab(..), addSymbol) where
 
 
 import Lexer
@@ -58,3 +58,11 @@ instance Monad Evaluator where
 --addSymbol str val = Ev $ \symTab ->
 --        let symTab' = M.insert str val symTab
 --            in (val, symTab')
+
+
+addSymbol :: String -> Int -> Evaluator Int
+addSymbol str val = Ev $ \symTab ->
+        let tab = variables symTab
+            symTab' = symTab { variables = M.insert str val tab }
+            in
+        (val, symTab')
