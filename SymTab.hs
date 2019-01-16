@@ -65,5 +65,6 @@ addSymbol str = Ev $ \symTab ->
         let tab = variables symTab
             off = offset symTab
             symTab' = symTab { variables = M.insert str off tab }
+            symTab'' = symTab' { offset = off + (-8) }
             in
-        (off, symTab')
+        (off, symTab'')
