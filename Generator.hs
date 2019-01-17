@@ -18,10 +18,14 @@ genASM (FunctionNode name statementList) = do
         return $ functionName name ++ concat func
 
 genASM (DeclarationNode varName value) = do
-        offset <- addSymbol varName
-        case value of
-             Nothing     -> return $ loadValue 0 ++ varOnStack offset
-             Just value  -> genASM value
+        varDeclared <- checkVar varName
+        case varDeclared of
+             True        -> error $ "Variable '" ++ varName ++ "' already declared"
+             False       -> do
+                     offset <- addSymbol varName
+                     case value of
+                          Nothing     -> return $ loadValue 0 ++ varOnStack offset
+                          Just value  -> genASM value
 
 genASM (AssignmentNode varName value operator) = do
         offset <- lookUp varName

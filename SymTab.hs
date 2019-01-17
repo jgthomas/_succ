@@ -1,5 +1,5 @@
 
-module SymTab (Evaluator(..), SymTab(..), addSymbol, lookUp) where
+module SymTab (Evaluator(..), SymTab(..), addSymbol, lookUp, checkVar) where
 
 
 import Lexer
@@ -40,6 +40,14 @@ instance Monad Evaluator where
                         (Ev act')    = k x
                     in act' symTab'
         return x = Ev (\symTab -> (x, symTab))
+
+
+checkVar :: String -> Evaluator Bool
+checkVar str = Ev $ \symTab ->
+        let tab = variables symTab
+            in case M.lookup str tab of
+                    Just v  -> (True, symTab)
+                    Nothing -> (False, symTab)
 
 
 lookUp :: String -> Evaluator Int
