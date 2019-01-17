@@ -14,8 +14,11 @@ genASM (ProgramNode functionList) = do
         return $ concat prog
 
 genASM (FunctionNode name statementList) = do
-        func <- mapM genASM statementList
-        return $ functionName name ++ concat func
+        if length statementList == 0
+           then return $ functionName name ++ loadValue 0 ++ returnStatement
+           else do
+                   func <- mapM genASM statementList
+                   return $ functionName name ++ concat func
 
 genASM (DeclarationNode varName value) = do
         varDeclared <- checkVar varName
