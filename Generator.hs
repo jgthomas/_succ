@@ -11,13 +11,11 @@ genASM :: Tree -> Evaluator String
 
 genASM (ProgramNode functionList) = do
         prog <- mapM genASM functionList
-        -- concat $ map genASM functionList
         return $ concat prog
 
 genASM (FunctionNode name statementList) = do
         func <- mapM genASM statementList
         return $ functionName name ++ concat func
-        --functionName name ++ (concat $ map genASM statementList)
 
 genASM (DeclarationNode varName value) = do
         off <- addSymbol varName

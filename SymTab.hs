@@ -8,10 +8,6 @@ import qualified Data.Map as M
 import Control.Monad (liftM, ap)
 
 
---type SymTab = M.Map String Int
---type SymTab = ()
-
-
 data SymTab = Tab { offset    :: Int
                   , variables :: M.Map String Int}
             deriving Show
