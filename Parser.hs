@@ -36,10 +36,10 @@ parseProgram toks =
 
 
 parseFunction :: [Token] -> (Tree, [Token])
-parseFunction toks =
-        case lookAhead toks of
-             (TokIdent id) | isFuncStart (accept toks) ->
-                     let (stmentTree, toks') = parseStatement (drop 4 toks)
+parseFunction (id:op:cp:ob:toks) =
+        case id of
+             (TokIdent id) | isFuncStart (op:cp:ob:toks) ->
+                     let (stmentTree, toks') = parseStatement toks
                          (stmentList, toks'') = parseAllStatements [stmentTree] toks'
                          in
                      if lookAhead toks'' /= TokCloseBrace
