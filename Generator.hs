@@ -39,24 +39,24 @@ genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression
         return exprsn
 
-genASM (VarNode varName) = do
-        offset <- lookUp varName
-        return $ varOffStack offset
-
 genASM (ReturnNode tree) = do
         rtn <- genASM tree
         return $ rtn ++ returnStatement
-
-genASM (ConstantNode n) = return $ loadValue n
-
-genASM (UnaryNode tree op) = do
-        unode <- genASM tree
-        return $ unode ++ (unary op)
 
 genASM (BinaryNode left right op) = do
         lft <- genASM left
         rgt <- genASM right
         return $ binary lft rgt op
+
+genASM (UnaryNode tree op) = do
+        unode <- genASM tree
+        return $ unode ++ (unary op)
+
+genASM (VarNode varName) = do
+        offset <- lookUp varName
+        return $ varOffStack offset
+
+genASM (ConstantNode n) = return $ loadValue n
 
 
 functionName :: String -> String
