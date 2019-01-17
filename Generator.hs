@@ -20,8 +20,8 @@ genASM (FunctionNode name statementList) = do
 genASM (DeclarationNode varName value) = do
         varDeclared <- checkVar varName
         case varDeclared of
-             True        -> error $ "Variable '" ++ varName ++ "' already declared"
-             False       -> do
+             True  -> error $ "Variable '" ++ varName ++ "' already declared"
+             False -> do
                      offset <- addSymbol varName
                      case value of
                           Nothing     -> return $ loadValue 0 ++ varOnStack offset
