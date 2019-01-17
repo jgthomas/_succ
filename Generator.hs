@@ -18,19 +18,19 @@ genASM (FunctionNode name statementList) = do
         return $ functionName name ++ concat func
 
 genASM (DeclarationNode varName value) = do
-        off <- addSymbol varName
+        offset <- addSymbol varName
         case value of
-             Nothing     -> return $ loadValue 0 ++ varOnStack off
+             Nothing     -> return $ loadValue 0 ++ varOnStack offset
              Just value  -> genASM value
 
 genASM (AssignmentNode varName value operator) = do
-        off <- lookUp varName
+        offset <- lookUp varName
         assign <- genASM value
-        return $ assign ++ varOnStack off
+        return $ assign ++ varOnStack offset
 
 genASM (VarNode varName) = do
-        off <- lookUp varName
-        return $ varOffStack off
+        offset <- lookUp varName
+        return $ varOffStack offset
 
 genASM (ReturnNode tree) = do
         rtn <- genASM tree
