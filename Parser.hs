@@ -10,6 +10,7 @@ data Tree = ProgramNode [Tree]
           | ReturnNode Tree                      -- statements
           | DeclarationNode String (Maybe Tree)
           | AssignmentNode String Tree Operator
+          | ExprStmtNode Tree
           | ConstantNode Int                     -- expressions
           | VarNode String
           | UnaryNode Tree Operator
@@ -67,6 +68,7 @@ parseStatement toks =
                               if lookAhead toks' /= TokSemiColon
                                  then error "Missing semicolon"
                                  else (exprTree, accept toks')
+             _             -> parseExprStatement toks
 
 
 parseReturnStmt :: [Token] -> (Tree, [Token])
@@ -97,6 +99,15 @@ parseOptionalAssign (id:equ:toks) =
                          in
                      (Just exprTree, toks')
              _ -> (Nothing, (equ:toks))
+
+
+parseExprStatement :: [Token] -> (Tree, [Token])
+parseExprStatement toks =
+        let (exprTree, toks') = parseExpression toks
+            in
+        if lookAhead toks' /= TokSemiColon
+           then error "Missing semicolon"
+           else (ExprStmtNode exprTree, accept toks')
 
 
 parseExpression :: [Token] -> (Tree, [Token])

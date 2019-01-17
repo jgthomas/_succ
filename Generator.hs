@@ -32,6 +32,10 @@ genASM (AssignmentNode varName value operator) = do
         assign <- genASM value
         return $ assign ++ varOnStack offset
 
+genASM (ExprStmtNode expression) = do
+        exprsn <- genASM expression
+        return exprsn
+
 genASM (VarNode varName) = do
         offset <- lookUp varName
         return $ varOffStack offset
