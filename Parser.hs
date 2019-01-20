@@ -42,8 +42,8 @@ parseFunction (id:op:cp:ob:toks) =
                      if lookAhead toks == TokCloseBrace
                         then (FunctionNode id [], accept toks)
                         else
-                     let (stmentTree, toks') = parseStatement toks
-                         (stmentList, toks'') = parseAllStatements [stmentTree] toks'
+                     let (stmentTree, toks') = parseBlockItem toks
+                         (stmentList, toks'') = parseAllBlockItems [stmentTree] toks'
                          in
                      if lookAhead toks'' /= TokCloseBrace
                         then error "Missing closing brace"
@@ -51,21 +51,40 @@ parseFunction (id:op:cp:ob:toks) =
              _ -> error "No identifier supplied"
 
 
-parseAllStatements :: [Tree] -> [Token] -> ([Tree], [Token])
-parseAllStatements stmts toks =
+parseBlockItem :: [Token] -> (Tree, [Token])
+parseBlockItem toks =
+        case lookAhead toks of
+             (TokKeyword kwd) | elem kwd [Int] -> parseDeclaration toks
+             (TokKeyword kwd) | kwd == Return  -> parseStatement toks
+             (TokIdent id)                     -> parseStatement toks
+             _                                 -> parseStatement toks
+
+
+parseAllBlockItems :: [Tree] -> [Token] -> ([Tree], [Token])
+parseAllBlockItems stmts toks =
         case lookAhead toks of
              TokCloseBrace -> (stmts, toks)
              _ ->
-                     let (nextStmt, toks') = parseStatement toks
+                     let (nextStmt, toks') = parseBlockItem toks
                          in
-                     parseAllStatements (stmts ++ [nextStmt]) toks'
+                     parseAllBlockItems (stmts ++ [nextStmt]) toks'
+
+
+--parseAllStatements :: [Tree] -> [Token] -> ([Tree], [Token])
+--parseAllStatements stmts toks =
+--        case lookAhead toks of
+--             TokCloseBrace -> (stmts, toks)
+--             _ ->
+--                     let (nextStmt, toks') = parseStatement toks
+--                         in
+--                     parseAllStatements (stmts ++ [nextStmt]) toks'
 
 
 parseStatement :: [Token] -> (Tree, [Token])
 parseStatement toks =
         case lookAhead toks of
              (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
-                              | kwd == Int    -> parseDeclStmt toks
+--                              | kwd == Int    -> parseDeclaration toks
              (TokIdent id) -> let (exprTree, toks') = parseExpression toks
                                   in
                               if lookAhead toks' /= TokSemiColon
@@ -83,8 +102,8 @@ parseReturnStmt (rtn:toks) =
            else (ReturnNode exprsnTree, accept toks')
 
 
-parseDeclStmt :: [Token] -> (Tree, [Token])
-parseDeclStmt (ty:id:toks) =
+parseDeclaration :: [Token] -> (Tree, [Token])
+parseDeclaration (ty:id:toks) =
         case id of
              (TokIdent varName) ->
                      let (exprTree, toks') = parseOptionalAssign (id:toks)
