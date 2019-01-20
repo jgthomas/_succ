@@ -67,3 +67,11 @@ addSymbol str = Ev $ \symTab ->
             symTab'' = symTab' { offset = off + (-8) }
             in
         (off, symTab'')
+
+
+labelNum :: Evaluator Int
+labelNum = Ev $ \symTab ->
+        let num = labelNo symTab
+            symTab' = symTab { labelNo = num + 1 }
+            in
+        (num, symTab')
