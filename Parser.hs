@@ -54,8 +54,8 @@ parseFunction (id:op:cp:ob:toks) =
 parseBlockItem :: [Token] -> (Tree, [Token])
 parseBlockItem toks =
         case lookAhead toks of
-             (TokKeyword kwd) | elem kwd [Int] -> parseDeclaration toks
-             (TokKeyword kwd) | kwd == Return  -> parseStatement toks
+             (TokKeyword kwd) | kwd == Int     -> parseDeclaration toks
+                              | kwd == Return  -> parseStatement toks
              (TokIdent id)                     -> parseStatement toks
              _                                 -> parseStatement toks
 
