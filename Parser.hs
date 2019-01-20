@@ -11,6 +11,8 @@ data Tree = ProgramNode [Tree]
           | ReturnNode Tree                      -- statements
           | AssignmentNode String Tree Operator
           | ExprStmtNode Tree
+          | IfNode Tree Tree
+          | ElseNode Tree
           | ConstantNode Int                     -- expressions
           | VarNode String
           | UnaryNode Tree Operator
@@ -56,6 +58,8 @@ parseBlockItem toks =
         case lookAhead toks of
              (TokKeyword kwd) | kwd == Int     -> parseDeclaration toks
                               | kwd == Return  -> parseStatement toks
+                              | kwd == If      -> parseStatement toks
+                              | kwd == Else    -> parseStatement toks
              (TokIdent id)                     -> parseStatement toks
              _                                 -> parseStatement toks
 
@@ -74,12 +78,33 @@ parseStatement :: [Token] -> (Tree, [Token])
 parseStatement toks =
         case lookAhead toks of
              (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
+                              | kwd == If     -> parseIfStatement toks
+                              | kwd == Else   -> parseElseStatement toks
              (TokIdent id) -> let (exprTree, toks') = parseExpression toks
                                   in
                               if lookAhead toks' /= TokSemiColon
                                  then error "Missing semicolon"
                                  else (exprTree, accept toks')
              _             -> parseExprStatement toks
+
+
+parseIfStatement :: [Token] -> (Tree, [Token])
+parseIfStatement (kwd:op:toks) =
+        let (testTree, toks') = parseExpression toks
+            in
+        if lookAhead toks' /= TokCloseParen
+           then error "Missing closing parentheses"
+           else
+        let (stmtTree, toks'') = parseStatement (accept toks')
+            in
+        (IfNode testTree stmtTree, toks'')
+
+
+parseElseStatement :: [Token] -> (Tree, [Token])
+parseElseStatement (kwd:toks) =
+        let (stmtTree, toks') = parseStatement toks
+            in
+        (ElseNode stmtTree, toks')
 
 
 parseReturnStmt :: [Token] -> (Tree, [Token])
