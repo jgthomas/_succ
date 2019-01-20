@@ -28,6 +28,8 @@ data Operator = Plus
 
 data Keyword = Int
              | Return
+             | If
+             | Else
              deriving (Show, Eq)
 
 
@@ -77,6 +79,8 @@ identifier c cs = let (str, cs') = span isAlphaNum cs
                       in case (c:str) of
                               "int"    -> TokKeyword Int    : tokenize cs'
                               "return" -> TokKeyword Return : tokenize cs'
+                              "if"     -> TokKeyword If     : tokenize cs'
+                              "else"   -> TokKeyword Else   : tokenize cs'
                               _        -> TokIdent (c:str)  : tokenize cs'
 
 
