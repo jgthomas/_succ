@@ -19,15 +19,16 @@ newSymTab = Tab 0 (-8) M.empty
 
 main :: IO()
 main = do
+        --print $ parse $ tokenize "int main() { if (a) return 1; else return 9; }"
         args <- getArgs
         let infileName = head args
         handle <- openFile infileName ReadMode
         contents <- hGetContents handle
 
         -- debugging
-        print contents
-        print $ tokenize contents
-        print $ parse $ tokenize contents
+        --print contents
+        --print $ tokenize contents
+        --print $ parse $ tokenize contents
 
         let outfileName = (dropExtension infileName) ++ ".s"
         let parsed = parse $ tokenize contents

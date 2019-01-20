@@ -11,8 +11,8 @@ data Tree = ProgramNode [Tree]
           | ReturnNode Tree                      -- statements
           | AssignmentNode String Tree Operator
           | ExprStmtNode Tree
-          | IfNode Tree Tree
-          | ElseNode Tree
+          | IfNode Tree Tree (Maybe Tree)
+          -- | ElseNode Tree
           | ConstantNode Int                     -- expressions
           | VarNode String
           | UnaryNode Tree Operator
@@ -79,7 +79,7 @@ parseStatement toks =
         case lookAhead toks of
              (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
                               | kwd == If     -> parseIfStatement toks
-                              | kwd == Else   -> parseElseStatement toks
+                              -- | kwd == Else   -> parseElseStatement toks
              (TokIdent id) -> let (exprTree, toks') = parseExpression toks
                                   in
                               if lookAhead toks' /= TokSemiColon
@@ -96,15 +96,26 @@ parseIfStatement (kwd:op:toks) =
            then error "Missing closing parentheses"
            else
         let (stmtTree, toks'') = parseStatement (accept toks')
+            (possElse, toks''') = parseOptionalElse toks''
             in
-        (IfNode testTree stmtTree, toks'')
+        (IfNode testTree stmtTree possElse, toks''')
 
 
-parseElseStatement :: [Token] -> (Tree, [Token])
-parseElseStatement (kwd:toks) =
-        let (stmtTree, toks') = parseStatement toks
-            in
-        (ElseNode stmtTree, toks')
+parseOptionalElse :: [Token] -> (Maybe Tree, [Token])
+parseOptionalElse (kwd:toks) =
+        case kwd of
+             (TokKeyword kwd) | kwd == Else ->
+                              let (elseTree, toks') = parseStatement toks
+                                  in
+                              (Just elseTree, toks')
+             _ -> (Nothing, (kwd:toks))
+
+
+--parseElseStatement :: [Token] -> (Tree, [Token])
+--parseElseStatement (kwd:toks) =
+--        let (stmtTree, toks') = parseStatement toks
+--            in
+--        (ElseNode stmtTree, toks')
 
 
 parseReturnStmt :: [Token] -> (Tree, [Token])
