@@ -70,21 +70,10 @@ parseAllBlockItems stmts toks =
                      parseAllBlockItems (stmts ++ [nextStmt]) toks'
 
 
---parseAllStatements :: [Tree] -> [Token] -> ([Tree], [Token])
---parseAllStatements stmts toks =
---        case lookAhead toks of
---             TokCloseBrace -> (stmts, toks)
---             _ ->
---                     let (nextStmt, toks') = parseStatement toks
---                         in
---                     parseAllStatements (stmts ++ [nextStmt]) toks'
-
-
 parseStatement :: [Token] -> (Tree, [Token])
 parseStatement toks =
         case lookAhead toks of
              (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
---                              | kwd == Int    -> parseDeclaration toks
              (TokIdent id) -> let (exprTree, toks') = parseExpression toks
                                   in
                               if lookAhead toks' /= TokSemiColon
