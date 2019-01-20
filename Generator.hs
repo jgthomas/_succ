@@ -20,6 +20,20 @@ genASM (FunctionNode name statementList) = do
                    funcStmnts <- mapM genASM statementList
                    return $ functionName name ++ concat funcStmnts
 
+genASM (IfNode test action) = do
+        testVal <- genASM test
+        ifAction <- genASM action
+        label <- labelNum
+        return $ testVal
+                 ++ "cmpq $0, %rax\n"
+                 ++ "je _label_" ++ (show label) ++ "\n"
+                 ++ ifAction
+                 ++ "_label_" ++ (show label) ++ ":\n"
+
+genASM (ElseNode action) = do
+        elseAction <- genASM action
+        return elseAction
+
 genASM (DeclarationNode varName value) = do
         varDeclared <- checkVar varName
         case varDeclared of
