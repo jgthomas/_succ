@@ -12,7 +12,6 @@ data Tree = ProgramNode [Tree]
           | AssignmentNode String Tree Operator
           | ExprStmtNode Tree
           | IfNode Tree Tree (Maybe Tree)
-          -- | ElseNode Tree
           | ConstantNode Int                     -- expressions
           | VarNode String
           | UnaryNode Tree Operator
@@ -79,7 +78,6 @@ parseStatement toks =
         case lookAhead toks of
              (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
                               | kwd == If     -> parseIfStatement toks
-                              -- | kwd == Else   -> parseElseStatement toks
              (TokIdent id) -> let (exprTree, toks') = parseExpression toks
                                   in
                               if lookAhead toks' /= TokSemiColon
@@ -109,13 +107,6 @@ parseOptionalElse (kwd:toks) =
                                   in
                               (Just elseTree, toks')
              _ -> (Nothing, (kwd:toks))
-
-
---parseElseStatement :: [Token] -> (Tree, [Token])
---parseElseStatement (kwd:toks) =
---        let (stmtTree, toks') = parseStatement toks
---            in
---        (ElseNode stmtTree, toks')
 
 
 parseReturnStmt :: [Token] -> (Tree, [Token])

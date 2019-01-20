@@ -40,9 +40,6 @@ genASM (IfNode test action possElse) = do
                               ++ elseAction
                               ++ "_label_" ++ (show nextLabel) ++ ":\n"
 
---genASM (ElseNode action) = do
---        elseAction <- genASM action
---        return elseAction
 
 genASM (DeclarationNode varName value) = do
         varDeclared <- checkVar varName
