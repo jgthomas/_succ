@@ -8,7 +8,8 @@ import qualified Data.Map as M
 import Control.Monad (liftM, ap)
 
 
-data SymTab = Tab { offset    :: Int
+data SymTab = Tab { labelNo   :: Int
+                  , offset    :: Int
                   , variables :: M.Map String Int}
             deriving Show
 
