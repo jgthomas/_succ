@@ -52,14 +52,16 @@ data Token = TokOpenParen
 tokenize :: String -> [Token]
 tokenize [] = []
 tokenize (c:cs)
-    | c == '('          = TokOpenParen                  : tokenize cs
-    | c == ')'          = TokCloseParen                 : tokenize cs
-    | c == '{'          = TokOpenBrace                  : tokenize cs
-    | c == '}'          = TokCloseBrace                 : tokenize cs
-    | c == ';'          = TokSemiColon                  : tokenize cs
+    | c == '('          = TokOpenParen              : tokenize cs
+    | c == ')'          = TokCloseParen             : tokenize cs
+    | c == '{'          = TokOpenBrace              : tokenize cs
+    | c == '}'          = TokCloseBrace             : tokenize cs
+    | c == ';'          = TokSemiColon              : tokenize cs
+    | c == ':'          = TokColon                  : tokenize cs
+    | c == '?'          = TokQuestMark              : tokenize cs
     | isTwoCharOp c cs  = twoCharOperator c cs
-    | c == '='          = TokAssign                     : tokenize cs
-    | elem c opSymbols  = TokOp (operator c)            : tokenize cs
+    | c == '='          = TokAssign                 : tokenize cs
+    | elem c opSymbols  = TokOp (operator c)        : tokenize cs
     | isAlpha c         = identifier c cs
     | isDigit c         = number c cs
     | isSpace c         = tokenize cs
