@@ -19,7 +19,6 @@ newSymTab = Tab 0 (-8) M.empty
 
 main :: IO()
 main = do
-        print $ tokenize "int main() { if (a) return 1; else return (a > 3) ? 5 : 10; }"
         args <- getArgs
         let infileName = head args
         handle <- openFile infileName ReadMode

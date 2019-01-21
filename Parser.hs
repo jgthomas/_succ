@@ -16,6 +16,7 @@ data Tree = ProgramNode [Tree]
           | VarNode String
           | UnaryNode Tree Operator
           | BinaryNode Tree Tree Operator
+          | TernaryNode Tree Tree Tree
           | AssignNode String Tree
           deriving Show
 
@@ -150,7 +151,7 @@ parseExprStatement toks =
 
 parseExpression :: [Token] -> (Tree, [Token])
 parseExpression toks =
-        let (expressTree, toks') = parseLogicalOrExp toks
+        let (expressTree, toks') = parseTernaryExpr toks
             in
         case lookAhead toks' of
              TokAssign ->
@@ -161,6 +162,23 @@ parseExpression toks =
                                   (AssignmentNode str exTree Assign, toks'')
                           _ -> error "Can only assign to variables"
              _ -> (expressTree, toks')
+
+
+parseTernaryExpr :: [Token] -> (Tree, [Token])
+parseTernaryExpr toks =
+        let (condTree, toks') = parseLogicalOrExp toks
+            in
+        case lookAhead toks' of
+             TokQuestMark ->
+                     let (exprTree, toks'') = parseExpression (accept toks')
+                         in
+                     if lookAhead toks'' /= TokColon
+                        then error "Missing colon on ternary expression"
+                        else
+                     let (finalExprTree, toks''') = parseTernaryExpr (accept toks'')
+                         in
+                     (TernaryNode condTree exprTree finalExprTree, toks''')
+             _ -> (condTree, toks')
 
 
 parseLogicalOrExp :: [Token] -> (Tree, [Token])
