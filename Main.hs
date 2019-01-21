@@ -40,6 +40,6 @@ main = do
                     when (length asm > 0) $
                        writeFile outfileName asm
 
-        system $ "gcc " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
+        system $ "gcc -g " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
         system $ "rm " ++ outfileName
         hClose handle
