@@ -44,6 +44,8 @@ data Token = TokOpenParen
            | TokConstInt Int
            | TokKeyword Keyword
            | TokEnd
+           | TokColon
+           | TokQuestMark
            deriving (Show, Eq)
 
 
