@@ -63,6 +63,21 @@ genASM (ReturnNode tree) = do
         rtn <- genASM tree
         return $ rtn ++ returnStatement
 
+genASM (TernaryNode cond pass fail) = do
+        testVal <- genASM cond
+        passAction <- genASM pass
+        failAction <- genASM fail
+        failLabel <- labelNum
+        passLabel <- labelNum
+        return $ testVal
+                 ++ "cmpq $0, %rax\n"
+                 ++ "je _label_" ++ (show failLabel) ++ "\n"
+                 ++ passAction
+                 ++ "jmp _label_" ++ (show passLabel) ++ "\n"
+                 ++ "_label_" ++ (show failLabel) ++ ":\n"
+                 ++ failAction
+                 ++ "_label_" ++ (show passLabel) ++ ":\n"
+
 genASM (BinaryNode left right op) = do
         lft <- genASM left
         rgt <- genASM right
