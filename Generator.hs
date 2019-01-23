@@ -110,6 +110,7 @@ loadValue n = "movq $" ++ (show n) ++ ", %rax\n"
 
 varOnStack :: Int -> String
 varOnStack n = "movq %rax, " ++ (show n) ++ "(%rbp)\n"
+               ++ "subq $8, %rsp\n"
 
 
 varOffStack :: Int -> String
