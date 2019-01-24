@@ -76,6 +76,7 @@ parseStatement toks =
         case lookAhead toks of
              (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
                               | kwd == If     -> parseIfStatement toks
+                              | kwd == Int    -> error "Declarations are not statements"
              TokOpenBrace                     -> parseCompoundStmt toks
              (TokIdent id) -> let (exprTree, toks') = parseExpression toks
                                   in
