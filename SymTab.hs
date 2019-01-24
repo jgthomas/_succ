@@ -11,7 +11,8 @@ import qualified Data.Map as M
 import Control.Monad (liftM, ap)
 
 
-data SymTab = Tab { labelNo   :: Int
+data SymTab = Tab { scope     :: Int
+                  , labelNo   :: Int
                   , offset    :: Int
                   , variables :: M.Map String Int}
             deriving Show
