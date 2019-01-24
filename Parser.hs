@@ -41,9 +41,6 @@ parseFunction :: [Token] -> (Tree, [Token])
 parseFunction (id:op:cp:ob:toks) =
         case id of
              (TokIdent id) | isFuncStart (op:cp:ob:toks) ->
-                     if lookAhead toks == TokCloseBrace
-                        then (FunctionNode id [], accept toks)
-                        else
                      let (stmentList, toks') = parseBlock [] toks
                          in
                      if lookAhead toks' /= TokCloseBrace
