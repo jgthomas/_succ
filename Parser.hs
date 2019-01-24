@@ -95,6 +95,9 @@ parseStatement toks =
 
 parseIfStatement :: [Token] -> (Tree, [Token])
 parseIfStatement (kwd:op:toks) =
+        if op /= TokOpenParen
+           then error "Missing opening parentheses"
+           else
         let (testTree, toks') = parseExpression toks
             in
         if lookAhead toks' /= TokCloseParen
