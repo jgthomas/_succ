@@ -44,7 +44,7 @@ parseFunction (id:op:cp:ob:toks) =
                      if lookAhead toks == TokCloseBrace
                         then (FunctionNode id [], accept toks)
                         else
-                     let (stmentList, toks') = parseFunctionBody [] toks
+                     let (stmentList, toks') = parseBlock [] toks
                          in
                      if lookAhead toks' /= TokCloseBrace
                         then error "Missing closing brace"
@@ -52,14 +52,14 @@ parseFunction (id:op:cp:ob:toks) =
              _ -> error "No identifier supplied"
 
 
-parseFunctionBody :: [Tree] -> [Token] -> ([Tree], [Token])
-parseFunctionBody stmts toks =
+parseBlock :: [Tree] -> [Token] -> ([Tree], [Token])
+parseBlock stmts toks =
         case lookAhead toks of
              TokCloseBrace -> (stmts, toks)
              _ ->
                      let (nextStmt, toks') = parseBlockItem toks
                          in
-                     parseFunctionBody (stmts ++ [nextStmt]) toks'
+                     parseBlock (stmts ++ [nextStmt]) toks'
 
 
 parseBlockItem :: [Token] -> (Tree, [Token])
