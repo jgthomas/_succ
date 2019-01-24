@@ -41,11 +41,11 @@ parseFunction :: [Token] -> (Tree, [Token])
 parseFunction (id:op:cp:ob:toks) =
         case id of
              (TokIdent id) | isFuncStart (op:cp:ob:toks) ->
-                     let (stmentList, toks') = parseBlock [] toks
+                     let (funcBlockItems, toks') = parseBlock [] toks
                          in
                      if lookAhead toks' /= TokCloseBrace
                         then error "Missing closing brace"
-                        else (FunctionNode id stmentList, accept toks')
+                        else (FunctionNode id funcBlockItems, accept toks')
              _ -> error "No identifier supplied"
 
 
