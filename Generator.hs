@@ -20,6 +20,10 @@ genASM (FunctionNode name statementList) = do
                    funcStmnts <- mapM genASM statementList
                    return $ functionName name ++ concat funcStmnts
 
+genASM (CompoundStmtNode blockItems) = do
+        blockLines <- mapM genASM blockItems
+        return $ concat blockLines
+
 genASM (IfNode test action possElse) = do
         testVal <- genASM test
         ifAction <- genASM action
