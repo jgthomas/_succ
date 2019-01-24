@@ -72,6 +72,15 @@ addSymbol str = Ev $ \symTab ->
         (off, symTab'')
 
 
+clearSymTab :: Evaluator Int
+clearSymTab = Ev $ \symTab ->
+        let tab = variables symTab
+            off = offset symTab
+            symTab' = symTab { variables = M.empty }
+            in
+        (off, symTab')
+
+
 labelNum :: Evaluator Int
 labelNum = Ev $ \symTab ->
         let num = labelNo symTab
