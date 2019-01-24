@@ -64,10 +64,6 @@ parseBlockItem :: [Token] -> (Tree, [Token])
 parseBlockItem toks =
         case lookAhead toks of
              (TokKeyword kwd) | kwd == Int     -> parseDeclaration toks
-                              | kwd == Return  -> parseStatement toks
-                              | kwd == If      -> parseStatement toks
-             (TokIdent id)                     -> parseStatement toks
-             TokOpenBrace                      -> parseStatement toks
              _                                 -> parseStatement toks
 
 
