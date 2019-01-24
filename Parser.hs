@@ -66,7 +66,6 @@ parseBlockItem toks =
              (TokKeyword kwd) | kwd == Int     -> parseDeclaration toks
                               | kwd == Return  -> parseStatement toks
                               | kwd == If      -> parseStatement toks
-                              | kwd == Else    -> parseStatement toks
              (TokIdent id)                     -> parseStatement toks
              TokOpenBrace                      -> parseCompoundStmt toks
              _                                 -> parseStatement toks
