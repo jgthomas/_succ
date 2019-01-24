@@ -67,8 +67,22 @@ parseBlockItem toks =
                               | kwd == Return  -> parseStatement toks
                               | kwd == If      -> parseStatement toks
              (TokIdent id)                     -> parseStatement toks
-             TokOpenBrace                      -> parseCompoundStmt toks
+             TokOpenBrace                      -> parseStatement toks
              _                                 -> parseStatement toks
+
+
+parseStatement :: [Token] -> (Tree, [Token])
+parseStatement toks =
+        case lookAhead toks of
+             (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
+                              | kwd == If     -> parseIfStatement toks
+             TokOpenBrace                     -> parseCompoundStmt toks
+             (TokIdent id) -> let (exprTree, toks') = parseExpression toks
+                                  in
+                              if lookAhead toks' /= TokSemiColon
+                                 then error "Missing semicolon"
+                                 else (exprTree, accept toks')
+             _             -> parseExprStatement toks
 
 
 parseCompoundStmt :: [Token] -> (Tree, [Token])
@@ -78,19 +92,6 @@ parseCompoundStmt toks =
         if lookAhead toks' /= TokCloseBrace
            then error "Block missing closing brace"
            else (CompoundStmtNode blockItems, accept toks')
-
-
-parseStatement :: [Token] -> (Tree, [Token])
-parseStatement toks =
-        case lookAhead toks of
-             (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
-                              | kwd == If     -> parseIfStatement toks
-             (TokIdent id) -> let (exprTree, toks') = parseExpression toks
-                                  in
-                              if lookAhead toks' /= TokSemiColon
-                                 then error "Missing semicolon"
-                                 else (exprTree, accept toks')
-             _             -> parseExprStatement toks
 
 
 parseIfStatement :: [Token] -> (Tree, [Token])
