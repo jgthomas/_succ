@@ -79,3 +79,11 @@ labelNum = Ev $ \symTab ->
             symTab' = symTab { labelNo = num + 1 }
             in
         (num, symTab')
+
+
+scopeLevel :: Evaluator Int
+scopeLevel = Ev $ \symTab ->
+        let s = scope symTab
+            symTab' = symTab { scope = s + 1 }
+            in
+        (s, symTab')
