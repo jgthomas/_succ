@@ -8,7 +8,8 @@ import Lexer
 data Tree = ProgramNode [Tree]
           | FunctionNode String [Tree]
           | DeclarationNode String (Maybe Tree)
-          | ReturnNode Tree                      -- statements
+          | CompoundStmtNode [Tree]               -- statements
+          | ReturnNode Tree
           | AssignmentNode String Tree Operator
           | ExprStmtNode Tree
           | IfNode Tree Tree (Maybe Tree)
