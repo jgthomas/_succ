@@ -19,6 +19,7 @@ newSymTab = Tab 0 (-8) M.empty
 
 main :: IO()
 main = do
+        --print $ parse $ tokenize "int main() { int a = 2; { int b = 4; 2 + 2; } return a; }"
         args <- getArgs
         let infileName = head args
         handle <- openFile infileName ReadMode

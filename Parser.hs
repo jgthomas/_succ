@@ -63,20 +63,22 @@ parseBlock stmts toks =
 parseBlockItem :: [Token] -> (Tree, [Token])
 parseBlockItem toks =
         case lookAhead toks of
-             TokOpenBrace                      -> parseCompoundStmt toks
              (TokKeyword kwd) | kwd == Int     -> parseDeclaration toks
                               | kwd == Return  -> parseStatement toks
                               | kwd == If      -> parseStatement toks
                               | kwd == Else    -> parseStatement toks
              (TokIdent id)                     -> parseStatement toks
+             TokOpenBrace                      -> parseCompoundStmt toks
              _                                 -> parseStatement toks
 
 
 parseCompoundStmt :: [Token] -> (Tree, [Token])
 parseCompoundStmt toks =
-        let (blockItems, toks') = parseBlock [] toks
+        let (blockItems, toks') = parseBlock [] (accept toks)
             in
-        (CompoundStmtNode blockItems, accept toks')
+        if lookAhead toks' /= TokCloseBrace
+           then error "Block missing closing brace"
+           else (CompoundStmtNode blockItems, accept toks')
 
 
 parseStatement :: [Token] -> (Tree, [Token])
