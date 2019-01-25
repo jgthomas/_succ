@@ -73,7 +73,6 @@ lookUp str = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
-
 addSymbol :: String -> Evaluator Int
 addSymbol str = Ev $ \symTab ->
         let scopeTab = variables symTab
