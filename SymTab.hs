@@ -2,7 +2,7 @@
 module SymTab (Evaluator(..),
                SymTab(..),
                addSymbol,
-               lookUp, checkVar, labelNum) where
+               lookUp, checkVar, labelNum, initScope) where
 
 
 import Lexer
@@ -14,7 +14,7 @@ import Control.Monad (liftM, ap)
 data SymTab = Tab { scope     :: Int
                   , labelNo   :: Int
                   , offset    :: Int
-                  , variables :: M.Map String Int}
+                  , variables :: M.Map Int (M.Map String Int)}
             deriving Show
 
 
@@ -49,28 +49,44 @@ instance Monad Evaluator where
 
 checkVar :: String -> Evaluator Bool
 checkVar str = Ev $ \symTab ->
-        let tab = variables symTab
-            in case M.lookup str tab of
-                    Just v  -> (True, symTab)
-                    Nothing -> (False, symTab)
+        let scopeTab = variables symTab
+            currScope = scope symTab
+            in case M.lookup currScope scopeTab of
+                    Just scopeMap ->
+                            let value = M.lookup str scopeMap
+                                in case value of
+                                        Just v  -> (True, symTab)
+                                        Nothing -> (False, symTab)
+                    Nothing -> error "No scope currently defined"
 
 
 lookUp :: String -> Evaluator Int
 lookUp str = Ev $ \symTab ->
-        let tab = variables symTab
-            in case M.lookup str tab of
-                    Just v  -> (v, symTab)
-                    Nothing -> error $ "Undefined variable: '" ++ str ++ "'"
+        let scopeTab = variables symTab
+            currScope = scope symTab
+            in case M.lookup currScope scopeTab of
+                    Just scopeMap ->
+                            let value = M.lookup str scopeMap
+                                in case value of
+                                        Just v  -> (v, symTab)
+                                        Nothing -> error $ "Undefined variable: '" ++ str ++ "'"
+                    Nothing -> error "No scope currently defined"
+
 
 
 addSymbol :: String -> Evaluator Int
 addSymbol str = Ev $ \symTab ->
-        let tab = variables symTab
+        let scopeTab = variables symTab
             off = offset symTab
-            symTab'  = symTab { variables = M.insert str off tab }
-            symTab'' = symTab' { offset = off + (-8) }
-            in
-        (off, symTab'')
+            currScope = scope symTab
+            in case M.lookup currScope scopeTab of
+                    Just scopeMap ->
+                            let scopeMap' = M.insert str off scopeMap
+                                symTab'  = symTab { variables = M.insert currScope scopeMap' scopeTab }
+                                symTab'' = symTab' { offset = off + (-8) }
+                                in
+                            (off, symTab'')
+                    Nothing -> error "No scope currently defined"
 
 
 labelNum :: Evaluator Int
@@ -81,17 +97,10 @@ labelNum = Ev $ \symTab ->
         (num, symTab')
 
 
---scopeLevel :: Evaluator Int
---scopeLevel = Ev $ \symTab ->
---        let s = scope symTab
---            symTab' = symTab { scope = s + 1 }
---            in
---        (s, symTab')
---
---
---backScope :: Evaluator Int
---backScope = Ev $ \symTab ->
---        let s = scope symTab
---            symTab' = symTab { scope = s + (-1) }
---            in
---        (s, symTab')
+initScope :: Evaluator Int
+initScope = Ev $ \symTab ->
+        let scopeTab = variables symTab
+            currScope = scope symTab
+            symTab' = symTab { variables = M.insert currScope M.empty scopeTab }
+            in
+        (currScope, symTab')
