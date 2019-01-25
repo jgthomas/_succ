@@ -60,19 +60,6 @@ checkVar str = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
-lookUp :: String -> Evaluator Int
-lookUp str = Ev $ \symTab ->
-        let scopeTab = variables symTab
-            currScope = scope symTab
-            in case M.lookup currScope scopeTab of
-                    Just scopeMap ->
-                            let value = M.lookup str scopeMap
-                                in case value of
-                                        Just v  -> (v, symTab)
-                                        Nothing -> error $ "Undefined variable: '" ++ str ++ "'"
-                    Nothing -> error "No scope currently defined"
-
-
 addSymbol :: String -> Evaluator Int
 addSymbol str = Ev $ \symTab ->
         let scopeTab = variables symTab
@@ -85,6 +72,19 @@ addSymbol str = Ev $ \symTab ->
                                 symTab'' = symTab' { offset = off + (-8) }
                                 in
                             (off, symTab'')
+                    Nothing -> error "No scope currently defined"
+
+
+lookUp :: String -> Evaluator Int
+lookUp str = Ev $ \symTab ->
+        let scopeTab = variables symTab
+            currScope = scope symTab
+            in case M.lookup currScope scopeTab of
+                    Just scopeMap ->
+                            let value = M.lookup str scopeMap
+                                in case value of
+                                        Just v  -> (v, symTab)
+                                        Nothing -> error $ "Undefined variable: '" ++ str ++ "'"
                     Nothing -> error "No scope currently defined"
 
 
