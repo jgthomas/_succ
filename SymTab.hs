@@ -103,3 +103,10 @@ initScope = Ev $ \symTab ->
             symTab' = symTab { variables = M.insert currScope M.empty scopeTab }
             in
         (currScope, symTab')
+
+
+currentScope :: Evaluator Int
+currentScope = Ev $ \symTab ->
+        let currScope = scope symTab
+            in
+        (currScope, symTab)
