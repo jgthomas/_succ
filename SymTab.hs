@@ -2,7 +2,7 @@
 module SymTab (Evaluator(..),
                SymTab(..),
                addSymbol,
-               lookUp, checkVar, labelNum, initScope) where
+               lookUp, checkVar, labelNum, initScope, currentScope) where
 
 
 import Lexer
@@ -75,10 +75,10 @@ addSymbol str = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
-lookUp :: String -> Evaluator Int
-lookUp str = Ev $ \symTab ->
+lookUp :: Int -> String -> Evaluator Int
+lookUp currScope str = Ev $ \symTab ->
         let scopeTab = variables symTab
-            currScope = scope symTab
+            --currScope = scope symTab
             in case M.lookup currScope scopeTab of
                     Just scopeMap ->
                             let value = M.lookup str scopeMap
