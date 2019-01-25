@@ -21,9 +21,9 @@ genASM (FunctionNode name statementList) = do
                    return $ functionName name ++ concat funcStmnts
 
 genASM (CompoundStmtNode blockItems) = do
-        scopeDepth <- scopeLevel
+        --scopeDepth <- scopeLevel
         blockLines <- mapM genASM blockItems
-        backScope
+        --backScope
         return $ concat blockLines
 
 genASM (IfNode test action possElse) = do

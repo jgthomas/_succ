@@ -2,7 +2,7 @@
 module SymTab (Evaluator(..),
                SymTab(..),
                addSymbol,
-               lookUp, checkVar, labelNum, scopeLevel, backScope) where
+               lookUp, checkVar, labelNum) where
 
 
 import Lexer
@@ -81,17 +81,17 @@ labelNum = Ev $ \symTab ->
         (num, symTab')
 
 
-scopeLevel :: Evaluator Int
-scopeLevel = Ev $ \symTab ->
-        let s = scope symTab
-            symTab' = symTab { scope = s + 1 }
-            in
-        (s, symTab')
-
-
-backScope :: Evaluator Int
-backScope = Ev $ \symTab ->
-        let s = scope symTab
-            symTab' = symTab { scope = s + (-1) }
-            in
-        (s, symTab')
+--scopeLevel :: Evaluator Int
+--scopeLevel = Ev $ \symTab ->
+--        let s = scope symTab
+--            symTab' = symTab { scope = s + 1 }
+--            in
+--        (s, symTab')
+--
+--
+--backScope :: Evaluator Int
+--backScope = Ev $ \symTab ->
+--        let s = scope symTab
+--            symTab' = symTab { scope = s + (-1) }
+--            in
+--        (s, symTab')
