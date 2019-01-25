@@ -78,7 +78,6 @@ addSymbol str = Ev $ \symTab ->
 lookUp :: Int -> String -> Evaluator Int
 lookUp currScope str = Ev $ \symTab ->
         let scopeTab = variables symTab
-            --currScope = scope symTab
             in case M.lookup currScope scopeTab of
                     Just scopeMap ->
                             let value = M.lookup str scopeMap
