@@ -60,7 +60,7 @@ genASM (DeclarationNode varName value) = do
                      case value of
                           Nothing     -> return $ loadValue 0
                                                   ++ varOnStack offset
-                                                  ++ adjustStackPointer adjustment
+                                                  ++ (adjustStackPointer $ negate adjustment)
                           Just value  -> genASM value
 
 genASM (AssignmentNode varName value operator) = do
@@ -70,7 +70,7 @@ genASM (AssignmentNode varName value operator) = do
         adjustment <- stackPointerValue
         return $ assign
                  ++ varOnStack offset
-                 ++ adjustStackPointer adjustment
+                 ++ (adjustStackPointer $ negate adjustment)
 
 genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression

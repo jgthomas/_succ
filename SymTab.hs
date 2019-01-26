@@ -144,7 +144,7 @@ stackPointerValue :: Evaluator Int
 stackPointerValue = Ev $ \symTab ->
         let currOff = offset symTab
             in
-        (currOff-8, symTab)
+        (currOff, symTab)
 
 
 notFound :: Int
