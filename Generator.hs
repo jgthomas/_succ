@@ -53,15 +53,21 @@ genASM (DeclarationNode varName value) = do
              True  -> error $ "Variable '" ++ varName ++ "' already declared"
              False -> do
                      offset <- addSymbol varName
+                     adjustment <- stackPointerValue
                      case value of
-                          Nothing     -> return $ loadValue 0 ++ varOnStack offset
+                          Nothing     -> return $ loadValue 0
+                                                  ++ varOnStack offset
+                                                  ++ adjustStackPointer adjustment
                           Just value  -> genASM value
 
 genASM (AssignmentNode varName value operator) = do
         currScope <- currentScope
         offset <- findOffset currScope varName
         assign <- genASM value
-        return $ assign ++ varOnStack offset
+        adjustment <- stackPointerValue
+        return $ assign
+                 ++ varOnStack offset
+                 ++ adjustStackPointer adjustment
 
 genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression
@@ -119,7 +125,12 @@ loadValue n = "movq $" ++ (show n) ++ ", %rax\n"
 
 varOnStack :: Int -> String
 varOnStack n = "movq %rax, " ++ (show n) ++ "(%rbp)\n"
-               ++ "subq $8, %rsp\n"
+
+
+adjustStackPointer :: Int -> String
+adjustStackPointer offset =
+        "movq %rbp, %rsp\n"
+        ++ "subq $" ++ (show offset) ++ ", %rsp\n"
 
 
 varOffStack :: Int -> String

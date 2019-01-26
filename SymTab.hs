@@ -7,7 +7,8 @@ module SymTab (Evaluator(..),
                labelNum,
                initScope,
                currentScope,
-               closeScope) where
+               closeScope,
+               stackPointerValue) where
 
 
 import Lexer
@@ -138,6 +139,13 @@ currentScope = Ev $ \symTab ->
         let currScope = scope symTab
             in
         (currScope, symTab)
+
+
+stackPointerValue :: Evaluator Int
+stackPointerValue = Ev $ \symTab ->
+        let currOff = offset symTab
+            in
+        (currOff-8, symTab)
 
 
 notFound :: Int
