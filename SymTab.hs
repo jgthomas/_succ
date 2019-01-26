@@ -109,10 +109,12 @@ labelNum = Ev $ \symTab ->
 initScope :: Evaluator Int
 initScope = Ev $ \symTab ->
         let scopeTab = variables symTab
-            currScope = scope symTab
-            symTab' = symTab { variables = M.insert currScope M.empty scopeTab }
+            initScope = scope symTab
+            symTab' = symTab { scope = initScope + 1 }
+            currScope = scope symTab'
+            symTab'' = symTab' { variables = M.insert currScope M.empty scopeTab }
             in
-        (currScope, symTab')
+        (currScope, symTab'')
 
 
 currentScope :: Evaluator Int
