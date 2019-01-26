@@ -24,6 +24,7 @@ genASM (FunctionNode name statementList) = do
 genASM (CompoundStmtNode blockItems) = do
         initScope
         blockLines <- mapM genASM blockItems
+        closeScope
         return $ concat blockLines
 
 genASM (IfNode test action possElse) = do

@@ -2,7 +2,12 @@
 module SymTab (Evaluator(..),
                SymTab(..),
                addSymbol,
-               findOffset, checkVar, labelNum, initScope, currentScope) where
+               findOffset,
+               checkVar,
+               labelNum,
+               initScope,
+               currentScope,
+               closeScope) where
 
 
 import Lexer
@@ -115,6 +120,17 @@ initScope = Ev $ \symTab ->
             symTab'' = symTab' { variables = M.insert currScope M.empty scopeTab }
             in
         (currScope, symTab'')
+
+
+closeScope :: Evaluator Int
+closeScope = Ev $ \symTab ->
+        let scopeTab = variables symTab
+            currScope = scope symTab
+            symTab' = symTab { variables = M.insert currScope M.empty scopeTab }
+            symTab'' = symTab' { scope = currScope - 1 }
+            newScope = scope symTab''
+            in
+        (newScope, symTab'')
 
 
 currentScope :: Evaluator Int
