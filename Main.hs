@@ -14,22 +14,20 @@ import SymTab
 
 
 newSymTab :: SymTab
-newSymTab = Tab 0 0 (-8) M.empty
+newSymTab = Tab (-1) 0 (-8) M.empty
 
 
 main :: IO()
 main = do
-        --print $ parse $ tokenize "int main() { int a = 3; if (1) a = 5; else a = 6; return a; }"
-        --print $ parse $ tokenize "int main() { int a = 3; if (1) { int b = 5; return b; } else return 10; return a; }"
         args <- getArgs
         let infileName = head args
         handle <- openFile infileName ReadMode
         contents <- hGetContents handle
 
         -- debugging
-        --print contents
-        --print $ tokenize contents
-        --print $ parse $ tokenize contents
+        print contents
+        print $ tokenize contents
+        print $ parse $ tokenize contents
 
         let outfileName = (dropExtension infileName) ++ ".s"
         let parsed = parse $ tokenize contents
@@ -43,5 +41,5 @@ main = do
                        writeFile outfileName asm
 
         system $ "gcc -g " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
-        system $ "rm " ++ outfileName
+        --system $ "rm " ++ outfileName
         hClose handle
