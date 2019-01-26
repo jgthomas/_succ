@@ -58,7 +58,7 @@ genASM (DeclarationNode varName value) = do
 
 genASM (AssignmentNode varName value operator) = do
         currScope <- currentScope
-        offset <- lookUp currScope varName
+        offset <- findOffset currScope varName
         assign <- genASM value
         return $ assign ++ varOnStack offset
 
@@ -96,7 +96,7 @@ genASM (UnaryNode tree op) = do
 
 genASM (VarNode varName) = do
         currScope <- currentScope
-        offset <- lookUp currScope varName
+        offset <- findOffset currScope varName
         return $ varOffStack offset
 
 genASM (ConstantNode n) = return $ loadValue n

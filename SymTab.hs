@@ -2,7 +2,7 @@
 module SymTab (Evaluator(..),
                SymTab(..),
                addSymbol,
-               lookUp, checkVar, labelNum, initScope, currentScope) where
+               findOffset, checkVar, labelNum, initScope, currentScope) where
 
 
 import Lexer
@@ -75,6 +75,17 @@ addSymbol str = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
+findOffset :: Int -> String -> Evaluator Int
+findOffset currScope varName =
+        if currScope == noScope
+           then error $ "Undefined variable: '" ++ varName ++ "'"
+           else do
+                   offset <- lookUp currScope varName
+                   if offset == notFound
+                      then findOffset (currScope-1) varName
+                      else return offset
+
+
 lookUp :: Int -> String -> Evaluator Int
 lookUp currScope str = Ev $ \symTab ->
         let scopeTab = variables symTab
@@ -83,7 +94,7 @@ lookUp currScope str = Ev $ \symTab ->
                             let value = M.lookup str scopeMap
                                 in case value of
                                         Just v  -> (v, symTab)
-                                        Nothing -> error $ "Undefined variable: '" ++ str ++ "'"
+                                        Nothing -> (notFound, symTab)
                     Nothing -> error "No scope currently defined"
 
 
@@ -109,3 +120,11 @@ currentScope = Ev $ \symTab ->
         let currScope = scope symTab
             in
         (currScope, symTab)
+
+
+notFound :: Int
+notFound = 0
+
+
+noScope :: Int
+noScope = (-1)
