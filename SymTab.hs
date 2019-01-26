@@ -127,11 +127,10 @@ closeScope :: Evaluator Int
 closeScope = Ev $ \symTab ->
         let scopeTab = variables symTab
             currScope = scope symTab
-            symTab' = symTab { variables = M.insert currScope M.empty scopeTab }
-            symTab'' = symTab' { scope = currScope - 1 }
-            newScope = scope symTab''
+            symTab' = symTab { scope = currScope - 1 }
+            newScope = scope symTab'
             in
-        (newScope, symTab'')
+        (newScope, symTab')
 
 
 currentScope :: Evaluator Int
