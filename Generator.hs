@@ -16,9 +16,12 @@ genASM (ProgramNode functionList) = do
 genASM (FunctionNode name statementList) = do
         initScope
         if length statementList == 0
-           then return $ functionName name ++ loadValue 0 ++ returnStatement
+           then do
+                   closeScope
+                   return $ functionName name ++ loadValue 0 ++ returnStatement
            else do
                    funcStmnts <- mapM genASM statementList
+                   closeScope
                    return $ functionName name ++ concat funcStmnts
 
 genASM (CompoundStmtNode blockItems) = do
