@@ -13,7 +13,7 @@ data Tree = ProgramNode [Tree]
           | AssignmentNode String Tree Operator
           | ExprStmtNode Tree
           | IfNode Tree Tree (Maybe Tree)
-          | WhileNode Tree [Tree]
+          | WhileNode Tree Tree
           | ConstantNode Int                     -- expressions
           | VarNode String
           | UnaryNode Tree Operator
@@ -90,6 +90,21 @@ parseCompoundStmt toks =
         if lookAhead toks' /= TokCloseBrace
            then error "Block missing closing brace"
            else (CompoundStmtNode blockItems, accept toks')
+
+
+parseWhileStatement :: [Token] -> (Tree, [Token])
+parseWhileStatement (kwd:op:toks) =
+        if op /= TokOpenParen
+           then error "Missing opening parentheses"
+           else
+        let (testTree, toks') = parseExpression toks
+            in
+        if lookAhead toks' /= TokCloseParen
+           then error "Missing closing parentheses"
+           else
+        let (stmtTree, toks'') = parseStatement (accept toks')
+            in
+        (WhileNode testTree stmtTree, toks'')
 
 
 parseIfStatement :: [Token] -> (Tree, [Token])
