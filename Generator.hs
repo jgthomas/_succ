@@ -17,11 +17,21 @@ genASM (FunctionNode name statementList) = do
         initScope
         funcStmnts <- mapM genASM statementList
         closeScope
-        if length statementList == 0
-           then do
-                   return $ functionName name ++ loadValue 0 ++ returnStatement
-           else do
-                   return $ functionName name ++ concat funcStmnts
+        case hasReturn statementList of
+             True  -> return $ functionName name
+                               ++ concat funcStmnts
+             False ->
+                     if name == "main"
+                        then do
+                                -- return 0 if no return specified
+                                return $ functionName name
+                                         ++ concat funcStmnts
+                                         ++ loadValue 0
+                                         ++ returnStatement
+                        else do
+                                -- undefined if used by caller
+                                return $ functionName name
+                                         ++ concat funcStmnts
 
 genASM (CompoundStmtNode blockItems) = do
         initScope
@@ -188,3 +198,13 @@ comparison :: String -> String -> String
 comparison loadVal1 loadVal2 = loadTwoValues loadVal1 loadVal2
                                ++ "cmpq %rax, %rcx\n"
                                ++ "movq $0, %rax\n"
+
+
+hasReturn :: [Tree] -> Bool
+hasReturn blockItems =
+        case length blockItems of
+             0                  -> False
+             _ ->
+                     case last blockItems of
+                          (ReturnNode val) -> True
+                          _                -> False
