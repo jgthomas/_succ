@@ -12,6 +12,7 @@ data Operator = Plus
               | Minus
               | Multiply
               | Divide
+              | Modulo
               | BitwiseCompl
               | LogicNegation
               | LogicalOR
@@ -125,6 +126,7 @@ operator :: Char -> Operator
 operator c | c == '+' = Plus
            | c == '-' = Minus
            | c == '*' = Multiply
+           | c == '%' = Modulo
            | c == '/' = Divide
            | c == '~' = BitwiseCompl
            | c == '!' = LogicNegation
@@ -133,7 +135,7 @@ operator c | c == '+' = Plus
 
 
 opSymbols :: String
-opSymbols = "+-*/~!|&<>="
+opSymbols = "+-*/~!|&<>=%"
 
 secondOpSymbols :: String
 secondOpSymbols = "=|&"
