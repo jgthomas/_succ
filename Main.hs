@@ -19,17 +19,15 @@ newSymTab = Tab (-1) 0 (-8) M.empty
 
 main :: IO()
 main = do
-        --print $ tokenize "int main() { int a = 5; while (a > 1) { a = a - 1; } return a; }"
-        print $ parse $ tokenize "int main() { int a = 5; while (a > 1) { a = a - 1; } return a; }"
         args <- getArgs
         let infileName = head args
         handle <- openFile infileName ReadMode
         contents <- hGetContents handle
 
         -- debugging
-        print contents
-        print $ tokenize contents
-        print $ parse $ tokenize contents
+        --print contents
+        --print $ tokenize contents
+        --print $ parse $ tokenize contents
 
         let outfileName = (dropExtension infileName) ++ ".s"
         let parsed = parse $ tokenize contents
@@ -43,5 +41,5 @@ main = do
                        writeFile outfileName asm
 
         system $ "gcc -g " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
-        --system $ "rm " ++ outfileName
+        system $ "rm " ++ outfileName
         hClose handle
