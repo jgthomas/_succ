@@ -53,8 +53,7 @@ genASM (IfNode test action possElse) = do
                       ++ (emitJump JE label)
                       ++ ifAction
         case possElse of
-             Nothing       -> return $ ifLines
-                                       ++ "_label_" ++ (show label) ++ ":\n"
+             Nothing       -> return $ ifLines ++ (emitLabel label)
              Just possElse -> do
                      elseAction <- genASM possElse
                      nextLabel <- labelNum
