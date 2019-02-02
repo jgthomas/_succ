@@ -7,6 +7,11 @@ import Parser (Tree(..))
 import SymTab
 
 
+data Jump = JMP
+          | JE
+          deriving Eq
+
+
 genASM :: Tree -> Evaluator String
 
 genASM (ProgramNode functionList) = do
@@ -45,7 +50,8 @@ genASM (IfNode test action possElse) = do
         label <- labelNum
         let ifLines = testVal
                       ++ "cmpq $0, %rax\n"
-                      ++ "je _label_" ++ (show label) ++ "\n"
+                     -- ++ "je _label_" ++ (show label) ++ "\n"
+                      ++ (emitJump JE label)
                       ++ ifAction
         case possElse of
              Nothing       -> return $ ifLines
@@ -198,6 +204,17 @@ comparison :: String -> String -> String
 comparison loadVal1 loadVal2 = loadTwoValues loadVal1 loadVal2
                                ++ "cmpq %rax, %rcx\n"
                                ++ "movq $0, %rax\n"
+
+
+emitJump :: Jump -> Int -> String
+emitJump j n
+        | j == JMP  = "jmp _label_" ++ (show n) ++ "\n"
+        | j == JE   = "je _label_" ++ (show n) ++ "\n"
+        | otherwise = error "Unrecognised type of jump"
+
+
+emitLabel :: Int -> String
+emitLabel n = "_label_" ++ (show n) ++ ":\n"
 
 
 hasReturn :: [Tree] -> Bool
