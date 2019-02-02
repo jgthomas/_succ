@@ -81,6 +81,7 @@ parseStatement toks =
                               | kwd == For    -> parseForLoop toks
                               | kwd == Int    -> error "Declarations are not statements"
              TokOpenBrace                     -> parseCompoundStmt toks
+             TokSemiColon                     -> parseExpression toks
              (TokIdent id) -> let (exprTree, toks') = parseExpression toks
                                   in
                               if lookAhead toks' /= TokSemiColon
@@ -299,6 +300,7 @@ parseFactor toks =
         case lookAhead toks of
              (TokConstInt n) -> (ConstantNode n, (accept toks))
              (TokIdent str)  -> (VarNode str, accept toks)
+             TokSemiColon    -> (NullExprNode, accept toks)
              (TokOp op) | elem op [Minus, BitwiseCompl, LogicNegation] ->
                      let (facTree, toks') = parseFactor (accept toks)
                          in
