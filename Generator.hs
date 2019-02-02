@@ -44,6 +44,19 @@ genASM (CompoundStmtNode blockItems) = do
         closeScope
         return $ concat blockLines
 
+genASM (WhileNode test whileBlock) = do
+        loopLabel <- labelNum
+        test <- genASM test
+        testLabel <- labelNum
+        body <- genASM whileBlock
+        return $ (emitLabel loopLabel)
+                 ++ test
+                 ++ testResult
+                 ++ (emitJump JE testLabel)
+                 ++ body
+                 ++ (emitJump JMP loopLabel)
+                 ++ (emitLabel testLabel)
+
 genASM (IfNode test action possElse) = do
         testVal <- genASM test
         ifAction <- genASM action
