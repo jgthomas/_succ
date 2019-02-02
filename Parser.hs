@@ -15,6 +15,7 @@ data Tree = ProgramNode [Tree]
           | IfNode Tree Tree (Maybe Tree)
           | WhileNode Tree Tree
           | DoWhileNode Tree Tree
+          | ForLoopNode Tree Tree Tree Tree
           | ConstantNode Int                      -- expressions
           | VarNode String
           | UnaryNode Tree Operator
@@ -76,6 +77,7 @@ parseStatement toks =
                               | kwd == If     -> parseIfStatement toks
                               | kwd == While  -> parseWhileStatement toks
                               | kwd == Do     -> parseDoWhileStatement toks
+                              | kwd == For    -> parseForLoop toks
                               | kwd == Int    -> error "Declarations are not statements"
              TokOpenBrace                     -> parseCompoundStmt toks
              (TokIdent id) -> let (exprTree, toks') = parseExpression toks
@@ -93,6 +95,25 @@ parseCompoundStmt toks =
         if lookAhead toks' /= TokCloseBrace
            then error "Block missing closing brace"
            else (CompoundStmtNode blockItems, accept toks')
+
+
+parseForLoop :: [Token] -> (Tree, [Token])
+parseForLoop (kwd:op:toks) =
+        if op /= TokOpenParen
+           then error "Missing opening parenthesis"
+           else
+        let (initTree, toks') = parseBlockItem toks
+            in
+        let (testTree, toks'') = parseStatement toks'
+            in
+        let (changeTree, toks''') = parseExpression toks''
+            in
+        if lookAhead toks''' /= TokCloseParen
+           then error "Missing closing parenthesis"
+           else
+        let (stmtTree, toks'''') = parseStatement $ accept toks'''
+            in
+        (ForLoopNode initTree testTree changeTree stmtTree, toks'''')
 
 
 parseDoWhileStatement :: [Token] -> (Tree, [Token])
