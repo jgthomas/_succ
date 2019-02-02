@@ -245,7 +245,7 @@ parseTerm :: [Token] -> (Tree, [Token])
 parseTerm toks =
         let (facTree, toks') = parseFactor toks
             in
-        parseBinaryExp facTree toks' parseFactor [Multiply,Divide]
+        parseBinaryExp facTree toks' parseFactor [Multiply,Divide,Modulo]
 
 
 parseFactor :: [Token] -> (Tree, [Token])
