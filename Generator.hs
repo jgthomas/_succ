@@ -49,7 +49,7 @@ genASM (IfNode test action possElse) = do
         ifAction <- genASM action
         label <- labelNum
         let ifLines = testVal
-                      ++ "cmpq $0, %rax\n"
+                      ++ testResult
                       ++ (emitJump JE label)
                       ++ ifAction
         case possElse of
@@ -100,7 +100,7 @@ genASM (TernaryNode cond pass fail) = do
         failLabel <- labelNum
         passLabel <- labelNum
         return $ testVal
-                 ++ "cmpq $0, %rax\n"
+                 ++ testResult
                  ++ (emitJump JE failLabel)
                  ++ passAction
                  ++ (emitJump JMP passLabel)
@@ -213,6 +213,10 @@ emitJump j n
 
 emitLabel :: Int -> String
 emitLabel n = "_label_" ++ (show n) ++ ":\n"
+
+
+testResult :: String
+testResult = "cmpq $0, %rax\n"
 
 
 hasReturn :: [Tree] -> Bool
