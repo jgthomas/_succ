@@ -58,10 +58,10 @@ genASM (IfNode test action possElse) = do
                      elseAction <- genASM possElse
                      nextLabel <- labelNum
                      return $ ifLines
-                              ++ "jmp _label_" ++ (show nextLabel) ++ "\n"
-                              ++ "_label_" ++ (show label) ++ ":\n"
+                              ++ (emitJump JMP nextLabel)
+                              ++ (emitLabel label)
                               ++ elseAction
-                              ++ "_label_" ++ (show nextLabel) ++ ":\n"
+                              ++ (emitLabel nextLabel)
 
 genASM (DeclarationNode varName value) = do
         varDeclared <- checkVar varName
