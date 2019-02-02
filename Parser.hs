@@ -14,7 +14,8 @@ data Tree = ProgramNode [Tree]
           | ExprStmtNode Tree
           | IfNode Tree Tree (Maybe Tree)
           | WhileNode Tree Tree
-          | ConstantNode Int                     -- expressions
+          | DoWhileNode Tree Tree
+          | ConstantNode Int                      -- expressions
           | VarNode String
           | UnaryNode Tree Operator
           | BinaryNode Tree Tree Operator
