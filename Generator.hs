@@ -167,6 +167,8 @@ genASM (VarNode varName) = do
         offset <- findOffset currScope varName
         return $ varOffStack offset
 
+genASM (NullExprNode) = return ""
+
 genASM (ConstantNode n) = return $ loadValue n
 
 
