@@ -50,7 +50,6 @@ genASM (IfNode test action possElse) = do
         label <- labelNum
         let ifLines = testVal
                       ++ "cmpq $0, %rax\n"
-                     -- ++ "je _label_" ++ (show label) ++ "\n"
                       ++ (emitJump JE label)
                       ++ ifAction
         case possElse of
