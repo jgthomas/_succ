@@ -101,12 +101,12 @@ genASM (TernaryNode cond pass fail) = do
         passLabel <- labelNum
         return $ testVal
                  ++ "cmpq $0, %rax\n"
-                 ++ "je _label_" ++ (show failLabel) ++ "\n"
+                 ++ (emitJump JE failLabel)
                  ++ passAction
-                 ++ "jmp _label_" ++ (show passLabel) ++ "\n"
-                 ++ "_label_" ++ (show failLabel) ++ ":\n"
+                 ++ (emitJump JMP passLabel)
+                 ++ (emitLabel failLabel)
                  ++ failAction
-                 ++ "_label_" ++ (show passLabel) ++ ":\n"
+                 ++ (emitLabel passLabel)
 
 genASM (BinaryNode left right op) = do
         lft <- genASM left
