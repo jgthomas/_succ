@@ -57,6 +57,19 @@ genASM (WhileNode test whileBlock) = do
                  ++ (emitJump JMP loopLabel)
                  ++ (emitLabel testLabel)
 
+genASM (DoWhileNode block test) = do
+        loopLabel <- labelNum
+        body <- genASM block
+        test <- genASM test
+        testLabel <- labelNum
+        return $ (emitLabel loopLabel)
+                 ++ body
+                 ++ test
+                 ++ testResult
+                 ++ (emitJump JE testLabel)
+                 ++ (emitJump JMP loopLabel)
+                 ++ (emitLabel testLabel)
+
 genASM (IfNode test action possElse) = do
         testVal <- genASM test
         ifAction <- genASM action
