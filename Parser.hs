@@ -75,6 +75,7 @@ parseStatement toks =
              (TokKeyword kwd) | kwd == Return -> parseReturnStmt toks
                               | kwd == If     -> parseIfStatement toks
                               | kwd == While  -> parseWhileStatement toks
+                              | kwd == Do     -> parseDoWhileStatement toks
                               | kwd == Int    -> error "Declarations are not statements"
              TokOpenBrace                     -> parseCompoundStmt toks
              (TokIdent id) -> let (exprTree, toks') = parseExpression toks
@@ -92,6 +93,28 @@ parseCompoundStmt toks =
         if lookAhead toks' /= TokCloseBrace
            then error "Block missing closing brace"
            else (CompoundStmtNode blockItems, accept toks')
+
+
+parseDoWhileStatement :: [Token] -> (Tree, [Token])
+parseDoWhileStatement (kwd:ob:toks) =
+        if ob /= TokOpenBrace
+           then error "Do block missing opening brace"
+           else
+        let (stmtTree, toks') = parseStatement (ob:toks)
+            in
+        case lookAhead toks' of
+             (TokKeyword kwd) | kwd == While ->
+                              if lookAhead (accept toks') /= TokOpenParen
+                                 then error "Missing opening parentheses"
+                                 else
+                              let (testTree, toks'') = parseExpression $ accept $ accept toks'
+                                  in
+                              if lookAhead toks'' /= TokCloseParen
+                                 then error "Missing closing parenthesis"
+                                 else if lookAhead (accept toks'') /= TokSemiColon
+                                         then error "Missing semicolon"
+                                         else (DoWhileNode stmtTree testTree, (accept (accept toks'')))
+             _ -> error "Do block missing while condition"
 
 
 parseWhileStatement :: [Token] -> (Tree, [Token])
