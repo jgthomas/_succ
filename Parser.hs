@@ -134,8 +134,10 @@ parseForLoop (kwd:op:toks) =
                      let (stmtTree, toks'''') = parseStatement $ accept toks'''
                          in
                      case testTree of
-                          NullExprNode -> (ForLoopNode initTree (ConstantNode 1) changeTree stmtTree, toks'''')
-                          _            -> (ForLoopNode initTree testTree changeTree stmtTree, toks'''')
+                          NullExprNode ->
+                             (ForLoopNode initTree (ConstantNode 1) changeTree stmtTree, toks'''')
+                          _            ->
+                             (ForLoopNode initTree testTree changeTree stmtTree, toks'''')
              _ -> error "Missing closing parenthesis"
 
 
