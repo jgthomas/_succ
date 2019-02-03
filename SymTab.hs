@@ -104,6 +104,27 @@ lookUp currScope str = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
+setBreak :: Int -> Evaluator Int
+setBreak labelNo = store "@Break" labelNo
+
+
+setContinue :: Int -> Evaluator Int
+setContinue labelNo = store "@Continue" labelNo
+
+
+store :: String -> Int -> Evaluator Int
+store name val = Ev $ \symTab ->
+        let scopeTab = variables symTab
+            currScope = scope symTab
+            in case M.lookup currScope scopeTab of
+                    Just scopeMap ->
+                            let scopeMap' = M.insert name val scopeMap
+                                symTab'  = symTab { variables = M.insert currScope scopeMap' scopeTab }
+                                in
+                            (val, symTab')
+                    Nothing -> error "No scope currently defined"
+
+
 labelNum :: Evaluator Int
 labelNum = Ev $ \symTab ->
         let num = labelNo symTab
