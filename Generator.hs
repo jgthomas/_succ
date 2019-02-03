@@ -80,12 +80,15 @@ genASM (WhileNode test whileBlock) = do
 
 genASM (DoWhileNode block test) = do
         loopLabel <- labelNum
+        continueLabel <- labelNum
+        setContinue continueLabel
         body <- genASM block
         test <- genASM test
         testLabel <- labelNum
         setBreak testLabel
         return $ (emitLabel loopLabel)
                  ++ body
+                 ++ (emitLabel continueLabel)
                  ++ test
                  ++ testResult
                  ++ (emitJump JE testLabel)
