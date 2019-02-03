@@ -83,6 +83,7 @@ genASM (DoWhileNode block test) = do
         body <- genASM block
         test <- genASM test
         testLabel <- labelNum
+        setBreak testLabel
         return $ (emitLabel loopLabel)
                  ++ body
                  ++ test
