@@ -46,15 +46,15 @@ genASM (CompoundStmtNode blockItems) = do
 
 genASM (ForLoopNode init test iter block) = do
         initScope
-        init <- genASM init
-        test <- genASM test
-        iter <- genASM iter
-        body <- genASM block
         passLabel <- labelNum
         failLabel <- labelNum
         continueLabel <- labelNum
         setBreak failLabel
         setContinue continueLabel
+        init <- genASM init
+        test <- genASM test
+        iter <- genASM iter
+        body <- genASM block
         closeScope
         return $ init
                  ++ (emitLabel passLabel)
