@@ -16,6 +16,8 @@ data Tree = ProgramNode [Tree]
           | WhileNode Tree Tree
           | DoWhileNode Tree Tree
           | ForLoopNode Tree Tree Tree Tree
+          | BreakNode
+          | ContinueNode
           | ConstantNode Int                      -- expressions
           | NullExprNode
           | VarNode String
