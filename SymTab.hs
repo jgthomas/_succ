@@ -8,7 +8,11 @@ module SymTab (Evaluator(..),
                initScope,
                currentScope,
                closeScope,
-               stackPointerValue) where
+               stackPointerValue,
+               setBreak,
+               getBreak,
+               setContinue,
+               getContinue) where
 
 
 import Lexer
