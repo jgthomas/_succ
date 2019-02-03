@@ -65,8 +65,10 @@ genASM (ForLoopNode init test iter block) = do
 
 genASM (WhileNode test whileBlock) = do
         loopLabel <- labelNum
+        setContinue loopLabel
         test <- genASM test
         testLabel <- labelNum
+        setBreak testLabel
         body <- genASM whileBlock
         return $ (emitLabel loopLabel)
                  ++ test
