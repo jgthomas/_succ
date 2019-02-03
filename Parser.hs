@@ -138,11 +138,11 @@ parseForLoop (kwd:op:toks) =
 
 
 parseForLoopPostExp :: [Token] -> (Tree, [Token])
-parseForLoopPostExp (next:toks) =
-        case next of
+parseForLoopPostExp toks =
+        case lookAhead toks of
              TokSemiColon  -> error "Too many clauses"
-             TokCloseParen -> nullExpr (next:toks)
-             _             -> parseExpression (next:toks)
+             TokCloseParen -> nullExpr toks
+             _             -> parseExpression toks
 
 
 parseDoWhileStatement :: [Token] -> (Tree, [Token])
