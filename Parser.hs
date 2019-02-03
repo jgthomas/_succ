@@ -346,6 +346,10 @@ parseBinaryExp tree toks nextVal ops =
              _ -> (tree, toks)
 
 
+nullExpr :: [Token] -> (Tree, [Token])
+nullExpr toks = (NullExprNode, toks)
+
+
 isFuncStart :: [Token] -> Bool
 isFuncStart (op:cp:ob:toks)
     | op /= TokOpenParen  = error "Missing opening parenthesis"
