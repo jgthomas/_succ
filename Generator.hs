@@ -144,6 +144,14 @@ genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression
         return exprsn
 
+genASM (ContinueNode) = do
+        continueLabel <- getContinue
+        return $ emitJump JMP continueLabel
+
+genASM (BreakNode) = do
+        breakLabel <- getBreak
+        return $ emitJump JMP breakLabel
+
 genASM (ReturnNode tree) = do
         rtn <- genASM tree
         return $ rtn ++ returnStatement
