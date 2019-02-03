@@ -128,12 +128,13 @@ parseForLoop (kwd:op:toks) =
             in
         let (changeTree, toks''') = parseForLoopPostExp toks''
             in
-        if lookAhead toks''' /= TokCloseParen
-           then error "Missing closing parenthesis"
-           else
-        let (stmtTree, toks'''') = parseStatement $ accept toks'''
-            in
-        (ForLoopNode initTree testTree changeTree stmtTree, toks'''')
+        case lookAhead toks''' of
+             TokSemiColon  -> error "Too many clauses"
+             TokCloseParen ->
+                     let (stmtTree, toks'''') = parseStatement $ accept toks'''
+                         in
+                     (ForLoopNode initTree testTree changeTree stmtTree, toks'''')
+             _ -> error "Missing closing parenthesis"
 
 
 parseForLoopPostExp :: [Token] -> (Tree, [Token])
