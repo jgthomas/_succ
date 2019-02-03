@@ -136,6 +136,14 @@ parseForLoop (kwd:op:toks) =
         (ForLoopNode initTree testTree changeTree stmtTree, toks'''')
 
 
+parseForLoopPostExp :: [Token] -> (Tree, [Token])
+parseForLoopPostExp (next:toks) =
+        case next of
+             TokSemiColon  -> error "Too many clauses"
+             TokCloseParen -> nullExpr toks
+             _             -> parseExpression (next:toks)
+
+
 parseDoWhileStatement :: [Token] -> (Tree, [Token])
 parseDoWhileStatement (kwd:ob:toks) =
         if ob /= TokOpenBrace
