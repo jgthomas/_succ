@@ -126,7 +126,7 @@ parseForLoop (kwd:op:toks) =
             in
         let (testTree, toks'') = parseStatement toks'
             in
-        let (changeTree, toks''') = parseExpression toks''
+        let (changeTree, toks''') = parseForLoopPostExp toks''
             in
         if lookAhead toks''' /= TokCloseParen
            then error "Missing closing parenthesis"
