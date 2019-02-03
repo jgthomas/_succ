@@ -52,6 +52,9 @@ genASM (ForLoopNode init test iter block) = do
         body <- genASM block
         passLabel <- labelNum
         failLabel <- labelNum
+        continueLabel <- labelNum
+        setBreak failLabel
+        setContinue continueLabel
         closeScope
         return $ init
                  ++ (emitLabel passLabel)
@@ -59,6 +62,7 @@ genASM (ForLoopNode init test iter block) = do
                  ++ testResult
                  ++ (emitJump JE failLabel)
                  ++ body
+                 ++ (emitLabel continueLabel)
                  ++ iter
                  ++ (emitJump JMP passLabel)
                  ++ (emitLabel failLabel)
