@@ -104,6 +104,18 @@ lookUp currScope str = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
+getBreak :: Evaluator Int
+getBreak = do
+        currScope <- currentScope
+        findOffset currScope "@Break"
+
+
+getContinue :: Evaluator Int
+getContinue = do
+        currScope <- currentScope
+        findOffset currScope "@Continue"
+
+
 setBreak :: Int -> Evaluator Int
 setBreak labelNo = store "@Break" labelNo
 
