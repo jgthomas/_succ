@@ -140,7 +140,7 @@ parseForLoopPostExp :: [Token] -> (Tree, [Token])
 parseForLoopPostExp (next:toks) =
         case next of
              TokSemiColon  -> error "Too many clauses"
-             TokCloseParen -> nullExpr toks
+             TokCloseParen -> nullExpr (next:toks)
              _             -> parseExpression (next:toks)
 
 
