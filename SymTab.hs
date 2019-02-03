@@ -185,7 +185,7 @@ stackPointerValue = Ev $ \symTab ->
 
 
 notFound :: Int
-notFound = 0
+notFound = -1
 
 
 noScope :: Int
