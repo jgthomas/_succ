@@ -15,7 +15,12 @@ import SymTab
 
 
 newSymTab :: SymTab
-newSymTab = Tab (-1) 0 (-8) newStack M.empty
+newSymTab = Tab
+            (-1)
+            0
+            (-8)
+            newStack
+            M.empty
 
 
 main :: IO()
