@@ -12,7 +12,8 @@ module SymTab (Evaluator(..),
                setBreak,
                getBreak,
                setContinue,
-               getContinue) where
+               getContinue,
+               initFunction) where
 
 
 import Lexer

@@ -19,6 +19,7 @@ genASM (ProgramNode functionList) = do
         return $ concat prog
 
 genASM (FunctionNode name statementList) = do
+        initFunction name
         initScope
         funcStmnts <- mapM genASM statementList
         closeScope
