@@ -6,7 +6,7 @@ module SimpleStack (Stack(..),
                     stackPush) where
 
 
-newtype Stack a = Stack [a]
+newtype Stack a = Stack [a] deriving Show
 
 
 newStack :: Stack a

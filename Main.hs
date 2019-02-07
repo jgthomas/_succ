@@ -10,11 +10,12 @@ import qualified Data.Map as M
 import Lexer (tokenize)
 import Parser (parse)
 import Generator (genASM)
+import SimpleStack
 import SymTab
 
 
 newSymTab :: SymTab
-newSymTab = Tab (-1) 0 (-8) M.empty
+newSymTab = Tab (-1) 0 (-8) newStack M.empty
 
 
 main :: IO()

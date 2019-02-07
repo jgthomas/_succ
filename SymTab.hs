@@ -17,6 +17,7 @@ module SymTab (Evaluator(..),
 
 import Lexer
 import Parser
+import SimpleStack
 import qualified Data.Map as M
 import Control.Monad (liftM, ap)
 
@@ -24,6 +25,7 @@ import Control.Monad (liftM, ap)
 data SymTab = Tab { scope     :: Int
                   , labelNo   :: Int
                   , offset    :: Int
+                  , funcNames :: Stack String
                   , variables :: M.Map Int (M.Map String Int)}
             deriving Show
 
