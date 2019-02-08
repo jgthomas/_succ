@@ -27,6 +27,7 @@ data SymTab = Tab { scope     :: Int
                   , labelNo   :: Int
                   , offset    :: Int
                   , funcNames :: Stack String
+                  , funcScope :: M.Map String Int
                   , variables :: M.Map Int (M.Map String Int)}
             deriving Show
 

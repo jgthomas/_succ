@@ -21,6 +21,7 @@ newSymTab = Tab
             (-8)
             newStack
             M.empty
+            M.empty
 
 
 main :: IO()
