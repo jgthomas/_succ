@@ -1,6 +1,5 @@
 
 module SymTab (Evaluator(..),
-               SymTab(..),
                newSymTab,
                addSymbol,
                findOffset,
