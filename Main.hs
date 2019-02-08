@@ -9,7 +9,7 @@ import Control.Monad (when)
 import Lexer (tokenize)
 import Parser (parse)
 import Generator (genASM)
-import SymTab
+import SymTab (Evaluator(..), newSymTab)
 
 
 main :: IO()
