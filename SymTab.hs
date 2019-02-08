@@ -1,6 +1,7 @@
 
 module SymTab (Evaluator(..),
                SymTab(..),
+               newSymTab,
                addSymbol,
                findOffset,
                checkVar,
@@ -59,6 +60,16 @@ instance Monad Evaluator where
                         (Ev act')    = k x
                     in act' symTab'
         return x = Ev (\symTab -> (x, symTab))
+
+
+newSymTab :: SymTab
+newSymTab = Tab
+            (-1)
+            0
+            (-8)
+            newStack
+            M.empty
+            M.empty
 
 
 initFunction :: String -> Evaluator String

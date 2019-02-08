@@ -5,23 +5,11 @@ import System.Environment (getArgs)
 import System.FilePath (dropExtension)
 import System.Process (system)
 import Control.Monad (when)
-import qualified Data.Map as M
 
 import Lexer (tokenize)
 import Parser (parse)
 import Generator (genASM)
-import SimpleStack
 import SymTab
-
-
-newSymTab :: SymTab
-newSymTab = Tab
-            (-1)
-            0
-            (-8)
-            newStack
-            M.empty
-            M.empty
 
 
 main :: IO()
