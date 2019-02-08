@@ -64,9 +64,11 @@ instance Monad Evaluator where
 initFunction :: String -> Evaluator String
 initFunction name = Ev $ \symTab ->
         let funcs = funcNames symTab
+            scopes = funcScope symTab
             symTab' = symTab { funcNames = stackPush name funcs }
+            symTab'' = symTab' { funcScope = M.insert name 0 scopes }
             in
-        (name, symTab')
+        (name, symTab'')
 
 
 checkVar :: String -> Evaluator Bool
