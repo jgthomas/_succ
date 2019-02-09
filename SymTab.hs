@@ -110,15 +110,12 @@ closeFunction = do
         popFunctionName
 
 
-initScope :: Evaluator Int
-initScope = Ev $ \symTab ->
-        let scopeTab = variables symTab
-            initScope = scope symTab
-            symTab' = symTab { scope = initScope + 1 }
-            currScope = scope symTab'
-            symTab'' = symTab' { variables = M.insert currScope M.empty scopeTab }
-            in
-        (currScope, symTab'')
+initScope :: Evaluator FunctionScope
+initScope = do
+        changeScope increment
+        currScope <- currentScope
+        funcScope <- functionScopes
+        storeScope currScope M.empty
 
 
 closeScope :: Evaluator Bool
