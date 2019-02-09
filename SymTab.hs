@@ -233,6 +233,24 @@ checkVar currScope varName = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
+
+programScopes :: Evaluator (M.Map String (M.Map Int (M.Map String Int)))
+programScopes = undefined
+
+functionScopes :: String -> Evaluator (M.Map Int (M.Map String Int))
+functionScopes name = undefined
+
+scopeVariables :: Int -> Evaluator (M.Map String Int)
+scopeVariables currScope = undefined
+
+
+checkV :: String -> (M.Map String Int) -> Bool
+checkV varName varMap =
+        case M.lookup varName varMap of
+             Just value -> True
+             Nothing    -> False
+
+
 currentFunction :: Evaluator String
 currentFunction = Ev $ \symTab ->
         let nameStack = funcNames symTab
