@@ -178,25 +178,13 @@ addVariable :: String -> Evaluator Int
 addVariable varName = do
         currScope <- currentScope
         currOff <- currentOffset
-        addSymbol currScope currOff varName
+        store currScope varName currOff
+        incrementOffset currOff
 
 
 {-
 - Internal functions
 -}
-
-addSymbol :: Int -> Int -> String -> Evaluator Int
-addSymbol currScope off str = Ev $ \symTab ->
-        let scopeTab = variables symTab
-            in case M.lookup currScope scopeTab of
-                    Just scopeMap ->
-                            let scopeMap' = M.insert str off scopeMap
-                                symTab'  = symTab { variables = M.insert currScope scopeMap' scopeTab }
-                                symTab'' = symTab' { offset = off + (-8) }
-                                in
-                            (off, symTab'')
-                    Nothing -> error "No scope currently defined"
-
 
 findOffset :: Int -> String -> Evaluator Int
 findOffset currScope varName =
