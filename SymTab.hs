@@ -79,7 +79,7 @@ instance Monad Evaluator where
 newSymTab :: SymTab
 newSymTab = Tab
             (-1)
-            0
+            firstLabel
             memOffsetSize
             newStack
             M.empty
@@ -331,3 +331,6 @@ decrement = (-1)
 
 memOffsetSize :: Int
 memOffsetSize = (-8)
+
+firstLabel :: Int
+firstLabel = 1
