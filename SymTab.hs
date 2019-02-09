@@ -107,7 +107,7 @@ initFunction name = Ev $ \symTab ->
 
 closeFunction :: Evaluator Bool
 closeFunction = do
-        popFunction
+        popFunctionName
 
 
 initScope :: Evaluator Int
@@ -305,8 +305,8 @@ incrementOffset currOff = Ev $ \symTab ->
         (currOff, symTab')
 
 
-popFunction :: Evaluator Bool
-popFunction = Ev $ \symTab ->
+popFunctionName :: Evaluator Bool
+popFunctionName = Ev $ \symTab ->
         let names = funcNames symTab
             symTab' = symTab { funcNames = stackPop names }
             in
