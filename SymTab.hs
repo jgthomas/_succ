@@ -131,11 +131,15 @@ getContinue = do
 
 
 setBreak :: Int -> Evaluator Int
-setBreak labelNo = store "@Break" labelNo
+setBreak labelNo = do
+        currScope <- currentScope
+        store currScope "@Break" labelNo
 
 
 setContinue :: Int -> Evaluator Int
-setContinue labelNo = store "@Continue" labelNo
+setContinue labelNo = do
+        currScope <- currentScope
+        store currScope "@Continue" labelNo
 
 
 labelNum :: Evaluator Int
@@ -194,10 +198,9 @@ lookUp currScope str = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
-store :: String -> Int -> Evaluator Int
-store name val = Ev $ \symTab ->
+store :: Int -> String -> Int -> Evaluator Int
+store currScope name val = Ev $ \symTab ->
         let scopeTab = variables symTab
-            currScope = scope symTab
             in case M.lookup currScope scopeTab of
                     Just scopeMap ->
                             let scopeMap' = M.insert name val scopeMap
