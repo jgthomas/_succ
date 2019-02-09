@@ -147,12 +147,12 @@ labelNum = Ev $ \symTab ->
 
 
 checkVar :: String -> Evaluator Bool
-checkVar str = Ev $ \symTab ->
+checkVar varName = Ev $ \symTab ->
         let scopeTab = variables symTab
             currScope = scope symTab
             in case M.lookup currScope scopeTab of
                     Just scopeMap ->
-                            let value = M.lookup str scopeMap
+                            let value = M.lookup varName scopeMap
                                 in case value of
                                         Just v  -> (True, symTab)
                                         Nothing -> (False, symTab)
