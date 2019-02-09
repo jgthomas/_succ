@@ -121,13 +121,9 @@ initScope = Ev $ \symTab ->
         (currScope, symTab'')
 
 
-closeScope :: Evaluator Int
-closeScope = Ev $ \symTab ->
-        let scopeTab = variables symTab
-            symTab' = symTab { scope = scope symTab - 1 }
-            newScope = scope symTab'
-            in
-        (newScope, symTab')
+closeScope :: Evaluator Bool
+closeScope = do
+        changeScope decrement
 
 
 stackPointerValue :: Evaluator Int
@@ -306,7 +302,7 @@ incrementOffset currOff = Ev $ \symTab ->
 
 changeScope :: Int -> Evaluator Bool
 changeScope n = Ev $ \symTab ->
-        let symTab' = symTab { offset = offset symTab + n }
+        let symTab' = symTab { scope = scope symTab + n }
             in
         (True, symTab')
 
@@ -322,8 +318,8 @@ popFunctionName = Ev $ \symTab ->
 notFound :: Int
 notFound = -1
 
-inc :: Int
-inc = 1
+increment :: Int
+increment = 1
 
-dec :: Int
-dec = -1
+decrement :: Int
+decrement = (-1)
