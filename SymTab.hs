@@ -23,6 +23,11 @@ import qualified Data.Map as M
 import Control.Monad (liftM, ap)
 
 
+type LocalScope = M.Map String Int
+type FunctionScope = M.Map Int LocalScope
+type ProgramScope = M.Map String FunctionScope
+
+
 data SymTab = Tab { scope     :: Int
                   , labelNo   :: Int
                   , offset    :: Int
@@ -235,10 +240,15 @@ checkVar currScope varName = Ev $ \symTab ->
 
 
 programScopes :: Evaluator (M.Map String (M.Map Int (M.Map String Int)))
-programScopes = undefined
+programScopes = Ev $ \symTab ->
+        let scopeData = funcVars symTab
+            in
+        (scopeData, symTab)
+
 
 functionScopes :: String -> Evaluator (M.Map Int (M.Map String Int))
 functionScopes name = undefined
+
 
 scopeVariables :: Int -> Evaluator (M.Map String Int)
 scopeVariables currScope = undefined
