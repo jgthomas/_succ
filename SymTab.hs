@@ -238,23 +238,22 @@ checkVar currScope varName = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
+scopeVariables :: Int -> Evaluator LocalScope
+scopeVariables currScope = undefined
 
-programScopes :: Evaluator (M.Map String (M.Map Int (M.Map String Int)))
+
+functionScopes :: String -> FunctionScope
+functionScopes name = undefined
+
+
+programScopes :: Evaluator ProgramScope
 programScopes = Ev $ \symTab ->
         let scopeData = funcVars symTab
             in
         (scopeData, symTab)
 
 
-functionScopes :: String -> Evaluator (M.Map Int (M.Map String Int))
-functionScopes name = undefined
-
-
-scopeVariables :: Int -> Evaluator (M.Map String Int)
-scopeVariables currScope = undefined
-
-
-checkV :: String -> (M.Map String Int) -> Bool
+checkV :: String -> LocalScope -> Bool
 checkV varName varMap =
         case M.lookup varName varMap of
              Just value -> True
