@@ -12,7 +12,8 @@ module SymTab (Evaluator(..),
                getBreak,
                setContinue,
                getContinue,
-               initFunction) where
+               initFunction,
+               closeFunction) where
 
 
 import Lexer
@@ -92,6 +93,14 @@ initFunction name = Ev $ \symTab ->
                                 in
                             (name, symTab'''')
                     Nothing -> error "Failed to initilise function"
+
+
+closeFunction :: Evaluator Bool
+closeFunction = Ev $ \symTab ->
+        let funcs = funcNames symTab
+            symTab' = symTab { funcNames = stackPop funcs }
+            in
+        (True, symTab')
 
 
 initScope :: Evaluator Int

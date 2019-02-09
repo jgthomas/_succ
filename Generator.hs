@@ -23,6 +23,7 @@ genASM (FunctionNode name statementList) = do
         initScope
         funcStmnts <- mapM genASM statementList
         closeScope
+        closeFunction
         case hasReturn statementList of
              True  -> return $ functionName name
                                ++ concat funcStmnts
