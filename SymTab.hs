@@ -350,6 +350,14 @@ popFunctionName = Ev $ \symTab ->
         (True, symTab')
 
 
+pushFunctionName :: String -> Evaluator Bool
+pushFunctionName name = Ev $ \symTab ->
+        let names = funcNames symTab
+            symTab' = symTab { funcNames = stackPush name names }
+            in
+        (True, symTab')
+
+
 newScopeRecord :: String -> Evaluator Int
 newScopeRecord name = Ev $ \symTab ->
         let scopes = funcScope symTab
