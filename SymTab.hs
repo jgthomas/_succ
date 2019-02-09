@@ -230,18 +230,18 @@ pScopes = Ev $ \symTab ->
         (scopeData, symTab)
 
 
-sVariable :: String -> Int -> LocalScope -> LocalScope
+sVariable :: String -> Int -> LocalScope -> Evaluator LocalScope
 sVariable varName value locScope =
         let locScope' = M.insert varName value locScope
             in
-        locScope'
+        return locScope'
 
 
-sScope :: Int -> LocalScope -> FunctionScope -> FunctionScope
+sScope :: Int -> LocalScope -> FunctionScope -> Evaluator FunctionScope
 sScope currScope locScope funcScope =
         let funcScope' = M.insert currScope locScope funcScope
             in
-        funcScope'
+        return funcScope'
 
 
 sFunc :: String -> FunctionScope -> Evaluator ProgramScope
