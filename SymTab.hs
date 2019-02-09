@@ -176,7 +176,9 @@ labelNum = Ev $ \symTab ->
 checkVariable :: String -> Evaluator Bool
 checkVariable varName = do
         currScope <- currentScope
-        checkVar currScope varName
+        funcScope <- functionScopes
+        locScope <- localScope currScope funcScope
+        return $ checkVar varName locScope
 
 
 addVariable :: String -> Evaluator Int
@@ -226,35 +228,34 @@ store currScope name val = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
-checkVar :: Int -> String -> Evaluator Bool
-checkVar currScope varName = Ev $ \symTab ->
-        let scopeTab = variables symTab
-            in case M.lookup currScope scopeTab of
-                    Just scopeMap ->
-                            let value = M.lookup varName scopeMap
-                                in case value of
-                                        Just v  -> (True, symTab)
-                                        Nothing -> (False, symTab)
-                    Nothing -> error "No scope currently defined"
+--scopeVariables :: Int -> FunctionScope -> Evaluator LocalScope
+--scopeVariables currScope funcScope = undefined
+--
+--
+--functionScopes :: String -> ProgramScope -> Evaluator FunctionScope
+--functionScopes name progScope = undefined
+--
+--
+--programScopes :: Evaluator ProgramScope
+--programScopes = Ev $ \symTab ->
+--        let scopeData = funcVars symTab
+--            in
+--        (scopeData, symTab)
 
-
-scopeVariables :: Int -> FunctionScope -> Evaluator LocalScope
-scopeVariables currScope funcScope = undefined
-
-
-functionScopes :: String -> ProgramScope -> Evaluator FunctionScope
-functionScopes name progScope = undefined
-
-
-programScopes :: Evaluator ProgramScope
-programScopes = Ev $ \symTab ->
-        let scopeData = funcVars symTab
+functionScopes :: Evaluator FunctionScope
+functionScopes = Ev $ \symTab ->
+        let scopeData = variables symTab
             in
         (scopeData, symTab)
 
+localScope :: Int -> FunctionScope -> Evaluator LocalScope
+localScope currScope funcScope = Ev $ \symTab ->
+        case M.lookup currScope funcScope of
+             Just value -> (value, symTab)
+             Nothing    -> error "No scope defined for function"
 
-checkV :: String -> LocalScope -> Bool
-checkV varName varMap =
+checkVar :: String -> LocalScope -> Bool
+checkVar varName varMap =
         case M.lookup varName varMap of
              Just value -> True
              Nothing    -> False
