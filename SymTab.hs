@@ -161,11 +161,8 @@ setContinue labelNo = do
 
 
 labelNum :: Evaluator Int
-labelNum = Ev $ \symTab ->
-        let num = labelNo symTab
-            symTab' = symTab { labelNo = num + 1 }
-            in
-        (num, symTab')
+labelNum = do
+        nextLabel
 
 
 checkVariable :: String -> Evaluator Bool
@@ -305,6 +302,14 @@ changeScope n = Ev $ \symTab ->
         let symTab' = symTab { scope = scope symTab + n }
             in
         (True, symTab')
+
+
+nextLabel :: Evaluator Int
+nextLabel = Ev $ \symTab ->
+        let num = labelNo symTab
+            symTab' = symTab { labelNo = num + increment }
+            in
+        (num, symTab')
 
 
 popFunctionName :: Evaluator Bool
