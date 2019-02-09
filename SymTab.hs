@@ -138,6 +138,14 @@ setContinue :: Int -> Evaluator Int
 setContinue labelNo = store "@Continue" labelNo
 
 
+labelNum :: Evaluator Int
+labelNum = Ev $ \symTab ->
+        let num = labelNo symTab
+            symTab' = symTab { labelNo = num + 1 }
+            in
+        (num, symTab')
+
+
 checkVar :: String -> Evaluator Bool
 checkVar str = Ev $ \symTab ->
         let scopeTab = variables symTab
@@ -149,14 +157,6 @@ checkVar str = Ev $ \symTab ->
                                         Just v  -> (True, symTab)
                                         Nothing -> (False, symTab)
                     Nothing -> error "No scope currently defined"
-
-
-labelNum :: Evaluator Int
-labelNum = Ev $ \symTab ->
-        let num = labelNo symTab
-            symTab' = symTab { labelNo = num + 1 }
-            in
-        (num, symTab')
 
 
 addSymbol :: String -> Evaluator Int
