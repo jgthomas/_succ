@@ -23,6 +23,11 @@ import qualified Data.Map as M
 import Control.Monad (liftM, ap)
 
 
+data Change = INC
+            | DEC
+            deriving Eq
+
+
 type LocalScope = M.Map String Int
 type FunctionScope = M.Map Int LocalScope
 type ProgramScope = M.Map String FunctionScope
