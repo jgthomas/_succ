@@ -27,6 +27,7 @@ data SymTab = Tab { scope     :: Int
                   , offset    :: Int
                   , funcNames :: Stack String
                   , funcScope :: M.Map String Int
+                  , funcVars  :: M.Map String (M.Map Int (M.Map String Int))
                   , variables :: M.Map Int (M.Map String Int)}
             deriving Show
 
@@ -70,6 +71,7 @@ newSymTab = Tab
             0
             (-8)
             newStack
+            M.empty
             M.empty
             M.empty
 
