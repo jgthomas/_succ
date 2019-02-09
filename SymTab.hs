@@ -153,16 +153,18 @@ getContinue = do
         findOffset currScope "@Continue"
 
 
-setBreak :: Int -> Evaluator Int
+setBreak :: Int -> Evaluator FunctionScope
 setBreak labelNo = do
-        currScope <- currentScope
-        store currScope "@Break" labelNo
+        store2 "@Break" labelNo
+        --currScope <- currentScope
+        --store currScope "@Break" labelNo
 
 
-setContinue :: Int -> Evaluator Int
+setContinue :: Int -> Evaluator FunctionScope
 setContinue labelNo = do
-        currScope <- currentScope
-        store currScope "@Continue" labelNo
+        store2 "@Continue" labelNo
+        --currScope <- currentScope
+        --store currScope "@Continue" labelNo
 
 
 labelNum :: Evaluator Int
@@ -183,9 +185,14 @@ checkVariable varName = do
 
 addVariable :: String -> Evaluator Int
 addVariable varName = do
-        currScope <- currentScope
+        --currScope <- currentScope
         currOff <- currentOffset
-        store currScope varName currOff
+        store2 varName currOff
+        --funcScope <- functionScopes
+        --locScope <- localScope currScope funcScope
+        --updatedLoc <- storeVariable varName currOff locScope
+        --updatedFunc <- storeScope currScope (storeVariable varName currOff locScope)
+        --store currScope varName currOff
         incrementOffset currOff
 
 
@@ -216,16 +223,24 @@ lookUp currScope str = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
-store :: Int -> String -> Int -> Evaluator Int
-store currScope name val = Ev $ \symTab ->
-        let scopeTab = variables symTab
-            in case M.lookup currScope scopeTab of
-                    Just scopeMap ->
-                            let scopeMap' = M.insert name val scopeMap
-                                symTab'  = symTab { variables = M.insert currScope scopeMap' scopeTab }
-                                in
-                            (val, symTab')
-                    Nothing -> error "No scope currently defined"
+store2 :: String -> Int -> Evaluator FunctionScope
+store2 name value = do
+        currScope <- currentScope
+        funcScope <- functionScopes
+        locScope <- localScope currScope funcScope
+        storeScope currScope (storeVariable name value locScope)
+
+
+--store :: Int -> String -> Int -> Evaluator Int
+--store currScope name val = Ev $ \symTab ->
+--        let scopeTab = variables symTab
+--            in case M.lookup currScope scopeTab of
+--                    Just scopeMap ->
+--                            let scopeMap' = M.insert name val scopeMap
+--                                symTab'  = symTab { variables = M.insert currScope scopeMap' scopeTab }
+--                                in
+--                            (val, symTab')
+--                    Nothing -> error "No scope currently defined"
 
 
 --scopeVariables :: Int -> FunctionScope -> Evaluator LocalScope
@@ -241,6 +256,23 @@ store currScope name val = Ev $ \symTab ->
 --        let scopeData = funcVars symTab
 --            in
 --        (scopeData, symTab)
+
+
+storeVariable :: String -> Int -> LocalScope -> LocalScope
+storeVariable varName value locScope =
+        let locScope' = M.insert varName value locScope
+            in
+        locScope'
+
+
+storeScope :: Int -> LocalScope -> Evaluator FunctionScope
+storeScope currScope locScope = Ev $ \symTab ->
+        let scopeData = variables symTab
+            symTab' = symTab { variables = M.insert currScope locScope scopeData }
+            in
+        (scopeData, symTab')
+
+
 
 functionScopes :: Evaluator FunctionScope
 functionScopes = Ev $ \symTab ->
