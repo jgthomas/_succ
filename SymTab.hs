@@ -210,11 +210,17 @@ store name value = do
 -- new versions for after switch
 
 lScope :: Int -> FunctionScope -> Evaluator LocalScope
-lScope currScope funcScope = undefined
+lScope currScope funcScope = Ev $ \symTab ->
+        case M.lookup currScope funcScope of
+             Just value -> (value, symTab)
+             Nothing    -> error "No scope defined for function"
 
 
 fScope :: String -> ProgramScope -> Evaluator FunctionScope
-fScope name progScope = undefined
+fScope name progScope = Ev $ \symTab ->
+        case M.lookup name progScope of
+             Just v  -> (v, symTab)
+             Nothing -> error "No function scopes defined"
 
 
 pScopes :: Evaluator ProgramScope
@@ -222,6 +228,14 @@ pScopes = Ev $ \symTab ->
         let scopeData = funcVars symTab
             in
         (scopeData, symTab)
+
+
+sVariable :: String -> Int -> LocalScope -> LocalScope
+sVariable varName value locScope =
+        let locScope' = M.insert varName value locScope
+            in
+        locScope'
+
 
 
 -- end new versions
