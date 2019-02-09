@@ -87,31 +87,13 @@ newSymTab = Tab
             M.empty
 
 
---initFunction :: String -> Evaluator FunctionScope
---initFunction name = do
---        pushFunctionName name
---        newScopeRecord name
---        progScope <- sFunc name M.empty
---        funcScope <- fScope name progScope
---        sScope 0 M.empty funcScope
-
-
-initFunction :: String -> Evaluator String
-initFunction name = Ev $ \symTab ->
-        let funcs = funcNames symTab
-            scopes = funcScope symTab
-            vars = funcVars symTab
-            symTab' = symTab { funcNames = stackPush name funcs }
-            symTab'' = symTab' { funcScope = M.insert name 0 scopes }
-            symTab''' = symTab'' { funcVars = M.insert name M.empty vars }
-            newVars = funcVars symTab'''
-            in case M.lookup name newVars of
-                    Just funcScope ->
-                            let funcScope' = M.insert 0 M.empty funcScope
-                                symTab'''' = symTab''' { funcVars = M.insert name funcScope' newVars }
-                                in
-                            (name, symTab'''')
-                    Nothing -> error "Failed to initilise function"
+initFunction :: String -> Evaluator FunctionScope
+initFunction name = do
+        pushFunctionName name
+        newScopeRecord name
+        progScope <- sFunc name M.empty
+        funcScope <- fScope name progScope
+        sScope 0 M.empty funcScope
 
 
 closeFunction :: Evaluator Bool
@@ -257,7 +239,7 @@ sFunc :: String -> FunctionScope -> Evaluator ProgramScope
 sFunc name funcScope = Ev $ \symTab ->
         let scopeData = funcVars symTab
             symTab' = symTab { funcVars = M.insert name funcScope scopeData }
-            scopeData' = funcVars symTab
+            scopeData' = funcVars symTab'
             in
         (scopeData', symTab')
 
