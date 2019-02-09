@@ -304,6 +304,13 @@ incrementOffset currOff = Ev $ \symTab ->
         (currOff, symTab')
 
 
+changeScope :: Int -> Evaluator Bool
+changeScope n = Ev $ \symTab ->
+        let symTab' = symTab { offset = offset symTab + n }
+            in
+        (True, symTab')
+
+
 popFunctionName :: Evaluator Bool
 popFunctionName = Ev $ \symTab ->
         let names = funcNames symTab
@@ -314,3 +321,9 @@ popFunctionName = Ev $ \symTab ->
 
 notFound :: Int
 notFound = -1
+
+inc :: Int
+inc = 1
+
+dec :: Int
+dec = -1
