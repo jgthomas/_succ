@@ -124,8 +124,7 @@ initScope = Ev $ \symTab ->
 closeScope :: Evaluator Int
 closeScope = Ev $ \symTab ->
         let scopeTab = variables symTab
-            currScope = scope symTab
-            symTab' = symTab { scope = currScope - 1 }
+            symTab' = symTab { scope = scope symTab - 1 }
             newScope = scope symTab'
             in
         (newScope, symTab')
