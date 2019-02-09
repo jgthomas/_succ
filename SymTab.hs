@@ -174,8 +174,6 @@ addSymbol str = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
-
-
 {-
 - Internal functions
 -}
