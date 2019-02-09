@@ -133,8 +133,7 @@ genASM (DeclarationNode varName value) = do
                           Just value  -> genASM value
 
 genASM (AssignmentNode varName value operator) = do
-        currScope <- currentScope
-        offset <- findOffset currScope varName
+        offset <- variableOffset varName
         assign <- genASM value
         adjustment <- stackPointerValue
         return $ assign
@@ -182,8 +181,7 @@ genASM (UnaryNode tree op) = do
         return $ unode ++ (unary op)
 
 genASM (VarNode varName) = do
-        currScope <- currentScope
-        offset <- findOffset currScope varName
+        offset <- variableOffset varName
         return $ varOffStack offset
 
 genASM (NullExprNode) = return ""

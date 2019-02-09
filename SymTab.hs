@@ -2,11 +2,10 @@
 module SymTab (Evaluator(..),
                newSymTab,
                addSymbol,
-               findOffset,
                checkVar,
                labelNum,
                initScope,
-               currentScope,
+               variableOffset,
                closeScope,
                stackPointerValue,
                setBreak,
@@ -106,18 +105,17 @@ closeScope = Ev $ \symTab ->
         (newScope, symTab')
 
 
-currentScope :: Evaluator Int
-currentScope = Ev $ \symTab ->
-        let currScope = scope symTab
-            in
-        (currScope, symTab)
-
-
 stackPointerValue :: Evaluator Int
 stackPointerValue = Ev $ \symTab ->
         let currOff = offset symTab
             in
         (currOff, symTab)
+
+
+variableOffset :: String -> Evaluator Int
+variableOffset varName = do
+        currScope <- currentScope
+        findOffset currScope varName
 
 
 getBreak :: Evaluator Int
@@ -176,6 +174,12 @@ addSymbol str = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
+
+
+{-
+- Internal functions
+-}
+
 findOffset :: Int -> String -> Evaluator Int
 findOffset currScope varName =
         if currScope == noScope
@@ -186,10 +190,6 @@ findOffset currScope varName =
                       then findOffset (currScope-1) varName
                       else return offset
 
-
-{-
-- Internal functions
--}
 
 lookUp :: Int -> String -> Evaluator Int
 lookUp currScope str = Ev $ \symTab ->
@@ -222,6 +222,13 @@ currentFunction = Ev $ \symTab ->
             currFunc  = stackPeek nameStack
             in
         (currFunc, symTab)
+
+
+currentScope :: Evaluator Int
+currentScope = Ev $ \symTab ->
+        let currScope = scope symTab
+            in
+        (currScope, symTab)
 
 
 notFound :: Int
