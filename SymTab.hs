@@ -106,10 +106,9 @@ closeScope = Ev $ \symTab ->
 
 
 stackPointerValue :: Evaluator Int
-stackPointerValue = Ev $ \symTab ->
-        let currOff = offset symTab
-            in
-        (currOff, symTab)
+stackPointerValue = do
+        currOff <- currentOffset
+        return $ negate currOff
 
 
 variableOffset :: String -> Evaluator Int
