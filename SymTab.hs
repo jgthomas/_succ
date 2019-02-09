@@ -207,19 +207,24 @@ store name value = do
         storeScope currScope (storeVariable name value locScope)
 
 
---scopeVariables :: Int -> FunctionScope -> Evaluator LocalScope
---scopeVariables currScope funcScope = undefined
---
---
---functionScopes :: String -> ProgramScope -> Evaluator FunctionScope
---functionScopes name progScope = undefined
---
---
---programScopes :: Evaluator ProgramScope
---programScopes = Ev $ \symTab ->
---        let scopeData = funcVars symTab
---            in
---        (scopeData, symTab)
+-- new versions for after switch
+
+lScope :: Int -> FunctionScope -> Evaluator LocalScope
+lScope currScope funcScope = undefined
+
+
+fScope :: String -> ProgramScope -> Evaluator FunctionScope
+fScope name progScope = undefined
+
+
+pScopes :: Evaluator ProgramScope
+pScopes = Ev $ \symTab ->
+        let scopeData = funcVars symTab
+            in
+        (scopeData, symTab)
+
+
+-- end new versions
 
 
 storeVariable :: String -> Int -> LocalScope -> LocalScope
