@@ -80,7 +80,7 @@ newSymTab :: SymTab
 newSymTab = Tab
             (-1)
             0
-            (-8)
+            memOffsetSize
             newStack
             M.empty
             M.empty
@@ -323,3 +323,6 @@ increment = 1
 
 decrement :: Int
 decrement = (-1)
+
+memOffsetSize :: Int
+memOffsetSize = (-8)
