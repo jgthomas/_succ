@@ -238,12 +238,12 @@ checkVar currScope varName = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
-scopeVariables :: Int -> Evaluator LocalScope
-scopeVariables currScope = undefined
+scopeVariables :: Int -> FunctionScope -> Evaluator LocalScope
+scopeVariables currScope funcScope = undefined
 
 
-functionScopes :: String -> FunctionScope
-functionScopes name = undefined
+functionScopes :: String -> ProgramScope -> Evaluator FunctionScope
+functionScopes name progScope = undefined
 
 
 programScopes :: Evaluator ProgramScope
