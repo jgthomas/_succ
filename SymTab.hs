@@ -193,7 +193,7 @@ addVariable varName = do
 
 findOffset :: Int -> String -> Evaluator Int
 findOffset currScope varName =
-        if currScope == noScope
+        if currScope == notFound
            then error $ "Undefined variable: '" ++ varName ++ "'"
            else do
                    offset <- lookUp currScope varName
@@ -314,7 +314,3 @@ popFunctionName = Ev $ \symTab ->
 
 notFound :: Int
 notFound = -1
-
-
-noScope :: Int
-noScope = (-1)
