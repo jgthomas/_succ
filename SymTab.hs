@@ -237,6 +237,20 @@ sVariable varName value locScope =
         locScope'
 
 
+sScope :: Int -> LocalScope -> FunctionScope -> FunctionScope
+sScope currScope locScope funcScope =
+        let funcScope' = M.insert currScope locScope funcScope
+            in
+        funcScope
+
+
+sFunc :: String -> FunctionScope -> Evaluator ProgramScope
+sFunc name funcScope = Ev $ \symTab ->
+        let scopeData = funcVars symTab
+            symTab' = symTab { funcVars = M.insert name funcScope scopeData }
+            in
+        (scopeData, symTab')
+
 
 -- end new versions
 
