@@ -87,13 +87,14 @@ newSymTab = Tab
             M.empty
 
 
-initFunction :: String -> Evaluator FunctionScope
+initFunction :: String -> Evaluator Bool
 initFunction name = do
         pushFunctionName name
         newScopeRecord name
         progScope <- sFunc name M.empty
         funcScope <- fScope name progScope
         sScope 0 M.empty funcScope
+        return True
 
 
 closeFunction :: Evaluator Bool
@@ -101,12 +102,13 @@ closeFunction = do
         popFunctionName
 
 
-initScope :: Evaluator FunctionScope
+initScope :: Evaluator Bool
 initScope = do
         changeScope increment
         currScope <- currentScope
         funcScope <- functionScopes
         storeScope currScope M.empty
+        return True
 
 
 closeScope :: Evaluator Bool
