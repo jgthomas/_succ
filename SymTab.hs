@@ -257,8 +257,9 @@ sFunc :: String -> FunctionScope -> Evaluator ProgramScope
 sFunc name funcScope = Ev $ \symTab ->
         let scopeData = funcVars symTab
             symTab' = symTab { funcVars = M.insert name funcScope scopeData }
+            scopeData' = funcVars symTab
             in
-        (scopeData, symTab')
+        (scopeData', symTab')
 
 
 -- end new versions
