@@ -241,7 +241,7 @@ sScope :: Int -> LocalScope -> FunctionScope -> FunctionScope
 sScope currScope locScope funcScope =
         let funcScope' = M.insert currScope locScope funcScope
             in
-        funcScope
+        funcScope'
 
 
 sFunc :: String -> FunctionScope -> Evaluator ProgramScope
