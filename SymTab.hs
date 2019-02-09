@@ -267,6 +267,13 @@ currentOffset = Ev $ \symTab ->
         (currOff, symTab)
 
 
+incrementOffset :: Int -> Evaluator Int
+incrementOffset currOff = Ev $ \symTab ->
+        let symTab' = symTab { offset = currOff + (-8) }
+            in
+        (currOff, symTab')
+
+
 notFound :: Int
 notFound = -1
 
