@@ -61,6 +61,10 @@ instance Monad Evaluator where
         return x = Ev (\symTab -> (x, symTab))
 
 
+{-
+- Exported API functions
+-}
+
 newSymTab :: SymTab
 newSymTab = Tab
             (-1)
@@ -79,98 +83,6 @@ initFunction name = Ev $ \symTab ->
             symTab'' = symTab' { funcScope = M.insert name 0 scopes }
             in
         (name, symTab'')
-
-
-checkVar :: String -> Evaluator Bool
-checkVar str = Ev $ \symTab ->
-        let scopeTab = variables symTab
-            currScope = scope symTab
-            in case M.lookup currScope scopeTab of
-                    Just scopeMap ->
-                            let value = M.lookup str scopeMap
-                                in case value of
-                                        Just v  -> (True, symTab)
-                                        Nothing -> (False, symTab)
-                    Nothing -> error "No scope currently defined"
-
-
-addSymbol :: String -> Evaluator Int
-addSymbol str = Ev $ \symTab ->
-        let scopeTab = variables symTab
-            off = offset symTab
-            currScope = scope symTab
-            in case M.lookup currScope scopeTab of
-                    Just scopeMap ->
-                            let scopeMap' = M.insert str off scopeMap
-                                symTab'  = symTab { variables = M.insert currScope scopeMap' scopeTab }
-                                symTab'' = symTab' { offset = off + (-8) }
-                                in
-                            (off, symTab'')
-                    Nothing -> error "No scope currently defined"
-
-
-findOffset :: Int -> String -> Evaluator Int
-findOffset currScope varName =
-        if currScope == noScope
-           then error $ "Undefined variable: '" ++ varName ++ "'"
-           else do
-                   offset <- lookUp currScope varName
-                   if offset == notFound
-                      then findOffset (currScope-1) varName
-                      else return offset
-
-
-lookUp :: Int -> String -> Evaluator Int
-lookUp currScope str = Ev $ \symTab ->
-        let scopeTab = variables symTab
-            in case M.lookup currScope scopeTab of
-                    Just scopeMap ->
-                            let value = M.lookup str scopeMap
-                                in case value of
-                                        Just v  -> (v, symTab)
-                                        Nothing -> (notFound, symTab)
-                    Nothing -> error "No scope currently defined"
-
-
-getBreak :: Evaluator Int
-getBreak = do
-        currScope <- currentScope
-        findOffset currScope "@Break"
-
-
-getContinue :: Evaluator Int
-getContinue = do
-        currScope <- currentScope
-        findOffset currScope "@Continue"
-
-
-setBreak :: Int -> Evaluator Int
-setBreak labelNo = store "@Break" labelNo
-
-
-setContinue :: Int -> Evaluator Int
-setContinue labelNo = store "@Continue" labelNo
-
-
-store :: String -> Int -> Evaluator Int
-store name val = Ev $ \symTab ->
-        let scopeTab = variables symTab
-            currScope = scope symTab
-            in case M.lookup currScope scopeTab of
-                    Just scopeMap ->
-                            let scopeMap' = M.insert name val scopeMap
-                                symTab'  = symTab { variables = M.insert currScope scopeMap' scopeTab }
-                                in
-                            (val, symTab')
-                    Nothing -> error "No scope currently defined"
-
-
-labelNum :: Evaluator Int
-labelNum = Ev $ \symTab ->
-        let num = labelNo symTab
-            symTab' = symTab { labelNo = num + 1 }
-            in
-        (num, symTab')
 
 
 initScope :: Evaluator Int
@@ -206,6 +118,102 @@ stackPointerValue = Ev $ \symTab ->
         let currOff = offset symTab
             in
         (currOff, symTab)
+
+
+getBreak :: Evaluator Int
+getBreak = do
+        currScope <- currentScope
+        findOffset currScope "@Break"
+
+
+getContinue :: Evaluator Int
+getContinue = do
+        currScope <- currentScope
+        findOffset currScope "@Continue"
+
+
+setBreak :: Int -> Evaluator Int
+setBreak labelNo = store "@Break" labelNo
+
+
+setContinue :: Int -> Evaluator Int
+setContinue labelNo = store "@Continue" labelNo
+
+
+checkVar :: String -> Evaluator Bool
+checkVar str = Ev $ \symTab ->
+        let scopeTab = variables symTab
+            currScope = scope symTab
+            in case M.lookup currScope scopeTab of
+                    Just scopeMap ->
+                            let value = M.lookup str scopeMap
+                                in case value of
+                                        Just v  -> (True, symTab)
+                                        Nothing -> (False, symTab)
+                    Nothing -> error "No scope currently defined"
+
+
+labelNum :: Evaluator Int
+labelNum = Ev $ \symTab ->
+        let num = labelNo symTab
+            symTab' = symTab { labelNo = num + 1 }
+            in
+        (num, symTab')
+
+
+addSymbol :: String -> Evaluator Int
+addSymbol str = Ev $ \symTab ->
+        let scopeTab = variables symTab
+            off = offset symTab
+            currScope = scope symTab
+            in case M.lookup currScope scopeTab of
+                    Just scopeMap ->
+                            let scopeMap' = M.insert str off scopeMap
+                                symTab'  = symTab { variables = M.insert currScope scopeMap' scopeTab }
+                                symTab'' = symTab' { offset = off + (-8) }
+                                in
+                            (off, symTab'')
+                    Nothing -> error "No scope currently defined"
+
+
+findOffset :: Int -> String -> Evaluator Int
+findOffset currScope varName =
+        if currScope == noScope
+           then error $ "Undefined variable: '" ++ varName ++ "'"
+           else do
+                   offset <- lookUp currScope varName
+                   if offset == notFound
+                      then findOffset (currScope-1) varName
+                      else return offset
+
+
+{-
+- Internal functions
+-}
+
+lookUp :: Int -> String -> Evaluator Int
+lookUp currScope str = Ev $ \symTab ->
+        let scopeTab = variables symTab
+            in case M.lookup currScope scopeTab of
+                    Just scopeMap ->
+                            let value = M.lookup str scopeMap
+                                in case value of
+                                        Just v  -> (v, symTab)
+                                        Nothing -> (notFound, symTab)
+                    Nothing -> error "No scope currently defined"
+
+
+store :: String -> Int -> Evaluator Int
+store name val = Ev $ \symTab ->
+        let scopeTab = variables symTab
+            currScope = scope symTab
+            in case M.lookup currScope scopeTab of
+                    Just scopeMap ->
+                            let scopeMap' = M.insert name val scopeMap
+                                symTab'  = symTab { variables = M.insert currScope scopeMap' scopeTab }
+                                in
+                            (val, symTab')
+                    Nothing -> error "No scope currently defined"
 
 
 notFound :: Int
