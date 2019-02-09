@@ -237,6 +237,13 @@ currentScope = Ev $ \symTab ->
         (currScope, symTab)
 
 
+currentOffset :: Evaluator Int
+currentOffset = Ev $ \symTab ->
+        let currOff = offset symTab
+            in
+        (currOff, symTab)
+
+
 notFound :: Int
 notFound = -1
 
