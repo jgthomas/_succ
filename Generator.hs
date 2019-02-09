@@ -120,7 +120,7 @@ genASM (IfNode test action possElse) = do
                               ++ (emitLabel nextLabel)
 
 genASM (DeclarationNode varName value) = do
-        varDeclared <- checkVar varName
+        varDeclared <- checkVariable varName
         case varDeclared of
              True  -> error $ "Variable '" ++ varName ++ "' already declared"
              False -> do

@@ -2,7 +2,7 @@
 module SymTab (Evaluator(..),
                newSymTab,
                addSymbol,
-               checkVar,
+               checkVariable,
                labelNum,
                initScope,
                variableOffset,
@@ -146,17 +146,10 @@ labelNum = Ev $ \symTab ->
         (num, symTab')
 
 
-checkVar :: String -> Evaluator Bool
-checkVar varName = Ev $ \symTab ->
-        let scopeTab = variables symTab
-            currScope = scope symTab
-            in case M.lookup currScope scopeTab of
-                    Just scopeMap ->
-                            let value = M.lookup varName scopeMap
-                                in case value of
-                                        Just v  -> (True, symTab)
-                                        Nothing -> (False, symTab)
-                    Nothing -> error "No scope currently defined"
+checkVariable :: String -> Evaluator Bool
+checkVariable varName = do
+        currScope <- currentScope
+        checkVar currScope varName
 
 
 addSymbol :: String -> Evaluator Int
@@ -211,6 +204,18 @@ store name val = Ev $ \symTab ->
                                 symTab'  = symTab { variables = M.insert currScope scopeMap' scopeTab }
                                 in
                             (val, symTab')
+                    Nothing -> error "No scope currently defined"
+
+
+checkVar :: Int -> String -> Evaluator Bool
+checkVar currScope varName = Ev $ \symTab ->
+        let scopeTab = variables symTab
+            in case M.lookup currScope scopeTab of
+                    Just scopeMap ->
+                            let value = M.lookup varName scopeMap
+                                in case value of
+                                        Just v  -> (True, symTab)
+                                        Nothing -> (False, symTab)
                     Nothing -> error "No scope currently defined"
 
 
