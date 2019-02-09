@@ -124,7 +124,7 @@ genASM (DeclarationNode varName value) = do
         case varDeclared of
              True  -> error $ "Variable '" ++ varName ++ "' already declared"
              False -> do
-                     offset <- addSymbol varName
+                     offset <- addVariable varName
                      adjustment <- stackPointerValue
                      case value of
                           Nothing     -> return $ loadValue 0
