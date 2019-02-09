@@ -80,10 +80,18 @@ initFunction :: String -> Evaluator String
 initFunction name = Ev $ \symTab ->
         let funcs = funcNames symTab
             scopes = funcScope symTab
+            vars = funcVars symTab
             symTab' = symTab { funcNames = stackPush name funcs }
             symTab'' = symTab' { funcScope = M.insert name 0 scopes }
-            in
-        (name, symTab'')
+            symTab''' = symTab'' { funcVars = M.insert name M.empty vars }
+            newVars = funcVars symTab'''
+            in case M.lookup name newVars of
+                    Just funcScope ->
+                            let funcScope' = M.insert 0 M.empty funcScope
+                                symTab'''' = symTab''' { funcVars = M.insert name funcScope' newVars }
+                                in
+                            (name, symTab'''')
+                    Nothing -> error "Failed to initilise function"
 
 
 initScope :: Evaluator Int
