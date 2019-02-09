@@ -216,6 +216,14 @@ store name val = Ev $ \symTab ->
                     Nothing -> error "No scope currently defined"
 
 
+currentFunction :: Evaluator String
+currentFunction = Ev $ \symTab ->
+        let nameStack = funcNames symTab
+            currFunc  = stackPeek nameStack
+            in
+        (currFunc, symTab)
+
+
 notFound :: Int
 notFound = -1
 
