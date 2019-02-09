@@ -350,6 +350,14 @@ popFunctionName = Ev $ \symTab ->
         (True, symTab')
 
 
+newScopeRecord :: String -> Evaluator Int
+newScopeRecord name = Ev $ \symTab ->
+        let scopes = funcScope symTab
+            symTab' = symTab { funcScope = M.insert name 0 scopes }
+            in
+        (0, symTab')
+
+
 notFound :: Int
 notFound = -1
 
