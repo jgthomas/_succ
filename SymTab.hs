@@ -202,15 +202,10 @@ findOffset currScope varName =
 
 
 lookUp :: Int -> String -> Evaluator Int
-lookUp currScope str = Ev $ \symTab ->
-        let scopeTab = variables symTab
-            in case M.lookup currScope scopeTab of
-                    Just scopeMap ->
-                            let value = M.lookup str scopeMap
-                                in case value of
-                                        Just v  -> (v, symTab)
-                                        Nothing -> (notFound, symTab)
-                    Nothing -> error "No scope currently defined"
+lookUp currScope name = do
+        funcScope <- functionScopes
+        locScope <- localScope currScope funcScope
+        return $ getVar name locScope
 
 
 store :: String -> Int -> Evaluator FunctionScope
@@ -269,6 +264,14 @@ checkVar varName varMap =
         case M.lookup varName varMap of
              Just value -> True
              Nothing    -> False
+
+
+getVar :: String -> LocalScope -> Int
+getVar varName varMap =
+        let value = M.lookup varName varMap
+            in case value of
+                    Just v  -> v
+                    Nothing -> notFound
 
 
 currentFunction :: Evaluator String
