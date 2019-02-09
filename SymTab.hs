@@ -101,11 +101,8 @@ initFunction name = Ev $ \symTab ->
 
 
 closeFunction :: Evaluator Bool
-closeFunction = Ev $ \symTab ->
-        let funcs = funcNames symTab
-            symTab' = symTab { funcNames = stackPop funcs }
-            in
-        (True, symTab')
+closeFunction = do
+        popFunction
 
 
 initScope :: Evaluator Int
@@ -301,6 +298,14 @@ incrementOffset currOff = Ev $ \symTab ->
         let symTab' = symTab { offset = currOff + (-8) }
             in
         (currOff, symTab')
+
+
+popFunction :: Evaluator Bool
+popFunction = Ev $ \symTab ->
+        let names = funcNames symTab
+            symTab' = symTab { funcNames = stackPop names }
+            in
+        (True, symTab')
 
 
 notFound :: Int
