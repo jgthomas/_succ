@@ -87,6 +87,15 @@ newSymTab = Tab
             M.empty
 
 
+--initFunction :: String -> Evaluator FunctionScope
+--initFunction name = do
+--        pushFunctionName name
+--        newScopeRecord name
+--        progScope <- sFunc name M.empty
+--        funcScope <- fScope name progScope
+--        sScope 0 M.empty funcScope
+
+
 initFunction :: String -> Evaluator String
 initFunction name = Ev $ \symTab ->
         let funcs = funcNames symTab
