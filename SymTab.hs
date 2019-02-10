@@ -332,7 +332,7 @@ incrementOffset currOff = Ev $ \symTab ->
 nextLabel :: Evaluator Int
 nextLabel = Ev $ \symTab ->
         let num = labelNo symTab
-            symTab' = symTab { labelNo = num + increment }
+            symTab' = symTab { labelNo = succ num }
             in
         (num, symTab')
 
@@ -365,12 +365,6 @@ newScopeRecord name = Ev $ \symTab ->
 
 notFound :: Int
 notFound = -1
-
-increment :: Int
-increment = 1
-
-decrement :: Int
-decrement = (-1)
 
 memOffsetSize :: Int
 memOffsetSize = (-8)
