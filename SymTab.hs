@@ -324,7 +324,7 @@ currentOffset = Ev $ \symTab ->
 
 incrementOffset :: Int -> Evaluator Int
 incrementOffset currOff = Ev $ \symTab ->
-        let symTab' = symTab { offset = currOff + (-8) }
+        let symTab' = symTab { offset = currOff + memOffsetSize }
             in
         (currOff, symTab')
 
