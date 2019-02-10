@@ -148,10 +148,10 @@ labelNum = do
 checkVariable :: String -> Evaluator Bool
 checkVariable varName = do
         currFunc <- currentFunction
-        currScope <- findScope currFunc
+        scopeLevel <- findScope currFunc
         progScope <- getProgramScope
         funcScope <- getFunctionScope currFunc progScope
-        locScope <- getLocalScope currScope funcScope
+        locScope <- getLocalScope scopeLevel funcScope
         return $ checkVar varName locScope
 
 
@@ -172,8 +172,8 @@ addVariable varName = do
 getOffset :: String -> Evaluator Int
 getOffset name = do
         currFunc <- currentFunction
-        currScope <- findScope currFunc
-        findOffset currFunc currScope name
+        scopeLevel <- findScope currFunc
+        findOffset currFunc scopeLevel name
 
 
 findOffset :: String -> Int -> String -> Evaluator Int
@@ -198,20 +198,20 @@ lookUp func scope name = do
 store :: String -> Int -> Evaluator ProgramScope
 store name value = do
         currFunc <- currentFunction
-        currScope <- findScope currFunc
+        scopeLevel <- findScope currFunc
         progScope <- getProgramScope
         funcScope <- getFunctionScope currFunc progScope
-        locScope <- getLocalScope currScope funcScope
+        locScope <- getLocalScope scopeLevel funcScope
         locScope' <- storeVariable name value locScope
-        funcScope' <- updateFunctionScope currScope locScope' funcScope
+        funcScope' <- updateFunctionScope scopeLevel locScope' funcScope
         updateProgramScope currFunc funcScope'
 
 
 -- scope variables viewing and editing
 
 getLocalScope :: Int -> FunctionScope -> Evaluator LocalScope
-getLocalScope currScope funcScope = Ev $ \symTab ->
-        case M.lookup currScope funcScope of
+getLocalScope scopeLevel funcScope = Ev $ \symTab ->
+        case M.lookup scopeLevel funcScope of
              Just value -> (value, symTab)
              Nothing    -> error "No scope defined for function"
 
@@ -238,8 +238,8 @@ storeVariable varName value locScope =
 
 
 updateFunctionScope :: Int -> LocalScope -> FunctionScope -> Evaluator FunctionScope
-updateFunctionScope currScope locScope funcScope =
-        let funcScope' = M.insert currScope locScope funcScope
+updateFunctionScope scopeLevel locScope funcScope =
+        let funcScope' = M.insert scopeLevel locScope funcScope
             in
         return funcScope'
 
@@ -283,8 +283,8 @@ decrementScope = do
 stepScope :: (Int -> Int) -> Evaluator Int
 stepScope func = do
         currFunc <- currentFunction
-        currScope <- findScope currFunc
-        switchScope currFunc $ func currScope
+        scopeLevel <- findScope currFunc
+        switchScope currFunc $ func scopeLevel
 
 
 switchScope :: String -> Int -> Evaluator Int
@@ -298,9 +298,9 @@ switchScope name newScope = Ev $ \symTab ->
 findScope :: String -> Evaluator Int
 findScope name = Ev $ \symTab ->
         let scopes = funcScope symTab
-            currScope = M.lookup name scopes
+            scopeLevel = M.lookup name scopes
             in
-        case currScope of
+        case scopeLevel of
              Just scope -> (scope, symTab)
              Nothing    -> error $ "No scopes defined for function " ++ name
 
