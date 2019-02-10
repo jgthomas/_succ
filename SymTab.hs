@@ -151,7 +151,7 @@ checkVariable varName = do
         currScope <- findScope currFunc
         progScope <- getProgramScope
         funcScope <- getFunctionScope currFunc progScope
-        locScope <- lScope currScope funcScope
+        locScope <- getLocalScope currScope funcScope
         return $ checkVar varName locScope
 
 
@@ -191,7 +191,7 @@ lookUp :: String -> Int -> String -> Evaluator Int
 lookUp func scope name = do
         progScope <- getProgramScope
         funcScope <- getFunctionScope func progScope
-        locScope <- lScope scope funcScope
+        locScope <- getLocalScope scope funcScope
         return $ getVar name locScope
 
 
@@ -201,7 +201,7 @@ store name value = do
         currScope <- findScope currFunc
         progScope <- getProgramScope
         funcScope <- getFunctionScope currFunc progScope
-        locScope <- lScope currScope funcScope
+        locScope <- getLocalScope currScope funcScope
         locScope' <- storeVariable name value locScope
         funcScope' <- updateFunctionScope currScope locScope' funcScope
         updateProgramScope currFunc funcScope'
@@ -209,8 +209,8 @@ store name value = do
 
 -- scope variables viewing and editing
 
-lScope :: Int -> FunctionScope -> Evaluator LocalScope
-lScope currScope funcScope = Ev $ \symTab ->
+getLocalScope :: Int -> FunctionScope -> Evaluator LocalScope
+getLocalScope currScope funcScope = Ev $ \symTab ->
         case M.lookup currScope funcScope of
              Just value -> (value, symTab)
              Nothing    -> error "No scope defined for function"
