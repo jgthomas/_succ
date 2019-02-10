@@ -96,12 +96,12 @@ closeFunction = do
 
 initScope :: Evaluator ProgramScope
 initScope = do
-        currFunc <- currentFunction
+        currFuncName <- currentFunction
         newScope <- incrementScope
         progScope <- getProgramScope
-        funcScope <- getFunctionScope currFunc progScope
+        funcScope <- getFunctionScope currFuncName progScope
         funcScope' <- updateFunctionScope newScope M.empty funcScope
-        updateProgramScope currFunc funcScope'
+        updateProgramScope currFuncName funcScope'
 
 
 closeScope :: Evaluator Int
@@ -147,10 +147,10 @@ labelNum = do
 
 checkVariable :: String -> Evaluator Bool
 checkVariable varName = do
-        currFunc <- currentFunction
-        scopeLevel <- findScope currFunc
+        currFuncName <- currentFunction
+        scopeLevel <- findScope currFuncName
         progScope <- getProgramScope
-        funcScope <- getFunctionScope currFunc progScope
+        funcScope <- getFunctionScope currFuncName progScope
         locScope <- getLocalScope scopeLevel funcScope
         return $ checkVar varName locScope
 
@@ -171,9 +171,9 @@ addVariable varName = do
 
 getOffset :: String -> Evaluator Int
 getOffset name = do
-        currFunc <- currentFunction
-        scopeLevel <- findScope currFunc
-        findOffset currFunc scopeLevel name
+        currFuncName <- currentFunction
+        scopeLevel <- findScope currFuncName
+        findOffset currFuncName scopeLevel name
 
 
 findOffset :: String -> Int -> String -> Evaluator Int
@@ -197,14 +197,14 @@ lookUp func scope name = do
 
 store :: String -> Int -> Evaluator ProgramScope
 store name value = do
-        currFunc <- currentFunction
-        scopeLevel <- findScope currFunc
+        currFuncName <- currentFunction
+        scopeLevel <- findScope currFuncName
         progScope <- getProgramScope
-        funcScope <- getFunctionScope currFunc progScope
+        funcScope <- getFunctionScope currFuncName progScope
         locScope <- getLocalScope scopeLevel funcScope
         locScope' <- storeVariable name value locScope
         funcScope' <- updateFunctionScope scopeLevel locScope' funcScope
-        updateProgramScope currFunc funcScope'
+        updateProgramScope currFuncName funcScope'
 
 
 -- scope variables viewing and editing
@@ -282,9 +282,9 @@ decrementScope = do
 
 stepScope :: (Int -> Int) -> Evaluator Int
 stepScope func = do
-        currFunc <- currentFunction
-        scopeLevel <- findScope currFunc
-        switchScope currFunc $ func scopeLevel
+        currFuncName <- currentFunction
+        scopeLevel <- findScope currFuncName
+        switchScope currFuncName $ func scopeLevel
 
 
 switchScope :: String -> Int -> Evaluator Int
@@ -310,9 +310,9 @@ findScope name = Ev $ \symTab ->
 currentFunction :: Evaluator String
 currentFunction = Ev $ \symTab ->
         let nameStack = funcNames symTab
-            currFunc  = stackPeek nameStack
+            currFuncName  = stackPeek nameStack
             in
-        (currFunc, symTab)
+        (currFuncName, symTab)
 
 
 currentOffset :: Evaluator Int
