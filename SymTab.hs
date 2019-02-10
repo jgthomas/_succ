@@ -210,6 +210,18 @@ store name value = do
         storeScope currScope (storeVariable name value locScope)
 
 
+--store :: String -> Int -> Evaluator ProgramScope
+--store name value = do
+--        currFunc <- currentFunction
+--        currScope <- findScope currFunc
+--        progScope <- pScopes
+--        funcScope <- fScope currFunc progScope
+--        locScope <- lScope currScope funcScope
+--        locScope' <- sVariable name value locScope
+--        funcScope' <- sScope currScope locScope' funcScope
+--        sFunc currFunc funcScope'
+
+
 -- new versions for after switch
 
 lScope :: Int -> FunctionScope -> Evaluator LocalScope
