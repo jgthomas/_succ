@@ -20,9 +20,7 @@ genASM (ProgramNode functionList) = do
 
 genASM (FunctionNode name statementList) = do
         initFunction name
-        --initScope
         funcStmnts <- mapM genASM statementList
-        --closeScope
         closeFunction
         case hasReturn statementList of
              True  -> return $ functionName name

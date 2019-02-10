@@ -23,24 +23,9 @@ import qualified Data.Map as M
 import Control.Monad (liftM, ap)
 
 
-data Change = INC
-            | DEC
-            deriving Eq
-
-
 type LocalScope = M.Map String Int
 type FunctionScope = M.Map Int LocalScope
 type ProgramScope = M.Map String FunctionScope
-
-
---data SymTab = Tab { scope     :: Int
---                  , labelNo   :: Int
---                  , offset    :: Int
---                  , funcNames :: Stack String
---                  , funcScope :: M.Map String Int
---                  , funcVars  :: M.Map String (M.Map Int (M.Map String Int))
---                  , variables :: M.Map Int (M.Map String Int)}
---            deriving Show
 
 
 data SymTab = Tab { labelNo   :: Int
@@ -84,17 +69,6 @@ instance Monad Evaluator where
 - Exported API functions
 -}
 
---newSymTab :: SymTab
---newSymTab = Tab
---            (-1)
---            firstLabel
---            memOffsetSize
---            newStack
---            M.empty
---            M.empty
---            M.empty
-
-
 newSymTab :: SymTab
 newSymTab = Tab
             firstLabel
@@ -120,15 +94,6 @@ closeFunction = do
         popFunctionName
 
 
---initScope :: Evaluator Bool
---initScope = do
---        changeScope increment
---        currScope <- currentScope
---        funcScope <- functionScopes
---        storeScope currScope M.empty
---        return True
-
-
 initScope :: Evaluator ProgramScope
 initScope = do
         currFunc <- currentFunction
@@ -137,11 +102,6 @@ initScope = do
         funcScope <- fScope currFunc progScope
         funcScope' <- sScope newScope M.empty funcScope
         sFunc currFunc funcScope'
-
-
---closeScope :: Evaluator Bool
---closeScope = do
---        changeScope decrement
 
 
 closeScope :: Evaluator Int
@@ -155,21 +115,9 @@ stackPointerValue = do
         return $ negate currOff
 
 
---variableOffset :: String -> Evaluator Int
---variableOffset varName = do
---        currScope <- currentScope
---        findOffset currScope varName
-
-
 variableOffset :: String -> Evaluator Int
 variableOffset name = do
         getOffset name
-
-
---getBreak :: Evaluator Int
---getBreak = do
---        currScope <- currentScope
---        findOffset currScope "@Break"
 
 
 getBreak :: Evaluator Int
@@ -177,30 +125,14 @@ getBreak = do
         getOffset "@Break"
 
 
---getContinue :: Evaluator Int
---getContinue = do
---        currScope <- currentScope
---        findOffset currScope "@Continue"
-
-
 getContinue :: Evaluator Int
 getContinue = do
         getOffset "@Continue"
 
 
---setBreak :: Int -> Evaluator FunctionScope
---setBreak labelNo = do
---        store "@Break" labelNo
-
-
 setBreak :: Int -> Evaluator ProgramScope
 setBreak labelNo = do
         store "@Break" labelNo
-
-
---setContinue :: Int -> Evaluator FunctionScope
---setContinue labelNo = do
---        store "@Continue" labelNo
 
 
 setContinue :: Int -> Evaluator ProgramScope
@@ -211,14 +143,6 @@ setContinue labelNo = do
 labelNum :: Evaluator Int
 labelNum = do
         nextLabel
-
-
---checkVariable :: String -> Evaluator Bool
---checkVariable varName = do
---        currScope <- currentScope
---        funcScope <- functionScopes
---        locScope <- localScope currScope funcScope
---        return $ checkVar varName locScope
 
 
 checkVariable :: String -> Evaluator Bool
@@ -250,17 +174,6 @@ getOffset name = do
         findOffset currFunc currScope name
 
 
---findOffset :: Int -> String -> Evaluator Int
---findOffset currScope varName =
---        if currScope == notFound
---           then error $ "Undefined variable: '" ++ varName ++ "'"
---           else do
---                   offset <- lookUp currScope varName
---                   if offset == notFound
---                      then findOffset (currScope-1) varName
---                      else return offset
-
-
 findOffset :: String -> Int -> String -> Evaluator Int
 findOffset func scope name =
         if scope == notFound
@@ -272,27 +185,12 @@ findOffset func scope name =
                       else return offset
 
 
---lookUp :: Int -> String -> Evaluator Int
---lookUp currScope name = do
---        funcScope <- functionScopes
---        locScope <- localScope currScope funcScope
---        return $ getVar name locScope
-
-
 lookUp :: String -> Int -> String -> Evaluator Int
 lookUp func scope name = do
         progScope <- pScopes
         funcScope <- fScope func progScope
         locScope <- lScope scope funcScope
         return $ getVar name locScope
-
-
---store :: String -> Int -> Evaluator FunctionScope
---store name value = do
---        currScope <- currentScope
---        funcScope <- functionScopes
---        locScope <- localScope currScope funcScope
---        storeScope currScope (storeVariable name value locScope)
 
 
 store :: String -> Int -> Evaluator ProgramScope
@@ -356,39 +254,6 @@ sFunc name funcScope = Ev $ \symTab ->
 -- end new versions
 
 
--- old versions
-
---storeVariable :: String -> Int -> LocalScope -> LocalScope
---storeVariable varName value locScope =
---        let locScope' = M.insert varName value locScope
---            in
---        locScope'
---
---
---storeScope :: Int -> LocalScope -> Evaluator FunctionScope
---storeScope currScope locScope = Ev $ \symTab ->
---        let scopeData = variables symTab
---            symTab' = symTab { variables = M.insert currScope locScope scopeData }
---            in
---        (scopeData, symTab')
---
---
---
---functionScopes :: Evaluator FunctionScope
---functionScopes = Ev $ \symTab ->
---        let scopeData = variables symTab
---            in
---        (scopeData, symTab)
---
---localScope :: Int -> FunctionScope -> Evaluator LocalScope
---localScope currScope funcScope = Ev $ \symTab ->
---        case M.lookup currScope funcScope of
---             Just value -> (value, symTab)
---             Nothing    -> error "No scope defined for function"
-
--- end old versions
-
-
 checkVar :: String -> LocalScope -> Bool
 checkVar varName varMap =
         case M.lookup varName varMap of
@@ -414,12 +279,6 @@ incrementScope = do
 decrementScope :: Evaluator Int
 decrementScope = do
         stepScope decrement
-
-
---getScope :: Evaluator Int
---getScope = do
---        currFunc <- currentFunction
---        findScope currFunc
 
 
 stepScope :: Int -> Evaluator Int
@@ -457,13 +316,6 @@ currentFunction = Ev $ \symTab ->
         (currFunc, symTab)
 
 
---currentScope :: Evaluator Int
---currentScope = Ev $ \symTab ->
---        let currScope = scope symTab
---            in
---        (currScope, symTab)
-
-
 currentOffset :: Evaluator Int
 currentOffset = Ev $ \symTab ->
         let currOff = offset symTab
@@ -476,13 +328,6 @@ incrementOffset currOff = Ev $ \symTab ->
         let symTab' = symTab { offset = currOff + (-8) }
             in
         (currOff, symTab')
-
-
---changeScope :: Int -> Evaluator Bool
---changeScope n = Ev $ \symTab ->
---        let symTab' = symTab { scope = scope symTab + n }
---            in
---        (True, symTab')
 
 
 nextLabel :: Evaluator Int
