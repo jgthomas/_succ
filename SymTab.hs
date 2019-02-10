@@ -84,7 +84,7 @@ initFunction name = do
         newScopeRecord name
         progScope <- updateProgramScope name M.empty
         funcScope <- fScope name progScope
-        funcScope' <- sScope 0 M.empty funcScope
+        funcScope' <- updateFunctionScope 0 M.empty funcScope
         updateProgramScope name funcScope'
         return True
 
@@ -100,7 +100,7 @@ initScope = do
         newScope <- incrementScope
         progScope <- pScopes
         funcScope <- fScope currFunc progScope
-        funcScope' <- sScope newScope M.empty funcScope
+        funcScope' <- updateFunctionScope newScope M.empty funcScope
         updateProgramScope currFunc funcScope'
 
 
@@ -203,7 +203,7 @@ store name value = do
         funcScope <- fScope currFunc progScope
         locScope <- lScope currScope funcScope
         locScope' <- sVariable name value locScope
-        funcScope' <- sScope currScope locScope' funcScope
+        funcScope' <- updateFunctionScope currScope locScope' funcScope
         updateProgramScope currFunc funcScope'
 
 
@@ -237,8 +237,8 @@ sVariable varName value locScope =
         return locScope'
 
 
-sScope :: Int -> LocalScope -> FunctionScope -> Evaluator FunctionScope
-sScope currScope locScope funcScope =
+updateFunctionScope :: Int -> LocalScope -> FunctionScope -> Evaluator FunctionScope
+updateFunctionScope currScope locScope funcScope =
         let funcScope' = M.insert currScope locScope funcScope
             in
         return funcScope'
