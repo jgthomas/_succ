@@ -33,13 +33,21 @@ type FunctionScope = M.Map Int LocalScope
 type ProgramScope = M.Map String FunctionScope
 
 
-data SymTab = Tab { scope     :: Int
-                  , labelNo   :: Int
+--data SymTab = Tab { scope     :: Int
+--                  , labelNo   :: Int
+--                  , offset    :: Int
+--                  , funcNames :: Stack String
+--                  , funcScope :: M.Map String Int
+--                  , funcVars  :: M.Map String (M.Map Int (M.Map String Int))
+--                  , variables :: M.Map Int (M.Map String Int)}
+--            deriving Show
+
+
+data SymTab = Tab { labelNo   :: Int
                   , offset    :: Int
                   , funcNames :: Stack String
                   , funcScope :: M.Map String Int
-                  , funcVars  :: M.Map String (M.Map Int (M.Map String Int))
-                  , variables :: M.Map Int (M.Map String Int)}
+                  , funcVars  :: M.Map String (M.Map Int (M.Map String Int))}
             deriving Show
 
 
@@ -76,13 +84,22 @@ instance Monad Evaluator where
 - Exported API functions
 -}
 
+--newSymTab :: SymTab
+--newSymTab = Tab
+--            (-1)
+--            firstLabel
+--            memOffsetSize
+--            newStack
+--            M.empty
+--            M.empty
+--            M.empty
+
+
 newSymTab :: SymTab
 newSymTab = Tab
-            (-1)
             firstLabel
             memOffsetSize
             newStack
-            M.empty
             M.empty
             M.empty
 
@@ -341,33 +358,33 @@ sFunc name funcScope = Ev $ \symTab ->
 
 -- old versions
 
-storeVariable :: String -> Int -> LocalScope -> LocalScope
-storeVariable varName value locScope =
-        let locScope' = M.insert varName value locScope
-            in
-        locScope'
-
-
-storeScope :: Int -> LocalScope -> Evaluator FunctionScope
-storeScope currScope locScope = Ev $ \symTab ->
-        let scopeData = variables symTab
-            symTab' = symTab { variables = M.insert currScope locScope scopeData }
-            in
-        (scopeData, symTab')
-
-
-
-functionScopes :: Evaluator FunctionScope
-functionScopes = Ev $ \symTab ->
-        let scopeData = variables symTab
-            in
-        (scopeData, symTab)
-
-localScope :: Int -> FunctionScope -> Evaluator LocalScope
-localScope currScope funcScope = Ev $ \symTab ->
-        case M.lookup currScope funcScope of
-             Just value -> (value, symTab)
-             Nothing    -> error "No scope defined for function"
+--storeVariable :: String -> Int -> LocalScope -> LocalScope
+--storeVariable varName value locScope =
+--        let locScope' = M.insert varName value locScope
+--            in
+--        locScope'
+--
+--
+--storeScope :: Int -> LocalScope -> Evaluator FunctionScope
+--storeScope currScope locScope = Ev $ \symTab ->
+--        let scopeData = variables symTab
+--            symTab' = symTab { variables = M.insert currScope locScope scopeData }
+--            in
+--        (scopeData, symTab')
+--
+--
+--
+--functionScopes :: Evaluator FunctionScope
+--functionScopes = Ev $ \symTab ->
+--        let scopeData = variables symTab
+--            in
+--        (scopeData, symTab)
+--
+--localScope :: Int -> FunctionScope -> Evaluator LocalScope
+--localScope currScope funcScope = Ev $ \symTab ->
+--        case M.lookup currScope funcScope of
+--             Just value -> (value, symTab)
+--             Nothing    -> error "No scope defined for function"
 
 -- end old versions
 
@@ -440,11 +457,11 @@ currentFunction = Ev $ \symTab ->
         (currFunc, symTab)
 
 
-currentScope :: Evaluator Int
-currentScope = Ev $ \symTab ->
-        let currScope = scope symTab
-            in
-        (currScope, symTab)
+--currentScope :: Evaluator Int
+--currentScope = Ev $ \symTab ->
+--        let currScope = scope symTab
+--            in
+--        (currScope, symTab)
 
 
 currentOffset :: Evaluator Int
@@ -461,11 +478,11 @@ incrementOffset currOff = Ev $ \symTab ->
         (currOff, symTab')
 
 
-changeScope :: Int -> Evaluator Bool
-changeScope n = Ev $ \symTab ->
-        let symTab' = symTab { scope = scope symTab + n }
-            in
-        (True, symTab')
+--changeScope :: Int -> Evaluator Bool
+--changeScope n = Ev $ \symTab ->
+--        let symTab' = symTab { scope = scope symTab + n }
+--            in
+--        (True, symTab')
 
 
 nextLabel :: Evaluator Int
