@@ -301,16 +301,19 @@ getVar varName varMap =
 
 incrementScope :: Evaluator Bool
 incrementScope = do
-        currFunc <- currentFunction
-        currScope <- findScope currFunc
-        switchScope currFunc (currScope + increment)
+        stepScope increment
 
 
 decrementScope :: Evaluator Bool
 decrementScope = do
+        stepScope decrement
+
+
+stepScope :: Int -> Evaluator Bool
+stepScope change = do
         currFunc <- currentFunction
         currScope <- findScope currFunc
-        switchScope currFunc (currScope + decrement)
+        switchScope currFunc (currScope + change)
 
 
 switchScope :: String -> Int -> Evaluator Bool
