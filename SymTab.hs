@@ -143,10 +143,20 @@ variableOffset varName = do
         findOffset currScope varName
 
 
+--variableOffset :: String -> Evaluator Int
+--variableOffset name = do
+--        getOffset name
+
+
 getBreak :: Evaluator Int
 getBreak = do
         currScope <- currentScope
         findOffset currScope "@Break"
+
+
+--getBreak :: Evaluator Int
+--getBreak = do
+--        getOffset "@Break"
 
 
 getContinue :: Evaluator Int
@@ -155,14 +165,29 @@ getContinue = do
         findOffset currScope "@Continue"
 
 
+--getContinue :: Evaluator Int
+--getContinue = do
+--        getOffset "@Continue"
+--
+
 setBreak :: Int -> Evaluator FunctionScope
 setBreak labelNo = do
         store "@Break" labelNo
 
 
+--setBreak :: Int -> Evaluator ProgramScope
+--setBreak labelNo = do
+--        store "@Break" labelNo
+
+
 setContinue :: Int -> Evaluator FunctionScope
 setContinue labelNo = do
         store "@Continue" labelNo
+
+
+--setContinue :: Int -> Evaluator ProgramScope
+--setContinue labelNo = do
+--        store "@Continue" labelNo
 
 
 labelNum :: Evaluator Int
