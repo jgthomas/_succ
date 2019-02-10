@@ -82,10 +82,10 @@ initFunction :: String -> Evaluator Bool
 initFunction name = do
         pushFunctionName name
         newScopeRecord name
-        progScope <- sFunc name M.empty
+        progScope <- updateProgramScope name M.empty
         funcScope <- fScope name progScope
         funcScope' <- sScope 0 M.empty funcScope
-        sFunc name funcScope'
+        updateProgramScope name funcScope'
         return True
 
 
@@ -101,7 +101,7 @@ initScope = do
         progScope <- pScopes
         funcScope <- fScope currFunc progScope
         funcScope' <- sScope newScope M.empty funcScope
-        sFunc currFunc funcScope'
+        updateProgramScope currFunc funcScope'
 
 
 closeScope :: Evaluator Int
@@ -204,7 +204,7 @@ store name value = do
         locScope <- lScope currScope funcScope
         locScope' <- sVariable name value locScope
         funcScope' <- sScope currScope locScope' funcScope
-        sFunc currFunc funcScope'
+        updateProgramScope currFunc funcScope'
 
 
 -- scope variables viewing and editing
@@ -244,8 +244,8 @@ sScope currScope locScope funcScope =
         return funcScope'
 
 
-sFunc :: String -> FunctionScope -> Evaluator ProgramScope
-sFunc name funcScope = Ev $ \symTab ->
+updateProgramScope :: String -> FunctionScope -> Evaluator ProgramScope
+updateProgramScope name funcScope = Ev $ \symTab ->
         let scopeData = funcVars symTab
             symTab' = symTab { funcVars = M.insert name funcScope scopeData }
             scopeData' = funcVars symTab'
