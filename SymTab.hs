@@ -272,19 +272,19 @@ getVar varName varMap =
 
 incrementScope :: Evaluator Int
 incrementScope = do
-        stepScope increment
+        stepScope succ
 
 
 decrementScope :: Evaluator Int
 decrementScope = do
-        stepScope decrement
+        stepScope pred
 
 
-stepScope :: Int -> Evaluator Int
-stepScope change = do
+stepScope :: (Int -> Int) -> Evaluator Int
+stepScope func = do
         currFunc <- currentFunction
         currScope <- findScope currFunc
-        switchScope currFunc (currScope + change)
+        switchScope currFunc $ func currScope
 
 
 switchScope :: String -> Int -> Evaluator Int
