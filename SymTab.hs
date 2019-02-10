@@ -299,29 +299,29 @@ getVar varName varMap =
 
 -- new scope functions
 
-incrementScope :: Evaluator Bool
+incrementScope :: Evaluator Int
 incrementScope = do
         stepScope increment
 
 
-decrementScope :: Evaluator Bool
+decrementScope :: Evaluator Int
 decrementScope = do
         stepScope decrement
 
 
-stepScope :: Int -> Evaluator Bool
+stepScope :: Int -> Evaluator Int
 stepScope change = do
         currFunc <- currentFunction
         currScope <- findScope currFunc
         switchScope currFunc (currScope + change)
 
 
-switchScope :: String -> Int -> Evaluator Bool
+switchScope :: String -> Int -> Evaluator Int
 switchScope name n = Ev $ \symTab ->
         let scopes = funcScope symTab
             symTab' = symTab { funcScope = M.insert name n scopes }
             in
-        (True, symTab')
+        (n, symTab')
 
 
 findScope :: String -> Evaluator Int
