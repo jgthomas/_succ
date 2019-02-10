@@ -98,7 +98,7 @@ initScope :: Evaluator ProgramScope
 initScope = do
         currFunc <- currentFunction
         newScope <- incrementScope
-        progScope <- pScopes
+        progScope <- getProgramScope
         funcScope <- fScope currFunc progScope
         funcScope' <- updateFunctionScope newScope M.empty funcScope
         updateProgramScope currFunc funcScope'
@@ -149,7 +149,7 @@ checkVariable :: String -> Evaluator Bool
 checkVariable varName = do
         currFunc <- currentFunction
         currScope <- findScope currFunc
-        progScope <- pScopes
+        progScope <- getProgramScope
         funcScope <- fScope currFunc progScope
         locScope <- lScope currScope funcScope
         return $ checkVar varName locScope
@@ -189,7 +189,7 @@ findOffset func scope name =
 
 lookUp :: String -> Int -> String -> Evaluator Int
 lookUp func scope name = do
-        progScope <- pScopes
+        progScope <- getProgramScope
         funcScope <- fScope func progScope
         locScope <- lScope scope funcScope
         return $ getVar name locScope
@@ -199,7 +199,7 @@ store :: String -> Int -> Evaluator ProgramScope
 store name value = do
         currFunc <- currentFunction
         currScope <- findScope currFunc
-        progScope <- pScopes
+        progScope <- getProgramScope
         funcScope <- fScope currFunc progScope
         locScope <- lScope currScope funcScope
         locScope' <- storeVariable name value locScope
@@ -223,8 +223,8 @@ fScope name progScope = Ev $ \symTab ->
              Nothing -> error "No function scopes defined"
 
 
-pScopes :: Evaluator ProgramScope
-pScopes = Ev $ \symTab ->
+getProgramScope :: Evaluator ProgramScope
+getProgramScope = Ev $ \symTab ->
         let scopeData = funcVars symTab
             in
         (scopeData, symTab)
