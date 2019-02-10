@@ -202,7 +202,7 @@ store name value = do
         progScope <- pScopes
         funcScope <- fScope currFunc progScope
         locScope <- lScope currScope funcScope
-        locScope' <- sVariable name value locScope
+        locScope' <- storeVariable name value locScope
         funcScope' <- updateFunctionScope currScope locScope' funcScope
         updateProgramScope currFunc funcScope'
 
@@ -230,8 +230,8 @@ pScopes = Ev $ \symTab ->
         (scopeData, symTab)
 
 
-sVariable :: String -> Int -> LocalScope -> Evaluator LocalScope
-sVariable varName value locScope =
+storeVariable :: String -> Int -> LocalScope -> Evaluator LocalScope
+storeVariable varName value locScope =
         let locScope' = M.insert varName value locScope
             in
         return locScope'
