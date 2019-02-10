@@ -199,6 +199,14 @@ addVariable varName = do
 - Internal functions
 -}
 
+
+--getOffset :: String -> Evaluator Int
+--getOffset name = do
+--        currFunc <- currentFunction
+--        currScope <- findScope currFunc
+--        findOffset currFunc currScope name
+
+
 findOffset :: Int -> String -> Evaluator Int
 findOffset currScope varName =
         if currScope == notFound
@@ -210,11 +218,30 @@ findOffset currScope varName =
                       else return offset
 
 
+--findOffset :: String -> Int -> String -> Evaluator Int
+--findOffset func scope name =
+--        if scope == notFound
+--           then error $ "Undefined variable: '" ++ name ++ "'"
+--           else do
+--                   offset <- lookUp func scope name
+--                   if offset == notFound
+--                      then findOffset func (scope-1) name
+--                      else return offset
+--
+
 lookUp :: Int -> String -> Evaluator Int
 lookUp currScope name = do
         funcScope <- functionScopes
         locScope <- localScope currScope funcScope
         return $ getVar name locScope
+
+
+--lookUp :: String -> Int -> String -> Evaluator Int
+--lookUp func scope name = do
+--        progScope <- pScopes
+--        funcScope <- fScope func progScope
+--        locScope <- lScope scope funcScope
+--        return $ getVar name locScope
 
 
 store :: String -> Int -> Evaluator FunctionScope
