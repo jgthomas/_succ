@@ -93,7 +93,8 @@ initFunction name = do
         newScopeRecord name
         progScope <- sFunc name M.empty
         funcScope <- fScope name progScope
-        sScope 0 M.empty funcScope
+        funcScope' <- sScope 0 M.empty funcScope
+        sFunc name funcScope'
         return True
 
 
@@ -102,33 +103,33 @@ closeFunction = do
         popFunctionName
 
 
-initScope :: Evaluator Bool
-initScope = do
-        changeScope increment
-        currScope <- currentScope
-        funcScope <- functionScopes
-        storeScope currScope M.empty
-        return True
-
-
---initScope :: Evaluator ProgramScope
+--initScope :: Evaluator Bool
 --initScope = do
---        currFunc <- currentFunction
---        newScope <- incrementScope
---        progScope <- pScopes
---        funcScope <- fScope currFunc progScope
---        funcScope' <- sScope newScope M.empty funcScope
---        sFunc currFunc funcScope'
+--        changeScope increment
+--        currScope <- currentScope
+--        funcScope <- functionScopes
+--        storeScope currScope M.empty
+--        return True
 
 
-closeScope :: Evaluator Bool
-closeScope = do
-        changeScope decrement
+initScope :: Evaluator ProgramScope
+initScope = do
+        currFunc <- currentFunction
+        newScope <- incrementScope
+        progScope <- pScopes
+        funcScope <- fScope currFunc progScope
+        funcScope' <- sScope newScope M.empty funcScope
+        sFunc currFunc funcScope'
 
 
---closeScope :: Evaluator Int
+--closeScope :: Evaluator Bool
 --closeScope = do
---        decrementScope
+--        changeScope decrement
+
+
+closeScope :: Evaluator Int
+closeScope = do
+        decrementScope
 
 
 stackPointerValue :: Evaluator Int
@@ -137,57 +138,57 @@ stackPointerValue = do
         return $ negate currOff
 
 
-variableOffset :: String -> Evaluator Int
-variableOffset varName = do
-        currScope <- currentScope
-        findOffset currScope varName
-
-
 --variableOffset :: String -> Evaluator Int
---variableOffset name = do
---        getOffset name
+--variableOffset varName = do
+--        currScope <- currentScope
+--        findOffset currScope varName
 
 
-getBreak :: Evaluator Int
-getBreak = do
-        currScope <- currentScope
-        findOffset currScope "@Break"
+variableOffset :: String -> Evaluator Int
+variableOffset name = do
+        getOffset name
 
 
 --getBreak :: Evaluator Int
 --getBreak = do
---        getOffset "@Break"
+--        currScope <- currentScope
+--        findOffset currScope "@Break"
 
 
-getContinue :: Evaluator Int
-getContinue = do
-        currScope <- currentScope
-        findOffset currScope "@Continue"
+getBreak :: Evaluator Int
+getBreak = do
+        getOffset "@Break"
 
 
 --getContinue :: Evaluator Int
 --getContinue = do
---        getOffset "@Continue"
---
-
-setBreak :: Int -> Evaluator FunctionScope
-setBreak labelNo = do
-        store "@Break" labelNo
+--        currScope <- currentScope
+--        findOffset currScope "@Continue"
 
 
---setBreak :: Int -> Evaluator ProgramScope
+getContinue :: Evaluator Int
+getContinue = do
+        getOffset "@Continue"
+
+
+--setBreak :: Int -> Evaluator FunctionScope
 --setBreak labelNo = do
 --        store "@Break" labelNo
 
 
-setContinue :: Int -> Evaluator FunctionScope
-setContinue labelNo = do
-        store "@Continue" labelNo
+setBreak :: Int -> Evaluator ProgramScope
+setBreak labelNo = do
+        store "@Break" labelNo
 
 
---setContinue :: Int -> Evaluator ProgramScope
+--setContinue :: Int -> Evaluator FunctionScope
 --setContinue labelNo = do
 --        store "@Continue" labelNo
+
+
+setContinue :: Int -> Evaluator ProgramScope
+setContinue labelNo = do
+        store "@Continue" labelNo
 
 
 labelNum :: Evaluator Int
@@ -195,22 +196,22 @@ labelNum = do
         nextLabel
 
 
-checkVariable :: String -> Evaluator Bool
-checkVariable varName = do
-        currScope <- currentScope
-        funcScope <- functionScopes
-        locScope <- localScope currScope funcScope
-        return $ checkVar varName locScope
-
-
 --checkVariable :: String -> Evaluator Bool
 --checkVariable varName = do
---        currFunc <- currentFunction
---        currScope <- findScope currFunc
---        progScope <- pScopes
---        funcScope <- fScope currFunc progScope
---        locScope <- lScope currScope funcScope
+--        currScope <- currentScope
+--        funcScope <- functionScopes
+--        locScope <- localScope currScope funcScope
 --        return $ checkVar varName locScope
+
+
+checkVariable :: String -> Evaluator Bool
+checkVariable varName = do
+        currFunc <- currentFunction
+        currScope <- findScope currFunc
+        progScope <- pScopes
+        funcScope <- fScope currFunc progScope
+        locScope <- lScope currScope funcScope
+        return $ checkVar varName locScope
 
 
 addVariable :: String -> Evaluator Int
@@ -225,68 +226,68 @@ addVariable varName = do
 -}
 
 
---getOffset :: String -> Evaluator Int
---getOffset name = do
---        currFunc <- currentFunction
---        currScope <- findScope currFunc
---        findOffset currFunc currScope name
+getOffset :: String -> Evaluator Int
+getOffset name = do
+        currFunc <- currentFunction
+        currScope <- findScope currFunc
+        findOffset currFunc currScope name
 
 
-findOffset :: Int -> String -> Evaluator Int
-findOffset currScope varName =
-        if currScope == notFound
-           then error $ "Undefined variable: '" ++ varName ++ "'"
+--findOffset :: Int -> String -> Evaluator Int
+--findOffset currScope varName =
+--        if currScope == notFound
+--           then error $ "Undefined variable: '" ++ varName ++ "'"
+--           else do
+--                   offset <- lookUp currScope varName
+--                   if offset == notFound
+--                      then findOffset (currScope-1) varName
+--                      else return offset
+
+
+findOffset :: String -> Int -> String -> Evaluator Int
+findOffset func scope name =
+        if scope == notFound
+           then error $ "Undefined variable: '" ++ name ++ "'"
            else do
-                   offset <- lookUp currScope varName
+                   offset <- lookUp func scope name
                    if offset == notFound
-                      then findOffset (currScope-1) varName
+                      then findOffset func (scope-1) name
                       else return offset
 
 
---findOffset :: String -> Int -> String -> Evaluator Int
---findOffset func scope name =
---        if scope == notFound
---           then error $ "Undefined variable: '" ++ name ++ "'"
---           else do
---                   offset <- lookUp func scope name
---                   if offset == notFound
---                      then findOffset func (scope-1) name
---                      else return offset
---
-
-lookUp :: Int -> String -> Evaluator Int
-lookUp currScope name = do
-        funcScope <- functionScopes
-        locScope <- localScope currScope funcScope
-        return $ getVar name locScope
-
-
---lookUp :: String -> Int -> String -> Evaluator Int
---lookUp func scope name = do
---        progScope <- pScopes
---        funcScope <- fScope func progScope
---        locScope <- lScope scope funcScope
+--lookUp :: Int -> String -> Evaluator Int
+--lookUp currScope name = do
+--        funcScope <- functionScopes
+--        locScope <- localScope currScope funcScope
 --        return $ getVar name locScope
 
 
-store :: String -> Int -> Evaluator FunctionScope
-store name value = do
-        currScope <- currentScope
-        funcScope <- functionScopes
-        locScope <- localScope currScope funcScope
-        storeScope currScope (storeVariable name value locScope)
+lookUp :: String -> Int -> String -> Evaluator Int
+lookUp func scope name = do
+        progScope <- pScopes
+        funcScope <- fScope func progScope
+        locScope <- lScope scope funcScope
+        return $ getVar name locScope
 
 
---store :: String -> Int -> Evaluator ProgramScope
+--store :: String -> Int -> Evaluator FunctionScope
 --store name value = do
---        currFunc <- currentFunction
---        currScope <- findScope currFunc
---        progScope <- pScopes
---        funcScope <- fScope currFunc progScope
---        locScope <- lScope currScope funcScope
---        locScope' <- sVariable name value locScope
---        funcScope' <- sScope currScope locScope' funcScope
---        sFunc currFunc funcScope'
+--        currScope <- currentScope
+--        funcScope <- functionScopes
+--        locScope <- localScope currScope funcScope
+--        storeScope currScope (storeVariable name value locScope)
+
+
+store :: String -> Int -> Evaluator ProgramScope
+store name value = do
+        currFunc <- currentFunction
+        currScope <- findScope currFunc
+        progScope <- pScopes
+        funcScope <- fScope currFunc progScope
+        locScope <- lScope currScope funcScope
+        locScope' <- sVariable name value locScope
+        funcScope' <- sScope currScope locScope' funcScope
+        sFunc currFunc funcScope'
 
 
 -- new versions for after switch
