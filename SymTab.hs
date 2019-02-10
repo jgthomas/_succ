@@ -183,7 +183,7 @@ findOffset func scope name =
            else do
                    offset <- lookUp func scope name
                    if offset == notFound
-                      then findOffset func (scope-1) name
+                      then findOffset func (pred scope) name
                       else return offset
 
 
