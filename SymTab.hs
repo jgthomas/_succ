@@ -317,11 +317,11 @@ stepScope change = do
 
 
 switchScope :: String -> Int -> Evaluator Int
-switchScope name n = Ev $ \symTab ->
+switchScope name newScope = Ev $ \symTab ->
         let scopes = funcScope symTab
-            symTab' = symTab { funcScope = M.insert name n scopes }
+            symTab' = symTab { funcScope = M.insert name newScope scopes }
             in
-        (n, symTab')
+        (newScope, symTab')
 
 
 findScope :: String -> Evaluator Int
