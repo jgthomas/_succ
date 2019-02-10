@@ -163,6 +163,16 @@ checkVariable varName = do
         return $ checkVar varName locScope
 
 
+--checkVariable :: String -> Evaluator Bool
+--checkVariable varName = do
+--        currFunc <- currentFunction
+--        currScope <- findScope currFunc
+--        progScope <- pScopes
+--        funcScope <- fScope currFunc progScope
+--        locScope <- lScope currScope funcScope
+--        return $ checkVar varName locScope
+
+
 addVariable :: String -> Evaluator Int
 addVariable varName = do
         currOff <- currentOffset
@@ -307,6 +317,12 @@ incrementScope = do
 decrementScope :: Evaluator Int
 decrementScope = do
         stepScope decrement
+
+
+--getScope :: Evaluator Int
+--getScope = do
+--        currFunc <- currentFunction
+--        findScope currFunc
 
 
 stepScope :: Int -> Evaluator Int
