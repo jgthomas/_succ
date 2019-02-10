@@ -83,7 +83,7 @@ initFunction name = do
         pushFunctionName name
         newScopeRecord name
         progScope <- updateProgramScope name M.empty
-        funcScope <- fScope name progScope
+        funcScope <- getFunctionScope name progScope
         funcScope' <- updateFunctionScope 0 M.empty funcScope
         updateProgramScope name funcScope'
         return True
@@ -99,7 +99,7 @@ initScope = do
         currFunc <- currentFunction
         newScope <- incrementScope
         progScope <- getProgramScope
-        funcScope <- fScope currFunc progScope
+        funcScope <- getFunctionScope currFunc progScope
         funcScope' <- updateFunctionScope newScope M.empty funcScope
         updateProgramScope currFunc funcScope'
 
@@ -150,7 +150,7 @@ checkVariable varName = do
         currFunc <- currentFunction
         currScope <- findScope currFunc
         progScope <- getProgramScope
-        funcScope <- fScope currFunc progScope
+        funcScope <- getFunctionScope currFunc progScope
         locScope <- lScope currScope funcScope
         return $ checkVar varName locScope
 
@@ -190,7 +190,7 @@ findOffset func scope name =
 lookUp :: String -> Int -> String -> Evaluator Int
 lookUp func scope name = do
         progScope <- getProgramScope
-        funcScope <- fScope func progScope
+        funcScope <- getFunctionScope func progScope
         locScope <- lScope scope funcScope
         return $ getVar name locScope
 
@@ -200,7 +200,7 @@ store name value = do
         currFunc <- currentFunction
         currScope <- findScope currFunc
         progScope <- getProgramScope
-        funcScope <- fScope currFunc progScope
+        funcScope <- getFunctionScope currFunc progScope
         locScope <- lScope currScope funcScope
         locScope' <- storeVariable name value locScope
         funcScope' <- updateFunctionScope currScope locScope' funcScope
@@ -216,8 +216,8 @@ lScope currScope funcScope = Ev $ \symTab ->
              Nothing    -> error "No scope defined for function"
 
 
-fScope :: String -> ProgramScope -> Evaluator FunctionScope
-fScope name progScope = Ev $ \symTab ->
+getFunctionScope :: String -> ProgramScope -> Evaluator FunctionScope
+getFunctionScope name progScope = Ev $ \symTab ->
         case M.lookup name progScope of
              Just v  -> (v, symTab)
              Nothing -> error "No function scopes defined"
