@@ -84,7 +84,7 @@ initFunction name = do
         newScopeRecord name
         progScope <- updateProgramScope name M.empty
         funcScope <- getFunctionScope name progScope
-        funcScope' <- updateFunctionScope 0 M.empty funcScope
+        funcScope' <- updateFunctionScope baseScope M.empty funcScope
         updateProgramScope name funcScope'
         return True
 
@@ -356,9 +356,9 @@ pushFunctionName name = Ev $ \symTab ->
 newScopeRecord :: String -> Evaluator Int
 newScopeRecord name = Ev $ \symTab ->
         let scopes = funcScope symTab
-            symTab' = symTab { funcScope = M.insert name 0 scopes }
+            symTab' = symTab { funcScope = M.insert name baseScope scopes }
             in
-        (0, symTab')
+        (baseScope, symTab')
 
 
 -- convenience 'value' functions
