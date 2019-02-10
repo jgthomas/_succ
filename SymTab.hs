@@ -249,6 +249,8 @@ sFunc name funcScope = Ev $ \symTab ->
 -- end new versions
 
 
+-- old versions
+
 storeVariable :: String -> Int -> LocalScope -> LocalScope
 storeVariable varName value locScope =
         let locScope' = M.insert varName value locScope
@@ -277,6 +279,9 @@ localScope currScope funcScope = Ev $ \symTab ->
              Just value -> (value, symTab)
              Nothing    -> error "No scope defined for function"
 
+-- end old versions
+
+
 checkVar :: String -> LocalScope -> Bool
 checkVar varName varMap =
         case M.lookup varName varMap of
@@ -290,6 +295,42 @@ getVar varName varMap =
             in case value of
                     Just v  -> v
                     Nothing -> notFound
+
+
+-- new scope functions
+
+incrementScope :: Evaluator Bool
+incrementScope = do
+        currFunc <- currentFunction
+        currScope <- findScope currFunc
+        switchScope currFunc (currScope + increment)
+
+
+decrementScope :: Evaluator Bool
+decrementScope = do
+        currFunc <- currentFunction
+        currScope <- findScope currFunc
+        switchScope currFunc (currScope + decrement)
+
+
+switchScope :: String -> Int -> Evaluator Bool
+switchScope name n = Ev $ \symTab ->
+        let scopes = funcScope symTab
+            symTab' = symTab { funcScope = M.insert name n scopes }
+            in
+        (True, symTab')
+
+
+findScope :: String -> Evaluator Int
+findScope name = Ev $ \symTab ->
+        let scopes = funcScope symTab
+            currScope = M.lookup name scopes
+            in
+        case currScope of
+             Just scope -> (scope, symTab)
+             Nothing    -> error $ "No scopes defined for function " ++ name
+
+-- end new scope functions
 
 
 currentFunction :: Evaluator String
