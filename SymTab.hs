@@ -167,6 +167,8 @@ addVariable varName = do
 -}
 
 
+-- lookup and storage
+
 getOffset :: String -> Evaluator Int
 getOffset name = do
         currFunc <- currentFunction
@@ -205,7 +207,7 @@ store name value = do
         sFunc currFunc funcScope'
 
 
--- new versions for after switch
+-- scope variables viewing and editing
 
 lScope :: Int -> FunctionScope -> Evaluator LocalScope
 lScope currScope funcScope = Ev $ \symTab ->
@@ -251,9 +253,6 @@ sFunc name funcScope = Ev $ \symTab ->
         (scopeData', symTab')
 
 
--- end new versions
-
-
 checkVar :: String -> LocalScope -> Bool
 checkVar varName varMap =
         case M.lookup varName varMap of
@@ -269,7 +268,7 @@ getVar varName varMap =
                     Nothing -> notFound
 
 
--- new scope functions
+-- scope level adjustment and reporting
 
 incrementScope :: Evaluator Int
 incrementScope = do
@@ -305,8 +304,8 @@ findScope name = Ev $ \symTab ->
              Just scope -> (scope, symTab)
              Nothing    -> error $ "No scopes defined for function " ++ name
 
--- end new scope functions
 
+-- querying and altering symtab state
 
 currentFunction :: Evaluator String
 currentFunction = Ev $ \symTab ->
@@ -361,6 +360,8 @@ newScopeRecord name = Ev $ \symTab ->
             in
         (0, symTab')
 
+
+-- convenience 'value' functions
 
 notFound :: Int
 notFound = -1
