@@ -111,9 +111,24 @@ initScope = do
         return True
 
 
+--initScope :: Evaluator ProgramScope
+--initScope = do
+--        currFunc <- currentFunction
+--        newScope <- incrementScope
+--        progScope <- pScopes
+--        funcScope <- fScope currFunc progScope
+--        funcScope' <- sScope newScope M.empty funcScope
+--        sFunc currFunc funcScope'
+
+
 closeScope :: Evaluator Bool
 closeScope = do
         changeScope decrement
+
+
+--closeScope :: Evaluator Int
+--closeScope = do
+--        decrementScope
 
 
 stackPointerValue :: Evaluator Int
