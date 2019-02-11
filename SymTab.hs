@@ -32,7 +32,7 @@ data SymTab = Tab { labelNo     :: Int
                   , offset      :: Int
                   , nameStack   :: Stack String
                   , scopeLevels :: M.Map String Int
-                  , scopesData    :: ProgramScope }
+                  , scopesData  :: ProgramScope }
             deriving Show
 
 
