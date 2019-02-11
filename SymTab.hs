@@ -97,10 +97,10 @@ closeFunction = do
 initScope :: Evaluator ProgramScope
 initScope = do
         currFuncName <- currentFunction
-        newScope <- incrementScope
+        newScopeLevel <- incrementScope
         progScope <- getProgramScope
         funcScope <- getFunctionScope currFuncName progScope
-        funcScope' <- updateFunctionScope newScope M.empty funcScope
+        funcScope' <- updateFunctionScope newScopeLevel M.empty funcScope
         updateProgramScope currFuncName funcScope'
 
 
@@ -288,11 +288,11 @@ stepScope func = do
 
 
 switchScope :: String -> Int -> Evaluator Int
-switchScope name newScope = Ev $ \symTab ->
+switchScope name newScopeLevel = Ev $ \symTab ->
         let scopes = funcScope symTab
-            symTab' = symTab { funcScope = M.insert name newScope scopes }
+            symTab' = symTab { funcScope = M.insert name newScopeLevel scopes }
             in
-        (newScope, symTab')
+        (newScopeLevel, symTab')
 
 
 findScope :: String -> Evaluator Int
