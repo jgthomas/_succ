@@ -32,7 +32,7 @@ data SymTab = Tab { labelNo     :: Int
                   , offset      :: Int
                   , nameStack   :: Stack String
                   , scopeLevels :: M.Map String Int
-                  , funcVars    :: ProgramScope }
+                  , scopesData    :: ProgramScope }
             deriving Show
 
 
@@ -225,9 +225,9 @@ getFunctionScope name progScope = Ev $ \symTab ->
 
 getProgramScope :: Evaluator ProgramScope
 getProgramScope = Ev $ \symTab ->
-        let scopeData = funcVars symTab
+        let scopes = scopesData symTab
             in
-        (scopeData, symTab)
+        (scopes, symTab)
 
 
 storeVariable :: String -> Int -> LocalScope -> Evaluator LocalScope
@@ -246,11 +246,11 @@ updateFunctionScope scopeLevel locScope funcScope =
 
 updateProgramScope :: String -> FunctionScope -> Evaluator ProgramScope
 updateProgramScope name funcScope = Ev $ \symTab ->
-        let scopeData = funcVars symTab
-            symTab' = symTab { funcVars = M.insert name funcScope scopeData }
-            scopeData' = funcVars symTab'
+        let scopes = scopesData symTab
+            symTab' = symTab { scopesData = M.insert name funcScope scopes }
+            scopes' = scopesData symTab'
             in
-        (scopeData', symTab')
+        (scopes', symTab')
 
 
 checkVar :: String -> LocalScope -> Bool
