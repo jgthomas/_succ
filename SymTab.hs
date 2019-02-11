@@ -245,9 +245,9 @@ updateFunctionScope scopeLevel locScope funcScope =
 
 
 updateProgramScope :: String -> FunctionScope -> Evaluator ProgramScope
-updateProgramScope name funcScope = Ev $ \symTab ->
+updateProgramScope funcName funcScope = Ev $ \symTab ->
         let scopes = scopesData symTab
-            symTab' = symTab { scopesData = M.insert name funcScope scopes }
+            symTab' = symTab { scopesData = M.insert funcName funcScope scopes }
             scopes' = scopesData symTab'
             in
         (scopes', symTab')
