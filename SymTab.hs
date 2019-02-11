@@ -212,8 +212,8 @@ store name value = do
 getLocalScope :: Int -> FunctionScope -> Evaluator LocalScope
 getLocalScope scopeLevel funcScope = Ev $ \symTab ->
         case M.lookup scopeLevel funcScope of
-             Just value -> (value, symTab)
-             Nothing    -> error "No scope defined for function"
+             Just locScope -> (locScope, symTab)
+             Nothing       -> error "No scope defined for function"
 
 
 getFunctionScope :: String -> ProgramScope -> Evaluator FunctionScope
