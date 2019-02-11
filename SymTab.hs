@@ -30,7 +30,7 @@ type ProgramScope = M.Map String FunctionScope
 
 data SymTab = Tab { labelNo   :: Int
                   , offset    :: Int
-                  , funcNames :: Stack String
+                  , nameStack :: Stack String
                   , funcScope :: M.Map String Int
                   , funcVars  :: ProgramScope }
             deriving Show
@@ -309,8 +309,8 @@ findScope name = Ev $ \symTab ->
 
 currentFunction :: Evaluator String
 currentFunction = Ev $ \symTab ->
-        let nameStack = funcNames symTab
-            currFuncName  = stackPeek nameStack
+        let stack = nameStack symTab
+            currFuncName = stackPeek stack
             in
         (currFuncName, symTab)
 
@@ -339,16 +339,16 @@ nextLabel = Ev $ \symTab ->
 
 popFunctionName :: Evaluator Bool
 popFunctionName = Ev $ \symTab ->
-        let names = funcNames symTab
-            symTab' = symTab { funcNames = stackPop names }
+        let stack = nameStack symTab
+            symTab' = symTab { nameStack = stackPop stack }
             in
         (True, symTab')
 
 
 pushFunctionName :: String -> Evaluator Bool
-pushFunctionName name = Ev $ \symTab ->
-        let names = funcNames symTab
-            symTab' = symTab { funcNames = stackPush name names }
+pushFunctionName funcName = Ev $ \symTab ->
+        let stack = nameStack symTab
+            symTab' = symTab { nameStack = stackPush funcName stack }
             in
         (True, symTab')
 
