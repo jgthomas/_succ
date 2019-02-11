@@ -256,8 +256,8 @@ updateProgramScope funcName funcScope = Ev $ \symTab ->
 checkVar :: String -> LocalScope -> Bool
 checkVar varName varMap =
         case M.lookup varName varMap of
-             Just value -> True
-             Nothing    -> False
+             Just v  -> True
+             Nothing -> False
 
 
 getVar :: String -> LocalScope -> Int
