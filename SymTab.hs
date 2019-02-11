@@ -217,8 +217,8 @@ getLocalScope scopeLevel funcScope = Ev $ \symTab ->
 
 
 getFunctionScope :: String -> ProgramScope -> Evaluator FunctionScope
-getFunctionScope name progScope = Ev $ \symTab ->
-        case M.lookup name progScope of
+getFunctionScope funcName progScope = Ev $ \symTab ->
+        case M.lookup funcName progScope of
              Just v  -> (v, symTab)
              Nothing -> error "No function scopes defined"
 
