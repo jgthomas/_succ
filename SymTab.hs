@@ -28,11 +28,11 @@ type FunctionScope = M.Map Int LocalScope
 type ProgramScope = M.Map String FunctionScope
 
 
-data SymTab = Tab { labelNo   :: Int
-                  , offset    :: Int
-                  , nameStack :: Stack String
-                  , funcScope :: M.Map String Int
-                  , funcVars  :: ProgramScope }
+data SymTab = Tab { labelNo     :: Int
+                  , offset      :: Int
+                  , nameStack   :: Stack String
+                  , scopeLevels :: M.Map String Int
+                  , funcVars    :: ProgramScope }
             deriving Show
 
 
@@ -289,15 +289,15 @@ stepScope func = do
 
 switchScope :: String -> Int -> Evaluator Int
 switchScope name newScopeLevel = Ev $ \symTab ->
-        let scopes = funcScope symTab
-            symTab' = symTab { funcScope = M.insert name newScopeLevel scopes }
+        let scopes = scopeLevels symTab
+            symTab' = symTab { scopeLevels = M.insert name newScopeLevel scopes }
             in
         (newScopeLevel, symTab')
 
 
 findScope :: String -> Evaluator Int
 findScope name = Ev $ \symTab ->
-        let scopes = funcScope symTab
+        let scopes = scopeLevels symTab
             scopeLevel = M.lookup name scopes
             in
         case scopeLevel of
@@ -355,8 +355,8 @@ pushFunctionName funcName = Ev $ \symTab ->
 
 newScopeRecord :: String -> Evaluator Int
 newScopeRecord name = Ev $ \symTab ->
-        let scopes = funcScope symTab
-            symTab' = symTab { funcScope = M.insert name baseScope scopes }
+        let scopes = scopeLevels symTab
+            symTab' = symTab { scopeLevels = M.insert name baseScope scopes }
             in
         (baseScope, symTab')
 
