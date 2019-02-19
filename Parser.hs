@@ -329,7 +329,7 @@ parseTerm toks =
 parseFactor :: [Token] -> (Tree, [Token])
 parseFactor toks =
         case lookAhead toks of
-             (TokConstInt n) -> (ConstantNode n, (accept toks))
+             (TokConstInt n) -> (ConstantNode n, accept toks)
              (TokIdent str)  -> (VarNode str, accept toks)
              TokSemiColon    -> (NullExprNode, accept toks)
              (TokOp op) | elem op [Minus, BitwiseCompl, LogicNegation] ->
