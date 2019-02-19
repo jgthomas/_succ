@@ -52,6 +52,7 @@ data Token = TokOpenParen
            | TokEnd
            | TokColon
            | TokQuestMark
+           | TokComma
            deriving (Show, Eq)
 
 
@@ -65,6 +66,7 @@ tokenize (c:cs)
     | c == ';'          = TokSemiColon              : tokenize cs
     | c == ':'          = TokColon                  : tokenize cs
     | c == '?'          = TokQuestMark              : tokenize cs
+    | c == ','          = TokComma                  : tokenize cs
     | isTwoCharOp c cs  = twoCharOperator c cs
     | c == '='          = TokAssign                 : tokenize cs
     | elem c opSymbols  = TokOp (operator c)        : tokenize cs
