@@ -342,7 +342,7 @@ parseFactor (fact:toks) =
                      if lookAhead toks' /= TokCloseParen
                         then error "Missing right parentheses"
                         else (exprTree, accept toks')
-             _ ->  error $ "Parse error on token: " ++ show toks
+             _ ->  error $ "Parse error on token: " ++ show (fact:toks)
 
 
 parseBinaryExp :: Tree
