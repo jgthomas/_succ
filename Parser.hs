@@ -46,11 +46,13 @@ parseAllFunctions :: [Tree] -> [Token] -> ([Tree], [Token])
 parseAllFunctions funcList [] = (funcList, [])
 parseAllFunctions funcList (typ:toks) =
         case typ of
-             (TokKeyword typ) | validType typ ->
-                     let (funcTree, toks') = parseFunction toks
-                         in
-                     parseAllFunctions (funcList ++ [funcTree]) toks'
-             _ -> error "Invalid function type"
+             (TokKeyword typ)
+                | validType typ ->
+                        let (funcTree, toks') = parseFunction toks
+                            in
+                        parseAllFunctions (funcList ++ [funcTree]) toks'
+                | otherwise -> error "Invalid type for function"
+             _ -> error "Invalid function start"
 
 
 parseFunction :: [Token] -> (Tree, [Token])
