@@ -395,11 +395,5 @@ nullExpr :: [Token] -> (Tree, [Token])
 nullExpr toks = (NullExprNode, toks)
 
 
-isValidType :: [Token] -> Bool
-isValidType toks =
-        case lookAhead toks of
-             (TokKeyword kwd) | elem kwd [Int] -> True
-             _                                 -> False
-
 validType :: Keyword -> Bool
 validType kwd = elem kwd [Int]
