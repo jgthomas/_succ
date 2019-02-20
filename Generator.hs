@@ -18,8 +18,9 @@ genASM (ProgramNode functionList) = do
         prog <- mapM genASM functionList
         return $ concat prog
 
-genASM (FunctionNode name statementList) = do
+genASM (FunctionNode name paramList statementList) = do
         initFunction name
+        paramExpr <- mapM genASM paramList
         funcStmnts <- mapM genASM statementList
         closeFunction
         case hasReturn statementList of
