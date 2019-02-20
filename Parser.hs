@@ -37,11 +37,20 @@ parse toks = let (tree, toks') = parseProgram toks
 
 parseProgram :: [Token] -> (Tree, [Token])
 parseProgram toks =
-        if isValidType toks
-           then let (funcTree, toks') = parseFunction (accept toks)
-                    in
-           (ProgramNode [funcTree], toks')
-           else error "Invalid start of function"
+        let (funcList, toks') = parseAllFunctions [] toks
+            in
+        (ProgramNode funcList, toks')
+
+
+parseAllFunctions :: [Tree] -> [Token] -> ([Tree], [Token])
+parseAllFunctions funcList [] = (funcList, [])
+parseAllFunctions funcList (typ:toks) =
+        case typ of
+             (TokKeyword typ) | validType typ ->
+                     let (funcTree, toks') = parseFunction toks
+                         in
+                     parseAllFunctions (funcList ++ [funcTree]) toks'
+             _ -> error "Invalid function type"
 
 
 parseFunction :: [Token] -> (Tree, [Token])
