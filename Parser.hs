@@ -71,12 +71,15 @@ parseFunctionParams paramList (first:toks) =
              (TokKeyword typ) | validType typ ->
                      let (paramTree, toks') = parseExpression toks
                          in
-                     case lookAhead toks' of
-                          TokComma ->
-                                  if lookAhead (accept toks') == TokCloseParen
-                                     then error "Expected type identifier"
-                                     else parseFunctionParams (paramList ++ [paramTree]) toks'
-                          _ -> parseFunctionParams (paramList ++ [paramTree]) toks'
+                     case paramTree of
+                          VarNode str ->
+                                  case lookAhead toks' of
+                                       TokComma ->
+                                               if lookAhead (accept toks') == TokCloseParen
+                                                  then error "Expected type identifier"
+                                                  else parseFunctionParams (paramList ++ [paramTree]) toks'
+                                       _ -> parseFunctionParams (paramList ++ [paramTree]) toks'
+                          _ -> error "Invalid function parameter"
              _ -> error "Expected type identifier or closing parenthesis"
 
 
