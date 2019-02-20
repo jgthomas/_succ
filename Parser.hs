@@ -45,10 +45,10 @@ parseProgram toks =
 
 
 parseFunction :: [Token] -> (Tree, [Token])
-parseFunction (id:oParen:toks) =
+parseFunction (id:toks) =
         case id of
              (TokIdent funcName) ->
-                     if oParen /= TokOpenParen
+                     if lookAhead toks /= TokOpenParen
                         then error "Missing opening parenthesis"
                         else
                      let (funcParams, toks') = parseFunctionParams [] toks
@@ -65,22 +65,18 @@ parseFunction (id:oParen:toks) =
 
 
 parseFunctionParams :: [Tree] -> [Token] -> ([Tree], [Token])
-parseFunctionParams paramList (first:toks) =
-        case first of
-             TokCloseParen                    -> (paramList, toks)
-             (TokKeyword typ) | validType typ ->
-                     let (paramTree, toks') = parseExpression toks
-                         in
-                     case paramTree of
-                          VarNode str ->
-                                  case lookAhead toks' of
-                                       TokComma ->
-                                               if lookAhead (accept toks') == TokCloseParen
-                                                  then error "Expected type identifier"
-                                                  else parseFunctionParams (paramList ++ [paramTree]) toks'
-                                       _ -> parseFunctionParams (paramList ++ [paramTree]) toks'
-                          _ -> error "Invalid function parameter"
-             _ -> error "Expected type identifier or closing parenthesis"
+parseFunctionParams paramList (first:second:toks)
+        | first == TokCloseParen                       = (paramList, (second:toks))
+        | first /= TokOpenParen && first /= TokComma   = error "Missing comma between parameters"
+        | first == TokComma && second == TokCloseParen = error "Expected parameter type"
+        | otherwise = case second of
+                           TokCloseParen                    -> (paramList, toks)
+                           (TokKeyword typ) | validType typ ->
+                                   let (paramTree, toks') = parseExpression toks
+                                       in
+                                   case paramTree of
+                                        VarNode str -> parseFunctionParams (paramList ++ [paramTree]) toks'
+                                        _           -> error "Invalid function parameter"
 
 
 parseBlock :: [Tree] -> [Token] -> ([Tree], [Token])
