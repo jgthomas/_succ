@@ -87,7 +87,9 @@ parseFunctionParams paramList (first:second:toks)
                                      let (paramTree, toks') = parseExpression toks
                                          in
                                      case paramTree of
-                                          VarNode str -> parseFunctionParams (paramList ++ [paramTree]) toks'
+                                          VarNode str -> parseFunctionParams
+                                                         (paramList ++ [paramTree])
+                                                         toks'
                                           _           -> error "Invalid function parameter"
                               | otherwise -> error "Invalid type for function"
                            _ -> error "Invalid parameter"
