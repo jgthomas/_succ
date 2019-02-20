@@ -71,7 +71,10 @@ parseFunctionParams paramList toks =
              _             ->
                      let (paramTree, toks') = parseExpression toks
                          in
-                     parseFunctionParams (paramList ++ [paramTree]) toks'
+                     case lookAhead toks' of
+                          TokComma      -> parseFunctionParams (paramList ++ [paramTree]) (accept toks')
+                          TokCloseParen -> parseFunctionParams (paramList ++ [paramTree]) toks'
+                          _             -> error "Missing comma"
 
 
 parseBlock :: [Tree] -> [Token] -> ([Tree], [Token])
