@@ -81,13 +81,16 @@ parseFunctionParams paramList (first:second:toks)
         | first /= TokOpenParen && first /= TokComma   = error "Missing comma between parameters"
         | first == TokComma && second == TokCloseParen = error "Expected parameter type"
         | otherwise = case second of
-                           TokCloseParen                    -> (paramList, toks)
-                           (TokKeyword typ) | validType typ ->
-                                   let (paramTree, toks') = parseExpression toks
-                                       in
-                                   case paramTree of
-                                        VarNode str -> parseFunctionParams (paramList ++ [paramTree]) toks'
-                                        _           -> error "Invalid function parameter"
+                           TokCloseParen -> (paramList, toks)
+                           (TokKeyword typ)
+                              | validType typ ->
+                                     let (paramTree, toks') = parseExpression toks
+                                         in
+                                     case paramTree of
+                                          VarNode str -> parseFunctionParams (paramList ++ [paramTree]) toks'
+                                          _           -> error "Invalid function parameter"
+                              | otherwise -> error "Invalid type for function"
+                           _ -> error "Invalid parameter"
 
 
 parseBlock :: [Tree] -> [Token] -> ([Tree], [Token])
