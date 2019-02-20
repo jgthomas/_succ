@@ -6,7 +6,7 @@ import Lexer
 
 
 data Tree = ProgramNode [Tree]
-          | FunctionNode String [Tree]
+          | FunctionNode String [Tree] [Tree]
           | DeclarationNode String (Maybe Tree)
           | CompoundStmtNode [Tree]               -- statements
           | ReturnNode Tree
@@ -45,15 +45,33 @@ parseProgram toks =
 
 
 parseFunction :: [Token] -> (Tree, [Token])
-parseFunction (id:op:cp:ob:toks) =
+parseFunction (id:oParen:toks) =
         case id of
-             (TokIdent id) | isFuncStart (op:cp:ob:toks) ->
-                     let (funcBlockItems, toks') = parseBlock [] toks
+             (TokIdent funcName) ->
+                     if oParen /= TokOpenParen
+                        then error "Missing opening parenthesis"
+                        else
+                     let (funcParams, toks') = parseFunctionParams [] toks
                          in
-                     if lookAhead toks' /= TokCloseBrace
+                     if lookAhead toks' /= TokOpenBrace
+                        then error "Missing opening brace"
+                        else
+                     let (funcBlockItems, toks'') = parseBlock [] (accept toks')
+                         in
+                     if lookAhead toks'' /= TokCloseBrace
                         then error "Missing closing brace"
-                        else (FunctionNode id funcBlockItems, accept toks')
+                        else (FunctionNode funcName funcParams funcBlockItems, accept toks'')
              _ -> error "No identifier supplied"
+
+
+parseFunctionParams :: [Tree] -> [Token] -> ([Tree], [Token])
+parseFunctionParams paramList toks =
+        case lookAhead toks of
+             TokCloseParen -> (paramList, accept toks)
+             _             ->
+                     let (paramTree, toks') = parseExpression toks
+                         in
+                     parseFunctionParams (paramList ++ [paramTree]) toks'
 
 
 parseBlock :: [Tree] -> [Token] -> ([Tree], [Token])
@@ -361,14 +379,6 @@ parseBinaryExp tree toks nextVal ops =
 
 nullExpr :: [Token] -> (Tree, [Token])
 nullExpr toks = (NullExprNode, toks)
-
-
-isFuncStart :: [Token] -> Bool
-isFuncStart (op:cp:ob:toks)
-    | op /= TokOpenParen  = error "Missing opening parenthesis"
-    | cp /= TokCloseParen = error "Missing closing parenthesis"
-    | ob /= TokOpenBrace  = error "Missing opening brace"
-    | otherwise           = True
 
 
 isValidType :: [Token] -> Bool
