@@ -327,17 +327,17 @@ parseTerm toks =
 
 
 parseFactor :: [Token] -> (Tree, [Token])
-parseFactor toks =
-        case lookAhead toks of
-             (TokConstInt n) -> (ConstantNode n, accept toks)
-             (TokIdent str)  -> (VarNode str, accept toks)
-             TokSemiColon    -> (NullExprNode, accept toks)
+parseFactor (fact:toks) =
+        case fact of
+             (TokConstInt n) -> (ConstantNode n, toks)
+             (TokIdent str)  -> (VarNode str, toks)
+             TokSemiColon    -> (NullExprNode, toks)
              (TokOp op) | elem op [Minus, BitwiseCompl, LogicNegation] ->
-                     let (facTree, toks') = parseFactor (accept toks)
+                     let (facTree, toks') = parseFactor toks
                          in
                      (UnaryNode facTree op, toks')
              TokOpenParen ->
-                     let (exprTree, toks') = parseExpression (accept toks)
+                     let (exprTree, toks') = parseExpression toks
                          in
                      if lookAhead toks' /= TokCloseParen
                         then error "Missing right parentheses"
