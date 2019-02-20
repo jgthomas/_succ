@@ -65,16 +65,19 @@ parseFunction (id:oParen:toks) =
 
 
 parseFunctionParams :: [Tree] -> [Token] -> ([Tree], [Token])
-parseFunctionParams paramList toks =
-        case lookAhead toks of
-             TokCloseParen -> (paramList, accept toks)
-             _             ->
+parseFunctionParams paramList (first:toks) =
+        case first of
+             TokCloseParen                    -> (paramList, toks)
+             (TokKeyword typ) | validType typ ->
                      let (paramTree, toks') = parseExpression toks
                          in
                      case lookAhead toks' of
-                          TokComma      -> parseFunctionParams (paramList ++ [paramTree]) (accept toks')
-                          TokCloseParen -> parseFunctionParams (paramList ++ [paramTree]) toks'
-                          _             -> error "Missing comma"
+                          TokComma ->
+                                  if lookAhead (accept toks') == TokCloseParen
+                                     then error "Expected type identifier"
+                                     else parseFunctionParams (paramList ++ [paramTree]) toks'
+                          _ -> parseFunctionParams (paramList ++ [paramTree]) toks'
+             _ -> error "Expected type identifier or closing parenthesis"
 
 
 parseBlock :: [Tree] -> [Token] -> ([Tree], [Token])
@@ -389,3 +392,6 @@ isValidType toks =
         case lookAhead toks of
              (TokKeyword kwd) | elem kwd [Int] -> True
              _                                 -> False
+
+validType :: Keyword -> Bool
+validType kwd = elem kwd [Int]
