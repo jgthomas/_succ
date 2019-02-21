@@ -91,7 +91,7 @@ parseFunctionParams paramList (first:second:toks)
                                                          (paramList ++ [paramTree])
                                                          toks'
                                           _           -> error "Invalid function parameter"
-                              | otherwise -> error "Invalid type for function"
+                              | otherwise -> error "Invalid parameter type"
                            _ -> error "Invalid parameter"
 
 
