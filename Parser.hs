@@ -115,22 +115,22 @@ parseBlockItem toks =
 parseStatement :: [Token] -> (Tree, [Token])
 parseStatement toks =
         case lookAhead toks of
-             (TokKeyword kwd) | kwd == Return   -> parseReturnStmt toks
-                              | kwd == If       -> parseIfStatement toks
-                              | kwd == While    -> parseWhileStatement toks
-                              | kwd == Do       -> parseDoWhileStatement toks
-                              | kwd == For      -> parseForLoop toks
-                              | kwd == Break    -> parseBreak toks
-                              | kwd == Continue -> parseContinue toks
-                              | kwd == Int      -> error "Declarations are not statements"
-             TokOpenBrace                       -> parseCompoundStmt toks
-             TokSemiColon                       -> parseExpression toks
-             (TokIdent id) -> let (exprTree, toks') = parseExpression toks
-                                  in
-                              if lookAhead toks' /= TokSemiColon
-                                 then error "Missing semicolon"
-                                 else (exprTree, accept toks')
-             _             -> parseExprStatement toks
+             (TokKeyword Return)   -> parseReturnStmt toks
+             (TokKeyword If)       -> parseIfStatement toks
+             (TokKeyword While)    -> parseWhileStatement toks
+             (TokKeyword Do)       -> parseDoWhileStatement toks
+             (TokKeyword For)      -> parseForLoop toks
+             (TokKeyword Break)    -> parseBreak toks
+             (TokKeyword Continue) -> parseContinue toks
+             TokOpenBrace          -> parseCompoundStmt toks
+             TokSemiColon          -> parseExpression toks
+             (TokIdent id)         ->
+                 let (exprTree, toks') = parseExpression toks
+                     in
+                 if lookAhead toks' /= TokSemiColon
+                    then error "Missing semicolon"
+                    else (exprTree, accept toks')
+             _                     -> parseExprStatement toks
 
 
 parseBreak :: [Token] -> (Tree, [Token])
