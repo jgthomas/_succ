@@ -124,13 +124,17 @@ parseStatement toks =
              TokKeyword Continue -> parseContinue toks
              TokOpenBrace        -> parseCompoundStmt toks
              TokSemiColon        -> parseExpression toks
-             TokIdent id         ->
-                 let (exprTree, toks') = parseExpression toks
-                     in
-                 if lookAhead toks' /= TokSemiColon
-                    then error "Missing semicolon"
-                    else (exprTree, accept toks')
-             _                     -> parseExprStatement toks
+             TokIdent id         -> parseVariable toks
+             _                   -> parseExprStatement toks
+
+
+parseVariable :: [Token] -> (Tree, [Token])
+parseVariable toks =
+        let (exprTree, toks') = parseExpression toks
+            in
+        if lookAhead toks' /= TokSemiColon
+           then error "Missing semicolon"
+           else (exprTree, accept toks')
 
 
 parseBreak :: [Token] -> (Tree, [Token])
