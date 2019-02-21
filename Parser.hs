@@ -370,8 +370,8 @@ parseTerm toks =
 
 
 parseFactor :: [Token] -> (Tree, [Token])
-parseFactor (fact:toks) =
-        case fact of
+parseFactor all@(next:toks) =
+        case next of
              (TokConstInt n) -> (ConstantNode n, toks)
              (TokIdent str)  -> (VarNode str, toks)
              TokSemiColon    -> (NullExprNode, toks)
@@ -385,7 +385,7 @@ parseFactor (fact:toks) =
                      if lookAhead toks' /= TokCloseParen
                         then error "Missing right parentheses"
                         else (exprTree, accept toks')
-             _ ->  error $ "Parse error on token: " ++ show (fact:toks)
+             _ ->  error $ "Parse error on token: " ++ show all
 
 
 parseBinaryExp :: Tree
