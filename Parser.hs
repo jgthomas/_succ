@@ -121,7 +121,7 @@ parseStatement (first:toks) =
              TokKeyword Do       -> parseDoWhileStatement (first:toks)
              TokKeyword For      -> parseForLoop (first:toks)
              TokKeyword Break    -> parseBreak toks
-             TokKeyword Continue -> parseContinue (first:toks)
+             TokKeyword Continue -> parseContinue toks
              TokOpenBrace        -> parseCompoundStmt (first:toks)
              TokSemiColon        -> parseExpression (first:toks)
              TokIdent id         -> parseVariable (first:toks)
@@ -145,8 +145,8 @@ parseBreak (first:toks) =
 
 
 parseContinue :: [Token] -> (Tree, [Token])
-parseContinue (kwd:sc:toks) =
-        if sc /= TokSemiColon
+parseContinue (first:toks) =
+        if first /= TokSemiColon
            then error "Missing semicolon"
            else (ContinueNode, toks)
 
