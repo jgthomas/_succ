@@ -166,7 +166,7 @@ parseCompoundStmt toks =
         let (blockItems, toks') = parseBlock [] toks
             in
         if lookAhead toks' /= TokCloseBrace
-           then error "Block missing closing brace"
+           then error $ errorMessage CloseBrace
            else (CompoundStmtNode blockItems, accept toks')
 
 
