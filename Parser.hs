@@ -69,17 +69,17 @@ parseFunction (id:toks) =
         case id of
              (TokIdent funcName) ->
                      if lookAhead toks /= TokOpenParen
-                        then error "Missing opening parenthesis"
+                        then error $ errorMessage OpenParen
                         else
                      let (funcParams, toks') = parseFunctionParams [] toks
                          in
                      if lookAhead toks' /= TokOpenBrace
-                        then error "Missing opening brace"
+                        then error $ errorMessage OpenBrace
                         else
                      let (funcBlockItems, toks'') = parseBlock [] (accept toks')
                          in
                      if lookAhead toks'' /= TokCloseBrace
-                        then error "Missing closing brace"
+                        then error $ errorMessage CloseBrace
                         else (FunctionNode funcName funcParams funcBlockItems, accept toks'')
              _ -> error "No identifier supplied"
 
