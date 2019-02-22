@@ -33,6 +33,7 @@ data Error = SemiColon
            | CloseBrace
            | OpenParen
            | CloseParen
+           | ParseError
            deriving Eq
 
 
@@ -396,7 +397,7 @@ parseFactor all@(next:toks) =
                      if lookAhead toks' /= TokCloseParen
                         then error $ errorMessage CloseParen
                         else (exprTree, accept toks')
-             _ ->  error $ "Parse error on token: " ++ show all
+             _ ->  error $ errorMessage ParseError ++ show all
 
 
 parseBinaryExp :: Tree
@@ -428,3 +429,4 @@ errorMessage err
     | err == CloseBrace = "Missing closing brace"
     | err == OpenParen  = "Missing opening parenthesis"
     | err == CloseParen = "Missing closing parenthesis"
+    | err == ParseError = "Parse error on token: "
