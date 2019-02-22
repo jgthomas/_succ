@@ -200,17 +200,17 @@ parseDoWhileStatement (kwd:ob:toks) =
         let (stmtTree, toks') = parseStatement (ob:toks)
             in
         case lookAhead toks' of
-             (TokKeyword kwd) | kwd == While ->
-                              if lookAhead (accept toks') /= TokOpenParen
-                                 then error "Missing opening parentheses"
-                                 else
-                              let (testTree, toks'') = parseExpression $ accept $ accept toks'
-                                  in
-                              if lookAhead toks'' /= TokCloseParen
-                                 then error "Missing closing parenthesis"
-                                 else if lookAhead (accept toks'') /= TokSemiColon
-                                         then error "Missing semicolon"
-                                         else (DoWhileNode stmtTree testTree, (accept (accept toks'')))
+             TokKeyword While ->
+                     if lookAhead (accept toks') /= TokOpenParen
+                        then error "Missing opening parentheses"
+                        else
+                     let (testTree, toks'') = parseExpression $ accept $ accept toks'
+                         in
+                     case toks'' of
+                          (next:second:toks''')
+                             | next /= TokCloseParen  -> error "Missing closing parenthesis"
+                             | second /= TokSemiColon -> error "Missing semicolon"
+                             | otherwise              -> (DoWhileNode stmtTree testTree, toks''')
              _ -> error "Do block missing while condition"
 
 
