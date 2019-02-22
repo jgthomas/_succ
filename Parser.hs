@@ -124,12 +124,12 @@ parseStatement allToks@(first:toks) =
              TokKeyword Continue -> parseContinue toks
              TokOpenBrace        -> parseCompoundStmt toks
              TokSemiColon        -> parseNullStatement toks
-             TokIdent id         -> parseVariable (first:toks)
+             TokIdent id         -> parseAssignment allToks
              _                   -> parseExprStatement allToks
 
 
-parseVariable :: [Token] -> (Tree, [Token])
-parseVariable toks =
+parseAssignment :: [Token] -> (Tree, [Token])
+parseAssignment toks =
         let (exprTree, toks') = parseExpression toks
             in
         if lookAhead toks' /= TokSemiColon
