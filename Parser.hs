@@ -115,7 +115,7 @@ parseBlockItem toks =
 parseStatement :: [Token] -> (Tree, [Token])
 parseStatement (first:toks) =
         case first of
-             TokKeyword Return   -> parseReturnStmt (first:toks)
+             TokKeyword Return   -> parseReturnStmt toks
              TokKeyword If       -> parseIfStatement (first:toks)
              TokKeyword While    -> parseWhileStatement toks
              TokKeyword Do       -> parseDoWhileStatement toks
@@ -255,7 +255,7 @@ parseOptionalElse all@(next:toks) =
 
 
 parseReturnStmt :: [Token] -> (Tree, [Token])
-parseReturnStmt (rtn:toks) =
+parseReturnStmt toks =
         let (exprsnTree, toks') = parseExpression toks
             in
         if lookAhead toks' /= TokSemiColon
