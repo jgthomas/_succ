@@ -122,7 +122,7 @@ parseStatement (first:toks) =
              TokKeyword For      -> parseForLoop toks
              TokKeyword Break    -> parseBreak toks
              TokKeyword Continue -> parseContinue toks
-             TokOpenBrace        -> parseCompoundStmt (first:toks)
+             TokOpenBrace        -> parseCompoundStmt toks
              TokSemiColon        -> parseExpression (first:toks)
              TokIdent id         -> parseVariable (first:toks)
              _                   -> parseExprStatement (first:toks)
@@ -153,7 +153,7 @@ parseContinue (first:toks) =
 
 parseCompoundStmt :: [Token] -> (Tree, [Token])
 parseCompoundStmt toks =
-        let (blockItems, toks') = parseBlock [] (accept toks)
+        let (blockItems, toks') = parseBlock [] toks
             in
         if lookAhead toks' /= TokCloseBrace
            then error "Block missing closing brace"
