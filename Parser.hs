@@ -28,6 +28,14 @@ data Tree = ProgramNode [Tree]
           deriving Show
 
 
+data Error = SemiColon
+           | OpenBrace
+           | CloseBrace
+           | OpenParen
+           | CloseParen
+           deriving Eq
+
+
 parse :: [Token] -> Tree
 parse toks = let (tree, toks') = parseProgram toks
                  in if null toks'
@@ -386,7 +394,7 @@ parseFactor all@(next:toks) =
                      let (exprTree, toks') = parseExpression toks
                          in
                      if lookAhead toks' /= TokCloseParen
-                        then error "Missing right parentheses"
+                        then error $ errorMessage CloseParen
                         else (exprTree, accept toks')
              _ ->  error $ "Parse error on token: " ++ show all
 
@@ -411,3 +419,12 @@ nullExpr toks = (NullExprNode, toks)
 
 validType :: Keyword -> Bool
 validType kwd = elem kwd [Int]
+
+
+errorMessage :: Error -> String
+errorMessage err
+    | err == SemiColon  = "Missing semicolon"
+    | err == OpenBrace  = "Missing opening brace"
+    | err == CloseBrace = "Missing closing brace"
+    | err == OpenParen  = "Missing opening parenthesis"
+    | err == CloseParen = "Missing closing parenthesis"
