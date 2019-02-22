@@ -116,7 +116,7 @@ parseStatement :: [Token] -> (Tree, [Token])
 parseStatement (first:toks) =
         case first of
              TokKeyword Return   -> parseReturnStmt toks
-             TokKeyword If       -> parseIfStatement (first:toks)
+             TokKeyword If       -> parseIfStatement toks
              TokKeyword While    -> parseWhileStatement toks
              TokKeyword Do       -> parseDoWhileStatement toks
              TokKeyword For      -> parseForLoop toks
@@ -229,8 +229,8 @@ parseWhileStatement (first:toks) =
 
 
 parseIfStatement :: [Token] -> (Tree, [Token])
-parseIfStatement (kwd:op:toks) =
-        if op /= TokOpenParen
+parseIfStatement (first:toks) =
+        if first /= TokOpenParen
            then error "Missing opening parentheses"
            else
         let (testTree, toks') = parseExpression toks
