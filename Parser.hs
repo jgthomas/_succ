@@ -118,7 +118,7 @@ parseStatement (first:toks) =
              TokKeyword Return   -> parseReturnStmt (first:toks)
              TokKeyword If       -> parseIfStatement (first:toks)
              TokKeyword While    -> parseWhileStatement (first:toks)
-             TokKeyword Do       -> parseDoWhileStatement (first:toks)
+             TokKeyword Do       -> parseDoWhileStatement toks
              TokKeyword For      -> parseForLoop toks
              TokKeyword Break    -> parseBreak toks
              TokKeyword Continue -> parseContinue toks
@@ -193,11 +193,11 @@ parseForLoopPostExp toks =
 
 
 parseDoWhileStatement :: [Token] -> (Tree, [Token])
-parseDoWhileStatement (kwd:ob:toks) =
-        if ob /= TokOpenBrace
+parseDoWhileStatement allToks@(first:toks) =
+        if first /= TokOpenBrace
            then error "Do block missing opening brace"
            else
-        let (stmtTree, toks') = parseStatement (ob:toks)
+        let (stmtTree, toks') = parseStatement allToks
             in
         case toks' of
              (next:second:toks'')
