@@ -245,13 +245,13 @@ parseIfStatement (first:toks) =
 
 
 parseOptionalElse :: [Token] -> (Maybe Tree, [Token])
-parseOptionalElse all@(next:toks) =
+parseOptionalElse allToks@(next:toks) =
         case next of
              TokKeyword Else ->
                      let (elseTree, toks') = parseStatement toks
                          in
                      (Just elseTree, toks')
-             _ -> (Nothing, all)
+             _ -> (Nothing, allToks)
 
 
 parseReturnStmt :: [Token] -> (Tree, [Token])
