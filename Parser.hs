@@ -172,7 +172,7 @@ parseCompoundStmt toks =
 parseForLoop :: [Token] -> (Tree, [Token])
 parseForLoop (first:toks) =
         if first /= TokOpenParen
-           then error "Missing opening parenthesis"
+           then error $ errorMessage CloseParen
            else
         let (initTree, toks') = parseBlockItem toks
             in
@@ -190,7 +190,7 @@ parseForLoop (first:toks) =
                              (ForLoopNode initTree (ConstantNode 1) changeTree stmtTree, toks'''')
                           _            ->
                              (ForLoopNode initTree testTree changeTree stmtTree, toks'''')
-             _ -> error "Missing closing parenthesis"
+             _ -> error $ errorMessage CloseParen
 
 
 parseForLoopPostExp :: [Token] -> (Tree, [Token])
@@ -211,14 +211,14 @@ parseDoWhileStatement allToks@(first:toks) =
         case toks' of
              (next:second:toks'')
                 | next /= TokKeyword While -> error "Do block missing while condition"
-                | second /= TokOpenParen   -> error "Missing opening parenthesis"
+                | second /= TokOpenParen   -> error $ errorMessage OpenParen
                 | otherwise                ->
                     let (testTree, toks''') = parseExpression toks''
                         in
                     case toks''' of
                          (next:second:toks'''')
-                            | next /= TokCloseParen  -> error "Missing closing parenthesis"
-                            | second /= TokSemiColon -> error "Missing semicolon"
+                            | next /= TokCloseParen  -> error $ errorMessage CloseParen
+                            | second /= TokSemiColon -> error $ errorMessage SemiColon
                             | otherwise              -> (DoWhileNode stmtTree testTree, toks'''')
 
 
