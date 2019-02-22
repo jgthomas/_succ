@@ -201,8 +201,9 @@ parseDoWhileStatement (kwd:ob:toks) =
             in
         case toks' of
              (next:second:toks'')
+                | next /= TokKeyword While -> error "Do block missing while condition"
                 | second /= TokOpenParen   -> error "Missing opening parenthesis"
-                | next == TokKeyword While ->
+                | otherwise                ->
                     let (testTree, toks''') = parseExpression toks''
                         in
                     case toks''' of
@@ -210,7 +211,6 @@ parseDoWhileStatement (kwd:ob:toks) =
                             | next /= TokCloseParen  -> error "Missing closing parenthesis"
                             | second /= TokSemiColon -> error "Missing semicolon"
                             | otherwise              -> (DoWhileNode stmtTree testTree, toks'''')
-                | otherwise -> error "Do block missing while condition"
 
 
 parseWhileStatement :: [Token] -> (Tree, [Token])
