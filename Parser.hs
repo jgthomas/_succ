@@ -113,19 +113,19 @@ parseBlockItem toks =
 
 
 parseStatement :: [Token] -> (Tree, [Token])
-parseStatement toks =
-        case lookAhead toks of
-             TokKeyword Return   -> parseReturnStmt toks
-             TokKeyword If       -> parseIfStatement toks
-             TokKeyword While    -> parseWhileStatement toks
-             TokKeyword Do       -> parseDoWhileStatement toks
-             TokKeyword For      -> parseForLoop toks
+parseStatement (first:toks) =
+        case first of
+             TokKeyword Return   -> parseReturnStmt (first:toks)
+             TokKeyword If       -> parseIfStatement (first:toks)
+             TokKeyword While    -> parseWhileStatement (first:toks)
+             TokKeyword Do       -> parseDoWhileStatement (first:toks)
+             TokKeyword For      -> parseForLoop (first:toks)
              TokKeyword Break    -> parseBreak toks
-             TokKeyword Continue -> parseContinue toks
-             TokOpenBrace        -> parseCompoundStmt toks
-             TokSemiColon        -> parseExpression toks
-             TokIdent id         -> parseVariable toks
-             _                   -> parseExprStatement toks
+             TokKeyword Continue -> parseContinue (first:toks)
+             TokOpenBrace        -> parseCompoundStmt (first:toks)
+             TokSemiColon        -> parseExpression (first:toks)
+             TokIdent id         -> parseVariable (first:toks)
+             _                   -> parseExprStatement (first:toks)
 
 
 parseVariable :: [Token] -> (Tree, [Token])
@@ -138,8 +138,8 @@ parseVariable toks =
 
 
 parseBreak :: [Token] -> (Tree, [Token])
-parseBreak (kwd:sc:toks) =
-        if sc /= TokSemiColon
+parseBreak (first:toks) =
+        if first /= TokSemiColon
            then error "Missing semicolon"
            else (BreakNode, toks)
 
