@@ -33,6 +33,7 @@ data Error = SemiColon
            | CloseBrace
            | OpenParen
            | CloseParen
+           | TypeError
            | ParseError
            deriving Eq
 
@@ -60,8 +61,8 @@ parseAllFunctions funcList (typ:toks) =
                         let (funcTree, toks') = parseFunction toks
                             in
                         parseAllFunctions (funcList ++ [funcTree]) toks'
-                | otherwise -> error "Invalid type for function"
-             _ -> error "Invalid function start"
+                | otherwise -> error $ errorMessage TypeError
+             _ -> error $ errorMessage TypeError
 
 
 parseFunction :: [Token] -> (Tree, [Token])
@@ -429,4 +430,5 @@ errorMessage err
     | err == CloseBrace = "Missing closing brace"
     | err == OpenParen  = "Missing opening parenthesis"
     | err == CloseParen = "Missing closing parenthesis"
+    | err == TypeError  = "Invalid type"
     | err == ParseError = "Parse error on token: "
