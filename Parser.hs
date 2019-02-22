@@ -224,12 +224,12 @@ parseDoWhileStatement allToks@(first:toks) =
 parseWhileStatement :: [Token] -> (Tree, [Token])
 parseWhileStatement (first:toks) =
         if first /= TokOpenParen
-           then error "Missing opening parentheses"
+           then error $ errorMessage OpenParen
            else
         let (testTree, toks') = parseExpression toks
             in
         if lookAhead toks' /= TokCloseParen
-           then error "Missing closing parentheses"
+           then error $ errorMessage CloseParen
            else
         let (stmtTree, toks'') = parseStatement (accept toks')
             in
@@ -239,12 +239,12 @@ parseWhileStatement (first:toks) =
 parseIfStatement :: [Token] -> (Tree, [Token])
 parseIfStatement (first:toks) =
         if first /= TokOpenParen
-           then error "Missing opening parentheses"
+           then error $ errorMessage OpenParen
            else
         let (testTree, toks') = parseExpression toks
             in
         if lookAhead toks' /= TokCloseParen
-           then error "Missing closing parentheses"
+           then error $ errorMessage CloseParen
            else
         let (stmtTree, toks'') = parseStatement (accept toks')
             (possElse, toks''') = parseOptionalElse toks''
@@ -267,7 +267,7 @@ parseReturnStmt toks =
         let (exprsnTree, toks') = parseExpression toks
             in
         if lookAhead toks' /= TokSemiColon
-           then error "Missing semicolon"
+           then error $ errorMessage SemiColon
            else (ReturnNode exprsnTree, accept toks')
 
 
@@ -282,7 +282,7 @@ parseDeclaration (ty:id:toks) =
                      let (exprTree, toks') = parseOptionalAssign (id:toks)
                          in
                      if lookAhead toks' /= TokSemiColon
-                        then error "Missing semicolon"
+                        then error $ errorMessage SemiColon
                         else (DeclarationNode varName exprTree, accept toks')
 
 
@@ -301,7 +301,7 @@ parseExprStatement toks =
         let (exprTree, toks') = parseExpression toks
             in
         if lookAhead toks' /= TokSemiColon
-           then error "Missing semicolon"
+           then error $ errorMessage SemiColon
            else (ExprStmtNode exprTree, accept toks')
 
 
