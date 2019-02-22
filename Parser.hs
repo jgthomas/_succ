@@ -113,7 +113,7 @@ parseBlockItem toks =
 
 
 parseStatement :: [Token] -> (Tree, [Token])
-parseStatement (first:toks) =
+parseStatement allToks@(first:toks) =
         case first of
              TokKeyword Return   -> parseReturnStmt toks
              TokKeyword If       -> parseIfStatement toks
@@ -123,9 +123,9 @@ parseStatement (first:toks) =
              TokKeyword Break    -> parseBreak toks
              TokKeyword Continue -> parseContinue toks
              TokOpenBrace        -> parseCompoundStmt toks
-             TokSemiColon        -> parseExpression (first:toks)
+             TokSemiColon        -> parseNullStatement toks
              TokIdent id         -> parseVariable (first:toks)
-             _                   -> parseExprStatement (first:toks)
+             _                   -> parseExprStatement allToks
 
 
 parseVariable :: [Token] -> (Tree, [Token])
@@ -261,6 +261,10 @@ parseReturnStmt toks =
         if lookAhead toks' /= TokSemiColon
            then error "Missing semicolon"
            else (ReturnNode exprsnTree, accept toks')
+
+
+parseNullStatement :: [Token] -> (Tree, [Token])
+parseNullStatement toks = (NullExprNode, toks)
 
 
 parseDeclaration :: [Token] -> (Tree, [Token])
