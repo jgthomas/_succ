@@ -141,21 +141,21 @@ parseAssignment toks =
         let (exprTree, toks') = parseExpression toks
             in
         if lookAhead toks' /= TokSemiColon
-           then error "Missing semicolon"
+           then error $ errorMessage SemiColon
            else (exprTree, accept toks')
 
 
 parseBreak :: [Token] -> (Tree, [Token])
 parseBreak (first:toks) =
         if first /= TokSemiColon
-           then error "Missing semicolon"
+           then error $ errorMessage SemiColon
            else (BreakNode, toks)
 
 
 parseContinue :: [Token] -> (Tree, [Token])
 parseContinue (first:toks) =
         if first /= TokSemiColon
-           then error "Missing semicolon"
+           then error $ errorMessage SemiColon
            else (ContinueNode, toks)
 
 
