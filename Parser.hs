@@ -134,7 +134,6 @@ parseStatement allToks@(first:toks) =
              TokKeyword Break    -> parseBreak toks
              TokKeyword Continue -> parseContinue toks
              TokOpenBrace        -> parseCompoundStmt toks
-             --TokSemiColon        -> parseNullStatement toks
              TokIdent id         -> parseIdentifier allToks
              _                   -> parseExprStatement allToks
 
