@@ -134,7 +134,7 @@ parseStatement allToks@(first:toks) =
              TokKeyword Break    -> parseBreak toks
              TokKeyword Continue -> parseContinue toks
              TokOpenBrace        -> parseCompoundStmt toks
-             TokSemiColon        -> parseNullStatement toks
+             --TokSemiColon        -> parseNullStatement toks
              TokIdent id         -> parseIdentifier allToks
              _                   -> parseExprStatement allToks
 
@@ -144,7 +144,7 @@ parseIdentifier allToks@(first:second:toks) =
         case second of
              TokAssign    -> parseAssignment allToks
              TokOpenParen -> parseFunctionCall allToks
-             _            -> parseExprStatement allToks
+             _            -> parseExpression allToks
 
 
 parseFunctionCall :: [Token] -> (Tree, [Token])
@@ -190,7 +190,7 @@ parseForLoop (first:toks) =
            else
         let (initTree, toks') = parseBlockItem toks
             in
-        let (testTree, toks'') = parseStatement toks'
+        let (testTree, toks'') = parseExprStatement toks'
             in
         let (changeTree, toks''') = parseForLoopPostExp toks''
             in
@@ -314,17 +314,22 @@ parseOptionalAssign (id:equ:toks) =
 {-
 - Parses expressions where a semi-colon is required afterwards
 -
+- null expression: ;
+-
 - expression statements: 2 + 2;
 -
 - elements of loops: (i = 0; i < 10; i++)
 -}
 parseExprStatement :: [Token] -> (Tree, [Token])
 parseExprStatement allToks@(first:toks) =
-        let (exprTree, toks') = parseExpression allToks
-            in
-        if lookAhead toks' /= TokSemiColon
-           then error $ errorMessage SemiColon
-           else (ExprStmtNode exprTree, accept toks')
+        case first of
+             TokSemiColon -> parseNullStatement toks
+             _            ->
+                     let (exprTree, toks') = parseExpression allToks
+                         in
+                     if lookAhead toks' /= TokSemiColon
+                        then error $ errorMessage SemiColon
+                        else (ExprStmtNode exprTree, accept toks')
 
 
 parseExpression :: [Token] -> (Tree, [Token])
