@@ -160,7 +160,19 @@ parseFunctionCall allToks@(id:paren:toks) =
 
 
 parseFunctionArgs :: [Tree] -> [Token] -> ([Tree], [Token])
-parseFunctionArgs = undefined
+parseFunctionArgs argList (first:second:toks)
+        | first == TokCloseParen                       = (argList, (second:toks))
+        | first /= TokOpenParen && first /= TokComma   = error "Missing comma between arguments"
+        | first == TokComma && second == TokCloseParen = error "Missing argument"
+        | otherwise = case second of
+                           TokIdent id ->
+                                   let (argTree, toks') = parseIdentifier (second:toks)
+                                       in
+                                   parseFunctionArgs (argList ++ [argTree]) toks'
+                           _           ->
+                                   let (argTree, toks') = parseExpression (second:toks)
+                                       in
+                                   parseFunctionArgs (argList ++ [argTree]) toks'
 
 
 parseAssignment :: [Token] -> (Tree, [Token])
