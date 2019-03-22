@@ -19,6 +19,7 @@ data Tree = ProgramNode [Tree]
           | BreakNode
           | ContinueNode
           | ConstantNode Int                      -- expressions
+          | FuncCallNode String [Tree]
           | NullExprNode
           | VarNode String
           | UnaryNode Tree Operator
