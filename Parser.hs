@@ -319,8 +319,8 @@ parseOptionalAssign (id:equ:toks) =
 - elements of loops: (i = 0; i < 10; i++)
 -}
 parseExprStatement :: [Token] -> (Tree, [Token])
-parseExprStatement toks =
-        let (exprTree, toks') = parseExpression toks
+parseExprStatement allToks@(first:toks) =
+        let (exprTree, toks') = parseExpression allToks
             in
         if lookAhead toks' /= TokSemiColon
            then error $ errorMessage SemiColon
