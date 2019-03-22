@@ -135,8 +135,21 @@ parseStatement allToks@(first:toks) =
              TokKeyword Continue -> parseContinue toks
              TokOpenBrace        -> parseCompoundStmt toks
              TokSemiColon        -> parseNullStatement toks
-             TokIdent id         -> parseAssignment allToks
+             TokIdent id         -> parseIdentifier allToks
              _                   -> parseExprStatement allToks
+
+
+parseIdentifier :: [Token] -> (Tree, [Token])
+parseIdentifier allToks@(first:second:toks) =
+        case second of
+             TokAssign    -> parseAssignment allToks
+             TokOpenParen -> parseFunctionCall allToks
+             _            -> parseExprStatement allToks
+
+
+
+parseFunctionCall :: [Token] -> (Tree, [Token])
+parseFunctionCall = undefined
 
 
 parseAssignment :: [Token] -> (Tree, [Token])
@@ -299,6 +312,13 @@ parseOptionalAssign (id:equ:toks) =
              _ -> (Nothing, (equ:toks))
 
 
+{-
+- Parses expressions where a semi-colon is required afterwards
+-
+- expression statements: 2 + 2;
+-
+- elements of loops: (i = 0; i < 10; i++)
+-}
 parseExprStatement :: [Token] -> (Tree, [Token])
 parseExprStatement toks =
         let (exprTree, toks') = parseExpression toks
