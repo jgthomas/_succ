@@ -147,7 +147,16 @@ parseIdentifier allToks@(first:second:toks) =
 
 
 parseFunctionCall :: [Token] -> (Tree, [Token])
-parseFunctionCall = undefined
+parseFunctionCall allToks@(id:paren:toks) =
+        if paren /= TokOpenParen
+           then error $ errorMessage OpenParen
+           else
+        let (funcArgList, toks') = parseFunctionArgs [] (paren:toks)
+            in
+        case id of
+             TokIdent funcName ->
+                     (FuncCallNode funcName funcArgList, toks')
+             _ -> error "Invalid function arguments"
 
 
 parseFunctionArgs :: [Tree] -> [Token] -> ([Tree], [Token])
