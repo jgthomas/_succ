@@ -14,10 +14,8 @@ import SymTab (Evaluator(..), newSymTab)
 
 main :: IO()
 main = do
-        --print $ tokenize "int fool() { return 1; } int main(int a) { int b = a; return b * 2; }"
         print $ parse $ tokenize "int main() { dog(1); return 2; }"
-        print $ parse $ tokenize "int main() { dog(cat()); return 2; }"
-        --print $ parse $ tokenize "int main(int a) { int b = a; return b * 2; }"
+        print $ parse $ tokenize "int main() { dog(cat(mouse(), 12), 2, a); return 2; }"
         args <- getArgs
         let infileName = head args
         handle <- openFile infileName ReadMode
