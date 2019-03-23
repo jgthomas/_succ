@@ -433,7 +433,7 @@ parseTerm toks =
 
 
 parseFactor :: [Token] -> (Tree, [Token])
-parseFactor all@(next:toks) =
+parseFactor allToks@(next:toks) =
         case next of
              (TokConstInt n) -> (ConstantNode n, toks)
              (TokIdent str)  -> (VarNode str, toks)
@@ -448,7 +448,7 @@ parseFactor all@(next:toks) =
                      if lookAhead toks' /= TokCloseParen
                         then error $ errorMessage CloseParen
                         else (exprTree, accept toks')
-             _ ->  error $ errorMessage ParseError ++ show all
+             _ ->  error $ errorMessage ParseError ++ show allToks
 
 
 parseBinaryExp :: Tree
