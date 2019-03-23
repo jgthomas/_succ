@@ -27,6 +27,7 @@ type LocalScope = M.Map String Int
 type FunctionScope = M.Map Int LocalScope
 type ProgramScope = M.Map String FunctionScope
 
+type FuncStates = M.Map String FuncState
 
 data FuncState = Fs { paramCount   :: Int
                     , argCount     :: Int
@@ -37,7 +38,7 @@ data FuncState = Fs { paramCount   :: Int
 data SymTab = Tab { labelNo     :: Int
                   , offset      :: Int
                   , nameStack   :: Stack String
-                  , funcStates  :: M.Map String FuncState
+                  , funcStates  :: FuncStates
                   , scopeLevels :: M.Map String Int
                   , scopesData  :: ProgramScope }
             deriving Show
@@ -169,6 +170,12 @@ addVariable varName = do
         currOff <- currentOffset
         store varName currOff
         incrementOffset currOff
+
+
+addFuncParam :: String -> Evaluator Int
+addFuncParam varName = do
+        currFuncName <- currentFunction
+        setFuncParam currFuncName varName
 
 
 {-
@@ -382,6 +389,24 @@ initFuncState name = Ev $ \symTab ->
             symTab' = symTab { funcStates = M.insert name newFuncState states }
             in
         (name, symTab')
+
+
+getFuncStates :: Evaluator FuncStates
+getFuncStates = Ev $ \symTab ->
+        let states = funcStates symTab
+            in
+        (states, symTab)
+
+
+getState :: String -> FuncStates -> Evaluator FuncState
+getState funcName funcStates = Ev $ \symTab ->
+        case M.lookup funcName funcStates of
+             Just state -> (state, symTab)
+             Nothing    -> error $ "No state initiated for function: " ++ funcName
+
+
+setFuncParam :: String -> String -> Evaluator Int
+setFuncParam = undefined
 
 
 -- convenience 'value' functions
