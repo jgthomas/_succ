@@ -27,12 +27,8 @@ type LocalScope = M.Map String Int
 type FunctionScope = M.Map Int LocalScope
 type ProgramScope = M.Map String FunctionScope
 
-type FuncStates = M.Map String FuncState
-
-data FuncState = Fs { paramCount   :: Int
-                    , argCount     :: Int
-                    , argRegisters :: M.Map String Int }
-            deriving Show
+type FuncParams = M.Map String Int
+type FuncStates = M.Map String FuncParams
 
 
 data SymTab = Tab { labelNo     :: Int
@@ -91,7 +87,6 @@ initFunction :: String -> Evaluator Bool
 initFunction name = do
         pushFunctionName name
         newScopeRecord name
-        initFuncState name
         progScope <- updateProgramScope name M.empty
         funcScope <- getFunctionScope name progScope
         funcScope' <- updateFunctionScope baseScope M.empty funcScope
@@ -170,12 +165,6 @@ addVariable varName = do
         currOff <- currentOffset
         store varName currOff
         incrementOffset currOff
-
-
-addFuncParam :: String -> Evaluator Int
-addFuncParam varName = do
-        currFuncName <- currentFunction
-        setFuncParam currFuncName varName
 
 
 {-
@@ -375,38 +364,6 @@ newScopeRecord name = Ev $ \symTab ->
             symTab' = symTab { scopeLevels = M.insert name baseScope scopes }
             in
         (baseScope, symTab')
-
-
--- querying and updating the function state
-
-newFuncState :: FuncState
-newFuncState = Fs 0 0 M.empty
-
-
-initFuncState :: String -> Evaluator String
-initFuncState name = Ev $ \symTab ->
-        let states = funcStates symTab
-            symTab' = symTab { funcStates = M.insert name newFuncState states }
-            in
-        (name, symTab')
-
-
-getFuncStates :: Evaluator FuncStates
-getFuncStates = Ev $ \symTab ->
-        let states = funcStates symTab
-            in
-        (states, symTab)
-
-
-getState :: String -> FuncStates -> Evaluator FuncState
-getState funcName funcStates = Ev $ \symTab ->
-        case M.lookup funcName funcStates of
-             Just state -> (state, symTab)
-             Nothing    -> error $ "No state initiated for function: " ++ funcName
-
-
-setFuncParam :: String -> String -> Evaluator Int
-setFuncParam = undefined
 
 
 -- convenience 'value' functions
