@@ -134,7 +134,11 @@ parseStatement allToks@(first:toks) =
              TokKeyword Break    -> parseBreak toks
              TokKeyword Continue -> parseContinue toks
              TokOpenBrace        -> parseCompoundStmt toks
-             TokIdent id         -> parseIdentifier allToks
+             TokIdent id         ->
+                     case lookAhead toks of
+                          TokAssign    -> parseAssignment allToks
+                          TokOpenParen -> parseFuncCallStmt allToks
+                          _            -> parseIdentifier allToks
              _                   -> parseExprStatement allToks
 
 
@@ -144,6 +148,15 @@ parseIdentifier allToks@(first:second:toks) =
              TokAssign    -> parseAssignment allToks
              TokOpenParen -> parseFunctionCall allToks
              _            -> parseExpression allToks
+
+
+parseFuncCallStmt :: [Token] -> (Tree, [Token])
+parseFuncCallStmt allToks@(id:paren:toks) =
+        let (funcCallTree, toks') = parseFunctionCall allToks
+            in
+        if lookAhead toks' /= TokSemiColon
+           then error $ errorMessage SemiColon
+           else (funcCallTree, accept toks')
 
 
 parseFunctionCall :: [Token] -> (Tree, [Token])
