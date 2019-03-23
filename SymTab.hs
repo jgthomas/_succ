@@ -28,6 +28,12 @@ type FunctionScope = M.Map Int LocalScope
 type ProgramScope = M.Map String FunctionScope
 
 
+data FuncState = Fs { paramCount   :: Int
+                    , argCount     :: Int
+                    , argRegisters :: M.Map String Int }
+            deriving Show
+
+
 data SymTab = Tab { labelNo     :: Int
                   , offset      :: Int
                   , nameStack   :: Stack String
