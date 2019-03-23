@@ -377,7 +377,7 @@ newScopeRecord name = Ev $ \symTab ->
         (baseScope, symTab')
 
 
--- querying and updating the function state object
+-- querying and updating the function state
 
 newFuncState :: FuncState
 newFuncState = Fs 0 0 M.empty
