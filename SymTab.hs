@@ -37,6 +37,7 @@ data FuncState = Fs { paramCount   :: Int
 data SymTab = Tab { labelNo     :: Int
                   , offset      :: Int
                   , nameStack   :: Stack String
+                  , funcStates  :: M.Map String FuncState
                   , scopeLevels :: M.Map String Int
                   , scopesData  :: ProgramScope }
             deriving Show
@@ -80,6 +81,7 @@ newSymTab = Tab
             firstLabel
             memOffsetSize
             newStack
+            M.empty
             M.empty
             M.empty
 
@@ -365,6 +367,20 @@ newScopeRecord name = Ev $ \symTab ->
             symTab' = symTab { scopeLevels = M.insert name baseScope scopes }
             in
         (baseScope, symTab')
+
+
+-- querying and updating the function state object
+
+newFuncState :: FuncState
+newFuncState = Fs 0 0 M.empty
+
+
+initFuncState :: String -> Evaluator String
+initFuncState name = Ev $ \symTab ->
+        let states = funcStates symTab
+            symTab' = symTab { funcStates = M.insert name newFuncState states }
+            in
+        (name, symTab')
 
 
 -- convenience 'value' functions
