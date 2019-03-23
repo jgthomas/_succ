@@ -367,6 +367,8 @@ newScopeRecord name = Ev $ \symTab ->
         (baseScope, symTab')
 
 
+-- querying and updating the state of the parameters
+
 newParamRecord :: String -> Evaluator String
 newParamRecord funcName = Ev $ \symTab ->
         let paramMap = funcStates symTab
