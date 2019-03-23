@@ -87,6 +87,7 @@ initFunction :: String -> Evaluator Bool
 initFunction name = do
         pushFunctionName name
         newScopeRecord name
+        newParamRecord name
         progScope <- updateProgramScope name M.empty
         funcScope <- getFunctionScope name progScope
         funcScope' <- updateFunctionScope baseScope M.empty funcScope
@@ -364,6 +365,14 @@ newScopeRecord name = Ev $ \symTab ->
             symTab' = symTab { scopeLevels = M.insert name baseScope scopes }
             in
         (baseScope, symTab')
+
+
+newParamRecord :: String -> Evaluator String
+newParamRecord funcName = Ev $ \symTab ->
+        let paramMap = funcStates symTab
+            symTab' = symTab { funcStates = M.insert funcName M.empty paramMap }
+            in
+        (funcName, symTab')
 
 
 -- convenience 'value' functions
