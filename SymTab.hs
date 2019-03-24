@@ -389,53 +389,6 @@ newFuncState funcName = Ev $ \symTab ->
         (funcName, symTab')
 
 
--- querying and updating the state of the parameters
-
---newParamRecord :: String -> Evaluator String
---newParamRecord funcName = Ev $ \symTab ->
---        let paramMap = funcStates symTab
---            symTab' = symTab { funcStates = M.insert funcName M.empty paramMap }
---            in
---        (funcName, symTab')
---
---
---getFunctionStates :: Evaluator FuncStates
---getFunctionStates = Ev $ \symTab ->
---        let states = funcStates symTab
---            in
---        (states, symTab)
---
---
---getState :: String -> FuncStates -> Evaluator FuncParams
---getState funcName allStates = Ev $ \symTab ->
---        case M.lookup funcName allStates of
---             Just state -> (state, symTab)
---             Nothing    -> error $ "No state record for: " ++ funcName
---
---
---addParam :: String -> Int -> FuncParams -> Evaluator FuncParams
---addParam paramName paramPos state =
---        let state' = M.insert paramName paramPos state
---            in
---        return state'
---
---
---getParam :: String -> FuncParams -> Evaluator Int
---getParam paramName state = Ev $ \symTab ->
---        case M.lookup paramName state of
---             Just pos -> (pos, symTab)
---             Nothing  -> error $ "Parameter not found: " ++ paramName
---
---
---updateFunctionStates :: String -> FuncParams -> Evaluator FuncStates
---updateFunctionStates funcName funcState = Ev $ \symTab ->
---        let states = funcStates symTab
---            symTab' = symTab { funcStates = M.insert funcName funcState states }
---            states' = funcStates symTab'
---            in
---        (states', symTab')
-
-
 -- convenience 'value' functions
 
 notFound :: Int
