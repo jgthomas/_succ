@@ -31,6 +31,12 @@ type FuncParams = M.Map String Int
 type FuncStates = M.Map String FuncParams
 
 
+data FuncState = Fs { paramCount :: Int
+                    , argCount   :: Int
+                    , parameters :: FuncParams }
+               deriving Show
+
+
 data SymTab = Tab { labelNo     :: Int
                   , offset      :: Int
                   , nameStack   :: Stack String
