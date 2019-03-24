@@ -46,6 +46,15 @@ genASM (ParamNode param) = do
                     return ""
             _ -> error $ "Invalid parameter: " ++ (show param)
 
+genASM (FuncCallNode name argList) = do
+        argsString <- mapM genASM argList
+        return $ concat argsString
+
+genASM (ArgNode arg) = do
+        argAsm <- genASM arg
+        argPos <- nextArgumentPos
+        return $ argAsm ++ putInRegister (selectRegister argPos)
+
 genASM (CompoundStmtNode blockItems) = do
         initScope
         blockLines <- mapM genASM blockItems
@@ -286,7 +295,7 @@ emitJump j n
 
 
 putInRegister :: String -> String
-putInRegister reg = "movq %rax, " ++ reg
+putInRegister reg = "movq %rax, " ++ reg ++ "\n"
 
 
 selectRegister :: Int -> String
