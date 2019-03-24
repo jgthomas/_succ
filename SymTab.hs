@@ -176,6 +176,9 @@ addVariable varName = do
         incrementOffset currOff
 
 
+-- function state manipulation
+
+
 {-
 - Internal functions
 -}
@@ -405,6 +408,16 @@ setFunctionState funcName funcState = Ev $ \symTab ->
             states' = funcStates symTab
             in
         (states', symTab')
+
+
+addParameter :: String -> FuncState -> FuncState
+addParameter paramName funcState =
+        let params = parameters funcState
+            pos = paramCount funcState
+            funcState' = funcState { paramCount = pos + 1 }
+            funcState'' = funcState' { parameters = M.insert paramName pos params }
+            in
+        funcState''
 
 
 -- convenience 'value' functions
