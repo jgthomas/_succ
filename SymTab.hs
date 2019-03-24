@@ -95,7 +95,7 @@ initFunction :: String -> Evaluator Bool
 initFunction name = do
         pushFunctionName name
         newScopeRecord name
-        --newParamRecord name
+        newFuncState name
         progScope <- updateProgramScope name M.empty
         funcScope <- getFunctionScope name progScope
         funcScope' <- updateFunctionScope baseScope M.empty funcScope
