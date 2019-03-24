@@ -21,6 +21,7 @@ data Tree = ProgramNode [Tree]
           | ConstantNode Int                      -- expressions
           | FuncCallNode String [Tree]
           | ParamNode Tree
+          | ArgNode Tree
           | NullExprNode
           | VarNode String
           | UnaryNode Tree Operator
@@ -185,14 +186,23 @@ parseFunctionArgs argList (first:second:toks)
         | first == TokComma && second == TokCloseParen = error "Missing argument"
         | otherwise = case second of
                            TokCloseParen -> (argList, toks)
-                           TokIdent id   ->
-                                   let (argTree, toks') = parseIdentifier (second:toks)
-                                       in
-                                   parseFunctionArgs (argList ++ [argTree]) toks'
                            _             ->
-                                   let (argTree, toks') = parseExpression (second:toks)
+                                   let (argTree, toks') = parseArgument (second:toks)
                                        in
                                    parseFunctionArgs (argList ++ [argTree]) toks'
+
+
+parseArgument :: [Token] -> (Tree, [Token])
+parseArgument (first:toks) =
+        case first of
+             TokIdent id ->
+                     let (argTree, toks') = parseIdentifier (first:toks)
+                         in
+                     (ArgNode argTree, toks')
+             _           ->
+                     let (argTree, toks') = parseExpression (first:toks)
+                         in
+                     (ArgNode argTree, toks')
 
 
 parseAssignment :: [Token] -> (Tree, [Token])
