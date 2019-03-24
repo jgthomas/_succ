@@ -28,13 +28,15 @@ type FunctionScope = M.Map Int LocalScope
 type ProgramScope = M.Map String FunctionScope
 
 type FuncParams = M.Map String Int
-type FuncStates = M.Map String FuncParams
 
 
 data FuncState = Fs { paramCount :: Int
                     , argCount   :: Int
                     , parameters :: FuncParams }
                deriving Show
+
+
+type FuncStates = M.Map String FuncState
 
 
 data SymTab = Tab { labelNo     :: Int
@@ -93,7 +95,7 @@ initFunction :: String -> Evaluator Bool
 initFunction name = do
         pushFunctionName name
         newScopeRecord name
-        newParamRecord name
+        --newParamRecord name
         progScope <- updateProgramScope name M.empty
         funcScope <- getFunctionScope name progScope
         funcScope' <- updateFunctionScope baseScope M.empty funcScope
@@ -373,51 +375,57 @@ newScopeRecord name = Ev $ \symTab ->
         (baseScope, symTab')
 
 
+-- function state
+
+newFuncState :: FuncState
+newFuncState = Fs 0 0 M.empty
+
+
 -- querying and updating the state of the parameters
 
-newParamRecord :: String -> Evaluator String
-newParamRecord funcName = Ev $ \symTab ->
-        let paramMap = funcStates symTab
-            symTab' = symTab { funcStates = M.insert funcName M.empty paramMap }
-            in
-        (funcName, symTab')
-
-
-getFunctionStates :: Evaluator FuncStates
-getFunctionStates = Ev $ \symTab ->
-        let states = funcStates symTab
-            in
-        (states, symTab)
-
-
-getState :: String -> FuncStates -> Evaluator FuncParams
-getState funcName allStates = Ev $ \symTab ->
-        case M.lookup funcName allStates of
-             Just state -> (state, symTab)
-             Nothing    -> error $ "No state record for: " ++ funcName
-
-
-addParam :: String -> Int -> FuncParams -> Evaluator FuncParams
-addParam paramName paramPos state =
-        let state' = M.insert paramName paramPos state
-            in
-        return state'
-
-
-getParam :: String -> FuncParams -> Evaluator Int
-getParam paramName state = Ev $ \symTab ->
-        case M.lookup paramName state of
-             Just pos -> (pos, symTab)
-             Nothing  -> error $ "Parameter not found: " ++ paramName
-
-
-updateFunctionStates :: String -> FuncParams -> Evaluator FuncStates
-updateFunctionStates funcName funcState = Ev $ \symTab ->
-        let states = funcStates symTab
-            symTab' = symTab { funcStates = M.insert funcName funcState states }
-            states' = funcStates symTab'
-            in
-        (states', symTab')
+--newParamRecord :: String -> Evaluator String
+--newParamRecord funcName = Ev $ \symTab ->
+--        let paramMap = funcStates symTab
+--            symTab' = symTab { funcStates = M.insert funcName M.empty paramMap }
+--            in
+--        (funcName, symTab')
+--
+--
+--getFunctionStates :: Evaluator FuncStates
+--getFunctionStates = Ev $ \symTab ->
+--        let states = funcStates symTab
+--            in
+--        (states, symTab)
+--
+--
+--getState :: String -> FuncStates -> Evaluator FuncParams
+--getState funcName allStates = Ev $ \symTab ->
+--        case M.lookup funcName allStates of
+--             Just state -> (state, symTab)
+--             Nothing    -> error $ "No state record for: " ++ funcName
+--
+--
+--addParam :: String -> Int -> FuncParams -> Evaluator FuncParams
+--addParam paramName paramPos state =
+--        let state' = M.insert paramName paramPos state
+--            in
+--        return state'
+--
+--
+--getParam :: String -> FuncParams -> Evaluator Int
+--getParam paramName state = Ev $ \symTab ->
+--        case M.lookup paramName state of
+--             Just pos -> (pos, symTab)
+--             Nothing  -> error $ "Parameter not found: " ++ paramName
+--
+--
+--updateFunctionStates :: String -> FuncParams -> Evaluator FuncStates
+--updateFunctionStates funcName funcState = Ev $ \symTab ->
+--        let states = funcStates symTab
+--            symTab' = symTab { funcStates = M.insert funcName funcState states }
+--            states' = funcStates symTab'
+--            in
+--        (states', symTab')
 
 
 -- convenience 'value' functions
