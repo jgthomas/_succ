@@ -39,5 +39,5 @@ main = do
                        writeFile outfileName asm
 
         system $ "gcc -g " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
-        system $ "rm " ++ outfileName
+        --system $ "rm " ++ outfileName
         hClose handle
