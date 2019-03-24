@@ -193,6 +193,13 @@ parameterPosition paramName = do
         paramPos paramName funcState
 
 
+parameterTotal :: Evaluator Int
+parameterTotal = do
+        currFuncName <- currentFunction
+        funcState <- getFunctionState currFuncName
+        return $ paramCount funcState
+
+
 {-
 - Internal functions
 -}
