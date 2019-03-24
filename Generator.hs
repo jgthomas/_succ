@@ -278,6 +278,20 @@ emitJump j n
         | otherwise = error "Unrecognised type of jump"
 
 
+putInRegister :: String -> String
+putInRegister reg = "movq %rax, " ++ reg
+
+
+selectRegister :: Int -> String
+selectRegister callConvSeq
+        | callConvSeq == 0 = "%rdi"
+        | callConvSeq == 1 = "%rsi"
+        | callConvSeq == 2 = "%rdx"
+        | callConvSeq == 3 = "%rcx"
+        | callConvSeq == 4 = "%r8"
+        | callConvSeq == 5 = "%r9"
+
+
 emitLabel :: Int -> String
 emitLabel n = "_label_" ++ (show n) ++ ":\n"
 
