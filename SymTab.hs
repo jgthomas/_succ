@@ -389,6 +389,13 @@ newFuncState funcName = Ev $ \symTab ->
         (funcName, symTab')
 
 
+getFuncState :: Evaluator FuncStates
+getFuncState = Ev $ \symTab ->
+        let states = funcStates symTab
+            in
+        (states, symTab)
+
+
 -- convenience 'value' functions
 
 notFound :: Int
