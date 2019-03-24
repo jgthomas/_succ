@@ -200,6 +200,15 @@ parameterTotal = do
         return $ paramCount funcState
 
 
+nextArgument :: Evaluator Int
+nextArgument = do
+        currFuncName <- currentFunction
+        funcState <- getFunctionState currFuncName
+        funcState' <- incrementArgCount funcState
+        setFunctionState currFuncName funcState'
+        return $ argCount funcState
+
+
 {-
 - Internal functions
 -}
@@ -450,6 +459,14 @@ paramPos paramName funcState =
                      return pos
              Nothing  ->
                      error $ "No parameter of name: " ++ paramName
+
+
+incrementArgCount :: FuncState -> Evaluator FuncState
+incrementArgCount funcState =
+        let count = argCount funcState
+            funcState' = funcState { argCount = count + 1 }
+            in
+        return funcState'
 
 
 -- convenience 'value' functions
