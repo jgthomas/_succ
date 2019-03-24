@@ -48,7 +48,7 @@ genASM (ParamNode param) = do
 
 genASM (FuncCallNode name argList) = do
         argsString <- mapM genASM argList
-        return $ concat argsString
+        return $ concat argsString ++ (makeFunctionCall name)
 
 genASM (ArgNode arg) = do
         argAsm <- genASM arg
@@ -306,6 +306,10 @@ selectRegister callConvSeq
         | callConvSeq == 3 = "%rcx"
         | callConvSeq == 4 = "%r8"
         | callConvSeq == 5 = "%r9"
+
+
+makeFunctionCall :: String -> String
+makeFunctionCall funcName = "call " ++ funcName ++ "\n"
 
 
 emitLabel :: Int -> String
