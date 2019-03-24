@@ -186,6 +186,13 @@ addParameter paramName = do
         setFunctionState currFuncName funcState'
 
 
+parameterPosition :: String -> Evaluator Int
+parameterPosition paramName = do
+        currFuncName <- currentFunction
+        funcState <- getFunctionState currFuncName
+        paramPos paramName funcState
+
+
 {-
 - Internal functions
 -}
@@ -425,6 +432,17 @@ addParam paramName funcState =
             funcState'' = funcState' { parameters = M.insert paramName pos params }
             in
         return funcState''
+
+
+paramPos :: String -> FuncState -> Evaluator Int
+paramPos paramName funcState =
+        let params = parameters funcState
+            in
+        case M.lookup paramName params of
+             Just pos ->
+                     return pos
+             Nothing  ->
+                     error $ "No parameter of name: " ++ paramName
 
 
 -- convenience 'value' functions
