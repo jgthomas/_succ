@@ -39,6 +39,13 @@ genASM (FunctionNode name paramList statementList) = do
                                 return $ functionName name
                                          ++ concat funcStmnts
 
+genASM (ParamNode param) = do
+       case param of
+            VarNode name -> do
+                    addParameter name
+                    return ""
+            _ -> error $ "Invalid parameter: " ++ (show param)
+
 genASM (CompoundStmtNode blockItems) = do
         initScope
         blockLines <- mapM genASM blockItems
