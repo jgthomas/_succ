@@ -20,6 +20,7 @@ data Tree = ProgramNode [Tree]
           | ContinueNode
           | ConstantNode Int                      -- expressions
           | FuncCallNode String [Tree]
+          | ParamNode Tree
           | NullExprNode
           | VarNode String
           | UnaryNode Tree Operator
@@ -95,15 +96,20 @@ parseFunctionParams paramList (first:second:toks)
                            TokCloseParen -> (paramList, toks)
                            (TokKeyword typ)
                               | validType typ ->
-                                     let (paramTree, toks') = parseExpression toks
+                                     let (paramTree, toks') = parseParam toks
                                          in
-                                     case paramTree of
-                                          VarNode str -> parseFunctionParams
-                                                         (paramList ++ [paramTree])
-                                                         toks'
-                                          _           -> error "Invalid function parameter"
+                                     parseFunctionParams (paramList ++ [paramTree]) toks'
                               | otherwise -> error "Invalid parameter type"
-                           _ -> error "Invalid parameter"
+                           _ -> error "Invalid parameter keyword"
+
+
+parseParam :: [Token] -> (Tree, [Token])
+parseParam toks =
+        let (paramTree, toks') = parseExpression toks
+            in
+        case paramTree of
+             VarNode str -> (ParamNode paramTree, toks')
+             _           -> error "Invalid function parameter"
 
 
 parseBlock :: [Tree] -> [Token] -> ([Tree], [Token])
