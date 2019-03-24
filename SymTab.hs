@@ -200,8 +200,8 @@ parameterTotal = do
         return $ paramCount funcState
 
 
-nextArgument :: Evaluator Int
-nextArgument = do
+nextArgumentPos :: Evaluator Int
+nextArgumentPos = do
         currFuncName <- currentFunction
         funcState <- getFunctionState currFuncName
         funcState' <- incrementArgCount funcState
