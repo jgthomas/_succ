@@ -13,7 +13,12 @@ module SymTab (Evaluator(..),
                setContinue,
                getContinue,
                initFunction,
-               closeFunction) where
+               closeFunction,
+               addParameter,
+               parameterPosition,
+               parameterTotal,
+               nextArgumentPos)
+        where
 
 
 import Lexer
