@@ -377,8 +377,16 @@ newScopeRecord name = Ev $ \symTab ->
 
 -- function state
 
-newFuncState :: FuncState
-newFuncState = Fs 0 0 M.empty
+makeFuncState :: FuncState
+makeFuncState = Fs 0 0 M.empty
+
+
+newFuncState :: String -> Evaluator String
+newFuncState funcName = Ev $ \symTab ->
+        let states = funcStates symTab
+            symTab' = symTab { funcStates = M.insert funcName makeFuncState states }
+            in
+        (funcName, symTab')
 
 
 -- querying and updating the state of the parameters
