@@ -178,6 +178,13 @@ addVariable varName = do
 
 -- function state manipulation
 
+addParameter :: String -> Evaluator FuncStates
+addParameter paramName = do
+        currFuncName <- currentFunction
+        funcState <- getFunctionState currFuncName
+        funcState' <- addParam paramName funcState
+        setFunctionState currFuncName funcState'
+
 
 {-
 - Internal functions
@@ -410,14 +417,14 @@ setFunctionState funcName funcState = Ev $ \symTab ->
         (states', symTab')
 
 
-addParameter :: String -> FuncState -> FuncState
-addParameter paramName funcState =
+addParam :: String -> FuncState -> Evaluator FuncState
+addParam paramName funcState =
         let params = parameters funcState
             pos = paramCount funcState
             funcState' = funcState { paramCount = pos + 1 }
             funcState'' = funcState' { parameters = M.insert paramName pos params }
             in
-        funcState''
+        return funcState''
 
 
 -- convenience 'value' functions
