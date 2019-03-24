@@ -389,11 +389,22 @@ newFuncState funcName = Ev $ \symTab ->
         (funcName, symTab')
 
 
-getFuncState :: Evaluator FuncStates
-getFuncState = Ev $ \symTab ->
+getFunctionState :: String -> Evaluator FuncState
+getFunctionState funcName = Ev $ \symTab ->
         let states = funcStates symTab
             in
-        (states, symTab)
+        case M.lookup funcName states of
+             Just state -> (state, symTab)
+             Nothing    -> error $ "No state defined for: " ++ funcName
+
+
+setFunctionState :: String -> FuncState -> Evaluator FuncStates
+setFunctionState funcName funcState = Ev $ \symTab ->
+        let states = funcStates symTab
+            symTab' = symTab { funcStates = M.insert funcName funcState states }
+            states' = funcStates symTab
+            in
+        (states', symTab')
 
 
 -- convenience 'value' functions
