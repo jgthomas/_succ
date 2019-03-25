@@ -443,7 +443,7 @@ parseFunctionCall allToks@(id:paren:toks) =
         case id of
              TokIdent funcName ->
                      (FuncCallNode funcName funcArgList, toks')
-             _ -> error "Invalid function arguments"
+             _ -> error $ "Invalid function argument: " ++ (show id)
 
 
 parseFunctionArgs :: [Tree] -> [Token] -> ([Tree], [Token])
