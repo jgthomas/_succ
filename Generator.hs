@@ -163,11 +163,15 @@ genASM (ExprStmtNode expression) = do
 
 genASM (ContinueNode) = do
         continueLabel <- getContinue
-        return $ emitJump JMP continueLabel
+        if continueLabel == notFound
+           then error "Continue statement outside loop"
+           else return $ emitJump JMP continueLabel
 
 genASM (BreakNode) = do
         breakLabel <- getBreak
-        return $ emitJump JMP breakLabel
+        if breakLabel == notFound
+           then error "Break statement outside loop"
+           else return $ emitJump JMP breakLabel
 
 genASM (ReturnNode tree) = do
         rtn <- genASM tree
