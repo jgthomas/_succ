@@ -232,7 +232,7 @@ getOffset name = do
 findOffset :: String -> Int -> String -> Evaluator Int
 findOffset func scope name =
         if scope == notFound
-           then error $ "Undefined variable: '" ++ name ++ "'"
+           then return notFound
            else do
                    offset <- lookUp func scope name
                    if offset == notFound
