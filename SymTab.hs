@@ -17,7 +17,8 @@ module SymTab (Evaluator(..),
                addParameter,
                parameterPosition,
                parameterTotal,
-               nextArgumentPos)
+               nextArgumentPos,
+               notFound)
         where
 
 
