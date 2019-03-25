@@ -143,28 +143,10 @@ parseStatement allToks@(first:toks) =
              TokOpenBrace        -> parseCompoundStmt toks
              TokIdent id         ->
                      case lookAhead toks of
-                          TokAssign    -> parseAssignment allToks
-                          TokOpenParen -> parseFuncCallStmt allToks
+                          TokAssign    -> parseExprStatement allToks
+                          TokOpenParen -> parseExprStatement allToks
                           _            -> parseExpression allToks
              _ -> parseExprStatement allToks
-
-
-parseFuncCallStmt :: [Token] -> (Tree, [Token])
-parseFuncCallStmt allToks@(id:paren:toks) =
-        let (funcCallTree, toks') = parseFunctionCall allToks
-            in
-        if lookAhead toks' /= TokSemiColon
-           then error $ errorMessage SemiColon
-           else (funcCallTree, accept toks')
-
-
-parseAssignment :: [Token] -> (Tree, [Token])
-parseAssignment toks =
-        let (exprTree, toks') = parseExpression toks
-            in
-        if lookAhead toks' /= TokSemiColon
-           then error $ errorMessage SemiColon
-           else (exprTree, accept toks')
 
 
 parseBreak :: [Token] -> (Tree, [Token])
@@ -326,6 +308,11 @@ parseOptionalAssign (id:equ:toks) =
 - expression statements: 2 + 2;
 -
 - elements of loops: (i = 0; i < 10; i++)
+-
+- assignments: a = 10;
+-
+- function calls: dog(8);
+-
 -}
 parseExprStatement :: [Token] -> (Tree, [Token])
 parseExprStatement allToks@(first:toks) =
