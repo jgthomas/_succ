@@ -16,7 +16,7 @@ main :: IO()
 main = do
         --print $ tokenize "int dog(int x) { return 5; } int main() { return dog(6); }"
         print $ parse $ tokenize "int main() { dog(1); return 2; }"
-        --print $ parse $ tokenize "int dog(int x) { return 5; } int main() { return dog(6); }"
+        print $ parse $ tokenize "int dog(int x) { return 5; } int main() { return dog(6); }"
         --print $ parse $ tokenize "int dog(int x) { return x; } int main() { return 2; }"
         --print $ parse $ tokenize "int main() { dog(cat(mouse(), 12), 2, a); return 2; }"
         args <- getArgs
