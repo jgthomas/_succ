@@ -149,6 +149,32 @@ parseStatement allToks@(first:toks) =
              _ -> parseExprStatement allToks
 
 
+{-
+- Parses expressions where a semi-colon is required afterwards
+-
+- null expression: ;
+-
+- expression statements: 2 + 2;
+-
+- elements of loops: (i = 0; i < 10; i++)
+-
+- assignments: a = 10;
+-
+- function calls: dog(8);
+-
+-}
+parseExprStatement :: [Token] -> (Tree, [Token])
+parseExprStatement allToks@(first:toks) =
+        case first of
+             TokSemiColon -> parseNullStatement toks
+             _            ->
+                     let (exprTree, toks') = parseExpression allToks
+                         in
+                     if lookAhead toks' /= TokSemiColon
+                        then error $ errorMessage SemiColon
+                        else (ExprStmtNode exprTree, accept toks')
+
+
 parseBreak :: [Token] -> (Tree, [Token])
 parseBreak (first:toks) =
         if first /= TokSemiColon
@@ -298,32 +324,6 @@ parseOptionalAssign (id:equ:toks) =
                          in
                      (Just exprTree, toks')
              _ -> (Nothing, (equ:toks))
-
-
-{-
-- Parses expressions where a semi-colon is required afterwards
--
-- null expression: ;
--
-- expression statements: 2 + 2;
--
-- elements of loops: (i = 0; i < 10; i++)
--
-- assignments: a = 10;
--
-- function calls: dog(8);
--
--}
-parseExprStatement :: [Token] -> (Tree, [Token])
-parseExprStatement allToks@(first:toks) =
-        case first of
-             TokSemiColon -> parseNullStatement toks
-             _            ->
-                     let (exprTree, toks') = parseExpression allToks
-                         in
-                     if lookAhead toks' /= TokSemiColon
-                        then error $ errorMessage SemiColon
-                        else (ExprStmtNode exprTree, accept toks')
 
 
 parseExpression :: [Token] -> (Tree, [Token])
