@@ -88,6 +88,9 @@ accept (t:ts) = ts
 
 identifier :: Char -> String -> [Token]
 identifier c cs =
+    if isDigit c
+       then error $ "Invalid start to identifier: " ++ (show c)
+       else
     let (str, cs') = span isAlphaNum cs
         in case (c:str) of
                 "int"      -> TokKeyword Int       : tokenize cs'
