@@ -461,10 +461,8 @@ paramPos paramName funcState =
         let params = parameters funcState
             in
         case M.lookup paramName params of
-             Just pos ->
-                     return pos
-             Nothing  ->
-                     error $ "No parameter of name: " ++ paramName
+             Just pos -> return pos
+             Nothing  -> return notFound
 
 
 incrementArgCount :: FuncState -> Evaluator FuncState
