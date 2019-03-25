@@ -1,6 +1,4 @@
-
 module Generator (genASM) where
-
 
 import Lexer (Operator(..))
 import Parser (Tree(..))
@@ -203,7 +201,11 @@ genASM (VarNode varName) = do
         offset <- variableOffset varName
         if offset /= notFound
            then return $ varOffStack offset
-           else error $ "Undefined variable: '" ++ varName
+           else do
+                   argPos <- parameterPosition varName
+                   if argPos /= notFound
+                      then return $ getFromRegister $ selectRegister argPos
+                      else error $ "Undefined variable: '" ++ varName
 
 genASM (NullExprNode) = return ""
 
@@ -301,6 +303,10 @@ emitJump j n
 
 putInRegister :: String -> String
 putInRegister reg = "movq %rax, " ++ reg ++ "\n"
+
+
+getFromRegister :: String -> String
+getFromRegister reg = "movq " ++ reg ++ ", %rax\n"
 
 
 selectRegister :: Int -> String

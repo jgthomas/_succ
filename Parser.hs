@@ -454,9 +454,16 @@ parseFunctionArgs argList (first:second:toks)
         | otherwise = case second of
                            TokCloseParen -> (argList, toks)
                            _             ->
-                                   let (argTree, toks') = parseExpression (second:toks)
+                                   let (argTree, toks') = parseArgument (second:toks)
                                        in
                                    parseFunctionArgs (argList ++ [argTree]) toks'
+
+
+parseArgument :: [Token] -> (Tree, [Token])
+parseArgument toks =
+        let (argTree, toks') = parseExpression toks
+            in
+        (ArgNode argTree, toks')
 
 
 nullExpr :: [Token] -> (Tree, [Token])
