@@ -150,14 +150,14 @@ genASM (DeclarationNode varName value) = do
 
 genASM (AssignmentNode varName value operator) = do
         offset <- variableOffset varName
-        if offset == notFound
-           then error $ "Undefined variable: '" ++ varName
-           else do
+        if offset /= notFound
+           then do
               assign <- genASM value
               adjustment <- stackPointerValue
               return $ assign
                        ++ varOnStack offset
                        ++ (adjustStackPointer adjustment)
+           else error $ "Undefined variable: '" ++ varName
 
 genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression
@@ -201,9 +201,9 @@ genASM (UnaryNode tree op) = do
 
 genASM (VarNode varName) = do
         offset <- variableOffset varName
-        if offset == notFound
-           then error $ "Undefined variable: '" ++ varName
-           else return $ varOffStack offset
+        if offset /= notFound
+           then return $ varOffStack offset
+           else error $ "Undefined variable: '" ++ varName
 
 genASM (NullExprNode) = return ""
 
