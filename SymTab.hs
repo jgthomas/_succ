@@ -18,6 +18,7 @@ module SymTab (Evaluator(..),
                parameterPosition,
                parameterTotal,
                nextArgumentPos,
+               resetArguments,
                notFound)
         where
 
@@ -213,6 +214,14 @@ nextArgumentPos = do
         funcState' <- incrementArgCount funcState
         setFunctionState currFuncName funcState'
         return $ argCount funcState
+
+
+resetArguments :: Evaluator FuncStates
+resetArguments = do
+        currFuncName <- currentFunction
+        funcState <- getFunctionState currFuncName
+        funcState' <- resetArgs funcState
+        setFunctionState currFuncName funcState'
 
 
 {-
@@ -469,6 +478,13 @@ incrementArgCount :: FuncState -> Evaluator FuncState
 incrementArgCount funcState =
         let count = argCount funcState
             funcState' = funcState { argCount = count + 1 }
+            in
+        return funcState'
+
+
+resetArgs :: FuncState -> Evaluator FuncState
+resetArgs funcState =
+        let funcState' = funcState { argCount = 0 }
             in
         return funcState'
 

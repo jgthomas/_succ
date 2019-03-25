@@ -49,6 +49,7 @@ genASM (ParamNode param) = do
 
 genASM (FuncCallNode name argList) = do
         argsString <- mapM genASM argList
+        resetArguments
         return $ concat argsString ++ (makeFunctionCall name)
 
 genASM (ArgNode arg) = do
