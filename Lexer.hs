@@ -91,7 +91,7 @@ identifier c cs =
     if isDigit c
        then error $ "Invalid start to identifier: " ++ (show c)
        else
-    let (str, cs') = span isAlphaNum cs
+    let (str, cs') = span isValidInIdentifier cs
         in case (c:str) of
                 "int"      -> TokKeyword Int       : tokenize cs'
                 "return"   -> TokKeyword Return    : tokenize cs'
@@ -145,3 +145,6 @@ opSymbols = "+-*/~!|&<>=%"
 
 secondOpSymbols :: String
 secondOpSymbols = "=|&"
+
+isValidInIdentifier :: Char -> Bool
+isValidInIdentifier c = isAlphaNum c || c == '_'
