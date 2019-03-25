@@ -87,18 +87,19 @@ accept (t:ts) = ts
 
 
 identifier :: Char -> String -> [Token]
-identifier c cs = let (str, cs') = span isAlphaNum cs
-                      in case (c:str) of
-                              "int"      -> TokKeyword Int       : tokenize cs'
-                              "return"   -> TokKeyword Return    : tokenize cs'
-                              "if"       -> TokKeyword If        : tokenize cs'
-                              "else"     -> TokKeyword Else      : tokenize cs'
-                              "for"      -> TokKeyword For       : tokenize cs'
-                              "while"    -> TokKeyword While     : tokenize cs'
-                              "do"       -> TokKeyword Do        : tokenize cs'
-                              "break"    -> TokKeyword Break     : tokenize cs'
-                              "continue" -> TokKeyword Continue  : tokenize cs'
-                              _          -> TokIdent (c:str)     : tokenize cs'
+identifier c cs =
+    let (str, cs') = span isAlphaNum cs
+        in case (c:str) of
+                "int"      -> TokKeyword Int       : tokenize cs'
+                "return"   -> TokKeyword Return    : tokenize cs'
+                "if"       -> TokKeyword If        : tokenize cs'
+                "else"     -> TokKeyword Else      : tokenize cs'
+                "for"      -> TokKeyword For       : tokenize cs'
+                "while"    -> TokKeyword While     : tokenize cs'
+                "do"       -> TokKeyword Do        : tokenize cs'
+                "break"    -> TokKeyword Break     : tokenize cs'
+                "continue" -> TokKeyword Continue  : tokenize cs'
+                _          -> TokIdent (c:str)     : tokenize cs'
 
 
 number :: Char -> String -> [Token]
