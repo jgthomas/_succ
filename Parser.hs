@@ -165,45 +165,6 @@ parseFuncCallStmt allToks@(id:paren:toks) =
            else (funcCallTree, accept toks')
 
 
-parseFunctionCall :: [Token] -> (Tree, [Token])
-parseFunctionCall allToks@(id:paren:toks) =
-        if paren /= TokOpenParen
-           then error $ errorMessage OpenParen
-           else
-        let (funcArgList, toks') = parseFunctionArgs [] (paren:toks)
-            in
-        case id of
-             TokIdent funcName ->
-                     (FuncCallNode funcName funcArgList, toks')
-             _ -> error "Invalid function arguments"
-
-
-parseFunctionArgs :: [Tree] -> [Token] -> ([Tree], [Token])
-parseFunctionArgs argList (first:second:toks)
-        | first == TokCloseParen                       = (argList, (second:toks))
-        | first /= TokOpenParen && first /= TokComma   = error "Missing comma between arguments"
-        | first == TokComma && second == TokCloseParen = error "Missing argument"
-        | otherwise = case second of
-                           TokCloseParen -> (argList, toks)
-                           _             ->
-                                   let (argTree, toks') = parseArgument (second:toks)
-                                       in
-                                   parseFunctionArgs (argList ++ [argTree]) toks'
-
-
-parseArgument :: [Token] -> (Tree, [Token])
-parseArgument (first:toks) =
-        case first of
-             TokIdent id ->
-                     let (argTree, toks') = parseIdentifier (first:toks)
-                         in
-                     (ArgNode argTree, toks')
-             _           ->
-                     let (argTree, toks') = parseExpression (first:toks)
-                         in
-                     (ArgNode argTree, toks')
-
-
 parseAssignment :: [Token] -> (Tree, [Token])
 parseAssignment toks =
         let (exprTree, toks') = parseExpression toks
@@ -491,6 +452,45 @@ parseBinaryExp tree toks nextVal ops =
                          in
                      parseBinaryExp (BinaryNode tree nexTree op) toks' nextVal ops
              _ -> (tree, toks)
+
+
+parseFunctionCall :: [Token] -> (Tree, [Token])
+parseFunctionCall allToks@(id:paren:toks) =
+        if paren /= TokOpenParen
+           then error $ errorMessage OpenParen
+           else
+        let (funcArgList, toks') = parseFunctionArgs [] (paren:toks)
+            in
+        case id of
+             TokIdent funcName ->
+                     (FuncCallNode funcName funcArgList, toks')
+             _ -> error "Invalid function arguments"
+
+
+parseFunctionArgs :: [Tree] -> [Token] -> ([Tree], [Token])
+parseFunctionArgs argList (first:second:toks)
+        | first == TokCloseParen                       = (argList, (second:toks))
+        | first /= TokOpenParen && first /= TokComma   = error "Missing comma between arguments"
+        | first == TokComma && second == TokCloseParen = error "Missing argument"
+        | otherwise = case second of
+                           TokCloseParen -> (argList, toks)
+                           _             ->
+                                   let (argTree, toks') = parseArgument (second:toks)
+                                       in
+                                   parseFunctionArgs (argList ++ [argTree]) toks'
+
+
+parseArgument :: [Token] -> (Tree, [Token])
+parseArgument (first:toks) =
+        case first of
+             TokIdent id ->
+                     let (argTree, toks') = parseIdentifier (first:toks)
+                         in
+                     (ArgNode argTree, toks')
+             _           ->
+                     let (argTree, toks') = parseExpression (first:toks)
+                         in
+                     (ArgNode argTree, toks')
 
 
 nullExpr :: [Token] -> (Tree, [Token])
