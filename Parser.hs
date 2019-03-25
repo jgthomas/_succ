@@ -145,15 +145,8 @@ parseStatement allToks@(first:toks) =
                      case lookAhead toks of
                           TokAssign    -> parseAssignment allToks
                           TokOpenParen -> parseFuncCallStmt allToks
-                          _            -> parseIdentifier allToks
-             _                   -> parseExprStatement allToks
-
-
-parseIdentifier :: [Token] -> (Tree, [Token])
-parseIdentifier allToks@(first:second:toks) =
-        case second of
-             TokOpenParen -> parseFunctionCall allToks
-             _            -> parseExpression allToks
+                          _            -> parseExpression allToks
+             _ -> parseExprStatement allToks
 
 
 parseFuncCallStmt :: [Token] -> (Tree, [Token])
@@ -425,7 +418,10 @@ parseFactor :: [Token] -> (Tree, [Token])
 parseFactor allToks@(next:toks) =
         case next of
              (TokConstInt n) -> (ConstantNode n, toks)
-             (TokIdent str)  -> (VarNode str, toks)
+             (TokIdent str)  ->
+                     case lookAhead toks of
+                          TokOpenParen -> parseFunctionCall allToks
+                          _            -> (VarNode str, toks)
              TokSemiColon    -> (NullExprNode, toks)
              (TokOp op) | elem op [Minus, BitwiseCompl, LogicNegation] ->
                      let (facTree, toks') = parseFactor toks
@@ -475,22 +471,9 @@ parseFunctionArgs argList (first:second:toks)
         | otherwise = case second of
                            TokCloseParen -> (argList, toks)
                            _             ->
-                                   let (argTree, toks') = parseArgument (second:toks)
+                                   let (argTree, toks') = parseExpression (second:toks)
                                        in
                                    parseFunctionArgs (argList ++ [argTree]) toks'
-
-
-parseArgument :: [Token] -> (Tree, [Token])
-parseArgument (first:toks) =
-        case first of
-             TokIdent id ->
-                     let (argTree, toks') = parseIdentifier (first:toks)
-                         in
-                     (ArgNode argTree, toks')
-             _           ->
-                     let (argTree, toks') = parseExpression (first:toks)
-                         in
-                     (ArgNode argTree, toks')
 
 
 nullExpr :: [Token] -> (Tree, [Token])
