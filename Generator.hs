@@ -16,6 +16,9 @@ genASM (ProgramNode functionList) = do
         prog <- mapM genASM functionList
         return $ concat prog
 
+genASM (FunctionProtoNode name argsList) = do
+        return ""
+
 genASM (FunctionNode name paramList statementList) = do
         initFunction name
         paramExpr <- mapM genASM paramList

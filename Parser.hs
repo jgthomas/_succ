@@ -7,6 +7,7 @@ import Lexer
 
 data Tree = ProgramNode [Tree]
           | FunctionNode String [Tree] [Tree]
+          | FunctionProtoNode String [Tree]
           | DeclarationNode String (Maybe Tree)
           | CompoundStmtNode [Tree]               -- statements
           | ReturnNode Tree
@@ -77,14 +78,15 @@ parseFunction (id:toks) =
                         else
                      let (funcParams, toks') = parseFunctionParams [] toks
                          in
-                     if lookAhead toks' /= TokOpenBrace
-                        then error $ errorMessage OpenBrace
-                        else
-                     let (funcBlockItems, toks'') = parseBlock [] (accept toks')
-                         in
-                     if lookAhead toks'' /= TokCloseBrace
-                        then error $ errorMessage CloseBrace
-                        else (FunctionNode funcName funcParams funcBlockItems, accept toks'')
+                     case lookAhead toks' of
+                          TokSemiColon -> (FunctionProtoNode funcName funcParams, accept toks')
+                          TokOpenBrace ->
+                                  let (funcBlockItems, toks'') = parseBlock [] (accept toks')
+                                      in
+                                  if lookAhead toks'' /= TokCloseBrace
+                                     then error $ errorMessage CloseBrace
+                                     else (FunctionNode funcName funcParams funcBlockItems, accept toks'')
+                          _ -> error "Invalid function declaration"
              _ -> error "No identifier supplied"
 
 
