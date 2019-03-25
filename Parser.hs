@@ -152,15 +152,11 @@ parseStatement allToks@(first:toks) =
 {-
 - Parses expressions where a semi-colon is required afterwards
 -
-- null expression: ;
--
-- expression statements: 2 + 2;
--
-- elements of loops: (i = 0; i < 10; i++)
--
-- assignments: a = 10;
--
-- function calls: dog(8);
+- null expression:         ;
+- expression statements:   2 + 2;
+- elements of loops:       (i = 0; i < 10; i++)
+- assignments:             a = 10;
+- function calls:          dog(8);
 -
 -}
 parseExprStatement :: [Token] -> (Tree, [Token])
