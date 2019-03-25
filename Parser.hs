@@ -152,7 +152,6 @@ parseStatement allToks@(first:toks) =
 parseIdentifier :: [Token] -> (Tree, [Token])
 parseIdentifier allToks@(first:second:toks) =
         case second of
-             TokAssign    -> parseAssignment allToks
              TokOpenParen -> parseFunctionCall allToks
              _            -> parseExpression allToks
 
