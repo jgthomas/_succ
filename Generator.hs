@@ -226,8 +226,21 @@ functionName f = ".globl "
                  ++ "\n"
                  ++ f
                  ++ ":\n"
-                 ++ "pushq %rbp\n"
-                 ++ "movq %rsp, %rbp\n"
+                 ++ saveBasePointer
+
+
+returnStatement :: String
+returnStatement = restoreBasePointer ++ "ret\n"
+
+
+saveBasePointer :: String
+saveBasePointer = "pushq %rbp\n"
+                  ++ "movq %rsp, %rbp\n"
+
+
+restoreBasePointer :: String
+restoreBasePointer = "movq %rbp, %rsp\n"
+                     ++ "popq %rbp\n"
 
 
 loadValue :: Int -> String
@@ -246,12 +259,6 @@ adjustStackPointer offset =
 
 varOffStack :: Int -> String
 varOffStack n = "movq " ++ (show n) ++ "(%rbp), %rax\n"
-
-
-returnStatement :: String
-returnStatement = "movq %rbp, %rsp\n"
-                  ++ "popq %rbp\n"
-                  ++ "ret\n"
 
 
 unary :: Operator -> String
