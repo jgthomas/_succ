@@ -50,7 +50,10 @@ genASM (ParamNode param) = do
 genASM (FuncCallNode name argList) = do
         argsString <- mapM genASM argList
         resetArguments
-        return $ concat argsString ++ (makeFunctionCall name)
+        return $ saveCallerRegisters
+                 ++ concat argsString
+                 ++ (makeFunctionCall name)
+                 ++ restoreCallerRegisters
 
 genASM (ArgNode arg) = do
         argAsm <- genASM arg
