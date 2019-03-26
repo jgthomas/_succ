@@ -338,8 +338,8 @@ makeFunctionCall :: String -> String
 makeFunctionCall funcName = "call " ++ funcName ++ "\n"
 
 
-saveCalleeRegisters :: String
-saveCalleeRegisters =
+saveCallerRegisters :: String
+saveCallerRegisters =
         "pushq %rdi\n"
         ++ "pushq %rsi\n"
         ++ "pushq %rdx\n"
@@ -348,8 +348,8 @@ saveCalleeRegisters =
         ++ "pushq %r9\n"
 
 
-restoreCalleeRegisters :: String
-restoreCalleeRegisters =
+restoreCallerRegisters :: String
+restoreCallerRegisters =
         "popq %r9\n"
         ++ "popq %r8\n"
         ++ "popq %rcx\n"
