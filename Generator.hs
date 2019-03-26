@@ -331,6 +331,26 @@ makeFunctionCall :: String -> String
 makeFunctionCall funcName = "call " ++ funcName ++ "\n"
 
 
+saveCalleeRegisters :: String
+saveCalleeRegisters =
+        "pushq %rdi\n"
+        ++ "pushq %rsi\n"
+        ++ "pushq %rdx\n"
+        ++ "pushq %rcx\n"
+        ++ "pushq %r8\n"
+        ++ "pushq %r9\n"
+
+
+restoreCalleeRegisters :: String
+restoreCalleeRegisters =
+        "popq %r9\n"
+        ++ "popq %r8\n"
+        ++ "popq %rcx\n"
+        ++ "popq %rdx\n"
+        ++ "popq %rsi\n"
+        ++ "popq %rdi\n"
+
+
 emitLabel :: Int -> String
 emitLabel n = "_label_" ++ (show n) ++ ":\n"
 
