@@ -27,6 +27,7 @@ import Lexer
 import Parser
 import SimpleStack
 import qualified Data.Map as M
+import qualified Data.Map.Ordered as O
 import Control.Monad (liftM, ap)
 
 
