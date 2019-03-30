@@ -47,12 +47,13 @@ data FuncState = Fs { paramCount :: Int
 type FuncStates = M.Map String FuncState
 
 
-data SymTab = Tab { labelNo     :: Int
-                  , offset      :: Int
-                  , nameStack   :: Stack String
-                  , funcStates  :: FuncStates
-                  , scopeLevels :: M.Map String Int
-                  , scopesData  :: ProgramScope }
+data SymTab = Tab { labelNo       :: Int
+                  , offset        :: Int
+                  , nameStack     :: Stack String
+                  , declaredFuncs :: O.OMap String Int
+                  , funcStates    :: FuncStates
+                  , scopeLevels   :: M.Map String Int
+                  , scopesData    :: ProgramScope }
             deriving Show
 
 
@@ -94,6 +95,7 @@ newSymTab = Tab
             firstLabel
             memOffsetSize
             newStack
+            O.empty
             M.empty
             M.empty
             M.empty
