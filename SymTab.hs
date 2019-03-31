@@ -21,7 +21,8 @@ module SymTab (Evaluator(..),
                notFound,
                addDeclaration,
                declarationParamCount,
-               declarationSequenceNumber)
+               declarationSequenceNumber,
+               currentFuncSeqNumber)
         where
 
 
@@ -239,6 +240,12 @@ declarationParamCount funcName = do
 declarationSequenceNumber :: String -> Evaluator Int
 declarationSequenceNumber funcName = do
         declarSeqNumber funcName
+
+
+currentFuncSeqNumber :: Evaluator Int
+currentFuncSeqNumber = do
+        currFuncName <- currentFunction
+        declarSeqNumber currFuncName
 
 
 {-
