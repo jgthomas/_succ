@@ -37,6 +37,8 @@ type ProgramScope = M.Map String FunctionScope
 
 type FuncParams = M.Map String Int
 
+type Declarations = O.OMap String Int
+
 
 data FuncState = Fs { paramCount :: Int
                     , argCount   :: Int
@@ -47,13 +49,13 @@ data FuncState = Fs { paramCount :: Int
 type FuncStates = M.Map String FuncState
 
 
-data SymTab = Tab { labelNo       :: Int
-                  , offset        :: Int
-                  , nameStack     :: Stack String
-                  , declaredFuncs :: O.OMap String Int
-                  , funcStates    :: FuncStates
-                  , scopeLevels   :: M.Map String Int
-                  , scopesData    :: ProgramScope }
+data SymTab = Tab { labelNo      :: Int
+                  , offset       :: Int
+                  , nameStack    :: Stack String
+                  , declarations :: Declarations
+                  , funcStates   :: FuncStates
+                  , scopeLevels  :: M.Map String Int
+                  , scopesData   :: ProgramScope }
             deriving Show
 
 
@@ -490,6 +492,23 @@ resetArgs funcState =
         let funcState' = funcState { argCount = 0 }
             in
         return funcState'
+
+
+-- declarations
+
+
+getDeclarations :: Evaluator Declarations
+getDeclarations = Ev $ \symTab ->
+        let declar = declarations symTab
+            in
+        (declar, symTab)
+
+
+updateDeclarations :: Declarations -> Evaluator Declarations
+updateDeclarations declar = Ev $ \symTab ->
+        let symTab' = symTab { declarations = declar }
+            in
+        (declar, symTab')
 
 
 -- convenience 'value' functions
