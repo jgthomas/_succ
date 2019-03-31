@@ -19,7 +19,10 @@ module SymTab (Evaluator(..),
                parameterTotal,
                nextArgumentPos,
                resetArguments,
-               notFound)
+               notFound,
+               addDeclaration,
+               declarationParamCount,
+               declarationSequenceNumber)
         where
 
 
@@ -227,6 +230,23 @@ resetArguments = do
         funcState <- getFunctionState currFuncName
         funcState' <- resetArgs funcState
         setFunctionState currFuncName funcState'
+
+
+-- declarations
+
+addDeclaration :: String -> Int -> Evaluator Declarations
+addDeclaration funcName paramCount = do
+        insertDeclaration funcName paramCount
+
+
+declarationParamCount :: String -> Evaluator Int
+declarationParamCount funcName = do
+        declarParamCount funcName
+
+
+declarationSequenceNumber :: String -> Evaluator Int
+declarationSequenceNumber funcName = do
+        declarSeqNumber funcName
 
 
 {-
