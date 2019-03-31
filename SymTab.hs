@@ -496,19 +496,29 @@ resetArgs funcState =
 
 -- declarations
 
-
-getDeclarations :: Evaluator Declarations
-getDeclarations = Ev $ \symTab ->
+insertDeclaration :: String -> Int -> Evaluator Declarations
+insertDeclaration funcName paramCount = Ev $ \symTab ->
         let declar = declarations symTab
+            declar' = (O.|>) declar (funcName,paramCount)
+            symTab' = symTab { declarations = declar' }
             in
-        (declar, symTab)
+        (declar', symTab')
 
 
-updateDeclarations :: Declarations -> Evaluator Declarations
-updateDeclarations declar = Ev $ \symTab ->
-        let symTab' = symTab { declarations = declar }
-            in
-        (declar, symTab')
+declarParamCount :: String -> Evaluator Int
+declarParamCount funcName = Ev $ \symTab ->
+        let declar = declarations symTab
+            in case O.lookup funcName declar of
+                    Just n  -> (n, symTab)
+                    Nothing -> (notFound, symTab)
+
+
+declarSeqNumber :: String -> Evaluator Int
+declarSeqNumber funcName = Ev $ \symTab ->
+        let declar = declarations symTab
+            in case O.findIndex funcName declar of
+                    Just n  -> (n, symTab)
+                    Nothing -> (notFound, symTab)
 
 
 -- convenience 'value' functions
