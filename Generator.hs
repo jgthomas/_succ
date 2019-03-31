@@ -1,5 +1,4 @@
 module Generator (genASM) where
-
 import Lexer (Operator(..))
 import Parser (Tree(..))
 import SymTab
@@ -154,7 +153,8 @@ genASM (IfNode test action possElse) = do
 
 genASM (DeclarationNode varName value) = do
         varDeclared <- checkVariable varName
-        case varDeclared of
+        paramDeclared <- parameterDeclared varName
+        case varDeclared || paramDeclared of
              True  -> error $ "Variable '" ++ varName ++ "' already declared"
              False -> do
                      offset <- addVariable varName

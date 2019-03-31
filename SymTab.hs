@@ -23,7 +23,8 @@ module SymTab (Evaluator(..),
                declarationParamCount,
                declarationSequenceNumber,
                currentFuncSeqNumber,
-               functionDefined)
+               functionDefined,
+               parameterDeclared)
         where
 
 
@@ -215,6 +216,16 @@ parameterPosition paramName = do
         currFuncName <- currentFunction
         funcState <- getFunctionState currFuncName
         paramPos paramName funcState
+
+
+parameterDeclared :: String -> Evaluator Bool
+parameterDeclared paramName = do
+        currFuncName <- currentFunction
+        funcState <- getFunctionState currFuncName
+        pos <- paramPos paramName funcState
+        if pos == notFound
+           then return False
+           else return True
 
 
 nextArgumentPos :: Evaluator Int
