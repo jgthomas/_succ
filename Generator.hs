@@ -22,6 +22,7 @@ genASM (FunctionProtoNode name paramList) = do
 
 genASM (FunctionNode name paramList statementList) = do
         processDeclaration name (length paramList)
+        processDefinition name
         initFunction name
         paramExpr <- mapM genASM paramList
         funcStmnts <- mapM genASM statementList
@@ -400,3 +401,11 @@ processDeclaration funcName paramCount = do
            else if prevParamCount /= paramCount
                    then error $ "Mismatch in parameter counts for: " ++ funcName
                    else return True
+
+
+processDefinition :: String -> Evaluator Bool
+processDefinition funcName = do
+        alreadyDefined <- functionDefined funcName
+        case alreadyDefined of
+             False -> return True
+             True  -> error $ "Function aleady defined: " ++ funcName

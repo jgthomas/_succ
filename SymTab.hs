@@ -22,7 +22,8 @@ module SymTab (Evaluator(..),
                addDeclaration,
                declarationParamCount,
                declarationSequenceNumber,
-               currentFuncSeqNumber)
+               currentFuncSeqNumber,
+               functionDefined)
         where
 
 
@@ -142,6 +143,14 @@ stackPointerValue :: Evaluator Int
 stackPointerValue = do
         currOff <- currentOffset
         return $ negate currOff
+
+
+functionDefined :: String -> Evaluator Bool
+functionDefined funcName = do
+        progScope <- getProgramScope
+        case M.lookup funcName progScope of
+             Just fScope -> return True
+             Nothing     -> return False
 
 
 variableOffset :: String -> Evaluator Int
