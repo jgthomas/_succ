@@ -16,7 +16,6 @@ module SymTab (Evaluator(..),
                closeFunction,
                addParameter,
                parameterPosition,
-               parameterTotal,
                nextArgumentPos,
                resetArguments,
                notFound,
@@ -206,13 +205,6 @@ parameterPosition paramName = do
         currFuncName <- currentFunction
         funcState <- getFunctionState currFuncName
         paramPos paramName funcState
-
-
-parameterTotal :: Evaluator Int
-parameterTotal = do
-        currFuncName <- currentFunction
-        funcState <- getFunctionState currFuncName
-        return $ paramCount funcState
 
 
 nextArgumentPos :: Evaluator Int
