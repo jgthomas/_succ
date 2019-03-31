@@ -50,12 +50,21 @@ genASM (ParamNode param) = do
             _ -> error $ "Invalid parameter: " ++ (show param)
 
 genASM (FuncCallNode name argList) = do
-        argsString <- mapM genASM argList
-        resetArguments
-        return $ saveCallerRegisters
-                 ++ concat argsString
-                 ++ (makeFunctionCall name)
-                 ++ restoreCallerRegisters
+        paramCount <- declarationParamCount name
+        calleeDecSeqNum <- declarationSequenceNumber name
+        callerDecSeqNum <- currentFuncSeqNumber
+        mainDecSeqNum <- declarationSequenceNumber "main"
+        if paramCount /= (length argList)
+           then error $ "Mismatch between parameters and arguments: " ++ name
+           else if calleeDecSeqNum > callerDecSeqNum && calleeDecSeqNum > mainDecSeqNum
+                   then error $ "Undeclared function: " ++ name
+                   else do
+                           argsString <- mapM genASM argList
+                           resetArguments
+                           return $ saveCallerRegisters
+                                    ++ concat argsString
+                                    ++ (makeFunctionCall name)
+                                    ++ restoreCallerRegisters
 
 genASM (ArgNode arg) = do
         argAsm <- genASM arg
