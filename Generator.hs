@@ -17,35 +17,30 @@ genASM (ProgramNode functionList) = do
         return $ concat prog
 
 genASM (FunctionProtoNode name paramList) = do
-        goodDeclaration <- processDeclaration name (length paramList)
-        if goodDeclaration == True
-           then return ""
-           else error $ "Mismatch in parameter counts for: " ++ name
+        processDeclaration name (length paramList)
+        return ""
 
 genASM (FunctionNode name paramList statementList) = do
-        goodDeclaration <- processDeclaration name (length paramList)
-        if goodDeclaration == False
-           then error $ "Mismatch in parameter counts for: " ++ name
-           else do
-                   initFunction name
-                   paramExpr <- mapM genASM paramList
-                   funcStmnts <- mapM genASM statementList
-                   closeFunction
-                   case hasReturn statementList of
-                        True  -> return $ functionName name
-                                          ++ concat funcStmnts
-                        False ->
-                                if name == "main"
-                                   then do
-                                           -- return 0 if no return specified
-                                           return $ functionName name
-                                                    ++ concat funcStmnts
-                                                    ++ loadValue 0
-                                                    ++ returnStatement
-                                   else do
-                                           -- undefined if used by caller
-                                           return $ functionName name
-                                                    ++ concat funcStmnts
+        processDeclaration name (length paramList)
+        initFunction name
+        paramExpr <- mapM genASM paramList
+        funcStmnts <- mapM genASM statementList
+        closeFunction
+        case hasReturn statementList of
+             True  -> return $ functionName name
+                               ++ concat funcStmnts
+             False ->
+                     if name == "main"
+                        then do
+                                -- return 0 if no return specified
+                                return $ functionName name
+                                         ++ concat funcStmnts
+                                         ++ loadValue 0
+                                         ++ returnStatement
+                        else do
+                                -- undefined if used by caller
+                                return $ functionName name
+                                         ++ concat funcStmnts
 
 genASM (ParamNode param) = do
        case param of
@@ -394,5 +389,5 @@ processDeclaration funcName paramCount = do
                    addDeclaration funcName paramCount
                    return True
            else if prevParamCount /= paramCount
-                   then return False
+                   then error $ "Mismatch in parameter counts for: " ++ funcName
                    else return True
