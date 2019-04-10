@@ -56,7 +56,14 @@ C goes in, X86_64 assembly code comes out
 * break
 * continue
 
+6. **Multiple functions**
+* Function calls
+* Function declarations
+* Function definitions
+* Passing parameters using x86_64 calling convention
+
 ## in progress
 
 * Remaning operators
-* Function calls
+* Global variables
+* Pointers?
