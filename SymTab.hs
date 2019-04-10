@@ -72,9 +72,12 @@ type FuncStates = M.Map String FuncState
 - funcStates   : key=function name, value=state container for that function
 - scopeLevels  : key=function name, value=current scope depth in that function
 - scopesData   : triply nested map tracking the variables in each scope
--    ProgramScope  : key=function name, value=map of the scopes in each function
--    FunctionScope : key=scope level in function, value=map of variables in that scope
--    LocalScope    : key=variable name, value=offset from %rbp where stored
+-    ProgramScope
+-          key=function name, value=map of the scopes in each function
+-    FunctionScope
+-          key=scope level in function, value=map of variables in that scope
+-    LocalScope
+-          key=variable name, value=offset from %rbp where stored
 -
 -}
 data SymTab = Tab { labelNo      :: Int
