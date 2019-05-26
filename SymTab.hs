@@ -133,12 +133,15 @@ instance Applicative Evaluator where
 
 
 instance Monad Evaluator where
-        (Ev act) >>= k = Ev $
-            \symTab ->
-                    let (x, symTab') = act symTab
-                        (Ev act')    = k x
-                    in act' symTab'
+        -- return :: a -> ma
         return x = Ev (\symTab -> (x, symTab))
+
+        -- (>>=)  :: ma -> (a -> mb) -> mb
+        (Ev act) >>= k = Ev $ \symTab ->
+                let (x, symTab') = act symTab
+                    (Ev act')    = k x
+                    in
+                act' symTab'
 
 
 {-
