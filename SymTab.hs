@@ -42,6 +42,23 @@ type ProgramScope = M.Map String FunctionScope
 
 type FuncParams = M.Map String Int
 
+
+{-
+- EXTERNAL DEPENDENCY
+-
+- Ordered map allows querying declaration (1) for its parameter count
+- and (2) for the index order of when it was added
+-
+- (1) declarParamCount name:
+- access by name, gets the parameter count
+-
+- (2) declarSeqNumber name
+- access by name, gets the index number of when this declaration was added
+-
+- e.g. if dog() calls cat(), then cat() needs to have been declared
+- *before* dog, and would thus have a lower index number
+-
+-}
 type Declarations = O.OMap String Int
 
 
