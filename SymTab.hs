@@ -46,11 +46,16 @@ type FuncParams = M.Map String Int
 {-
 - EXTERNAL DEPENDENCY
 -
-- Ordered map allows querying declaration (1) for its parameter count
+- https://hackage.haskell.org/package/ordered-containers
+- https://github.com/dmwit/ordered-containers
+-
+- Ordered map: allows querying declaration (1) for its parameter count
 - and (2) for the index order of when it was added
 -
 - (1) declarParamCount name:
 - access by name, gets the parameter count
+-
+- e.g. the parameter count at each declaration/definition should be the same
 -
 - (2) declarSeqNumber name
 - access by name, gets the index number of when this declaration was added
