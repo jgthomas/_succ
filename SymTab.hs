@@ -56,7 +56,7 @@ type FuncParams = M.Map String Int
 - access by name, gets the index number of when this declaration was added
 -
 - e.g. if dog() calls cat(), then cat() needs to have been declared
-- *before* dog, and would thus have a lower index number
+- *before* dog(), and should thus have a lower index number
 -
 -}
 type Declarations = O.OMap String Int
