@@ -1,6 +1,7 @@
 
 module Generator (genASM) where
 
+
 import Lexer (Operator(..))
 import Parser (Tree(..))
 import SymTab
