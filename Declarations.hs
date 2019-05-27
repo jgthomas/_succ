@@ -28,7 +28,9 @@ isDeclared :: Declared -> String -> Bool
 isDeclared table name =
         let seqTab = declOrder table
             in
-        checkDeclared seqTab name
+        if (getSeqNum seqTab name) == notFound
+           then False
+           else True
 
 
 paramCount :: Declared -> String -> Int
@@ -36,6 +38,13 @@ paramCount table name =
         let params = parameter table
             in
         getParamCount params name
+
+
+seqNumber :: Declared -> String -> Int
+seqNumber table name =
+        let seqTab = declOrder table
+            in
+        getSeqNum seqTab name
 
 
 addVariable :: Declared -> String -> Declared
@@ -59,11 +68,11 @@ getParamCount counts name =
              Nothing -> notFound
 
 
-checkDeclared :: SeqNums -> String -> Bool
-checkDeclared seq name =
+getSeqNum :: SeqNums -> String -> Int
+getSeqNum seq name =
         case M.lookup name seq of
-             Just n  -> True
-             Nothing -> False
+             Just n  -> n
+             Nothing -> notFound
 
 
 addSymbol :: Declared -> String -> Declared
