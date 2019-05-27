@@ -33,40 +33,11 @@ import Parser
 import SimpleStack
 import Declarations as Dec
 import qualified Data.Map as M
---import qualified Data.Map.Ordered as O
 import Control.Monad (liftM, ap)
 
 
-type LocalScope = M.Map String Int
-type FunctionScope = M.Map Int LocalScope
-type ProgramScope = M.Map String FunctionScope
 
 type FuncParams = M.Map String Int
-
-
-{-
-- EXTERNAL DEPENDENCY
--
-- https://hackage.haskell.org/package/ordered-containers
-- https://github.com/dmwit/ordered-containers
--
-- Ordered map: allows querying declaration (1) for its parameter count
-- and (2) for the index order of when it was added
--
-- (1) declarParamCount name:
-- access by name, gets the parameter count
--
-- e.g. the parameter count at each declaration/definition should be the same
--
-- (2) declarSeqNumber name
-- access by name, gets the index number of when this declaration was added
--
-- e.g. if dog() calls cat(), then cat() needs to have been declared
-- *before* dog(), and should thus have a lower index number
--
--}
---type Declarations = O.OMap String Int
-
 
 {-
 - State of a function
@@ -81,9 +52,12 @@ data FuncState = Fs { paramCount :: Int
                     , parameters :: FuncParams }
                deriving Show
 
-
 type FuncStates = M.Map String FuncState
 
+
+type LocalScope = M.Map String Int
+type FunctionScope = M.Map Int LocalScope
+type ProgramScope = M.Map String FunctionScope
 
 {-
 - State of the whole program
@@ -106,7 +80,6 @@ type FuncStates = M.Map String FuncState
 data SymTab = Tab { labelNo      :: Int
                   , offset       :: Int
                   , nameStack    :: Stack String
-                  --, declarations :: Declarations
                   , declarations :: Dec.Declared
                   , funcStates   :: FuncStates
                   , scopeLevels  :: M.Map String Int
@@ -155,7 +128,6 @@ newSymTab = Tab
             firstLabel
             memOffsetSize
             newStack
-            --O.empty
             Dec.newDecTable
             M.empty
             M.empty
@@ -589,15 +561,6 @@ resetArgs funcState =
 
 -- declarations
 
---insertDeclaration :: String -> Int -> Evaluator Declarations
---insertDeclaration funcName paramCount = Ev $ \symTab ->
---        let declar = declarations symTab
---            declar' = (O.|>) declar (funcName,paramCount)
---            symTab' = symTab { declarations = declar' }
---            in
---        (declar', symTab')
-
-
 insertDeclaration :: String -> Int -> Evaluator Dec.Declared
 insertDeclaration funcName paramCount = Ev $ \symTab ->
         let declared  = declarations symTab
@@ -607,28 +570,12 @@ insertDeclaration funcName paramCount = Ev $ \symTab ->
         (declared', symTab')
 
 
---declarParamCount :: String -> Evaluator Int
---declarParamCount funcName = Ev $ \symTab ->
---        let declar = declarations symTab
---            in case O.lookup funcName declar of
---                    Just n  -> (n, symTab)
---                    Nothing -> (notFound, symTab)
-
-
 declarParamCount :: String -> Evaluator Int
 declarParamCount funcName = Ev $ \symTab ->
         let declared = declarations symTab
             count = Dec.paramNum declared funcName
             in
         (count, symTab)
-
-
---declarSeqNumber :: String -> Evaluator Int
---declarSeqNumber funcName = Ev $ \symTab ->
---        let declar = declarations symTab
---            in case O.findIndex funcName declar of
---                    Just n  -> (n, symTab)
---                    Nothing -> (notFound, symTab)
 
 
 declarSeqNumber :: String -> Evaluator Int
