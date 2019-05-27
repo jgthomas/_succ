@@ -2,7 +2,7 @@
 module Parser (Tree(..), parse) where
 
 
-import Tokens
+import Tokens (Operator(..), Keyword(..), Token(..))
 
 
 data Tree = ProgramNode [Tree]
