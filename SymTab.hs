@@ -27,12 +27,11 @@ module SymTab (newSymTab,
         where
 
 
-import Lexer
-import Parser
-import SimpleStack
+import qualified Data.Map as M
+
 import SymbolTable
 import qualified Declarations as Dec
-import qualified Data.Map as M
+import SimpleStack (newStack, stackPeek, stackPop, stackPush)
 
 
 {- API -}
