@@ -1,6 +1,6 @@
 
 
-import System.IO
+import System.IO (openFile, IOMode(ReadMode), hGetContents, writeFile, hClose)
 import System.Environment (getArgs)
 import System.FilePath (dropExtension)
 import System.Process (system)
