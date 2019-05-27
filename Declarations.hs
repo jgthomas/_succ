@@ -44,9 +44,8 @@ addVariable table name = addSymbol table name
 
 addFunction :: Declared -> String -> Int -> Declared
 addFunction table name paramCount =
-        let table'   = addSymbol table name
-            paramTab = parameter table'
-            table''  = table' { parameter = M.insert name paramCount paramTab }
+        let table'  = addSymbol table name
+            table'' = addParams table' name paramCount
             in
         table''
 
@@ -75,6 +74,14 @@ addSymbol table name =
             table''  = table' { declOrder = M.insert name seq seqTable }
             in
         table''
+
+
+addParams :: Declared -> String -> Int -> Declared
+addParams table name paramCount =
+        let paramTab = parameter table
+            table'   = table { parameter = M.insert name paramCount paramTab }
+            in
+        table'
 
 
 notFound :: Int
