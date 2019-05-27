@@ -1,6 +1,5 @@
 
-module Declarations (Declaration(..),
-                     newDecTable)
+module Declarations (newDecTable)
         where
 
 
@@ -11,14 +10,9 @@ type SeqNums = M.Map String Int
 type ParamCounts = M.Map String Int
 
 
-data Declaration = SymbolSeq SeqNums
-                 | ParamCount ParamCounts
-                 deriving Show
-
-
 data Declared = D { seqNum    :: Int
-                  , declOrder :: Declaration
-                  , parameter :: Declaration }
+                  , declOrder :: SeqNums
+                  , parameter :: ParamCounts }
               deriving Show
 
 {- API -}
@@ -26,8 +20,8 @@ data Declared = D { seqNum    :: Int
 newDecTable :: Declared
 newDecTable = D
               0
-              (SymbolSeq M.empty)
-              (ParamCount M.empty)
+              M.empty
+              M.empty
 
 
 isDeclared :: Declared -> String -> Bool
@@ -46,15 +40,15 @@ paramCount table name =
 
 {- Internal -}
 
-getParamCount :: Declaration -> String -> Int
-getParamCount (ParamCount counts) name =
+getParamCount :: ParamCounts -> String -> Int
+getParamCount counts name =
         case M.lookup name counts of
              Just n  -> n
              Nothing -> notFound
 
 
-checkDeclared :: Declaration -> String -> Bool
-checkDeclared (SymbolSeq seq) name =
+checkDeclared :: SeqNums -> String -> Bool
+checkDeclared seq name =
         case M.lookup name seq of
              Just n  -> True
              Nothing -> False
