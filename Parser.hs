@@ -6,16 +6,6 @@ import Tokens (Operator(..), Keyword(..), Token(..))
 import AST (Tree(..))
 
 
-data Error = SemiColon
-           | OpenBrace
-           | CloseBrace
-           | OpenParen
-           | CloseParen
-           | TypeError
-           | ParseError
-           deriving Eq
-
-
 parse :: [Token] -> Tree
 parse toks = let (tree, toks') = parseProgram toks
                  in if null toks'
@@ -458,6 +448,16 @@ accept (t:ts) = ts
 
 validType :: Keyword -> Bool
 validType kwd = elem kwd [Int]
+
+
+data Error = SemiColon
+           | OpenBrace
+           | CloseBrace
+           | OpenParen
+           | CloseParen
+           | TypeError
+           | ParseError
+           deriving Eq
 
 
 errorMessage :: Error -> String
