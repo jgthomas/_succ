@@ -9,7 +9,7 @@ module SymbolTable (SymTab(..),
         where
 
 
-import SimpleStack
+import SimpleStack (Stack)
 import qualified Declarations as Dec
 import qualified Data.Map as M
 
