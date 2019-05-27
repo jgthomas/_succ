@@ -8,11 +8,6 @@ import SymbolTable (Evaluator(..))
 import SymTab
 
 
-data Jump = JMP
-          | JE
-          deriving Eq
-
-
 genASM :: Tree -> Evaluator String
 
 genASM (ProgramNode functionList) = do
@@ -326,6 +321,11 @@ comparison :: String -> String -> String
 comparison loadVal1 loadVal2 = loadTwoValues loadVal1 loadVal2
                                ++ "cmpq %rax, %rcx\n"
                                ++ "movq $0, %rax\n"
+
+
+data Jump = JMP
+          | JE
+          deriving Eq
 
 
 emitJump :: Jump -> Int -> String
