@@ -31,6 +31,7 @@ module SymTab (Evaluator(..),
 import Lexer
 import Parser
 import SimpleStack
+import Declarations as Dec
 import qualified Data.Map as M
 import qualified Data.Map.Ordered as O
 import Control.Monad (liftM, ap)
