@@ -38,6 +38,13 @@ paramCount table name =
         getParamCount params name
 
 
+addVariable :: Declared -> String -> Declared
+addVariable table name = addSymbol table name
+
+
+--addFunction :: Declared -> String -> Int -> Declared
+
+
 {- Internal -}
 
 getParamCount :: ParamCounts -> String -> Int
@@ -52,6 +59,16 @@ checkDeclared seq name =
         case M.lookup name seq of
              Just n  -> True
              Nothing -> False
+
+
+addSymbol :: Declared -> String -> Declared
+addSymbol table name =
+        let seq      = seqNum table
+            seqTable = declOrder table
+            table'   = table { seqNum = seq + 1 }
+            table''  = table' { declOrder = M.insert name seq seqTable }
+            in
+        table''
 
 
 notFound :: Int
