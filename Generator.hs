@@ -3,7 +3,7 @@ module Generator (genASM) where
 
 
 import Tokens (Operator(..))
-import Parser (Tree(..))
+import AST (Tree(..))
 import SymbolTable (Evaluator(..))
 import SymTab
 
