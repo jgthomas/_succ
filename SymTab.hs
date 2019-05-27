@@ -33,7 +33,7 @@ import Parser
 import SimpleStack
 import Declarations as Dec
 import qualified Data.Map as M
-import qualified Data.Map.Ordered as O
+--import qualified Data.Map.Ordered as O
 import Control.Monad (liftM, ap)
 
 
@@ -65,7 +65,7 @@ type FuncParams = M.Map String Int
 - *before* dog(), and should thus have a lower index number
 -
 -}
-type Declarations = O.OMap String Int
+--type Declarations = O.OMap String Int
 
 
 {-
@@ -106,7 +106,8 @@ type FuncStates = M.Map String FuncState
 data SymTab = Tab { labelNo      :: Int
                   , offset       :: Int
                   , nameStack    :: Stack String
-                  , declarations :: Declarations
+                  --, declarations :: Declarations
+                  , declarations :: Dec.Declared
                   , funcStates   :: FuncStates
                   , scopeLevels  :: M.Map String Int
                   , scopesData   :: ProgramScope }
@@ -154,7 +155,8 @@ newSymTab = Tab
             firstLabel
             memOffsetSize
             newStack
-            O.empty
+            --O.empty
+            Dec.newDecTable
             M.empty
             M.empty
             M.empty
@@ -299,7 +301,7 @@ resetArguments = do
 
 -- declarations
 
-addDeclaration :: String -> Int -> Evaluator Declarations
+addDeclaration :: String -> Int -> Evaluator Dec.Declared
 addDeclaration funcName paramCount = do
         insertDeclaration funcName paramCount
 
@@ -587,29 +589,54 @@ resetArgs funcState =
 
 -- declarations
 
-insertDeclaration :: String -> Int -> Evaluator Declarations
+--insertDeclaration :: String -> Int -> Evaluator Declarations
+--insertDeclaration funcName paramCount = Ev $ \symTab ->
+--        let declar = declarations symTab
+--            declar' = (O.|>) declar (funcName,paramCount)
+--            symTab' = symTab { declarations = declar' }
+--            in
+--        (declar', symTab')
+
+
+insertDeclaration :: String -> Int -> Evaluator Dec.Declared
 insertDeclaration funcName paramCount = Ev $ \symTab ->
-        let declar = declarations symTab
-            declar' = (O.|>) declar (funcName,paramCount)
-            symTab' = symTab { declarations = declar' }
+        let declared  = declarations symTab
+            declared' = Dec.declFunc declared funcName paramCount
+            symTab'   = symTab { declarations = declared' }
             in
-        (declar', symTab')
+        (declared', symTab')
+
+
+--declarParamCount :: String -> Evaluator Int
+--declarParamCount funcName = Ev $ \symTab ->
+--        let declar = declarations symTab
+--            in case O.lookup funcName declar of
+--                    Just n  -> (n, symTab)
+--                    Nothing -> (notFound, symTab)
 
 
 declarParamCount :: String -> Evaluator Int
 declarParamCount funcName = Ev $ \symTab ->
-        let declar = declarations symTab
-            in case O.lookup funcName declar of
-                    Just n  -> (n, symTab)
-                    Nothing -> (notFound, symTab)
+        let declared = declarations symTab
+            count = Dec.paramNum declared funcName
+            in
+        (count, symTab)
+
+
+--declarSeqNumber :: String -> Evaluator Int
+--declarSeqNumber funcName = Ev $ \symTab ->
+--        let declar = declarations symTab
+--            in case O.findIndex funcName declar of
+--                    Just n  -> (n, symTab)
+--                    Nothing -> (notFound, symTab)
 
 
 declarSeqNumber :: String -> Evaluator Int
 declarSeqNumber funcName = Ev $ \symTab ->
-        let declar = declarations symTab
-            in case O.findIndex funcName declar of
-                    Just n  -> (n, symTab)
-                    Nothing -> (notFound, symTab)
+        let declaration = declarations symTab
+            seqNum = Dec.seqNumber declaration funcName
+            in
+        (seqNum, symTab)
 
 
 -- convenience 'value' functions
