@@ -9,7 +9,7 @@ import Control.Monad (when)
 import Lexer (tokenize)
 import Parser (parse)
 import Generator (genASM)
-import SymbolTable (Evaluator(..))
+import Evaluator (Evaluator(Ev))
 import SymTab (newSymTab)
 
 

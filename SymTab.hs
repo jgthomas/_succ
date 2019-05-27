@@ -30,6 +30,7 @@ module SymTab (newSymTab,
 import qualified Data.Map as M
 
 import SymbolTable
+import Evaluator (Evaluator(Ev))
 import qualified Declarations as Dec
 import SimpleStack (newStack, stackPeek, stackPop, stackPush)
 
