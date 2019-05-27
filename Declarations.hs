@@ -16,13 +16,15 @@ data Declaration = SymbolSeq SeqNums
                  deriving Show
 
 
-data Declared = D { declOrder :: Declaration
+data Declared = D { seqNum    :: Int
+                  , declOrder :: Declaration
                   , parameter :: Declaration }
               deriving Show
 
 
 newDecTable :: Declared
 newDecTable = D
+              0
               (SymbolSeq M.empty)
               (ParamCount M.empty)
 
