@@ -2,7 +2,7 @@
 module Generator (genASM) where
 
 
-import Lexer (Operator(..))
+import Tokens (Operator(..))
 import Parser (Tree(..))
 import SymbolTable (Evaluator(..))
 import SymTab

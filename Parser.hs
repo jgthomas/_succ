@@ -2,7 +2,7 @@
 module Parser (Tree(..), parse) where
 
 
-import Lexer
+import Tokens
 
 
 data Tree = ProgramNode [Tree]
