@@ -1,5 +1,6 @@
 
-module Declarations (newDecTable,
+module Declarations (Declared(..),
+                     newDecTable,
                      isDeclared,
                      paramNum,
                      seqNumber,
