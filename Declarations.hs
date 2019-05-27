@@ -42,7 +42,13 @@ addVariable :: Declared -> String -> Declared
 addVariable table name = addSymbol table name
 
 
---addFunction :: Declared -> String -> Int -> Declared
+addFunction :: Declared -> String -> Int -> Declared
+addFunction table name paramCount =
+        let table'   = addSymbol table name
+            paramTab = parameter table'
+            table''  = table' { parameter = M.insert name paramCount paramTab }
+            in
+        table''
 
 
 {- Internal -}
