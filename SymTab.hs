@@ -36,8 +36,8 @@ import qualified Data.Map as M
 import Control.Monad (liftM, ap)
 
 
-
 type FuncParams = M.Map String Int
+type FuncStates = M.Map String FuncState
 
 {-
 - State of a function
@@ -52,7 +52,6 @@ data FuncState = Fs { paramCount :: Int
                     , parameters :: FuncParams }
                deriving Show
 
-type FuncStates = M.Map String FuncState
 
 
 type LocalScope = M.Map String Int
