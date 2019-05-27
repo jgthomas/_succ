@@ -21,6 +21,7 @@ data Declared = D { seqNum    :: Int
                   , parameter :: Declaration }
               deriving Show
 
+{- API -}
 
 newDecTable :: Declared
 newDecTable = D
@@ -36,12 +37,28 @@ isDeclared table name =
         checkDeclared seqTab name
 
 
+paramCount :: Declared -> String -> Int
+paramCount table name =
+        let params = parameter table
+            in
+        getParamCount params name
+
+
+{- Internal -}
+
+getParamCount :: Declaration -> String -> Int
+getParamCount (ParamCount counts) name =
+        case M.lookup name counts of
+             Just n  -> n
+             Nothing -> notFound
+
+
 checkDeclared :: Declaration -> String -> Bool
-checkDeclared (SymbolSeq seq) name = lookUp seq name
-
-
-lookUp :: SeqNums -> String -> Bool
-lookUp table name =
-        case M.lookup name table of
+checkDeclared (SymbolSeq seq) name =
+        case M.lookup name seq of
              Just n  -> True
              Nothing -> False
+
+
+notFound :: Int
+notFound = -1
