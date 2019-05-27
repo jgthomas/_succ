@@ -472,6 +472,16 @@ nullExpr :: [Token] -> (Tree, [Token])
 nullExpr toks = (NullExprNode, toks)
 
 
+lookAhead :: [Token] -> Token
+lookAhead [] = TokEnd
+lookAhead (c:cs) = c
+
+
+accept :: [Token] -> [Token]
+accept [] = error "Nothing to accept"
+accept (t:ts) = ts
+
+
 validType :: Keyword -> Bool
 validType kwd = elem kwd [Int]
 

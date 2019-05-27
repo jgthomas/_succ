@@ -2,7 +2,7 @@
 module Lexer (Token(..),
               Keyword(..),
               Operator(..),
-              tokenize, lookAhead, accept) where
+              tokenize) where
 
 
 import Data.Char
@@ -74,16 +74,6 @@ tokenize (c:cs)
     | isDigit c         = number c cs
     | isSpace c         = tokenize cs
     | otherwise         = error $ "Cannot tokenize " ++ [c]
-
-
-lookAhead :: [Token] -> Token
-lookAhead [] = TokEnd
-lookAhead (c:cs) = c
-
-
-accept :: [Token] -> [Token]
-accept [] = error "Nothing to accept"
-accept (t:ts) = ts
 
 
 identifier :: Char -> String -> [Token]
