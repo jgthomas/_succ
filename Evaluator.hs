@@ -1,5 +1,5 @@
 
-module Evaluator (Evaluator(..)) where
+module Evaluator (Evaluator(Ev)) where
 
 
 import Control.Monad (liftM, ap)
