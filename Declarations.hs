@@ -1,5 +1,10 @@
 
-module Declarations (newDecTable)
+module Declarations (newDecTable,
+                     isDeclared,
+                     paramNum,
+                     seqNumber,
+                     declVar,
+                     declFunc)
         where
 
 
@@ -33,8 +38,8 @@ isDeclared table name =
            else True
 
 
-paramCount :: Declared -> String -> Int
-paramCount table name =
+paramNum :: Declared -> String -> Int
+paramNum table name =
         let params = parameter table
             in
         getParamCount params name
@@ -47,12 +52,12 @@ seqNumber table name =
         getSeqNum seqTab name
 
 
-addVariable :: Declared -> String -> Declared
-addVariable table name = addSymbol table name
+declVar :: Declared -> String -> Declared
+declVar table name = addSymbol table name
 
 
-addFunction :: Declared -> String -> Int -> Declared
-addFunction table name paramCount =
+declFunc :: Declared -> String -> Int -> Declared
+declFunc table name paramCount =
         let table'  = addSymbol table name
             table'' = addParams table' name paramCount
             in
