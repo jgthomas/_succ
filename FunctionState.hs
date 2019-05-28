@@ -1,17 +1,17 @@
 
 module FunctionState (newFuncState,
-                      getFunctionState,
-                      setFunctionState,
-                      addParam,
-                      paramPos,
-                      incrementArgCount,
-                      resetArgs) where
+                      addParameter,
+                      parameterPosition,
+                      parameterDeclared,
+                      nextArgumentPos,
+                      resetArguments) where
 
 
 import qualified Data.Map as M
 
 import Evaluator (Evaluator(Ev))
 import Types (SymTab(funcStates), FuncState(..), FuncStates(..))
+import SimpleStack (currentFunction)
 
 
 {- API -}
@@ -23,6 +23,50 @@ newFuncState funcName = Ev $ \symTab ->
             in
         (funcName, symTab')
 
+
+addParameter :: String -> Evaluator FuncStates
+addParameter paramName = do
+        currFuncName <- currentFunction
+        funcState <- getFunctionState currFuncName
+        funcState' <- addParam paramName funcState
+        setFunctionState currFuncName funcState'
+
+
+parameterPosition :: String -> Evaluator Int
+parameterPosition paramName = do
+        currFuncName <- currentFunction
+        funcState <- getFunctionState currFuncName
+        paramPos paramName funcState
+
+
+parameterDeclared :: String -> Evaluator Bool
+parameterDeclared paramName = do
+        currFuncName <- currentFunction
+        funcState <- getFunctionState currFuncName
+        pos <- paramPos paramName funcState
+        if pos == notFound
+           then return False
+           else return True
+
+
+nextArgumentPos :: Evaluator Int
+nextArgumentPos = do
+        currFuncName <- currentFunction
+        funcState <- getFunctionState currFuncName
+        funcState' <- incrementArgCount funcState
+        setFunctionState currFuncName funcState'
+        return $ argCount funcState
+
+
+resetArguments :: Evaluator FuncStates
+resetArguments = do
+        currFuncName <- currentFunction
+        funcState <- getFunctionState currFuncName
+        funcState' <- resetArgs funcState
+        setFunctionState currFuncName funcState'
+
+
+{- Internal -}
 
 getFunctionState :: String -> Evaluator FuncState
 getFunctionState funcName = Ev $ \symTab ->
@@ -75,8 +119,6 @@ resetArgs funcState =
             in
         return funcState'
 
-
-{- Internal -}
 
 makeFuncState :: FuncState
 makeFuncState = Fs 0 0 M.empty

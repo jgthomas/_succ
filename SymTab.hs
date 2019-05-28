@@ -29,8 +29,6 @@ import qualified Data.Map as M
 
 import Evaluator (Evaluator(Ev))
 import Types (SymTab(..),
-              FuncState(..),
-              FuncStates(..),
               LocalScope,
               FunctionScope,
               ProgramScope)
@@ -44,12 +42,11 @@ import SimpleStack (newStack,
                     popFunctionName,
                     pushFunctionName)
 import FunctionState (newFuncState,
-                      getFunctionState,
-                      setFunctionState,
-                      addParam,
-                      paramPos,
-                      incrementArgCount,
-                      resetArgs)
+                      addParameter,
+                      parameterPosition,
+                      parameterDeclared,
+                      nextArgumentPos,
+                      resetArguments)
 
 
 {- API -}
@@ -156,50 +153,6 @@ addVariable varName = do
         currOff <- currentOffset
         store varName currOff
         incrementOffset currOff
-
-
--- function state manipulation
-
-addParameter :: String -> Evaluator FuncStates
-addParameter paramName = do
-        currFuncName <- currentFunction
-        funcState <- getFunctionState currFuncName
-        funcState' <- addParam paramName funcState
-        setFunctionState currFuncName funcState'
-
-
-parameterPosition :: String -> Evaluator Int
-parameterPosition paramName = do
-        currFuncName <- currentFunction
-        funcState <- getFunctionState currFuncName
-        paramPos paramName funcState
-
-
-parameterDeclared :: String -> Evaluator Bool
-parameterDeclared paramName = do
-        currFuncName <- currentFunction
-        funcState <- getFunctionState currFuncName
-        pos <- paramPos paramName funcState
-        if pos == notFound
-           then return False
-           else return True
-
-
-nextArgumentPos :: Evaluator Int
-nextArgumentPos = do
-        currFuncName <- currentFunction
-        funcState <- getFunctionState currFuncName
-        funcState' <- incrementArgCount funcState
-        setFunctionState currFuncName funcState'
-        return $ argCount funcState
-
-
-resetArguments :: Evaluator FuncStates
-resetArguments = do
-        currFuncName <- currentFunction
-        funcState <- getFunctionState currFuncName
-        funcState' <- resetArgs funcState
-        setFunctionState currFuncName funcState'
 
 
 {- Internal -}
