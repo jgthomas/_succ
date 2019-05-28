@@ -5,7 +5,7 @@ module SimpleStack (newStack,
                     pushFunctionName) where
 
 
-import Types (SymTab(..), Stack(..))
+import Types (SymTab(nameStack), Stack(Stack))
 import Evaluator (Evaluator(Ev))
 
 
