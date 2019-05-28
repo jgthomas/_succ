@@ -22,8 +22,7 @@ module SymTab (newSymTab,
                decSeqNumber,
                currentSeqNumber,
                functionDefined,
-               parameterDeclared)
-        where
+               parameterDeclared) where
 
 
 import qualified Data.Map as M
