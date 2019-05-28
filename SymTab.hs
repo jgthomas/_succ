@@ -28,7 +28,7 @@ module SymTab (newSymTab,
 import qualified Data.Map as M
 
 import Evaluator (Evaluator(Ev))
-import Types (SymTab(..),
+import Types (SymTab(Tab, labelNo, offset, scopeLevels, scopesData),
               LocalScope,
               FunctionScope,
               ProgramScope)
