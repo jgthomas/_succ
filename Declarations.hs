@@ -2,8 +2,7 @@
 module Declarations (newDecTable,
                      insertDeclaration,
                      declarParamCount,
-                     declarSeqNumber)
-        where
+                     declarSeqNumber) where
 
 
 import Data.Map as M
