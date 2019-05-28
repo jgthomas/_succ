@@ -1,12 +1,13 @@
 
-module SimpleStack (Stack(..),
-                    newStack,
+module SimpleStack (newStack,
                     stackPeek,
                     stackPop,
                     stackPush) where
 
 
-newtype Stack a = Stack [a] deriving Show
+import Types (Stack(..))
+
+--newtype Stack a = Stack [a] deriving Show
 
 
 newStack :: Stack a

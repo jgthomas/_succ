@@ -11,15 +11,8 @@ module Declarations (Declared(..),
 
 import Data.Map as M
 
+import Types (Declared(..), SeqNums, ParamCounts)
 
-type SeqNums = M.Map String Int
-type ParamCounts = M.Map String Int
-
-
-data Declared = D { seqNum    :: Int
-                  , declOrder :: SeqNums
-                  , parameter :: ParamCounts }
-              deriving Show
 
 {- API -}
 

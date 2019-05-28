@@ -29,10 +29,8 @@ module SymTab (newSymTab,
 
 import qualified Data.Map as M
 
-import SymbolTable (SymTab(..))
+import Types (SymTab(..), FuncState(..), FuncStates(..), LocalScope, FunctionScope, ProgramScope)
 import Evaluator (Evaluator(Ev))
-import FunctionState (FuncState(..), FuncStates(..))
-import Scopes (LocalScope, FunctionScope, ProgramScope)
 import qualified Declarations as Dec
 import SimpleStack (newStack, stackPeek, stackPop, stackPush)
 

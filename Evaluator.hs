@@ -4,7 +4,7 @@ module Evaluator (Evaluator(Ev)) where
 
 import Control.Monad (liftM, ap)
 
-import SymbolTable (SymTab)
+import Types (SymTab)
 
 
 newtype Evaluator a = Ev (SymTab -> (a, SymTab))
