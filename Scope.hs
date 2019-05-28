@@ -1,16 +1,16 @@
 
-module Scope (getLocalScope,
-              getFunctionScope,
-              getProgramScope,
-              storeVariable,
-              updateFunctionScope,
-              updateProgramScope,
-              checkVar,
-              getVar,
-              incrementScope,
-              decrementScope,
-              findScope,
-              newScopeRecord) where
+module Scope (initScope,
+              closeScope,
+              functionDefined,
+              getBreak,
+              setBreak,
+              getContinue,
+              setContinue,
+              checkVariable,
+              variableOffset,
+              newScopeRecord,
+              newFuncScopesData,
+              storeVar) where
 
 
 import qualified Data.Map as M
@@ -21,6 +21,130 @@ import Types (SymTab(scopeLevels, scopesData),
               LocalScope,
               FunctionScope,
               ProgramScope)
+
+
+{- API -}
+
+initScope :: Evaluator ()
+initScope = do
+        currFuncName <- currentFunction
+        newScopeLevel <- incrementScope
+        progScope <- getProgramScope
+        funcScope <- getFunctionScope currFuncName progScope
+        funcScope' <- updateFunctionScope newScopeLevel M.empty funcScope
+        updateProgramScope currFuncName funcScope'
+        return ()
+
+
+closeScope :: Evaluator Int
+closeScope = do
+        decrementScope
+
+
+functionDefined :: String -> Evaluator Bool
+functionDefined funcName = do
+        progScope <- getProgramScope
+        case M.lookup funcName progScope of
+             Just fScope -> return True
+             Nothing     -> return False
+
+
+getBreak :: Evaluator Int
+getBreak = do
+        getOffset "@Break"
+
+
+getContinue :: Evaluator Int
+getContinue = do
+        getOffset "@Continue"
+
+
+setBreak :: Int -> Evaluator ()
+setBreak labelNo = do
+        store "@Break" labelNo
+
+
+setContinue :: Int -> Evaluator ()
+setContinue labelNo = do
+        store "@Continue" labelNo
+
+
+checkVariable :: String -> Evaluator Bool
+checkVariable varName = do
+        currFuncName <- currentFunction
+        scopeLevel <- findScope currFuncName
+        progScope <- getProgramScope
+        funcScope <- getFunctionScope currFuncName progScope
+        locScope <- getLocalScope scopeLevel funcScope
+        return $ checkVar varName locScope
+
+
+variableOffset :: String -> Evaluator Int
+variableOffset name = do
+        getOffset name
+
+
+newScopeRecord :: String -> Evaluator Int
+newScopeRecord name = Ev $ \symTab ->
+        let scopes = scopeLevels symTab
+            symTab' = symTab { scopeLevels = M.insert name baseScope scopes }
+            in
+        (baseScope, symTab')
+
+
+newFuncScopesData :: String -> Evaluator ()
+newFuncScopesData name = do
+        progScope <- updateProgramScope name M.empty
+        funcScope <- getFunctionScope name progScope
+        funcScope' <- updateFunctionScope baseScope M.empty funcScope
+        updateProgramScope name funcScope'
+        return ()
+
+
+storeVar :: String -> Int -> Evaluator ()
+storeVar varName off = do
+        store varName off
+
+
+{- Internal -}
+
+getOffset :: String -> Evaluator Int
+getOffset name = do
+        currFuncName <- currentFunction
+        scopeLevel <- findScope currFuncName
+        findOffset currFuncName scopeLevel name
+
+
+findOffset :: String -> Int -> String -> Evaluator Int
+findOffset func scope name =
+        if scope == notFound
+           then return notFound
+           else do
+                   offset <- lookUp func scope name
+                   if offset == notFound
+                      then findOffset func (pred scope) name
+                      else return offset
+
+
+lookUp :: String -> Int -> String -> Evaluator Int
+lookUp func scope name = do
+        progScope <- getProgramScope
+        funcScope <- getFunctionScope func progScope
+        locScope <- getLocalScope scope funcScope
+        return $ getVar name locScope
+
+
+store :: String -> Int -> Evaluator ()
+store name value = do
+        currFuncName <- currentFunction
+        scopeLevel <- findScope currFuncName
+        progScope <- getProgramScope
+        funcScope <- getFunctionScope currFuncName progScope
+        locScope <- getLocalScope scopeLevel funcScope
+        locScope' <- storeVariable name value locScope
+        funcScope' <- updateFunctionScope scopeLevel locScope' funcScope
+        updateProgramScope currFuncName funcScope'
+        return ()
 
 
 getLocalScope :: Int -> FunctionScope -> Evaluator LocalScope
@@ -101,16 +225,6 @@ findScope name = Ev $ \symTab ->
              Just scope -> (scope, symTab)
              Nothing    -> error $ "No scopes defined for function " ++ name
 
-
-newScopeRecord :: String -> Evaluator Int
-newScopeRecord name = Ev $ \symTab ->
-        let scopes = scopeLevels symTab
-            symTab' = symTab { scopeLevels = M.insert name baseScope scopes }
-            in
-        (baseScope, symTab')
-
-
-{- Internal -}
 
 stepScope :: (Int -> Int) -> Evaluator Int
 stepScope func = do

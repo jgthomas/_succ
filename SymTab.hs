@@ -44,18 +44,18 @@ import FunctionState (newFuncState,
                       parameterDeclared,
                       nextArgumentPos,
                       resetArguments)
-import Scope (getLocalScope,
-              getFunctionScope,
-              getProgramScope,
-              storeVariable,
-              updateFunctionScope,
-              updateProgramScope,
-              checkVar,
-              getVar,
-              incrementScope,
-              decrementScope,
-              findScope,
-              newScopeRecord)
+import Scope (initScope,
+              closeScope,
+              functionDefined,
+              getBreak,
+              setBreak,
+              getContinue,
+              setContinue,
+              checkVariable,
+              variableOffset,
+              newScopeRecord,
+              newFuncScopesData,
+              storeVar)
 
 
 {- API -}
@@ -75,11 +75,8 @@ initFunction :: String -> Evaluator ()
 initFunction name = do
         pushFunctionName name
         newScopeRecord name
+        newFuncScopesData name
         newFuncState name
-        progScope <- updateProgramScope name M.empty
-        funcScope <- getFunctionScope name progScope
-        funcScope' <- updateFunctionScope baseScope M.empty funcScope
-        updateProgramScope name funcScope'
         return ()
 
 
@@ -88,59 +85,17 @@ closeFunction = do
         popFunctionName
 
 
-initScope :: Evaluator ()
-initScope = do
-        currFuncName <- currentFunction
-        newScopeLevel <- incrementScope
-        progScope <- getProgramScope
-        funcScope <- getFunctionScope currFuncName progScope
-        funcScope' <- updateFunctionScope newScopeLevel M.empty funcScope
-        updateProgramScope currFuncName funcScope'
-        return ()
-
-
-closeScope :: Evaluator Int
-closeScope = do
-        decrementScope
-
-
 stackPointerValue :: Evaluator Int
 stackPointerValue = do
         currOff <- currentOffset
         return $ negate currOff
 
 
-functionDefined :: String -> Evaluator Bool
-functionDefined funcName = do
-        progScope <- getProgramScope
-        case M.lookup funcName progScope of
-             Just fScope -> return True
-             Nothing     -> return False
-
-
-variableOffset :: String -> Evaluator Int
-variableOffset name = do
-        getOffset name
-
-
-getBreak :: Evaluator Int
-getBreak = do
-        getOffset "@Break"
-
-
-getContinue :: Evaluator Int
-getContinue = do
-        getOffset "@Continue"
-
-
-setBreak :: Int -> Evaluator ()
-setBreak labelNo = do
-        store "@Break" labelNo
-
-
-setContinue :: Int -> Evaluator ()
-setContinue labelNo = do
-        store "@Continue" labelNo
+addVariable :: String -> Evaluator Int
+addVariable varName = do
+        currOff <- currentOffset
+        storeVar varName currOff
+        incrementOffset currOff
 
 
 labelNum :: Evaluator Int
@@ -148,63 +103,7 @@ labelNum = do
         nextLabel
 
 
-checkVariable :: String -> Evaluator Bool
-checkVariable varName = do
-        currFuncName <- currentFunction
-        scopeLevel <- findScope currFuncName
-        progScope <- getProgramScope
-        funcScope <- getFunctionScope currFuncName progScope
-        locScope <- getLocalScope scopeLevel funcScope
-        return $ checkVar varName locScope
-
-
-addVariable :: String -> Evaluator Int
-addVariable varName = do
-        currOff <- currentOffset
-        store varName currOff
-        incrementOffset currOff
-
-
 {- Internal -}
-
-getOffset :: String -> Evaluator Int
-getOffset name = do
-        currFuncName <- currentFunction
-        scopeLevel <- findScope currFuncName
-        findOffset currFuncName scopeLevel name
-
-
-findOffset :: String -> Int -> String -> Evaluator Int
-findOffset func scope name =
-        if scope == notFound
-           then return notFound
-           else do
-                   offset <- lookUp func scope name
-                   if offset == notFound
-                      then findOffset func (pred scope) name
-                      else return offset
-
-
-lookUp :: String -> Int -> String -> Evaluator Int
-lookUp func scope name = do
-        progScope <- getProgramScope
-        funcScope <- getFunctionScope func progScope
-        locScope <- getLocalScope scope funcScope
-        return $ getVar name locScope
-
-
-store :: String -> Int -> Evaluator ()
-store name value = do
-        currFuncName <- currentFunction
-        scopeLevel <- findScope currFuncName
-        progScope <- getProgramScope
-        funcScope <- getFunctionScope currFuncName progScope
-        locScope <- getLocalScope scopeLevel funcScope
-        locScope' <- storeVariable name value locScope
-        funcScope' <- updateFunctionScope scopeLevel locScope' funcScope
-        updateProgramScope currFuncName funcScope'
-        return ()
-
 
 currentOffset :: Evaluator Int
 currentOffset = Ev $ \symTab ->
