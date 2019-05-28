@@ -29,6 +29,7 @@ module SymTab (newSymTab,
 
 import qualified Data.Map as M
 
+import Evaluator (Evaluator(Ev))
 import Types (SymTab(..),
               Declared(..),
               FuncState(..),
@@ -36,9 +37,14 @@ import Types (SymTab(..),
               LocalScope,
               FunctionScope,
               ProgramScope)
-import Evaluator (Evaluator(Ev))
-import qualified Declarations as Dec
-import SimpleStack (newStack, currentFunction, popFunctionName, pushFunctionName)
+import Declarations (newDecTable,
+                    insertDeclaration,
+                    declarParamCount,
+                    declarSeqNumber)
+import SimpleStack (newStack,
+                   currentFunction,
+                   popFunctionName,
+                   pushFunctionName)
 
 
 {- API -}
@@ -48,7 +54,7 @@ newSymTab = Tab
             firstLabel
             memOffsetSize
             newStack
-            Dec.newDecTable
+            newDecTable
             M.empty
             M.empty
             M.empty
@@ -457,29 +463,6 @@ resetArgs funcState =
 
 -- declarations
 
-insertDeclaration :: String -> Int -> Evaluator Declared
-insertDeclaration funcName paramCount = Ev $ \symTab ->
-        let declared  = declarations symTab
-            declared' = Dec.declFunc declared funcName paramCount
-            symTab'   = symTab { declarations = declared' }
-            in
-        (declared', symTab')
-
-
-declarParamCount :: String -> Evaluator Int
-declarParamCount funcName = Ev $ \symTab ->
-        let declared = declarations symTab
-            count = Dec.paramNum declared funcName
-            in
-        (count, symTab)
-
-
-declarSeqNumber :: String -> Evaluator Int
-declarSeqNumber funcName = Ev $ \symTab ->
-        let declaration = declarations symTab
-            seqNum = Dec.seqNumber declaration funcName
-            in
-        (seqNum, symTab)
 
 
 -- convenience 'value' functions

@@ -1,16 +1,15 @@
 
 module Declarations (newDecTable,
-                     isDeclared,
-                     paramNum,
-                     seqNumber,
-                     declVar,
-                     declFunc)
+                     insertDeclaration,
+                     declarParamCount,
+                     declarSeqNumber)
         where
 
 
 import Data.Map as M
 
-import Types (Declared(..), SeqNums, ParamCounts)
+import Evaluator (Evaluator(Ev))
+import Types (Declared(..), SymTab(..), SeqNums, ParamCounts)
 
 
 {- API -}
@@ -21,6 +20,33 @@ newDecTable = D
               M.empty
               M.empty
 
+
+insertDeclaration :: String -> Int -> Evaluator Declared
+insertDeclaration funcName paramCount = Ev $ \symTab ->
+        let declared  = declarations symTab
+            declared' = declFunc declared funcName paramCount
+            symTab'   = symTab { declarations = declared' }
+            in
+        (declared', symTab')
+
+
+declarParamCount :: String -> Evaluator Int
+declarParamCount funcName = Ev $ \symTab ->
+        let declared = declarations symTab
+            count = paramNum declared funcName
+            in
+        (count, symTab)
+
+
+declarSeqNumber :: String -> Evaluator Int
+declarSeqNumber funcName = Ev $ \symTab ->
+        let declaration = declarations symTab
+            seqNum = seqNumber declaration funcName
+            in
+        (seqNum, symTab)
+
+
+{- Internal -}
 
 isDeclared :: Declared -> String -> Bool
 isDeclared table name =
@@ -56,8 +82,6 @@ declFunc table name paramCount =
             in
         table''
 
-
-{- Internal -}
 
 getParamCount :: ParamCounts -> String -> Int
 getParamCount counts name =
