@@ -52,14 +52,18 @@ paramNum :: Declared -> String -> Int
 paramNum table name =
         let params = parameter table
             in
-        getParamCount params name
+        case M.lookup name params of
+             Just n  -> n
+             Nothing -> notFound
 
 
 seqNumber :: Declared -> String -> Int
 seqNumber table name =
         let seqTab = declOrder table
             in
-        getSeqNum seqTab name
+        case M.lookup name seqTab of
+             Just n  -> n
+             Nothing -> notFound
 
 
 declVar :: Declared -> String -> Declared
@@ -72,20 +76,6 @@ declFunc table name paramCount =
             table'' = addParams table' name paramCount
             in
         table''
-
-
-getParamCount :: ParamCounts -> String -> Int
-getParamCount counts name =
-        case M.lookup name counts of
-             Just n  -> n
-             Nothing -> notFound
-
-
-getSeqNum :: SeqNums -> String -> Int
-getSeqNum seq name =
-        case M.lookup name seq of
-             Just n  -> n
-             Nothing -> notFound
 
 
 addSymbol :: Declared -> String -> Declared
