@@ -19,9 +19,9 @@ module SymTab (newSymTab,
                resetArguments,
                notFound,
                addDeclaration,
-               declarationParamCount,
-               declarationSequenceNumber,
-               currentFuncSeqNumber,
+               decParamCount,
+               decSeqNumber,
+               currentSeqNumber,
                functionDefined,
                parameterDeclared)
         where
@@ -211,18 +211,18 @@ addDeclaration funcName paramCount = do
         insertDeclaration funcName paramCount
 
 
-declarationParamCount :: String -> Evaluator Int
-declarationParamCount funcName = do
+decParamCount :: String -> Evaluator Int
+decParamCount funcName = do
         declarParamCount funcName
 
 
-declarationSequenceNumber :: String -> Evaluator Int
-declarationSequenceNumber funcName = do
+decSeqNumber :: String -> Evaluator Int
+decSeqNumber funcName = do
         declarSeqNumber funcName
 
 
-currentFuncSeqNumber :: Evaluator Int
-currentFuncSeqNumber = do
+currentSeqNumber :: Evaluator Int
+currentSeqNumber = do
         currFuncName <- currentFunction
         declarSeqNumber currFuncName
 

@@ -49,10 +49,10 @@ genASM (ParamNode param) = do
             _ -> error $ "Invalid parameter: " ++ (show param)
 
 genASM (FuncCallNode name argList) = do
-        paramCount <- declarationParamCount name
-        calleeDecSeqNum <- declarationSequenceNumber name
-        callerDecSeqNum <- currentFuncSeqNumber
-        mainDecSeqNum <- declarationSequenceNumber "main"
+        paramCount <- decParamCount name
+        calleeDecSeqNum <- decSeqNumber name
+        callerDecSeqNum <- currentSeqNumber
+        mainDecSeqNum <- decSeqNumber "main"
         if paramCount /= (length argList)
            then error $ "Mismatch between parameters and arguments: " ++ name
            else if calleeDecSeqNum > callerDecSeqNum && calleeDecSeqNum > mainDecSeqNum
@@ -397,7 +397,7 @@ hasReturn blockItems =
 
 processDeclaration :: String -> Int -> Evaluator Bool
 processDeclaration funcName paramCount = do
-        prevParamCount <- declarationParamCount funcName
+        prevParamCount <- decParamCount funcName
         if prevParamCount == notFound
            then do
                    addDeclaration funcName paramCount
