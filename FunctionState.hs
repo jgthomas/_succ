@@ -5,14 +5,13 @@ module FunctionState (newFuncState,
                       addParam,
                       paramPos,
                       incrementArgCount,
-                      resetArgs)
-        where
+                      resetArgs) where
 
 
 import qualified Data.Map as M
 
 import Evaluator (Evaluator(Ev))
-import Types (SymTab(..), FuncState(..), FuncStates(..))
+import Types (SymTab(funcStates), FuncState(..), FuncStates(..))
 
 
 {- API -}
