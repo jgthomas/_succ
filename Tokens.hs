@@ -1,8 +1,7 @@
 
 module Tokens (Operator(..),
                Keyword(..),
-               Token(..))
-        where
+               Token(..)) where
 
 
 data Operator = Plus
