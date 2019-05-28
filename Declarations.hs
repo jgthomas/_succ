@@ -48,15 +48,6 @@ declarSeqNumber funcName = Ev $ \symTab ->
 
 {- Internal -}
 
-isDeclared :: Declared -> String -> Bool
-isDeclared table name =
-        let seqTab = declOrder table
-            in
-        if (getSeqNum seqTab name) == notFound
-           then False
-           else True
-
-
 paramNum :: Declared -> String -> Int
 paramNum table name =
         let params = parameter table
