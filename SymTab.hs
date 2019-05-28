@@ -31,6 +31,7 @@ import qualified Data.Map as M
 
 import SymbolTable
 import Evaluator (Evaluator(Ev))
+import FunctionState (FuncState(..), FuncStates(..))
 import qualified Declarations as Dec
 import SimpleStack (newStack, stackPeek, stackPop, stackPush)
 

@@ -1,7 +1,5 @@
 
 module SymbolTable (SymTab(..),
-                    FuncState(..),
-                    FuncStates(..),
                     LocalScope,
                     FunctionScope,
                     ProgramScope
@@ -10,6 +8,7 @@ module SymbolTable (SymTab(..),
 
 
 import SimpleStack (Stack)
+import FunctionState (FuncStates)
 import qualified Declarations as Dec
 import qualified Data.Map as M
 
@@ -46,18 +45,3 @@ data SymTab = Tab { labelNo      :: Int
             deriving Show
 
 
-type FuncParams = M.Map String Int
-type FuncStates = M.Map String FuncState
-
-{-
-- State of a function
--
-- paramCount : the number of parameters the function has
-- argCount   : counter for arguments passed
-- parameters : key=parameter name, value=parameter position
--
--}
-data FuncState = Fs { paramCount :: Int
-                    , argCount   :: Int
-                    , parameters :: FuncParams }
-               deriving Show
