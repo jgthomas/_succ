@@ -36,13 +36,14 @@ import Types (SymTab(..),
               FunctionScope,
               ProgramScope)
 import Declarations (newDecTable,
-                    insertDeclaration,
-                    declarParamCount,
-                    declarSeqNumber)
+                     addDeclaration,
+                     decParamCount,
+                     decSeqNumber,
+                     currentSeqNumber)
 import SimpleStack (newStack,
-                   currentFunction,
-                   popFunctionName,
-                   pushFunctionName)
+                    currentFunction,
+                    popFunctionName,
+                    pushFunctionName)
 import FunctionState (newFuncState,
                       getFunctionState,
                       setFunctionState,
@@ -200,29 +201,6 @@ resetArguments = do
         funcState <- getFunctionState currFuncName
         funcState' <- resetArgs funcState
         setFunctionState currFuncName funcState'
-
-
--- declarations
-
-addDeclaration :: String -> Int -> Evaluator Declared
-addDeclaration funcName paramCount = do
-        insertDeclaration funcName paramCount
-
-
-decParamCount :: String -> Evaluator Int
-decParamCount funcName = do
-        declarParamCount funcName
-
-
-decSeqNumber :: String -> Evaluator Int
-decSeqNumber funcName = do
-        declarSeqNumber funcName
-
-
-currentSeqNumber :: Evaluator Int
-currentSeqNumber = do
-        currFuncName <- currentFunction
-        declarSeqNumber currFuncName
 
 
 {- Internal -}

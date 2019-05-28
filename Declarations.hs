@@ -1,14 +1,16 @@
 
 module Declarations (newDecTable,
-                     insertDeclaration,
-                     declarParamCount,
-                     declarSeqNumber) where
+                     addDeclaration,
+                     decParamCount,
+                     decSeqNumber,
+                     currentSeqNumber) where
 
 
 import Data.Map as M
 
 import Evaluator (Evaluator(Ev))
 import Types (Declared(..), SymTab(declarations), SeqNums, ParamCounts)
+import SimpleStack (currentFunction)
 
 
 {- API -}
@@ -19,6 +21,29 @@ newDecTable = D
               M.empty
               M.empty
 
+
+addDeclaration :: String -> Int -> Evaluator Declared
+addDeclaration funcName paramCount = do
+        insertDeclaration funcName paramCount
+
+
+decParamCount :: String -> Evaluator Int
+decParamCount funcName = do
+        declarParamCount funcName
+
+
+decSeqNumber :: String -> Evaluator Int
+decSeqNumber funcName = do
+        declarSeqNumber funcName
+
+
+currentSeqNumber :: Evaluator Int
+currentSeqNumber = do
+        currFuncName <- currentFunction
+        declarSeqNumber currFuncName
+
+
+{- Internal -}
 
 insertDeclaration :: String -> Int -> Evaluator Declared
 insertDeclaration funcName paramCount = Ev $ \symTab ->
@@ -44,8 +69,6 @@ declarSeqNumber funcName = Ev $ \symTab ->
             in
         (seqNum, symTab)
 
-
-{- Internal -}
 
 paramNum :: Declared -> String -> Int
 paramNum table name =
