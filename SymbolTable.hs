@@ -1,21 +1,14 @@
 
-module SymbolTable (SymTab(..),
-                    LocalScope,
-                    FunctionScope,
-                    ProgramScope
-                   )
-        where
+module SymbolTable (SymTab(..)) where
 
+
+import qualified Data.Map as M
 
 import SimpleStack (Stack)
 import FunctionState (FuncStates)
+import Scopes (ProgramScope)
 import qualified Declarations as Dec
-import qualified Data.Map as M
 
-
-type LocalScope = M.Map String Int
-type FunctionScope = M.Map Int LocalScope
-type ProgramScope = M.Map String FunctionScope
 
 {-
 - State of the whole program
