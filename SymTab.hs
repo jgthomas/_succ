@@ -29,7 +29,13 @@ module SymTab (newSymTab,
 
 import qualified Data.Map as M
 
-import Types (SymTab(..), FuncState(..), FuncStates(..), LocalScope, FunctionScope, ProgramScope)
+import Types (SymTab(..),
+              Declared(..),
+              FuncState(..),
+              FuncStates(..),
+              LocalScope,
+              FunctionScope,
+              ProgramScope)
 import Evaluator (Evaluator(Ev))
 import qualified Declarations as Dec
 import SimpleStack (newStack, currentFunction, popFunctionName, pushFunctionName)
@@ -187,7 +193,7 @@ resetArguments = do
 
 -- declarations
 
-addDeclaration :: String -> Int -> Evaluator Dec.Declared
+addDeclaration :: String -> Int -> Evaluator Declared
 addDeclaration funcName paramCount = do
         insertDeclaration funcName paramCount
 
@@ -451,7 +457,7 @@ resetArgs funcState =
 
 -- declarations
 
-insertDeclaration :: String -> Int -> Evaluator Dec.Declared
+insertDeclaration :: String -> Int -> Evaluator Declared
 insertDeclaration funcName paramCount = Ev $ \symTab ->
         let declared  = declarations symTab
             declared' = Dec.declFunc declared funcName paramCount
