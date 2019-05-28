@@ -29,7 +29,6 @@ import qualified Data.Map as M
 
 import Evaluator (Evaluator(Ev))
 import Types (SymTab(..),
-              Declared(..),
               FuncState(..),
               FuncStates(..),
               LocalScope,
