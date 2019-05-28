@@ -9,7 +9,7 @@ module Declarations (newDecTable,
 import Data.Map as M
 
 import Evaluator (Evaluator(Ev))
-import Types (Declared(..), SymTab(..), SeqNums, ParamCounts)
+import Types (Declared(..), SymTab(declarations), SeqNums, ParamCounts)
 
 
 {- API -}
