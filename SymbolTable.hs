@@ -7,7 +7,7 @@ import qualified Data.Map as M
 import SimpleStack (Stack)
 import FunctionState (FuncStates)
 import Scopes (ProgramScope)
-import qualified Declarations as Dec
+import Declarations (Declared)
 
 
 {-
@@ -31,7 +31,7 @@ import qualified Declarations as Dec
 data SymTab = Tab { labelNo      :: Int
                   , offset       :: Int
                   , nameStack    :: Stack String
-                  , declarations :: Dec.Declared
+                  , declarations :: Declared
                   , funcStates   :: FuncStates
                   , scopeLevels  :: M.Map String Int
                   , scopesData   :: ProgramScope }
