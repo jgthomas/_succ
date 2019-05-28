@@ -29,7 +29,7 @@ module SymTab (newSymTab,
 
 import qualified Data.Map as M
 
-import SymbolTable
+import SymbolTable (SymTab(..))
 import Evaluator (Evaluator(Ev))
 import FunctionState (FuncState(..), FuncStates(..))
 import Scopes (LocalScope, FunctionScope, ProgramScope)
