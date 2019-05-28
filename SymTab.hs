@@ -32,7 +32,7 @@ import qualified Data.Map as M
 import Types (SymTab(..), FuncState(..), FuncStates(..), LocalScope, FunctionScope, ProgramScope)
 import Evaluator (Evaluator(Ev))
 import qualified Declarations as Dec
-import SimpleStack (newStack, stackPeek, stackPop, stackPush)
+import SimpleStack (newStack, currentFunction, popFunctionName, pushFunctionName)
 
 
 {- API -}
@@ -353,14 +353,6 @@ findScope name = Ev $ \symTab ->
 
 -- querying and altering symtab state
 
-currentFunction :: Evaluator String
-currentFunction = Ev $ \symTab ->
-        let stack = nameStack symTab
-            currFuncName = stackPeek stack
-            in
-        (currFuncName, symTab)
-
-
 currentOffset :: Evaluator Int
 currentOffset = Ev $ \symTab ->
         let currOff = offset symTab
@@ -381,22 +373,6 @@ nextLabel = Ev $ \symTab ->
             symTab' = symTab { labelNo = succ num }
             in
         (num, symTab')
-
-
-popFunctionName :: Evaluator Bool
-popFunctionName = Ev $ \symTab ->
-        let stack = nameStack symTab
-            symTab' = symTab { nameStack = stackPop stack }
-            in
-        (True, symTab')
-
-
-pushFunctionName :: String -> Evaluator Bool
-pushFunctionName funcName = Ev $ \symTab ->
-        let stack = nameStack symTab
-            symTab' = symTab { nameStack = stackPush funcName stack }
-            in
-        (True, symTab')
 
 
 newScopeRecord :: String -> Evaluator Int

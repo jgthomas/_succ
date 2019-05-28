@@ -1,11 +1,36 @@
 
 module SimpleStack (newStack,
-                    stackPeek,
-                    stackPop,
-                    stackPush) where
+                    currentFunction,
+                    popFunctionName,
+                    pushFunctionName) where
 
 
-import Types (Stack(..))
+import Types (SymTab(..), Stack(..))
+import Evaluator (Evaluator(Ev))
+
+
+currentFunction :: Evaluator String
+currentFunction = Ev $ \symTab ->
+        let stack = nameStack symTab
+            currFuncName = stackPeek stack
+            in
+        (currFuncName, symTab)
+
+
+popFunctionName :: Evaluator Bool
+popFunctionName = Ev $ \symTab ->
+        let stack = nameStack symTab
+            symTab' = symTab { nameStack = stackPop stack }
+            in
+        (True, symTab')
+
+
+pushFunctionName :: String -> Evaluator Bool
+pushFunctionName funcName = Ev $ \symTab ->
+        let stack = nameStack symTab
+            symTab' = symTab { nameStack = stackPush funcName stack }
+            in
+        (True, symTab')
 
 
 newStack :: Stack a
