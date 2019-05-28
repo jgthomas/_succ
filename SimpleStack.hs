@@ -7,8 +7,6 @@ module SimpleStack (newStack,
 
 import Types (Stack(..))
 
---newtype Stack a = Stack [a] deriving Show
-
 
 newStack :: Stack a
 newStack = Stack []
