@@ -4,7 +4,7 @@ module Lexer (tokenize) where
 
 import Data.Char
 
-import Tokens
+import Tokens (Operator(..), Keyword(..), Token(..))
 
 
 tokenize :: String -> [Token]
