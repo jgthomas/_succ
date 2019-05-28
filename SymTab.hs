@@ -28,10 +28,7 @@ module SymTab (newSymTab,
 import qualified Data.Map as M
 
 import Evaluator (Evaluator(Ev))
-import Types (SymTab(Tab, labelNo, offset, scopeLevels, scopesData),
-              LocalScope,
-              FunctionScope,
-              ProgramScope)
+import Types (SymTab(Tab, labelNo, offset, scopeLevels))
 import Declarations (newDecTable,
                      addDeclaration,
                      decParamCount,
@@ -47,6 +44,14 @@ import FunctionState (newFuncState,
                       parameterDeclared,
                       nextArgumentPos,
                       resetArguments)
+import Scope (getLocalScope,
+              getFunctionScope,
+              getProgramScope,
+              storeVariable,
+              updateFunctionScope,
+              updateProgramScope,
+              checkVar,
+              getVar)
 
 
 {- API -}
@@ -62,7 +67,7 @@ newSymTab = Tab
             M.empty
 
 
-initFunction :: String -> Evaluator Bool
+initFunction :: String -> Evaluator ()
 initFunction name = do
         pushFunctionName name
         newScopeRecord name
@@ -71,7 +76,7 @@ initFunction name = do
         funcScope <- getFunctionScope name progScope
         funcScope' <- updateFunctionScope baseScope M.empty funcScope
         updateProgramScope name funcScope'
-        return True
+        return ()
 
 
 closeFunction :: Evaluator Bool
@@ -79,7 +84,7 @@ closeFunction = do
         popFunctionName
 
 
-initScope :: Evaluator ProgramScope
+initScope :: Evaluator ()
 initScope = do
         currFuncName <- currentFunction
         newScopeLevel <- incrementScope
@@ -87,6 +92,7 @@ initScope = do
         funcScope <- getFunctionScope currFuncName progScope
         funcScope' <- updateFunctionScope newScopeLevel M.empty funcScope
         updateProgramScope currFuncName funcScope'
+        return ()
 
 
 closeScope :: Evaluator Int
@@ -123,12 +129,12 @@ getContinue = do
         getOffset "@Continue"
 
 
-setBreak :: Int -> Evaluator ProgramScope
+setBreak :: Int -> Evaluator ()
 setBreak labelNo = do
         store "@Break" labelNo
 
 
-setContinue :: Int -> Evaluator ProgramScope
+setContinue :: Int -> Evaluator ()
 setContinue labelNo = do
         store "@Continue" labelNo
 
@@ -185,7 +191,7 @@ lookUp func scope name = do
         return $ getVar name locScope
 
 
-store :: String -> Int -> Evaluator ProgramScope
+store :: String -> Int -> Evaluator ()
 store name value = do
         currFuncName <- currentFunction
         scopeLevel <- findScope currFuncName
@@ -195,67 +201,7 @@ store name value = do
         locScope' <- storeVariable name value locScope
         funcScope' <- updateFunctionScope scopeLevel locScope' funcScope
         updateProgramScope currFuncName funcScope'
-
-
--- scope variables viewing and editing
-
-getLocalScope :: Int -> FunctionScope -> Evaluator LocalScope
-getLocalScope scopeLevel funcScope = Ev $ \symTab ->
-        case M.lookup scopeLevel funcScope of
-             Just locScope -> (locScope, symTab)
-             Nothing       -> error "No scope defined for function"
-
-
-getFunctionScope :: String -> ProgramScope -> Evaluator FunctionScope
-getFunctionScope funcName progScope = Ev $ \symTab ->
-        case M.lookup funcName progScope of
-             Just funcScope -> (funcScope, symTab)
-             Nothing        -> error "No function scopes defined"
-
-
-getProgramScope :: Evaluator ProgramScope
-getProgramScope = Ev $ \symTab ->
-        let scopes = scopesData symTab
-            in
-        (scopes, symTab)
-
-
-storeVariable :: String -> Int -> LocalScope -> Evaluator LocalScope
-storeVariable varName value locScope =
-        let locScope' = M.insert varName value locScope
-            in
-        return locScope'
-
-
-updateFunctionScope :: Int -> LocalScope -> FunctionScope -> Evaluator FunctionScope
-updateFunctionScope scopeLevel locScope funcScope =
-        let funcScope' = M.insert scopeLevel locScope funcScope
-            in
-        return funcScope'
-
-
-updateProgramScope :: String -> FunctionScope -> Evaluator ProgramScope
-updateProgramScope funcName funcScope = Ev $ \symTab ->
-        let scopes = scopesData symTab
-            symTab' = symTab { scopesData = M.insert funcName funcScope scopes }
-            scopes' = scopesData symTab'
-            in
-        (scopes', symTab')
-
-
-checkVar :: String -> LocalScope -> Bool
-checkVar varName varMap =
-        case M.lookup varName varMap of
-             Just v  -> True
-             Nothing -> False
-
-
-getVar :: String -> LocalScope -> Int
-getVar varName varMap =
-        let value = M.lookup varName varMap
-            in case value of
-                    Just v  -> v
-                    Nothing -> notFound
+        return ()
 
 
 -- scope level adjustment and reporting
