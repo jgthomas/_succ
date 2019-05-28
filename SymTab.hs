@@ -1,3 +1,4 @@
+
 module SymTab (newSymTab,
                addVariable,
                checkVariable,
