@@ -227,10 +227,7 @@ currentFuncSeqNumber = do
         declarSeqNumber currFuncName
 
 
-{-
-- Internal functions
--}
-
+{- Internal -}
 
 -- lookup and storage
 
