@@ -6,13 +6,21 @@ module Scope (getLocalScope,
               updateFunctionScope,
               updateProgramScope,
               checkVar,
-              getVar) where
+              getVar,
+              incrementScope,
+              decrementScope,
+              findScope,
+              newScopeRecord) where
 
 
 import qualified Data.Map as M
 
+import SimpleStack (currentFunction)
 import Evaluator (Evaluator(Ev))
-import Types (SymTab(scopesData), LocalScope, FunctionScope, ProgramScope)
+import Types (SymTab(scopeLevels, scopesData),
+              LocalScope,
+              FunctionScope,
+              ProgramScope)
 
 
 getLocalScope :: Int -> FunctionScope -> Evaluator LocalScope
@@ -74,5 +82,53 @@ getVar varName varMap =
                     Nothing -> notFound
 
 
+incrementScope :: Evaluator Int
+incrementScope = do
+        stepScope succ
+
+
+decrementScope :: Evaluator Int
+decrementScope = do
+        stepScope pred
+
+
+findScope :: String -> Evaluator Int
+findScope name = Ev $ \symTab ->
+        let scopes = scopeLevels symTab
+            scopeLevel = M.lookup name scopes
+            in
+        case scopeLevel of
+             Just scope -> (scope, symTab)
+             Nothing    -> error $ "No scopes defined for function " ++ name
+
+
+newScopeRecord :: String -> Evaluator Int
+newScopeRecord name = Ev $ \symTab ->
+        let scopes = scopeLevels symTab
+            symTab' = symTab { scopeLevels = M.insert name baseScope scopes }
+            in
+        (baseScope, symTab')
+
+
+{- Internal -}
+
+stepScope :: (Int -> Int) -> Evaluator Int
+stepScope func = do
+        currFuncName <- currentFunction
+        scopeLevel <- findScope currFuncName
+        switchScope currFuncName $ func scopeLevel
+
+
+switchScope :: String -> Int -> Evaluator Int
+switchScope name newScopeLevel = Ev $ \symTab ->
+        let scopes = scopeLevels symTab
+            symTab' = symTab { scopeLevels = M.insert name newScopeLevel scopes }
+            in
+        (newScopeLevel, symTab')
+
+
 notFound :: Int
 notFound = -1
+
+baseScope :: Int
+baseScope = 0
