@@ -461,10 +461,6 @@ resetArgs funcState =
         return funcState'
 
 
--- declarations
-
-
-
 -- convenience 'value' functions
 
 notFound :: Int
