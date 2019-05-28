@@ -5,7 +5,7 @@ module Generator (genASM) where
 import Tokens (Operator(..))
 import AST (Tree(..))
 import Evaluator (Evaluator)
-import SymTab
+import qualified SymTab
 
 
 genASM :: Tree -> Evaluator String
@@ -21,10 +21,10 @@ genASM (FunctionProtoNode name paramList) = do
 genASM (FunctionNode name paramList statementList) = do
         processDeclaration name (length paramList)
         processDefinition name
-        initFunction name
+        SymTab.initFunction name
         paramExpr <- mapM genASM paramList
         funcStmnts <- mapM genASM statementList
-        closeFunction
+        SymTab.closeFunction
         case hasReturn statementList of
              True  -> return $ functionName name
                                ++ concat funcStmnts
@@ -44,22 +44,22 @@ genASM (FunctionNode name paramList statementList) = do
 genASM (ParamNode param) = do
        case param of
             VarNode name -> do
-                    addParameter name
+                    SymTab.addParameter name
                     return ""
             _ -> error $ "Invalid parameter: " ++ (show param)
 
 genASM (FuncCallNode name argList) = do
-        paramCount <- decParamCount name
-        calleeDecSeqNum <- decSeqNumber name
-        callerDecSeqNum <- currentSeqNumber
-        mainDecSeqNum <- decSeqNumber "main"
+        paramCount <- SymTab.decParamCount name
+        calleeDecSeqNum <- SymTab.decSeqNumber name
+        callerDecSeqNum <- SymTab.currentSeqNumber
+        mainDecSeqNum <- SymTab.decSeqNumber "main"
         if paramCount /= (length argList)
            then error $ "Mismatch between parameters and arguments: " ++ name
            else if calleeDecSeqNum > callerDecSeqNum && calleeDecSeqNum > mainDecSeqNum
                    then error $ "Undeclared function: " ++ name
                    else do
                            argsString <- mapM genASM argList
-                           resetArguments
+                           SymTab.resetArguments
                            return $ saveCallerRegisters
                                     ++ concat argsString
                                     ++ (makeFunctionCall name)
@@ -67,27 +67,27 @@ genASM (FuncCallNode name argList) = do
 
 genASM (ArgNode arg) = do
         argAsm <- genASM arg
-        argPos <- nextArgumentPos
+        argPos <- SymTab.nextArgumentPos
         return $ argAsm ++ putInRegister (selectRegister argPos)
 
 genASM (CompoundStmtNode blockItems) = do
-        initScope
+        SymTab.initScope
         blockLines <- mapM genASM blockItems
-        closeScope
+        SymTab.closeScope
         return $ concat blockLines
 
 genASM (ForLoopNode init test iter block) = do
-        initScope
-        passLabel <- labelNum
-        failLabel <- labelNum
-        continueLabel <- labelNum
-        setBreak failLabel
-        setContinue continueLabel
+        SymTab.initScope
+        passLabel <- SymTab.labelNum
+        failLabel <- SymTab.labelNum
+        continueLabel <- SymTab.labelNum
+        SymTab.setBreak failLabel
+        SymTab.setContinue continueLabel
         init <- genASM init
         test <- genASM test
         iter <- genASM iter
         body <- genASM block
-        closeScope
+        SymTab.closeScope
         return $ init
                  ++ (emitLabel passLabel)
                  ++ test
@@ -100,11 +100,11 @@ genASM (ForLoopNode init test iter block) = do
                  ++ (emitLabel failLabel)
 
 genASM (WhileNode test whileBlock) = do
-        loopLabel <- labelNum
-        setContinue loopLabel
+        loopLabel <- SymTab.labelNum
+        SymTab.setContinue loopLabel
         test <- genASM test
-        testLabel <- labelNum
-        setBreak testLabel
+        testLabel <- SymTab.labelNum
+        SymTab.setBreak testLabel
         body <- genASM whileBlock
         return $ (emitLabel loopLabel)
                  ++ test
@@ -115,13 +115,13 @@ genASM (WhileNode test whileBlock) = do
                  ++ (emitLabel testLabel)
 
 genASM (DoWhileNode block test) = do
-        loopLabel <- labelNum
-        continueLabel <- labelNum
-        setContinue continueLabel
+        loopLabel <- SymTab.labelNum
+        continueLabel <- SymTab.labelNum
+        SymTab.setContinue continueLabel
         body <- genASM block
         test <- genASM test
-        testLabel <- labelNum
-        setBreak testLabel
+        testLabel <- SymTab.labelNum
+        SymTab.setBreak testLabel
         return $ (emitLabel loopLabel)
                  ++ body
                  ++ (emitLabel continueLabel)
@@ -134,7 +134,7 @@ genASM (DoWhileNode block test) = do
 genASM (IfNode test action possElse) = do
         testVal <- genASM test
         ifAction <- genASM action
-        label <- labelNum
+        label <- SymTab.labelNum
         let ifLines = testVal
                       ++ testResult
                       ++ (emitJump JE label)
@@ -143,7 +143,7 @@ genASM (IfNode test action possElse) = do
              Nothing       -> return $ ifLines ++ (emitLabel label)
              Just possElse -> do
                      elseAction <- genASM possElse
-                     nextLabel <- labelNum
+                     nextLabel <- SymTab.labelNum
                      return $ ifLines
                               ++ (emitJump JMP nextLabel)
                               ++ (emitLabel label)
@@ -151,13 +151,13 @@ genASM (IfNode test action possElse) = do
                               ++ (emitLabel nextLabel)
 
 genASM (DeclarationNode varName value) = do
-        varDeclared <- checkVariable varName
-        paramDeclared <- parameterDeclared varName
+        varDeclared <- SymTab.checkVariable varName
+        paramDeclared <- SymTab.parameterDeclared varName
         case varDeclared || paramDeclared of
              True  -> error $ "Variable '" ++ varName ++ "' already declared"
              False -> do
-                     offset <- addVariable varName
-                     adjustment <- stackPointerValue
+                     offset <- SymTab.addVariable varName
+                     adjustment <- SymTab.stackPointerValue
                      case value of
                           Nothing     -> return $ loadValue 0
                                                   ++ varOnStack offset
@@ -165,11 +165,11 @@ genASM (DeclarationNode varName value) = do
                           Just value  -> genASM value
 
 genASM (AssignmentNode varName value operator) = do
-        offset <- variableOffset varName
+        offset <- SymTab.variableOffset varName
         if offset /= notFound
            then do
               assign <- genASM value
-              adjustment <- stackPointerValue
+              adjustment <- SymTab.stackPointerValue
               return $ assign
                        ++ varOnStack offset
                        ++ (adjustStackPointer adjustment)
@@ -180,13 +180,13 @@ genASM (ExprStmtNode expression) = do
         return exprsn
 
 genASM (ContinueNode) = do
-        continueLabel <- getContinue
+        continueLabel <- SymTab.getContinue
         if continueLabel == notFound
            then error "Continue statement outside loop"
            else return $ emitJump JMP continueLabel
 
 genASM (BreakNode) = do
-        breakLabel <- getBreak
+        breakLabel <- SymTab.getBreak
         if breakLabel == notFound
            then error "Break statement outside loop"
            else return $ emitJump JMP breakLabel
@@ -199,8 +199,8 @@ genASM (TernaryNode cond pass fail) = do
         testVal <- genASM cond
         passAction <- genASM pass
         failAction <- genASM fail
-        failLabel <- labelNum
-        passLabel <- labelNum
+        failLabel <- SymTab.labelNum
+        passLabel <- SymTab.labelNum
         return $ testVal
                  ++ testResult
                  ++ (emitJump JE failLabel)
@@ -220,11 +220,11 @@ genASM (UnaryNode tree op) = do
         return $ unode ++ (unary op)
 
 genASM (VarNode varName) = do
-        offset <- variableOffset varName
+        offset <- SymTab.variableOffset varName
         if offset /= notFound
            then return $ varOffStack offset
            else do
-                   argPos <- parameterPosition varName
+                   argPos <- SymTab.parameterPosition varName
                    if argPos /= notFound
                       then return $ getFromRegister $ selectRegister argPos
                       else error $ "Undefined variable: '" ++ varName
@@ -397,10 +397,10 @@ hasReturn blockItems =
 
 processDeclaration :: String -> Int -> Evaluator Bool
 processDeclaration funcName paramCount = do
-        prevParamCount <- decParamCount funcName
+        prevParamCount <- SymTab.decParamCount funcName
         if prevParamCount == notFound
            then do
-                   addDeclaration funcName paramCount
+                   SymTab.addDeclaration funcName paramCount
                    return True
            else if prevParamCount /= paramCount
                    then error $ "Mismatch in parameter counts for: " ++ funcName
@@ -409,7 +409,11 @@ processDeclaration funcName paramCount = do
 
 processDefinition :: String -> Evaluator Bool
 processDefinition funcName = do
-        alreadyDefined <- functionDefined funcName
+        alreadyDefined <- SymTab.functionDefined funcName
         case alreadyDefined of
              False -> return True
              True  -> error $ "Function aleady defined: " ++ funcName
+
+
+notFound :: Int
+notFound = -1
