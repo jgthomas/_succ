@@ -213,9 +213,13 @@ genASM (TernaryNode cond pass fail) = do
                  ++ (emitLabel passLabel)
 
 genASM (BinaryNode left right op) = do
+        nextLabel <- SymTab.labelNum
+        endLabel <- SymTab.labelNum
         lft <- genASM left
         rgt <- genASM right
-        return $ binary lft rgt op
+        case op of
+             LogicalOR -> return $ logicalOR lft rgt nextLabel endLabel
+             _         -> return $ binary lft rgt op
 
 genASM (UnaryNode tree op) = do
         unode <- genASM tree
@@ -308,6 +312,20 @@ binary val1 val2 o
                                ++ "movq $0, %rax\n"
                                ++ "setne %al\n"
                                ++ "andb %cl, %al\n"
+
+
+logicalOR :: String -> String -> Int -> Int -> String
+logicalOR val1 val2 nextLabel endLabel = val1
+                       ++ "cmpq $0, %rax\n"
+                       ++ emitJump JE nextLabel
+                       ++ "movq $1, %rax\n"
+                       ++ emitJump JMP endLabel
+                       ++ emitLabel nextLabel
+                       ++ val2
+                       ++ "cmpq $0, %rax\n"
+                       ++ "movq $0, %rax\n"
+                       ++ "setne %al\n"
+                       ++ emitLabel endLabel
 
 
 loadValues :: String -> String -> String
