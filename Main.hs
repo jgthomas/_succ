@@ -21,9 +21,9 @@ main = do
         contents <- hGetContents handle
 
         -- debugging
-        print contents
-        print $ tokenize contents
-        print $ parse $ tokenize contents
+        --print contents
+        --print $ tokenize contents
+        --print $ parse $ tokenize contents
 
         let outfileName = (dropExtension infileName) ++ ".s"
         let parsed = parse $ tokenize contents

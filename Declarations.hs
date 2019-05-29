@@ -99,6 +99,10 @@ addSymbol table name =
 addParams :: Declared -> String -> Int -> Declared
 addParams table name paramCount =
         let paramTab = parameter table
-            table'   = table { parameter = M.insert name paramCount paramTab }
             in
-        table'
+        case M.lookup name paramTab of
+             Just n  -> table
+             Nothing ->
+                     let table' = table { parameter = M.insert name paramCount paramTab }
+                         in
+                     table'
