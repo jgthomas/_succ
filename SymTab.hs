@@ -112,14 +112,9 @@ nextLabel = Ev $ \symTab ->
         (num, symTab')
 
 
-notFound :: Int
-notFound = -1
-
 memOffsetSize :: Int
 memOffsetSize = (-8)
 
+
 firstLabel :: Int
 firstLabel = 1
-
-baseScope :: Int
-baseScope = 0
