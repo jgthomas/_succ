@@ -19,7 +19,7 @@ genASM (FunctionProtoNode name paramList) = do
 
 genASM (FunctionNode name paramList statementList) = do
         processDeclaration name (length paramList)
-        processDefinition name
+        processDefinition name (length paramList)
         SymTab.initFunction name
         paramExpr <- mapM genASM paramList
         funcStmnts <- mapM genASM statementList
@@ -57,8 +57,7 @@ genASM (FuncCallNode name argList) = do
                         else do
                                 callee <- SymTab.decSeqNumber name
                                 caller <- SymTab.currentSeqNumber
-                                main   <- SymTab.decSeqNumber "main"
-                                if validDefinitionSequence callee caller main
+                                if validDefinitionSequence callee caller
                                    then do
                                            argsString <- mapM genASM argList
                                            SymTab.resetArguments
@@ -66,7 +65,7 @@ genASM (FuncCallNode name argList) = do
                                                     ++ concat argsString
                                                     ++ (makeFunctionCall name)
                                                     ++ restoreCallerRegisters
-                                   else error $ "Undefined function: " ++ name
+                                   else error "Invalid declaration sequence"
 
 genASM (ArgNode arg) = do
         argAsm <- genASM arg
@@ -411,23 +410,22 @@ processDeclaration funcName paramCount = do
                         else return ()
 
 
-processDefinition :: String -> Evaluator Bool
-processDefinition funcName = do
+processDefinition :: String -> Int -> Evaluator Bool
+processDefinition funcName paramCount = do
         alreadyDefined <- SymTab.functionDefined funcName
         case alreadyDefined of
-             False -> return True
+             False -> do
+                     SymTab.addDeclaration funcName paramCount
+                     return True
              True  -> error $ "Function aleady defined: " ++ funcName
 
 
-validDefinitionSequence :: Maybe Int -> Maybe Int -> Maybe Int -> Bool
-validDefinitionSequence Nothing (Just caller) (Just main)   = error "callee undefined"
-validDefinitionSequence (Just callee) Nothing (Just main)   = error "caller undefined"
-validDefinitionSequence (Just callee) (Just caller) Nothing
+validDefinitionSequence :: Maybe Int -> Maybe Int -> Bool
+validDefinitionSequence Nothing (Just caller) = error "callee undefined"
+validDefinitionSequence (Just callee) Nothing = error "caller undefined"
+validDefinitionSequence (Just callee) (Just caller)
         | callee <= caller = True
-        | otherwise        = error "main undefined"
-validDefinitionSequence (Just callee) (Just caller) (Just main)
-        | callee > caller && callee > main = False
-        | otherwise                        = True
+        | otherwise        = False
 
 
 notFound :: Int
