@@ -423,7 +423,7 @@ validDefinitionSequence :: Maybe Int -> Maybe Int -> Maybe Int -> Bool
 validDefinitionSequence Nothing (Just caller) (Just main)   = error "callee undefined"
 validDefinitionSequence (Just callee) Nothing (Just main)   = error "caller undefined"
 validDefinitionSequence (Just callee) (Just caller) Nothing
-        | callee == caller = True
+        | callee <= caller = True
         | otherwise        = error "main undefined"
 validDefinitionSequence (Just callee) (Just caller) (Just main)
         | callee > caller && callee > main = False
