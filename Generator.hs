@@ -57,7 +57,7 @@ genASM (FuncCallNode name argList) = do
                         else do
                                 callee <- SymTab.decSeqNumber name
                                 caller <- SymTab.currentSeqNumber
-                                if validDefinitionSequence callee caller
+                                if validSequence callee caller
                                    then do
                                            argsString <- mapM genASM argList
                                            SymTab.resetArguments
@@ -420,10 +420,10 @@ processDefinition funcName paramCount = do
              True  -> error $ "Function aleady defined: " ++ funcName
 
 
-validDefinitionSequence :: Maybe Int -> Maybe Int -> Bool
-validDefinitionSequence Nothing (Just caller) = error "callee undefined"
-validDefinitionSequence (Just callee) Nothing = error "caller undefined"
-validDefinitionSequence (Just callee) (Just caller)
+validSequence :: Maybe Int -> Maybe Int -> Bool
+validSequence Nothing (Just caller) = error "callee undefined"
+validSequence (Just callee) Nothing = error "caller undefined"
+validSequence (Just callee) (Just caller)
         | callee <= caller = True
         | otherwise        = False
 
