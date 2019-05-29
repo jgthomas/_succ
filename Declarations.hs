@@ -3,6 +3,7 @@ module Declarations (newDecTable,
                      addDeclaration,
                      decParamCount,
                      decSeqNumber,
+                     paramCount,
                      currentSeqNumber) where
 
 
@@ -62,6 +63,16 @@ declarParamCount funcName = Ev $ \symTab ->
         case M.lookup funcName params of
              Just n  -> (n, symTab)
              Nothing -> (notFound, symTab)
+
+
+paramCount :: String -> Evaluator (Maybe Int)
+paramCount funcName = Ev $ \symTab ->
+        let declared = declarations symTab
+            params   = parameter declared
+            in
+        case M.lookup funcName params of
+             Just n  -> (Just n, symTab)
+             Nothing -> (Nothing, symTab)
 
 
 declarSeqNumber :: String -> Evaluator Int

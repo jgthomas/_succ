@@ -18,6 +18,7 @@ import Declarations  (newDecTable,
                       addDeclaration,
                       decParamCount,
                       decSeqNumber,
+                      paramCount,
                       currentSeqNumber)
 import FunctionState (newFuncState,
                       addParameter,

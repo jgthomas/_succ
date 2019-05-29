@@ -49,21 +49,23 @@ genASM (ParamNode param) = do
             _ -> error $ "Invalid parameter: " ++ (show param)
 
 genASM (FuncCallNode name argList) = do
-        paramCount <- SymTab.decParamCount name
-        calleeDecSeqNum <- SymTab.decSeqNumber name
-        callerDecSeqNum <- SymTab.currentSeqNumber
-        mainDecSeqNum <- SymTab.decSeqNumber "main"
-        if paramCount /= (length argList)
-           then error $ "Mismatch between parameters and arguments: " ++ name
-           else if calleeDecSeqNum > callerDecSeqNum && calleeDecSeqNum > mainDecSeqNum
-                   then error $ "Undeclared function: " ++ name
-                   else do
-                           argsString <- mapM genASM argList
-                           SymTab.resetArguments
-                           return $ saveCallerRegisters
-                                    ++ concat argsString
-                                    ++ (makeFunctionCall name)
-                                    ++ restoreCallerRegisters
+        paramCount <- SymTab.paramCount name
+        case paramCount of
+             Nothing -> error $ "Called function undefined: " ++ name
+             Just p  ->
+                     if p /= (length argList)
+                        then error $ "Mismatch between parameters and arguments: " ++ name
+                        else do
+                                valid <- validDefinitionSequence name
+                                case valid of
+                                     False -> error $ "Undefined function: " ++ name
+                                     True  -> do
+                                             argsString <- mapM genASM argList
+                                             SymTab.resetArguments
+                                             return $ saveCallerRegisters
+                                                      ++ concat argsString
+                                                      ++ (makeFunctionCall name)
+                                                      ++ restoreCallerRegisters
 
 genASM (ArgNode arg) = do
         argAsm <- genASM arg
@@ -395,16 +397,17 @@ hasReturn blockItems =
                           _                -> False
 
 
-processDeclaration :: String -> Int -> Evaluator Bool
+processDeclaration :: String -> Int -> Evaluator ()
 processDeclaration funcName paramCount = do
-        prevParamCount <- SymTab.decParamCount funcName
-        if prevParamCount == notFound
-           then do
-                   SymTab.addDeclaration funcName paramCount
-                   return True
-           else if prevParamCount /= paramCount
-                   then error $ "Mismatch in parameter counts for: " ++ funcName
-                   else return True
+        prevParamCount <- SymTab.paramCount funcName
+        case prevParamCount of
+             Nothing -> do
+                     SymTab.addDeclaration funcName paramCount
+                     return ()
+             Just p  -> do
+                     if p /= paramCount
+                        then error $ "Mismatch in parameter counts for: " ++ funcName
+                        else return ()
 
 
 processDefinition :: String -> Evaluator Bool
@@ -413,6 +416,16 @@ processDefinition funcName = do
         case alreadyDefined of
              False -> return True
              True  -> error $ "Function aleady defined: " ++ funcName
+
+
+validDefinitionSequence :: String -> Evaluator Bool
+validDefinitionSequence name = do
+        callee <- SymTab.decSeqNumber name
+        caller <- SymTab.currentSeqNumber
+        main   <- SymTab.decSeqNumber "main"
+        if callee > caller && callee > main
+           then return False
+           else return True
 
 
 notFound :: Int
