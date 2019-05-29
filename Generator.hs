@@ -426,7 +426,3 @@ validSequence (Just callee) Nothing = error "caller undefined"
 validSequence (Just callee) (Just caller)
         | callee <= caller = True
         | otherwise        = False
-
-
-notFound :: Int
-notFound = -1
