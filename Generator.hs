@@ -227,9 +227,9 @@ genASM (VarNode varName) = do
            then return $ varOffStack offset
            else do
                    argPos <- SymTab.parameterPosition varName
-                   if argPos /= notFound
-                      then return $ getFromRegister $ selectRegister argPos
-                      else error $ "Undefined variable: '" ++ varName
+                   case argPos of
+                        Just pos -> return $ getFromRegister $ selectRegister pos
+                        Nothing  -> error $ "Undefined variable: '" ++ varName
 
 genASM (NullExprNode) = return ""
 

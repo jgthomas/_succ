@@ -32,7 +32,7 @@ addParameter paramName = do
         setFunctionState currFuncName funcState'
 
 
-parameterPosition :: String -> Evaluator Int
+parameterPosition :: String -> Evaluator (Maybe Int)
 parameterPosition paramName = do
         currFuncName <- currentFunction
         funcState <- getFunctionState currFuncName
@@ -44,9 +44,9 @@ parameterDeclared paramName = do
         currFuncName <- currentFunction
         funcState <- getFunctionState currFuncName
         pos <- paramPos paramName funcState
-        if pos == notFound
-           then return False
-           else return True
+        case pos of
+             Just pos -> return True
+             Nothing  -> return False
 
 
 nextArgumentPos :: Evaluator Int
@@ -96,13 +96,13 @@ addParam paramName funcState =
         return funcState''
 
 
-paramPos :: String -> FuncState -> Evaluator Int
+paramPos :: String -> FuncState -> Evaluator (Maybe Int)
 paramPos paramName funcState =
         let params = parameters funcState
             in
         case M.lookup paramName params of
-             Just pos -> return pos
-             Nothing  -> return notFound
+             Just pos -> return (Just pos)
+             Nothing  -> return Nothing
 
 
 incrementArgCount :: FuncState -> Evaluator FuncState
@@ -122,6 +122,3 @@ resetArgs funcState =
 
 makeFuncState :: FuncState
 makeFuncState = Fs 0 0 M.empty
-
-notFound :: Int
-notFound = -1
