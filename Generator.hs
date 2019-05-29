@@ -285,25 +285,23 @@ unary o
 
 
 binary :: String -> String -> Operator -> String
-binary loadVal1 loadVal2 o
-   | o == Plus               = loadTwoValues loadVal1 loadVal2 ++ "addq %rcx, %rax\n"
-   | o == Multiply           = loadTwoValues loadVal1 loadVal2 ++ "imul %rcx, %rax\n"
-   | o == Minus              = loadTwoValues loadVal2 loadVal1 ++ "subq %rcx, %rax\n"
-   | o == Divide             = loadTwoValues loadVal2 loadVal1 ++ "cqto\n" ++ "idivq %rcx\n"
-   | o == Modulo             = loadTwoValues loadVal2 loadVal1 ++ "cqto\n"
-                                                               ++ "idivq %rcx\n"
-                                                               ++ "movq %rdx, %rax\n"
-   | o == Equal              = comparison loadVal1 loadVal2 ++ "sete %al\n"
-   | o == NotEqual           = comparison loadVal1 loadVal2 ++ "setne %al\n"
-   | o == GreaterThan        = comparison loadVal1 loadVal2 ++ "setg %al\n"
-   | o == LessThan           = comparison loadVal1 loadVal2 ++ "setl %al\n"
-   | o == GreaterThanOrEqual = comparison loadVal1 loadVal2 ++ "setge %al\n"
-   | o == LessThanOrEqual    = comparison loadVal1 loadVal2 ++ "setle %al\n"
-   | o == LogicalOR          = loadTwoValues loadVal1 loadVal2
+binary val1 val2 o
+   | o == Plus               = loadValues val1 val2 ++ "addq %rcx, %rax\n"
+   | o == Multiply           = loadValues val1 val2 ++ "imul %rcx, %rax\n"
+   | o == Minus              = loadValues val2 val1 ++ "subq %rcx, %rax\n"
+   | o == Divide             = loadValues val2 val1 ++ "cqto\n" ++ "idivq %rcx\n"
+   | o == Modulo             = loadValues val2 val1 ++ moduloValues
+   | o == Equal              = comparison val1 val2 ++ "sete %al\n"
+   | o == NotEqual           = comparison val1 val2 ++ "setne %al\n"
+   | o == GreaterThan        = comparison val1 val2 ++ "setg %al\n"
+   | o == LessThan           = comparison val1 val2 ++ "setl %al\n"
+   | o == GreaterThanOrEqual = comparison val1 val2 ++ "setge %al\n"
+   | o == LessThanOrEqual    = comparison val1 val2 ++ "setle %al\n"
+   | o == LogicalOR          = loadValues val1 val2
                                ++ "orq %rcx, %rax\n"
                                ++ "movq $0, %rax\n"
                                ++ "setne %al\n"
-   | o == LogicalAND         = loadTwoValues loadVal1 loadVal2
+   | o == LogicalAND         = loadValues val1 val2
                                ++ "cmpq $0, %rcx\n"
                                ++ "setne %cl\n"
                                ++ "cmpq $0, %rax\n"
@@ -312,17 +310,23 @@ binary loadVal1 loadVal2 o
                                ++ "andb %cl, %al\n"
 
 
-loadTwoValues :: String -> String -> String
-loadTwoValues loadVal1 loadVal2 = loadVal1
+loadValues :: String -> String -> String
+loadValues val1 val2 = val1
                                   ++ "pushq %rax\n"
-                                  ++ loadVal2
+                                  ++ val2
                                   ++ "popq %rcx\n"
 
 
 comparison :: String -> String -> String
-comparison loadVal1 loadVal2 = loadTwoValues loadVal1 loadVal2
+comparison val1 val2 = loadValues val1 val2
                                ++ "cmpq %rax, %rcx\n"
                                ++ "movq $0, %rax\n"
+
+
+moduloValues :: String
+moduloValues = "cqto\n"
+            ++ "idivq %rcx\n"
+            ++ "movq %rdx, %rax\n"
 
 
 data Jump = JMP
