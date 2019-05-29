@@ -1,28 +1,13 @@
 
-module SymTab (newSymTab,
-               addVariable,
-               checkVariable,
-               labelNum,
-               initScope,
-               variableOffset,
-               closeScope,
-               stackPointerValue,
-               setBreak,
-               getBreak,
-               setContinue,
-               getContinue,
-               initFunction,
+module SymTab (addVariable,
                closeFunction,
-               addParameter,
-               parameterPosition,
-               nextArgumentPos,
-               resetArguments,
-               addDeclaration,
-               decParamCount,
-               decSeqNumber,
-               currentSeqNumber,
-               functionDefined,
-               parameterDeclared) where
+               initFunction,
+               labelNum,
+               newSymTab,
+               stackPointerValue,
+               module Declarations,
+               module FunctionState,
+               module Scope) where
 
 
 import qualified Data.Map as M
