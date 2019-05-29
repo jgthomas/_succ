@@ -312,15 +312,15 @@ binary val1 val2 o
 
 loadValues :: String -> String -> String
 loadValues val1 val2 = val1
-                                  ++ "pushq %rax\n"
-                                  ++ val2
-                                  ++ "popq %rcx\n"
+                    ++ "pushq %rax\n"
+                    ++ val2
+                    ++ "popq %rcx\n"
 
 
 comparison :: String -> String -> String
 comparison val1 val2 = loadValues val1 val2
-                               ++ "cmpq %rax, %rcx\n"
-                               ++ "movq $0, %rax\n"
+                    ++ "cmpq %rax, %rcx\n"
+                    ++ "movq $0, %rax\n"
 
 
 moduloValues :: String
