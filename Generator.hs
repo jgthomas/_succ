@@ -53,7 +53,7 @@ genASM (FuncCallNode name argList) = do
              Nothing -> error $ "Called function undefined: " ++ name
              Just p  ->
                      if p /= (length argList)
-                        then error $ "Mismatch between parameters and arguments: " ++ name
+                        then error $ "Mismatch parameters and arguments: " ++ name
                         else do
                                 callee <- SymTab.decSeqNumber name
                                 caller <- SymTab.currentSeqNumber
