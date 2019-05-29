@@ -218,8 +218,9 @@ genASM (BinaryNode left right op) = do
         lft <- genASM left
         rgt <- genASM right
         case op of
-             LogicalOR -> return $ logicalOR lft rgt nextLabel endLabel
-             _         -> return $ binary lft rgt op
+             LogicalOR  -> return $ logicalOR lft rgt nextLabel endLabel
+             LogicalAND -> return $ logicalAND lft rgt nextLabel endLabel
+             _          -> return $ binary lft rgt op
 
 genASM (UnaryNode tree op) = do
         unode <- genASM tree
@@ -301,17 +302,6 @@ binary val1 val2 o
    | o == LessThan           = comparison val1 val2 ++ "setl %al\n"
    | o == GreaterThanOrEqual = comparison val1 val2 ++ "setge %al\n"
    | o == LessThanOrEqual    = comparison val1 val2 ++ "setle %al\n"
-   | o == LogicalOR          = loadValues val1 val2
-                               ++ "orq %rcx, %rax\n"
-                               ++ "movq $0, %rax\n"
-                               ++ "setne %al\n"
-   | o == LogicalAND         = loadValues val1 val2
-                               ++ "cmpq $0, %rcx\n"
-                               ++ "setne %cl\n"
-                               ++ "cmpq $0, %rax\n"
-                               ++ "movq $0, %rax\n"
-                               ++ "setne %al\n"
-                               ++ "andb %cl, %al\n"
 
 
 logicalOR :: String -> String -> Int -> Int -> String
@@ -319,6 +309,19 @@ logicalOR val1 val2 nextLabel endLabel = val1
                        ++ "cmpq $0, %rax\n"
                        ++ emitJump JE nextLabel
                        ++ "movq $1, %rax\n"
+                       ++ emitJump JMP endLabel
+                       ++ emitLabel nextLabel
+                       ++ val2
+                       ++ "cmpq $0, %rax\n"
+                       ++ "movq $0, %rax\n"
+                       ++ "setne %al\n"
+                       ++ emitLabel endLabel
+
+
+logicalAND :: String -> String -> Int -> Int -> String
+logicalAND val1 val2 nextLabel endLabel = val1
+                       ++ "cmpq $0, %rax\n"
+                       ++ emitJump JNE nextLabel
                        ++ emitJump JMP endLabel
                        ++ emitLabel nextLabel
                        ++ val2
@@ -349,6 +352,7 @@ moduloValues = "cqto\n"
 
 data Jump = JMP
           | JE
+          | JNE
           deriving Eq
 
 
@@ -356,6 +360,7 @@ emitJump :: Jump -> Int -> String
 emitJump j n
         | j == JMP  = "jmp _label_" ++ (show n) ++ "\n"
         | j == JE   = "je _label_" ++ (show n) ++ "\n"
+        | j == JNE  = "jne _label_" ++ (show n) ++ "\n"
         | otherwise = error "Unrecognised type of jump"
 
 
