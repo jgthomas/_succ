@@ -49,12 +49,12 @@ functionDefined funcName = do
              Nothing     -> return False
 
 
-getBreak :: Evaluator Int
+getBreak :: Evaluator (Maybe Int)
 getBreak = do
         getOffset "@Break"
 
 
-getContinue :: Evaluator Int
+getContinue :: Evaluator (Maybe Int)
 getContinue = do
         getOffset "@Continue"
 
@@ -79,7 +79,7 @@ checkVariable varName = do
         return $ checkVar varName locScope
 
 
-variableOffset :: String -> Evaluator Int
+variableOffset :: String -> Evaluator (Maybe Int)
 variableOffset name = do
         getOffset name
 
@@ -108,25 +108,25 @@ storeVar varName off = do
 
 {- Internal -}
 
-getOffset :: String -> Evaluator Int
+getOffset :: String -> Evaluator (Maybe Int)
 getOffset name = do
         currFuncName <- currentFunction
         scopeLevel <- findScope currFuncName
         findOffset currFuncName scopeLevel name
 
 
-findOffset :: String -> Int -> String -> Evaluator Int
+findOffset :: String -> Int -> String -> Evaluator (Maybe Int)
 findOffset func scope name =
-        if scope == notFound
-           then return notFound
+        if scope == scopeLimit
+           then return Nothing
            else do
                    offset <- lookUp func scope name
-                   if offset == notFound
-                      then findOffset func (pred scope) name
-                      else return offset
+                   case offset of
+                        Nothing  -> findOffset func (pred scope) name
+                        Just off -> return (Just off)
 
 
-lookUp :: String -> Int -> String -> Evaluator Int
+lookUp :: String -> Int -> String -> Evaluator (Maybe Int)
 lookUp func scope name = do
         progScope <- getProgramScope
         funcScope <- getFunctionScope func progScope
@@ -198,12 +198,12 @@ checkVar varName varMap =
              Nothing -> False
 
 
-getVar :: String -> LocalScope -> Int
+getVar :: String -> LocalScope -> Maybe Int
 getVar varName varMap =
         let value = M.lookup varName varMap
             in case value of
-                    Just v  -> v
-                    Nothing -> notFound
+                    Just v  -> Just v
+                    Nothing -> Nothing
 
 
 incrementScope :: Evaluator Int
@@ -241,8 +241,9 @@ switchScope name newScopeLevel = Ev $ \symTab ->
         (newScopeLevel, symTab')
 
 
-notFound :: Int
-notFound = -1
+scopeLimit :: Int
+scopeLimit = -1
+
 
 baseScope :: Int
 baseScope = 0

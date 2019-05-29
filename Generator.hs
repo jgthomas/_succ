@@ -168,14 +168,14 @@ genASM (DeclarationNode varName value) = do
 
 genASM (AssignmentNode varName value operator) = do
         offset <- SymTab.variableOffset varName
-        if offset /= notFound
-           then do
-              assign <- genASM value
-              adjustment <- SymTab.stackPointerValue
-              return $ assign
-                       ++ varOnStack offset
-                       ++ (adjustStackPointer adjustment)
-           else error $ "Undefined variable: '" ++ varName
+        case offset of
+             Just off -> do
+                     assign <- genASM value
+                     adjustment <- SymTab.stackPointerValue
+                     return $ assign
+                              ++ varOnStack off
+                              ++ (adjustStackPointer adjustment)
+             Nothing -> error $ "Undefined variable: '" ++ varName
 
 genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression
@@ -183,15 +183,15 @@ genASM (ExprStmtNode expression) = do
 
 genASM (ContinueNode) = do
         continueLabel <- SymTab.getContinue
-        if continueLabel == notFound
-           then error "Continue statement outside loop"
-           else return $ emitJump JMP continueLabel
+        case continueLabel of
+             Just target -> return $ emitJump JMP target
+             Nothing     -> error "Continue statement outside loop"
 
 genASM (BreakNode) = do
         breakLabel <- SymTab.getBreak
-        if breakLabel == notFound
-           then error "Break statement outside loop"
-           else return $ emitJump JMP breakLabel
+        case breakLabel of
+             Just target -> return $ emitJump JMP target
+             Nothing     -> error "Break statement outside loop"
 
 genASM (ReturnNode tree) = do
         rtn <- genASM tree
@@ -223,13 +223,13 @@ genASM (UnaryNode tree op) = do
 
 genASM (VarNode varName) = do
         offset <- SymTab.variableOffset varName
-        if offset /= notFound
-           then return $ varOffStack offset
-           else do
-                   argPos <- SymTab.parameterPosition varName
-                   case argPos of
-                        Just pos -> return $ getFromRegister $ selectRegister pos
-                        Nothing  -> error $ "Undefined variable: '" ++ varName
+        case offset of
+             Just off -> return $ varOffStack off
+             Nothing  -> do
+                     argPos <- SymTab.parameterPosition varName
+                     case argPos of
+                          Just pos -> return $ getFromRegister $ selectRegister pos
+                          Nothing  -> error $ "Undefined variable: '" ++ varName
 
 genASM (NullExprNode) = return ""
 
