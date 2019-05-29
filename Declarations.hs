@@ -3,7 +3,6 @@ module Declarations (newDecTable,
                      addDeclaration,
                      decParamCount,
                      decSeqNumber,
-                     paramCount,
                      currentSeqNumber) where
 
 
@@ -28,22 +27,20 @@ addDeclaration funcName paramCount = do
         insertDeclaration funcName paramCount
 
 
-decParamCount :: String -> Evaluator Int
+decParamCount :: String -> Evaluator (Maybe Int)
 decParamCount funcName = do
-        declarParamCount funcName
+        paramCount funcName
 
 
-decSeqNumber :: String -> Evaluator Int
+decSeqNumber :: String -> Evaluator (Maybe Int)
 decSeqNumber funcName = do
-        declarSeqNumber funcName
-        --seqNumber funcName
+        seqNumber funcName
 
 
-currentSeqNumber :: Evaluator Int
+currentSeqNumber :: Evaluator (Maybe Int)
 currentSeqNumber = do
         currFuncName <- currentFunction
-        declarSeqNumber currFuncName
-        --seqNumber currFuncName
+        seqNumber currFuncName
 
 
 {- Internal -}
@@ -55,16 +52,6 @@ insertDeclaration funcName paramCount = Ev $ \symTab ->
             symTab'   = symTab { declarations = declared' }
             in
         (declared', symTab')
-
-
-declarParamCount :: String -> Evaluator Int
-declarParamCount funcName = Ev $ \symTab ->
-        let declared = declarations symTab
-            params   = parameter declared
-            in
-        case M.lookup funcName params of
-             Just n  -> (n, symTab)
-             Nothing -> (notFound, symTab)
 
 
 paramCount :: String -> Evaluator (Maybe Int)
@@ -85,16 +72,6 @@ seqNumber funcName = Ev $ \symTab ->
         case M.lookup funcName seqTab of
              Just n  -> (Just n, symTab)
              Nothing -> (Nothing, symTab)
-
-
-declarSeqNumber :: String -> Evaluator Int
-declarSeqNumber funcName = Ev $ \symTab ->
-        let declared = declarations symTab
-            seqTab   = declOrder declared
-            in
-        case M.lookup funcName seqTab of
-             Just n  -> (n, symTab)
-             Nothing -> (notFound, symTab)
 
 
 declVar :: Declared -> String -> Declared
@@ -125,7 +102,3 @@ addParams table name paramCount =
             table'   = table { parameter = M.insert name paramCount paramTab }
             in
         table'
-
-
-notFound :: Int
-notFound = -1

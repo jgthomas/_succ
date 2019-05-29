@@ -1,7 +1,6 @@
 
 module Generator (genASM) where
 
-
 import Tokens (Operator(..))
 import AST (Tree(..))
 import Evaluator (Evaluator)
@@ -49,23 +48,25 @@ genASM (ParamNode param) = do
             _ -> error $ "Invalid parameter: " ++ (show param)
 
 genASM (FuncCallNode name argList) = do
-        paramCount <- SymTab.paramCount name
+        paramCount <- SymTab.decParamCount name
         case paramCount of
              Nothing -> error $ "Called function undefined: " ++ name
              Just p  ->
                      if p /= (length argList)
                         then error $ "Mismatch between parameters and arguments: " ++ name
                         else do
-                                valid <- validDefinitionSequence name
-                                case valid of
-                                     False -> error $ "Undefined function: " ++ name
-                                     True  -> do
-                                             argsString <- mapM genASM argList
-                                             SymTab.resetArguments
-                                             return $ saveCallerRegisters
-                                                      ++ concat argsString
-                                                      ++ (makeFunctionCall name)
-                                                      ++ restoreCallerRegisters
+                                callee <- SymTab.decSeqNumber name
+                                caller <- SymTab.currentSeqNumber
+                                main   <- SymTab.decSeqNumber "main"
+                                if validDefinitionSequence callee caller main
+                                   then do
+                                           argsString <- mapM genASM argList
+                                           SymTab.resetArguments
+                                           return $ saveCallerRegisters
+                                                    ++ concat argsString
+                                                    ++ (makeFunctionCall name)
+                                                    ++ restoreCallerRegisters
+                                   else error $ "Undefined function: " ++ name
 
 genASM (ArgNode arg) = do
         argAsm <- genASM arg
@@ -399,7 +400,7 @@ hasReturn blockItems =
 
 processDeclaration :: String -> Int -> Evaluator ()
 processDeclaration funcName paramCount = do
-        prevParamCount <- SymTab.paramCount funcName
+        prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
              Nothing -> do
                      SymTab.addDeclaration funcName paramCount
@@ -418,14 +419,15 @@ processDefinition funcName = do
              True  -> error $ "Function aleady defined: " ++ funcName
 
 
-validDefinitionSequence :: String -> Evaluator Bool
-validDefinitionSequence name = do
-        callee <- SymTab.decSeqNumber name
-        caller <- SymTab.currentSeqNumber
-        main   <- SymTab.decSeqNumber "main"
-        if callee > caller && callee > main
-           then return False
-           else return True
+validDefinitionSequence :: Maybe Int -> Maybe Int -> Maybe Int -> Bool
+validDefinitionSequence Nothing (Just caller) (Just main)   = error "callee undefined"
+validDefinitionSequence (Just callee) Nothing (Just main)   = error "caller undefined"
+validDefinitionSequence (Just callee) (Just caller) Nothing
+        | callee == caller = True
+        | otherwise        = error "main undefined"
+validDefinitionSequence (Just callee) (Just caller) (Just main)
+        | callee > caller && callee > main = False
+        | otherwise                        = True
 
 
 notFound :: Int
