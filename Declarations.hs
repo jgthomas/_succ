@@ -36,12 +36,14 @@ decParamCount funcName = do
 decSeqNumber :: String -> Evaluator Int
 decSeqNumber funcName = do
         declarSeqNumber funcName
+        --seqNumber funcName
 
 
 currentSeqNumber :: Evaluator Int
 currentSeqNumber = do
         currFuncName <- currentFunction
         declarSeqNumber currFuncName
+        --seqNumber currFuncName
 
 
 {- Internal -}
@@ -71,6 +73,16 @@ paramCount funcName = Ev $ \symTab ->
             params   = parameter declared
             in
         case M.lookup funcName params of
+             Just n  -> (Just n, symTab)
+             Nothing -> (Nothing, symTab)
+
+
+seqNumber :: String -> Evaluator (Maybe Int)
+seqNumber funcName = Ev $ \symTab ->
+        let declared = declarations symTab
+            seqTab   = declOrder declared
+            in
+        case M.lookup funcName seqTab of
              Just n  -> (Just n, symTab)
              Nothing -> (Nothing, symTab)
 
