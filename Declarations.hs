@@ -57,35 +57,21 @@ insertDeclaration funcName paramCount = Ev $ \symTab ->
 declarParamCount :: String -> Evaluator Int
 declarParamCount funcName = Ev $ \symTab ->
         let declared = declarations symTab
-            count = paramNum declared funcName
+            params   = parameter declared
             in
-        (count, symTab)
+        case M.lookup funcName params of
+             Just n  -> (n, symTab)
+             Nothing -> (notFound, symTab)
 
 
 declarSeqNumber :: String -> Evaluator Int
 declarSeqNumber funcName = Ev $ \symTab ->
-        let declaration = declarations symTab
-            seqNum = seqNumber declaration funcName
+        let declared = declarations symTab
+            seqTab   = declOrder declared
             in
-        (seqNum, symTab)
-
-
-paramNum :: Declared -> String -> Int
-paramNum table name =
-        let params = parameter table
-            in
-        case M.lookup name params of
-             Just n  -> n
-             Nothing -> notFound
-
-
-seqNumber :: Declared -> String -> Int
-seqNumber table name =
-        let seqTab = declOrder table
-            in
-        case M.lookup name seqTab of
-             Just n  -> n
-             Nothing -> notFound
+        case M.lookup funcName seqTab of
+             Just n  -> (n, symTab)
+             Nothing -> (notFound, symTab)
 
 
 declVar :: Declared -> String -> Declared
