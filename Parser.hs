@@ -15,22 +15,46 @@ parse toks = let (tree, toks') = parseProgram toks
 
 parseProgram :: [Token] -> (Tree, [Token])
 parseProgram toks =
-        let (funcList, toks') = parseAllFunctions [] toks
+        let (funcList, toks') = parseTopLevelItems [] toks --parseAllFunctions [] toks
             in
         (ProgramNode funcList, toks')
 
 
-parseAllFunctions :: [Tree] -> [Token] -> ([Tree], [Token])
-parseAllFunctions funcList [] = (funcList, [])
-parseAllFunctions funcList (typ:toks) =
-        case typ of
+parseTopLevelItems :: [Tree] -> [Token] -> ([Tree], [Token])
+parseTopLevelItems itemList [] = (itemList, [])
+parseTopLevelItems itemList allToks@(a:b:c:d:toks) =
+        case a of
+             (TokIdent id) ->
+                     let (assign, toks') = parseExprStatement allToks
+                         in
+                     parseTopLevelItems (itemList ++ [assign]) toks'
              (TokKeyword typ)
                 | validType typ ->
-                        let (funcTree, toks') = parseFunction toks
+                        let (dec, toks') = parseTopLevelDeclaration allToks
                             in
-                        parseAllFunctions (funcList ++ [funcTree]) toks'
+                        parseTopLevelItems (itemList ++ [dec]) toks'
                 | otherwise -> error $ errorMessage TypeError
              _ -> error $ errorMessage TypeError
+
+
+parseTopLevelDeclaration :: [Token] -> (Tree, [Token])
+parseTopLevelDeclaration allToks@(a:b:c:toks) =
+        case c of
+             TokOpenParen -> parseFunction (accept allToks)
+             _            -> parseDeclaration allToks
+
+
+--parseAllFunctions :: [Tree] -> [Token] -> ([Tree], [Token])
+--parseAllFunctions funcList [] = (funcList, [])
+--parseAllFunctions funcList (typ:toks) =
+--        case typ of
+--             (TokKeyword typ)
+--                | validType typ ->
+--                        let (funcTree, toks') = parseFunction toks
+--                            in
+--                        parseAllFunctions (funcList ++ [funcTree]) toks'
+--                | otherwise -> error $ errorMessage TypeError
+--             _ -> error $ errorMessage TypeError
 
 
 parseFunction :: [Token] -> (Tree, [Token])
