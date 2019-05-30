@@ -15,7 +15,7 @@ parse toks = let (tree, toks') = parseProgram toks
 
 parseProgram :: [Token] -> (Tree, [Token])
 parseProgram toks =
-        let (funcList, toks') = parseTopLevelItems [] toks --parseAllFunctions [] toks
+        let (funcList, toks') = parseTopLevelItems [] toks
             in
         (ProgramNode funcList, toks')
 
@@ -42,19 +42,6 @@ parseTopLevelDeclaration allToks@(a:b:c:toks) =
         case c of
              TokOpenParen -> parseFunction (accept allToks)
              _            -> parseDeclaration allToks
-
-
---parseAllFunctions :: [Tree] -> [Token] -> ([Tree], [Token])
---parseAllFunctions funcList [] = (funcList, [])
---parseAllFunctions funcList (typ:toks) =
---        case typ of
---             (TokKeyword typ)
---                | validType typ ->
---                        let (funcTree, toks') = parseFunction toks
---                            in
---                        parseAllFunctions (funcList ++ [funcTree]) toks'
---                | otherwise -> error $ errorMessage TypeError
---             _ -> error $ errorMessage TypeError
 
 
 parseFunction :: [Token] -> (Tree, [Token])
