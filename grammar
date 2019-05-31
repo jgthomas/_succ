@@ -1,9 +1,13 @@
 
 <program> ::= { <function> | <function-prototype> | <declaration> }
-<function> ::= <type> <id> "(" { <type> <id> } ")" "{" { <block-item> } "}"
-<function-prototype> ::= <type> <id> "(" { <type> <id> } ")" ";"
-<declaration> ::= <type> <id> [ "=" <exp> ] ";"
+
+<function> ::= <type> <id> "(" [ <parameter-list> ] ")" "{" { <block-item> } "}"
+<function-prototype> ::= <type> <id> "(" [ <parameter-list> ] ")" ";"
+<parameter-list> ::= <parameter> { "," <parameter> }
+<parameter> := <type> <id>
+
 <block-item> ::= <statement> | <declaration>
+<declaration> ::= <type> <id> [ "=" <exp> ] ";"
 <statement> ::= "return" <exp> ";"
               | "if" "(" <exp> ")" <statement> [ "else" <statement> ]
               | "for" "(" <exp-opt-semicolon> <exp-opt-semicolon> <exp-opt> ")" <statement>
@@ -28,6 +32,10 @@
 <term> ::= <factor> { ("*" | "/" | "%") <factor> }
 <factor> ::= <int> | <id> | <unary-op> <factor> | "(" <exp> ")" | <function-call>
 
-<function-call> ::= <id> "(" [<exp> { "," <exp> }] ")"
-<type> ::= <int>
+<function-call> ::= <id> "(" [ <argument-list> ] ")"
+<argument-list> := <exp> { "," <exp> }
+<argument> ::= <exp>
+
 <unary-op> ::= "-" | "~" | "!"
+
+<type> ::= <int>
