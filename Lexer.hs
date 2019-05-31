@@ -21,7 +21,7 @@ tokenize (c:cs)
     | isTwoCharOp c cs  = twoCharOperator c cs
     | c == '='          = TokAssign                 : tokenize cs
     | elem c opSymbols  = TokOp (operator c)        : tokenize cs
-    | isAlpha c         = identifier c cs
+    | identifierStart c = identifier c cs
     | isDigit c         = number c cs
     | isSpace c         = tokenize cs
     | otherwise         = error $ "Cannot tokenize " ++ [c]
@@ -29,21 +29,19 @@ tokenize (c:cs)
 
 identifier :: Char -> String -> [Token]
 identifier c cs =
-    if isDigit c
-       then error $ "Invalid start to identifier: " ++ (show c)
-       else
     let (str, cs') = span isValidInIdentifier cs
-        in case (c:str) of
-                "int"      -> TokKeyword Int       : tokenize cs'
-                "return"   -> TokKeyword Return    : tokenize cs'
-                "if"       -> TokKeyword If        : tokenize cs'
-                "else"     -> TokKeyword Else      : tokenize cs'
-                "for"      -> TokKeyword For       : tokenize cs'
-                "while"    -> TokKeyword While     : tokenize cs'
-                "do"       -> TokKeyword Do        : tokenize cs'
-                "break"    -> TokKeyword Break     : tokenize cs'
-                "continue" -> TokKeyword Continue  : tokenize cs'
-                _          -> TokIdent (c:str)     : tokenize cs'
+        in
+    case (c:str) of
+         "int"      -> TokKeyword Int       : tokenize cs'
+         "return"   -> TokKeyword Return    : tokenize cs'
+         "if"       -> TokKeyword If        : tokenize cs'
+         "else"     -> TokKeyword Else      : tokenize cs'
+         "for"      -> TokKeyword For       : tokenize cs'
+         "while"    -> TokKeyword While     : tokenize cs'
+         "do"       -> TokKeyword Do        : tokenize cs'
+         "break"    -> TokKeyword Break     : tokenize cs'
+         "continue" -> TokKeyword Continue  : tokenize cs'
+         _          -> TokIdent (c:str)     : tokenize cs'
 
 
 number :: Char -> String -> [Token]
@@ -53,15 +51,17 @@ number c cs =
 
 
 twoCharOperator :: Char -> String -> [Token]
-twoCharOperator c cs = let (so, cs') = span (\x -> elem x secondOpSymbols) cs
-                         in case (c:so) of
-                                 "||" -> TokOp LogicalOR          : tokenize cs'
-                                 "&&" -> TokOp LogicalAND         : tokenize cs'
-                                 ">=" -> TokOp GreaterThanOrEqual : tokenize cs'
-                                 "<=" -> TokOp LessThanOrEqual    : tokenize cs'
-                                 "==" -> TokOp Equal              : tokenize cs'
-                                 "!=" -> TokOp NotEqual           : tokenize cs'
-                                 _    -> error "Unrecognised two character operator"
+twoCharOperator c cs =
+        let (so, cs') = span (\x -> elem x secondOpSymbols) cs
+            in
+        case (c:so) of
+             "||" -> TokOp LogicalOR          : tokenize cs'
+             "&&" -> TokOp LogicalAND         : tokenize cs'
+             ">=" -> TokOp GreaterThanOrEqual : tokenize cs'
+             "<=" -> TokOp LessThanOrEqual    : tokenize cs'
+             "==" -> TokOp Equal              : tokenize cs'
+             "!=" -> TokOp NotEqual           : tokenize cs'
+             _    -> error "Unrecognised two character operator"
 
 
 isTwoCharOp :: Char -> String -> Bool
@@ -84,8 +84,14 @@ operator c | c == '+' = Plus
 opSymbols :: String
 opSymbols = "+-*/~!|&<>=%"
 
+
 secondOpSymbols :: String
 secondOpSymbols = "=|&"
 
+
+identifierStart :: Char -> Bool
+identifierStart c = isAlpha c || c == '_'
+
+
 isValidInIdentifier :: Char -> Bool
-isValidInIdentifier c = isAlphaNum c || c == '_'
+isValidInIdentifier c = identifierStart c || isDigit c
