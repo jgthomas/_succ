@@ -12,8 +12,8 @@
 <statement> ::= "return" <expression> ";"
               | "if" "(" <expression> ")" <statement> [ "else" <statement> ]
               | "for"
-              | "while"
-              | "do"
+              | "while" "(" <expression> ")" <statement>
+              | "do" <statement> "while" "(" <expression> ")"
               | "break" ";"
               | "continue" ";"
               | <expression> ";"
