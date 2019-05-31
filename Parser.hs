@@ -283,6 +283,7 @@ parseDeclaration (ty:id:toks) =
                      if lookAhead toks' /= TokSemiColon
                         then error $ errorMessage SemiColon
                         else (DeclarationNode varName exprTree, accept toks')
+             _ -> error $ "invalid identifier: " ++ (show id)
 
 
 parseOptionalAssign :: [Token] -> (Maybe Tree, [Token])
