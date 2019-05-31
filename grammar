@@ -6,7 +6,7 @@
 <parameter-list> ::= <parameter> { "," <parameter> }
 <parameter> := <type> <id>
 
-<block-item> ::= <statement> | <declaration>
+<block-item> ::= <declaration> | <statement>
 <declaration> ::= <type> <id> [ "=" <exp> ] ";"
 <statement> ::= "return" <exp> ";"
               | "if" "(" <exp> ")" <statement> [ "else" <statement> ]
