@@ -42,6 +42,7 @@ stackPeek (Stack s) = head s
 
 
 stackPop :: Stack a -> Stack a
+stackPop (Stack []) = (Stack [])
 stackPop (Stack s) = Stack (tail s)
 
 
