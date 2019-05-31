@@ -11,14 +11,18 @@
 
 <statement> ::= "return" <expression> ";"
               | "if" "(" <expression> ")" <statement> [ "else" <statement> ]
-              | "for"
+              | "for" "(" <exp-option-semicolon> <exp-option-semicolon> <exp-option> ")" <statement> 
+              | "for" "(" <declaration> <exp-option-semicolon> <exp-option> ")" <statement>
               | "while" "(" <expression> ")" <statement>
-              | "do" <statement> "while" "(" <expression> ")"
+              | "do" <statement> "while" "(" <expression> ")" ";"
               | "break" ";"
               | "continue" ";"
-              | <expression> ";"
-              | ";"
+              | <exp-option> ";"
               | "{" { <block-item> } "}"
+
+<exp-option> ::= <expression> | ""
+
+<exp-option-semicolon> ::= <expression> ";" | ";"
 
 <expression> ::=
 
