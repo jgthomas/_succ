@@ -11,8 +11,8 @@
 
 <statement> ::= "return" <expression> ";"
               | "if" "(" <expression> ")" <statement> [ "else" <statement> ]
-              | "for" "(" <exp-option-semicolon> <exp-option-semicolon> <exp-option> ")" <statement> 
-              | "for" "(" <declaration> <exp-option-semicolon> <exp-option> ")" <statement>
+              | "for" "(" <expression-optional-semicolon> <expression-optional-semicolon> <expression-optional> ")" <statement> 
+              | "for" "(" <declaration> <expression-optional-semicolon> <expression-optional> ")" <statement>
               | "while" "(" <expression> ")" <statement>
               | "do" <statement> "while" "(" <expression> ")" ";"
               | "break" ";"
@@ -20,13 +20,15 @@
               | <exp-option> ";"
               | "{" { <block-item> } "}"
 
-<exp-option> ::= <expression> | ""
+<expression-optional> ::= <expression> | ""
 
-<exp-option-semicolon> ::= <expression> ";" | ";"
+<expression-optional-semicolon> ::= <expression> ";" | ";"
 
-<expression> ::=
+<expression> ::= <id> "=" <expression> | <conditional-expression>
 
-<term> ::=
+<conditional-expression> ::= 
+
+<term> ::= <factor> { ("*" | "\" | "%") <factor> }
 
 <factor> ::= <int>
            | <id>
