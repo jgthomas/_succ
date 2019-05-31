@@ -157,7 +157,11 @@ genASM (DeclarationNode varName value) = do
         if global
            then do
                    SymTab.declareGlobal varName
-                   return ""
+                   case value of
+                        Nothing -> return ""
+                        Just v  -> do
+                                n <- genASM v
+                                return n
            else do
                    varDeclared <- SymTab.checkVariable varName
                    paramDeclared <- SymTab.parameterDeclared varName
@@ -173,15 +177,22 @@ genASM (DeclarationNode varName value) = do
                                      Just value  -> genASM value
 
 genASM (AssignmentNode varName value operator) = do
-        offset <- SymTab.variableOffset varName
-        case offset of
-             Just off -> do
-                     assign <- genASM value
-                     adjustment <- SymTab.stackPointerValue
-                     return $ assign
-                              ++ varOnStack off
-                              ++ (adjustStackPointer adjustment)
-             Nothing -> error $ "Undefined variable: '" ++ varName
+        global <- SymTab.inGlobalScope
+        if global
+           then do
+                   n <- genASM value
+                   lab <- SymTab.labelNum
+                   return $ varToDataSection (varName ++ (show lab)) $ read n
+           else do
+                   offset <- SymTab.variableOffset varName
+                   case offset of
+                        Just off -> do
+                                assign <- genASM value
+                                adjustment <- SymTab.stackPointerValue
+                                return $ assign
+                                         ++ varOnStack off
+                                         ++ (adjustStackPointer adjustment)
+                        Nothing -> error $ "Undefined variable: '" ++ varName
 
 genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression
@@ -244,7 +255,11 @@ genASM (VarNode varName) = do
 
 genASM (NullExprNode) = return ""
 
-genASM (ConstantNode n) = return $ loadValue n
+genASM (ConstantNode n) = do
+        global <- SymTab.inGlobalScope
+        case global of
+             True  -> return $ show n
+             False -> return $ loadValue n
 
 
 functionName :: String -> String
@@ -418,6 +433,16 @@ emitLabel n = "_label_" ++ (show n) ++ ":\n"
 
 testResult :: String
 testResult = "cmpq $0, %rax\n"
+
+
+varToDataSection :: String -> Int -> String
+varToDataSection label val =
+        ".globl _" ++ label ++ "\n"
+        ++ ".data\n"
+        ++ ".align 4\n"
+        ++ "_" ++ label ++ ":\n"
+        ++ ".long " ++ (show val) ++ "\n"
+        ++ ".text\n"
 
 
 hasReturn :: [Tree] -> Bool
