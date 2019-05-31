@@ -5,9 +5,9 @@ function ::= <type> <id> "(" { <type> <id> } ")" "{" { <block-item> } "}"
 
 function-prototype ::= <type> <id> "(" { <type> <id> } ")" ";"
 
-block-item ::= <statement> | <declaration>
-
 declaration ::= <type> <id> { "=" <expression> } ";"
+
+block-item ::= <statement> | <declaration>
 
 statement ::= "return" <expression> ";"
             | "if"
