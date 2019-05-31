@@ -29,8 +29,8 @@ parseTopLevelItems itemList allToks@(a:toks) =
                         let (item, toks') = parseTopLevelItem allToks
                             in
                         parseTopLevelItems (itemList ++ [item]) toks'
-                | otherwise -> error $ errorMessage TypeError
-             _ -> error $ errorMessage TypeError
+                | otherwise -> error $ errorMessage TypeError ++ (show typ)
+             _ -> error $ errorMessage TypeError ++ (show a)
 
 
 parseTopLevelItem :: [Token] -> (Tree, [Token])
@@ -475,5 +475,5 @@ errorMessage err
     | err == CloseBrace = "Missing closing brace"
     | err == OpenParen  = "Missing opening parenthesis"
     | err == CloseParen = "Missing closing parenthesis"
-    | err == TypeError  = "Invalid type"
+    | err == TypeError  = "Invalid type: "
     | err == ParseError = "Parse error on token: "
