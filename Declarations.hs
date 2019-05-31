@@ -1,6 +1,7 @@
 
 module Declarations (newDecTable,
-                     addDeclaration,
+                     declareFunction,
+                     declareGlobal,
                      decParamCount,
                      decSeqNumber,
                      currentSeqNumber) where
@@ -22,9 +23,14 @@ newDecTable = D
               M.empty
 
 
-addDeclaration :: String -> Int -> Evaluator Declared
-addDeclaration funcName paramCount = do
-        insertDeclaration funcName paramCount
+declareFunction :: String -> Int -> Evaluator ()
+declareFunction funcName paramCount = do
+        declareFunc funcName paramCount
+
+
+declareGlobal :: String -> Evaluator ()
+declareGlobal name = do
+        declareVar name
 
 
 decParamCount :: String -> Evaluator (Maybe Int)
@@ -45,13 +51,23 @@ currentSeqNumber = do
 
 {- Internal -}
 
-insertDeclaration :: String -> Int -> Evaluator Declared
-insertDeclaration funcName paramCount = Ev $ \symTab ->
+declareFunc :: String -> Int -> Evaluator ()
+declareFunc funcName paramCount = Ev $ \symTab ->
+        let declared   = declarations symTab
+            declared'  = addSymbol declared funcName
+            declared'' = addParams declared' funcName paramCount
+            symTab'    = symTab { declarations = declared'' }
+            in
+        ((), symTab')
+
+
+declareVar :: String -> Evaluator ()
+declareVar name = Ev $ \symTab ->
         let declared  = declarations symTab
-            declared' = declFunc declared funcName paramCount
+            declared' = addSymbol declared name
             symTab'   = symTab { declarations = declared' }
             in
-        (declared', symTab')
+        ((), symTab')
 
 
 paramCount :: String -> Evaluator (Maybe Int)
@@ -72,18 +88,6 @@ seqNumber funcName = Ev $ \symTab ->
         case M.lookup funcName seqTab of
              Just n  -> (Just n, symTab)
              Nothing -> (Nothing, symTab)
-
-
-declVar :: Declared -> String -> Declared
-declVar table name = addSymbol table name
-
-
-declFunc :: Declared -> String -> Int -> Declared
-declFunc table name paramCount =
-        let table'  = addSymbol table name
-            table'' = addParams table' name paramCount
-            in
-        table''
 
 
 addSymbol :: Declared -> String -> Declared

@@ -429,7 +429,7 @@ processDeclaration funcName paramCount = do
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
              Nothing -> do
-                     SymTab.addDeclaration funcName paramCount
+                     SymTab.declareFunction funcName paramCount
                      return ()
              Just p  -> do
                      if p /= paramCount
@@ -442,7 +442,7 @@ processDefinition funcName paramCount = do
         alreadyDefined <- SymTab.functionDefined funcName
         case alreadyDefined of
              False -> do
-                     SymTab.addDeclaration funcName paramCount
+                     SymTab.declareFunction funcName paramCount
                      return True
              True  -> error $ "Function aleady defined: " ++ funcName
 

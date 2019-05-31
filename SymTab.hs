@@ -15,7 +15,8 @@ import qualified Data.Map as M
 import Evaluator     (Evaluator(Ev))
 import Types         (SymTab(Tab, labelNo, offset))
 import Declarations  (newDecTable,
-                      addDeclaration,
+                      declareFunction,
+                      declareGlobal,
                       decParamCount,
                       decSeqNumber,
                       currentSeqNumber)
