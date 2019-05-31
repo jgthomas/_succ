@@ -22,23 +22,19 @@ parseProgram toks =
 
 parseTopLevelItems :: [Tree] -> [Token] -> ([Tree], [Token])
 parseTopLevelItems itemList [] = (itemList, [])
-parseTopLevelItems itemList allToks@(a:b:c:d:toks) =
+parseTopLevelItems itemList allToks@(a:toks) =
         case a of
-             (TokIdent id) ->
-                     let (assign, toks') = parseExprStatement allToks
-                         in
-                     parseTopLevelItems (itemList ++ [assign]) toks'
              (TokKeyword typ)
                 | validType typ ->
-                        let (dec, toks') = parseTopLevelDeclaration allToks
+                        let (item, toks') = parseTopLevelItem allToks
                             in
-                        parseTopLevelItems (itemList ++ [dec]) toks'
+                        parseTopLevelItems (itemList ++ [item]) toks'
                 | otherwise -> error $ errorMessage TypeError
              _ -> error $ errorMessage TypeError
 
 
-parseTopLevelDeclaration :: [Token] -> (Tree, [Token])
-parseTopLevelDeclaration allToks@(a:b:c:toks) =
+parseTopLevelItem :: [Token] -> (Tree, [Token])
+parseTopLevelItem allToks@(a:b:c:toks) =
         case c of
              TokOpenParen -> parseFunction (accept allToks)
              _            -> parseDeclaration allToks
