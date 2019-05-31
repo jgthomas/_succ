@@ -29,8 +29,6 @@
            | <unary-op> <factor>
            | "(" <expression> ")"
 
-<binary-op> ::= "+" | "-" | "*" | "/" | "%"
-
 <unary-op> ::= "-" | "~" | "!"
 
 <id> ::= <char> | <char> { <char> <digit> "_" }
