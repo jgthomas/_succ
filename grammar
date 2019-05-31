@@ -20,7 +20,9 @@ statement ::= "return" <expression> ";"
 
 expression ::=
 
-factor ::=
+factor ::= <digit>
+         | <digit> { <digit> }
+         | <id>
 
 id ::= <char> | <char> { <char> <digit> "_" }
 
