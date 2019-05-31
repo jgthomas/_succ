@@ -44,6 +44,9 @@
            | <id>
            | <unary-op> <factor>
            | "(" <exp> ")"
+           | <function-call>
+           
+<function-call> ::= <id> "(" [<exp> { "," <exp> }] ")"
 
 <unary-op> ::= "-" | "~" | "!"
 
