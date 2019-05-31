@@ -153,8 +153,8 @@ genASM (IfNode test action possElse) = do
                               ++ (emitLabel nextLabel)
 
 genASM (DeclarationNode varName value) = do
-        global <- SymTab.inGlobalScope
-        if global
+        currScope <- SymTab.currentScope
+        if currScope == "global"
            then case value of
                      Nothing     -> return ""
                      Just assign -> genASM assign
@@ -173,8 +173,8 @@ genASM (DeclarationNode varName value) = do
                                      Just value  -> genASM value
 
 genASM (AssignmentNode varName value operator) = do
-        global <- SymTab.inGlobalScope
-        if global
+        currScope <- SymTab.currentScope
+        if currScope == "global"
            then do
                    SymTab.declareGlobal varName
                    n <- genASM value
@@ -253,10 +253,10 @@ genASM (VarNode varName) = do
 genASM (NullExprNode) = return ""
 
 genASM (ConstantNode n) = do
-        global <- SymTab.inGlobalScope
-        case global of
-             True  -> return $ show n
-             False -> return $ loadValue n
+        currScope <- SymTab.currentScope
+        if currScope == "global"
+           then return $ show n
+           else return $ loadValue n
 
 
 functionName :: String -> String

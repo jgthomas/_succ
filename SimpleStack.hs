@@ -1,7 +1,7 @@
 
 module SimpleStack (newStack,
                     currentFunction,
-                    inGlobalScope,
+                    currentScope,
                     popFunctionName,
                     pushFunctionName) where
 
@@ -10,20 +10,16 @@ import Types (SymTab(nameStack), Stack(Stack))
 import Evaluator (Evaluator(Ev))
 
 
+currentScope:: Evaluator String
+currentScope = currentFunction
+
+
 currentFunction :: Evaluator String
 currentFunction = do
         currFuncName <- queryStack
         case currFuncName of
              Nothing   -> return "global"
              Just name -> return name
-
-
-inGlobalScope :: Evaluator Bool
-inGlobalScope = do
-        global <- queryStack
-        case global of
-             Nothing -> return True
-             Just f  -> return False
 
 
 popFunctionName :: Evaluator Bool
