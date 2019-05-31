@@ -9,7 +9,13 @@ block-item ::= <statement> | <declaration>
 
 declaration ::= <type> <id> { "=" <factor> } ";"
 
-statement ::= 
+statement ::= "return" <expression>
+            | "if"
+            | "for"
+            | "while"
+            | "do"
+            | "break" ";"
+            | "continue" ";"
 
 expression ::=
 
