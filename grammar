@@ -5,45 +5,45 @@
 
 <function-prototype> ::= <type> <id> "(" { <type> <id> } ")" ";"
 
-<declaration> ::= <type> <id> [ "=" <expression> ] ";"
+<declaration> ::= <type> <id> [ "=" <exp> ] ";"
 
 <block-item> ::= <statement> | <declaration>
 
-<statement> ::= "return" <expression> ";"
-              | "if" "(" <expression> ")" <statement> [ "else" <statement> ]
-              | "for" "(" <expression-optional-semicolon> <expression-optional-semicolon> <expression-optional> ")" <statement> 
-              | "for" "(" <declaration> <expression-optional-semicolon> <expression-optional> ")" <statement>
-              | "while" "(" <expression> ")" <statement>
-              | "do" <statement> "while" "(" <expression> ")" ";"
+<statement> ::= "return" <exp> ";"
+              | "if" "(" <exp> ")" <statement> [ "else" <statement> ]
+              | "for" "(" <exp-opt-semicolon> <exp-opt-semicolon> <exp-opt> ")" <statement>
+              | "for" "(" <declaration> <exp-opt-semicolon> <exp-opt> ")" <statement>
+              | "while" "(" <exp> ")" <statement>
+              | "do" <statement> "while" "(" <exp> ")" ";"
               | "break" ";"
               | "continue" ";"
               | <exp-option> ";"
               | "{" { <block-item> } "}"
 
-<expression-optional> ::= <expression> | ""
+<exp-opt> ::= <exp> | ""
 
-<expression-optional-semicolon> ::= <expression> ";" | ";"
+<exp-opt-semicolon> ::= <exp> ";" | ";"
 
-<expression> ::= <id> "=" <expression> | <conditional-expression>
+<exp> ::= <id> "=" <exp> | <conditional-exp>
 
-<conditional-expression> ::= <logical-or-expression> [ "?" <expression> ":" <conditional-expression> ]
+<conditional-exp> ::= <logical-or-exp> [ "?" <exp> ":" <conditional-exp> ]
 
-<logical-or-expression> ::= <logical-and-expression> { "||" <logical-and-expression> }
+<logical-or-exp> ::= <logical-and-exp> { "||" <logical-and-exp> }
 
-<logical-and-expression> ::= <equality-expression> { "&&" <equality-expression> }
+<logical-and-exp> ::= <equality-exp> { "&&" <equality-exp> }
 
-<equality-expression> ::= <relational-expression> { ("==" | "!=") <relational-expression> }
+<equality-exp> ::= <relational-exp> { ("==" | "!=") <relational-exp> }
 
-<relational-expression> ::= <additive-expression> { ("<" | ">" | "<=" | ">=") <additive-expression> }
+<relational-exp> ::= <additive-exp> { ("<" | ">" | "<=" | ">=") <additive-exp> }
 
-<additive-expression> ::= <term> { ("+" | "-") <term> }
+<additive-exp> ::= <term> { ("+" | "-") <term> }
 
 <term> ::= <factor> { ("*" | "\" | "%") <factor> }
 
 <factor> ::= <int>
            | <id>
            | <unary-op> <factor>
-           | "(" <expression> ")"
+           | "(" <exp> ")"
 
 <unary-op> ::= "-" | "~" | "!"
 
@@ -55,4 +55,4 @@
 
 <char> ::= a | b | c ... x | y | z
 
-<digit> ::= 0 | 1 | 2 | 3 |4 | 5 | 6 | 7 | 8 | 9 
+<digit> ::= 0 | 1 | 2 | 3 |4 | 5 | 6 | 7 | 8 | 9
