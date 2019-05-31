@@ -76,7 +76,9 @@ checkVariable varName = do
         progScope <- getProgramScope
         funcScope <- getFunctionScope currFuncName progScope
         locScope <- getLocalScope scopeLevel funcScope
-        return $ checkVar varName locScope
+        case getVar varName locScope of
+             Just v  -> return True
+             Nothing -> return False
 
 
 variableOffset :: String -> Evaluator (Maybe Int)
@@ -189,13 +191,6 @@ updateProgramScope funcName funcScope = Ev $ \symTab ->
             scopes' = scopesData symTab'
             in
         (scopes', symTab')
-
-
-checkVar :: String -> LocalScope -> Bool
-checkVar varName varMap =
-        case M.lookup varName varMap of
-             Just v  -> True
-             Nothing -> False
 
 
 getVar :: String -> LocalScope -> Maybe Int
