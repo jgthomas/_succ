@@ -26,7 +26,17 @@
 
 <expression> ::= <id> "=" <expression> | <conditional-expression>
 
-<conditional-expression> ::= 
+<conditional-expression> ::= <logical-or-expression> [ "?" <expression> ":" <conditional-expression> ]
+
+<logical-or-expression> ::= <logical-and-expression> { "||" <logical-and-expression> }
+
+<logical-and-expression> ::= <equality-expression> { "&&" <equality-expression> }
+
+<equality-expression> ::= <relational-expression> { ("==" | "!=") <relational-expression> }
+
+<relational-expression> ::= <additive-expression> { ("<" | ">" | "<=" | ">=") <additive-expression> }
+
+<additive-expression> ::= <term> { ("+" | "-") <term> }
 
 <term> ::= <factor> { ("*" | "\" | "%") <factor> }
 
