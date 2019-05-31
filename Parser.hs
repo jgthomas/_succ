@@ -99,8 +99,8 @@ parseBlock stmts toks =
 parseBlockItem :: [Token] -> (Tree, [Token])
 parseBlockItem toks =
         case lookAhead toks of
-             (TokKeyword kwd) | kwd == Int     -> parseDeclaration toks
-             _                                 -> parseStatement toks
+             (TokKeyword kwd) | validType kwd -> parseDeclaration toks
+             _                                -> parseStatement toks
 
 
 parseStatement :: [Token] -> (Tree, [Token])
