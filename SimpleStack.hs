@@ -11,10 +11,11 @@ import Evaluator (Evaluator(Ev))
 
 currentFunction :: Evaluator String
 currentFunction = Ev $ \symTab ->
-        let stack = nameStack symTab
-            currFuncName = stackPeek stack
+        let currFuncName = stackPeek $ nameStack symTab
             in
-        (currFuncName, symTab)
+        case currFuncName of
+             Nothing   -> ("global", symTab)
+             Just name -> (name, symTab)
 
 
 popFunctionName :: Evaluator Bool
@@ -37,8 +38,9 @@ newStack :: Stack a
 newStack = Stack []
 
 
-stackPeek :: Stack a -> a
-stackPeek (Stack s) = head s
+stackPeek :: Stack a -> Maybe a
+stackPeek (Stack []) = Nothing
+stackPeek (Stack s) = Just $ head s
 
 
 stackPop :: Stack a -> Stack a
