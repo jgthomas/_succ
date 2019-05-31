@@ -66,7 +66,8 @@ twoCharOperator c cs =
 
 isTwoCharOp :: Char -> String -> Bool
 isTwoCharOp c [] = False
-isTwoCharOp c cs = elem c opSymbols && elem (head cs) secondOpSymbols
+isTwoCharOp c cs = elem c opSymbols
+                   && elem (head cs) secondOpSymbols
 
 
 operator :: Char -> Operator
