@@ -155,11 +155,9 @@ genASM (IfNode test action possElse) = do
 genASM (DeclarationNode varName value) = do
         global <- SymTab.inGlobalScope
         if global
-           then do
-                   SymTab.declareGlobal varName
-                   case value of
-                        Nothing     -> return ""
-                        Just assign -> genASM assign
+           then case value of
+                     Nothing     -> return ""
+                     Just assign -> genASM assign
            else do
                    varDeclared <- SymTab.checkVariable varName
                    paramDeclared <- SymTab.parameterDeclared varName
@@ -178,6 +176,7 @@ genASM (AssignmentNode varName value operator) = do
         global <- SymTab.inGlobalScope
         if global
            then do
+                   SymTab.declareGlobal varName
                    n <- genASM value
                    lab <- SymTab.labelNum
                    return $ varToDataSection (varName ++ (show lab)) $ read n
