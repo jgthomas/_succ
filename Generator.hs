@@ -158,10 +158,8 @@ genASM (DeclarationNode varName value) = do
            then do
                    SymTab.declareGlobal varName
                    case value of
-                        Nothing -> return ""
-                        Just v  -> do
-                                n <- genASM v
-                                return n
+                        Nothing     -> return ""
+                        Just assign -> genASM assign
            else do
                    varDeclared <- SymTab.checkVariable varName
                    paramDeclared <- SymTab.parameterDeclared varName
