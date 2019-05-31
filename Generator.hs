@@ -153,18 +153,24 @@ genASM (IfNode test action possElse) = do
                               ++ (emitLabel nextLabel)
 
 genASM (DeclarationNode varName value) = do
-        varDeclared <- SymTab.checkVariable varName
-        paramDeclared <- SymTab.parameterDeclared varName
-        case varDeclared || paramDeclared of
-             True  -> error $ "Variable '" ++ varName ++ "' already declared"
-             False -> do
-                     offset <- SymTab.addVariable varName
-                     adjustment <- SymTab.stackPointerValue
-                     case value of
-                          Nothing     -> return $ loadValue 0
-                                                  ++ varOnStack offset
-                                                  ++ (adjustStackPointer adjustment)
-                          Just value  -> genASM value
+        global <- SymTab.inGlobalScope
+        if global
+           then do
+                   SymTab.declareGlobal varName
+                   return ""
+           else do
+                   varDeclared <- SymTab.checkVariable varName
+                   paramDeclared <- SymTab.parameterDeclared varName
+                   case varDeclared || paramDeclared of
+                        True  -> error $ "Variable '" ++ varName ++ "' already declared"
+                        False -> do
+                                offset <- SymTab.addVariable varName
+                                adjustment <- SymTab.stackPointerValue
+                                case value of
+                                     Nothing     -> return $ loadValue 0
+                                                             ++ varOnStack offset
+                                                             ++ (adjustStackPointer adjustment)
+                                     Just value  -> genASM value
 
 genASM (AssignmentNode varName value operator) = do
         offset <- SymTab.variableOffset varName

@@ -1,6 +1,7 @@
 
 module SimpleStack (newStack,
                     currentFunction,
+                    inGlobalScope,
                     popFunctionName,
                     pushFunctionName) where
 
@@ -10,12 +11,19 @@ import Evaluator (Evaluator(Ev))
 
 
 currentFunction :: Evaluator String
-currentFunction = Ev $ \symTab ->
-        let currFuncName = stackPeek $ nameStack symTab
-            in
+currentFunction = do
+        currFuncName <- queryStack
         case currFuncName of
-             Nothing   -> ("global", symTab)
-             Just name -> (name, symTab)
+             Nothing   -> return "global"
+             Just name -> return name
+
+
+inGlobalScope :: Evaluator Bool
+inGlobalScope = do
+        global <- queryStack
+        case global of
+             Nothing -> return True
+             Just f  -> return False
 
 
 popFunctionName :: Evaluator Bool
@@ -32,6 +40,10 @@ pushFunctionName funcName = Ev $ \symTab ->
             symTab' = symTab { nameStack = stackPush funcName stack }
             in
         (True, symTab')
+
+
+queryStack :: Evaluator (Maybe String)
+queryStack = Ev $ \symTab -> (stackPeek $ nameStack symTab, symTab)
 
 
 newStack :: Stack a

@@ -1,6 +1,7 @@
 
 module SymTab (addVariable,
                closeFunction,
+               inGlobalScope,
                initFunction,
                labelNum,
                newSymTab,
@@ -28,6 +29,7 @@ import FunctionState (newFuncState,
                       resetArguments)
 import SimpleStack   (newStack,
                       currentFunction,
+                      inGlobalScope,
                       popFunctionName,
                       pushFunctionName)
 import Scope         (initScope,
