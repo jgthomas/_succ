@@ -46,7 +46,8 @@ identifier c cs =
 
 number :: Char -> String -> [Token]
 number c cs =
-    let (digs, cs') = span isDigit cs in
+    let (digs, cs') = span isDigit cs
+        in
     TokConstInt (read (c:digs)) : tokenize cs'
 
 
