@@ -10,7 +10,7 @@
 <block-item> ::= <statement> | <declaration>
 
 <statement> ::= "return" <expression> ";"
-              | "if"
+              | "if" "(" <expression> ")" <statement> [ "else" <statement> ]
               | "for"
               | "while"
               | "do"
@@ -18,7 +18,7 @@
               | "continue" ";"
               | <expression> ";"
               | ";"
-              | "{" { <statement> "}"
+              | "{" { <block-item> "}"
 
 <expression> ::=
 
