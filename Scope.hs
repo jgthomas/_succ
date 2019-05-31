@@ -200,10 +200,9 @@ checkVar varName varMap =
 
 getVar :: String -> LocalScope -> Maybe Int
 getVar varName varMap =
-        let value = M.lookup varName varMap
-            in case value of
-                    Just v  -> Just v
-                    Nothing -> Nothing
+        case M.lookup varName varMap of
+             Just v  -> Just v
+             Nothing -> Nothing
 
 
 incrementScope :: Evaluator Int
