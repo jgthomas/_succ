@@ -38,7 +38,7 @@
 
 <additive-exp> ::= <term> { ("+" | "-") <term> }
 
-<term> ::= <factor> { ("*" | "\" | "%") <factor> }
+<term> ::= <factor> { ("*" | "/" | "%") <factor> }
 
 <factor> ::= <int>
            | <id>
