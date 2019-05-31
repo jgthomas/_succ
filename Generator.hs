@@ -451,6 +451,16 @@ uninitializedGlobal label =
         ++ ".text\n"
 
 
+storeGlobal :: String -> Int -> String
+storeGlobal label val =
+        "movq $" ++ (show val) ++ ", _" ++ label ++ "(%rip)\n"
+
+
+loadGlobal :: String -> String
+loadGlobal label =
+        "movq _" ++ label ++ "(%rip), %rax\n"
+
+
 hasReturn :: [Tree] -> Bool
 hasReturn blockItems =
         case length blockItems of
