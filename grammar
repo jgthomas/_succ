@@ -1,33 +1,35 @@
 
-program ::= { <function> | <function-prototype> | <declaration> }
+<program> ::= { <function> | <function-prototype> | <declaration> }
 
-function ::= <type> <id> "(" { <type> <id> } ")" "{" { <block-item> } "}"
+<function> ::= <type> <id> "(" { <type> <id> } ")" "{" { <block-item> } "}"
 
-function-prototype ::= <type> <id> "(" { <type> <id> } ")" ";"
+<function-prototype> ::= <type> <id> "(" { <type> <id> } ")" ";"
 
-declaration ::= <type> <id> { "=" <expression> } ";"
+<declaration> ::= <type> <id> { "=" <expression> } ";"
 
-block-item ::= <statement> | <declaration>
+<block-item> ::= <statement> | <declaration>
 
-statement ::= "return" <expression> ";"
-            | "if"
-            | "for"
-            | "while"
-            | "do"
-            | "break" ";"
-            | "continue" ";"
-            | ";"
+<statement> ::= "return" <expression> ";"
+              | "if"
+              | "for"
+              | "while"
+              | "do"
+              | "break" ";"
+              | "continue" ";"
+              | ";"
 
-expression ::=
+<expression> ::=
 
-factor ::= <digit>
-         | <digit> { <digit> }
-         | <id>
+<factor> ::= <digit>
+           | <digit> { <digit> }
+           | <id>
 
-id ::= <char> | <char> { <char> <digit> "_" }
+<unary-op> ::= "-" | "~" | "!"
+
+<id> ::= <char> | <char> { <char> <digit> "_" }
 
 <char> ::= a | b | c ... x | y | z
 
 <digit> ::= 0 | 1 | 2 | 3 |4 | 5 | 6 | 7 | 8 | 9 
 
-type ::= "int"
+<type> ::= "int"
