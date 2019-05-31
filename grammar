@@ -5,7 +5,7 @@
 
 <function-prototype> ::= <type> <id> "(" { <type> <id> } ")" ";"
 
-<declaration> ::= <type> <id> { "=" <expression> } ";"
+<declaration> ::= <type> <id> [ "=" <expression> ] ";"
 
 <block-item> ::= <statement> | <declaration>
 
@@ -16,6 +16,7 @@
               | "do"
               | "break" ";"
               | "continue" ";"
+              | <expression> ";"
               | ";"
 
 <expression> ::=
