@@ -1,14 +1,9 @@
 
 <program> ::= { <function> | <function-prototype> | <declaration> }
-
 <function> ::= <type> <id> "(" { <type> <id> } ")" "{" { <block-item> } "}"
-
 <function-prototype> ::= <type> <id> "(" { <type> <id> } ")" ";"
-
 <declaration> ::= <type> <id> [ "=" <exp> ] ";"
-
 <block-item> ::= <statement> | <declaration>
-
 <statement> ::= "return" <exp> ";"
               | "if" "(" <exp> ")" <statement> [ "else" <statement> ]
               | "for" "(" <exp-opt-semicolon> <exp-opt-semicolon> <exp-opt> ")" <statement>
@@ -21,39 +16,18 @@
               | "{" { <block-item> } "}"
 
 <exp-opt> ::= <exp> | ""
-
 <exp-opt-semicolon> ::= <exp> ";" | ";"
 
 <exp> ::= <id> "=" <exp> | <conditional-exp>
-
 <conditional-exp> ::= <logical-or-exp> [ "?" <exp> ":" <conditional-exp> ]
-
 <logical-or-exp> ::= <logical-and-exp> { "||" <logical-and-exp> }
-
 <logical-and-exp> ::= <equality-exp> { "&&" <equality-exp> }
-
 <equality-exp> ::= <relational-exp> { ("==" | "!=") <relational-exp> }
-
 <relational-exp> ::= <additive-exp> { ("<" | ">" | "<=" | ">=") <additive-exp> }
-
 <additive-exp> ::= <term> { ("+" | "-") <term> }
-
 <term> ::= <factor> { ("*" | "/" | "%") <factor> }
+<factor> ::= <int> | <id> | <unary-op> <factor> | "(" <exp> ")" | <function-call>
 
-<factor> ::= <int>
-           | <id>
-           | <unary-op> <factor>
-           | "(" <exp> ")"
-           | <function-call>
-           
 <function-call> ::= <id> "(" [<exp> { "," <exp> }] ")"
-
-<unary-op> ::= "-" | "~" | "!"
-
-<id> ::= <char> | <char> { <char> <digit> "_" }
-
 <type> ::= <int>
-
-<char> ::= a | b | c ... x | y | z
-
-<digit> ::= 0 | 1 | 2 | 3 |4 | 5 | 6 | 7 | 8 | 9
+<unary-op> ::= "-" | "~" | "!"
