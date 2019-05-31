@@ -179,7 +179,7 @@ genASM (AssignmentNode varName value operator) = do
                    SymTab.declareGlobal varName
                    n <- genASM value
                    lab <- SymTab.labelNum
-                   return $ varToDataSection (varName ++ (show lab)) $ read n
+                   return $ initializedGlobal (varName ++ (show lab)) $ read n
            else do
                    offset <- SymTab.variableOffset varName
                    case offset of
@@ -432,8 +432,8 @@ testResult :: String
 testResult = "cmpq $0, %rax\n"
 
 
-varToDataSection :: String -> Int -> String
-varToDataSection label val =
+initializedGlobal :: String -> Int -> String
+initializedGlobal label val =
         ".globl _" ++ label ++ "\n"
         ++ ".data\n"
         ++ ".align 4\n"
