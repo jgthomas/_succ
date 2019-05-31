@@ -24,6 +24,8 @@
            | <digit> { <digit> }
            | <id>
 
+<binary-op> ::= "+" | "-" | "*" | "/" | "%"
+
 <unary-op> ::= "-" | "~" | "!"
 
 <id> ::= <char> | <char> { <char> <digit> "_" }
