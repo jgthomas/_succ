@@ -442,6 +442,15 @@ initializedGlobal label val =
         ++ ".text\n"
 
 
+uninitializedGlobal :: String -> String
+uninitializedGlobal label =
+        ".globl _" ++ label ++ "\n"
+        ++ ".bss\n"
+        ++ ".align 4\n"
+        ++ "_" ++ label ++ ":\n"
+        ++ ".text\n"
+
+
 hasReturn :: [Tree] -> Bool
 hasReturn blockItems =
         case length blockItems of
