@@ -20,9 +20,12 @@
 
 <expression> ::=
 
+<term> ::=
+
 <factor> ::= <digit>
            | <digit> { <digit> }
            | <id>
+           | <unary-op> <factor>
 
 <binary-op> ::= "+" | "-" | "*" | "/" | "%"
 
