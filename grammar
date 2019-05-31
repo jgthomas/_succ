@@ -7,15 +7,16 @@ function-prototype ::= <type> <id> "(" { <type> <id> } ")" ";"
 
 block-item ::= <statement> | <declaration>
 
-declaration ::= <type> <id> { "=" <factor> } ";"
+declaration ::= <type> <id> { "=" <expression> } ";"
 
-statement ::= "return" <expression>
+statement ::= "return" <expression> ";"
             | "if"
             | "for"
             | "while"
             | "do"
             | "break" ";"
             | "continue" ";"
+            | ";"
 
 expression ::=
 
