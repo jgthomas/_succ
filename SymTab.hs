@@ -13,37 +13,16 @@ module SymTab (addVariable,
 
 import qualified Data.Map as M
 
+import Declarations
+import FunctionState
+import Scope
 import Evaluator     (Evaluator(Ev))
 import Types         (SymTab(Tab, labelNo, offset))
-import Declarations  (newDecTable,
-                      declareFunction,
-                      declareGlobal,
-                      decParamCount,
-                      decSeqNumber,
-                      currentSeqNumber)
-import FunctionState (newFuncState,
-                      addParameter,
-                      parameterPosition,
-                      parameterDeclared,
-                      nextArgumentPos,
-                      resetArguments)
 import SimpleStack   (newStack,
                       currentFunction,
                       currentScope,
                       popFunctionName,
                       pushFunctionName)
-import Scope         (initScope,
-                      closeScope,
-                      functionDefined,
-                      getBreak,
-                      setBreak,
-                      getContinue,
-                      setContinue,
-                      checkVariable,
-                      variableOffset,
-                      newScopeRecord,
-                      newFuncScopesData,
-                      storeVar)
 
 
 {- API -}
