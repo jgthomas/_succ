@@ -155,9 +155,7 @@ genASM (IfNode test action possElse) = do
 genASM (DeclarationNode varName value) = do
         currScope <- SymTab.currentScope
         if currScope == "global"
-           then case value of
-                     Nothing     -> return ""
-                     Just assign -> genASM assign
+           then declareGlobal varName value
            else do
                    varDeclared <- SymTab.checkVariable varName
                    paramDeclared <- SymTab.parameterDeclared varName
@@ -175,11 +173,7 @@ genASM (DeclarationNode varName value) = do
 genASM (AssignmentNode varName value operator) = do
         currScope <- SymTab.currentScope
         if currScope == "global"
-           then do
-                   SymTab.declareGlobal varName
-                   n <- genASM value
-                   lab <- SymTab.labelNum
-                   return $ initializedGlobal (varName ++ (show lab)) $ read n
+           then assignGlobal varName value
            else do
                    offset <- SymTab.variableOffset varName
                    case offset of
@@ -469,6 +463,21 @@ hasReturn blockItems =
                      case last blockItems of
                           (ReturnNode val) -> True
                           _                -> False
+
+
+declareGlobal :: String -> Maybe Tree -> Evaluator String
+declareGlobal name toAssign = do
+        SymTab.declareGlobal name
+        case toAssign of
+             Nothing     -> return ""
+             Just assign -> genASM assign
+
+
+assignGlobal :: String -> Tree -> Evaluator String
+assignGlobal name constNode = do
+        const <- genASM constNode
+        label <- SymTab.labelNum
+        return $ initializedGlobal (name ++ (show label)) $ read const
 
 
 processDeclaration :: String -> Int -> Evaluator ()
