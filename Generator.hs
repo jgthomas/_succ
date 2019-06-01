@@ -14,12 +14,12 @@ genASM (ProgramNode functionList) = do
         return $ concat prog
 
 genASM (FunctionProtoNode name paramList) = do
-        processDeclaration name (length paramList)
+        declareFunction name (length paramList)
         return ""
 
 genASM (FunctionNode name paramList statementList) = do
-        processDeclaration name (length paramList)
-        processDefinition name (length paramList)
+        declareFunction name (length paramList)
+        defineFunction name (length paramList)
         SymTab.initFunction name
         paramExpr <- mapM genASM paramList
         funcStmnts <- mapM genASM statementList
@@ -173,7 +173,7 @@ genASM (DeclarationNode varName value) = do
 genASM (AssignmentNode varName value operator) = do
         currScope <- SymTab.currentScope
         if currScope == "global"
-           then assignGlobal varName value
+           then defineGlobal varName value
            else do
                    offset <- SymTab.variableOffset varName
                    case offset of
@@ -473,15 +473,15 @@ declareGlobal name toAssign = do
              Just assign -> genASM assign
 
 
-assignGlobal :: String -> Tree -> Evaluator String
-assignGlobal name constNode = do
+defineGlobal :: String -> Tree -> Evaluator String
+defineGlobal name constNode = do
         const <- genASM constNode
         label <- SymTab.labelNum
         return $ initializedGlobal (name ++ (show label)) $ read const
 
 
-processDeclaration :: String -> Int -> Evaluator ()
-processDeclaration funcName paramCount = do
+declareFunction :: String -> Int -> Evaluator ()
+declareFunction funcName paramCount = do
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
              Nothing -> do
@@ -493,8 +493,8 @@ processDeclaration funcName paramCount = do
                         else return ()
 
 
-processDefinition :: String -> Int -> Evaluator Bool
-processDefinition funcName paramCount = do
+defineFunction :: String -> Int -> Evaluator Bool
+defineFunction funcName paramCount = do
         alreadyDefined <- SymTab.functionDefined funcName
         case alreadyDefined of
              False -> do
