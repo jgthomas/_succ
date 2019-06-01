@@ -26,21 +26,20 @@ genASM (FunctionNode name paramList statementList) = do
                    paramExpr <- mapM genASM paramList
                    funcStmnts <- mapM genASM statementList
                    SymTab.closeFunction
-                   case hasReturn statementList of
-                        True  -> return $ functionName name
-                                          ++ concat funcStmnts
-                        False ->
-                                if name == "main"
-                                   then do
-                                           -- return 0 if no return specified
-                                           return $ functionName name
-                                                    ++ concat funcStmnts
-                                                    ++ loadValue 0
-                                                    ++ returnStatement
-                                   else do
-                                           -- undefined if used by caller
-                                           return $ functionName name
-                                                    ++ concat funcStmnts
+                   if hasReturn statementList
+                      then return $ functionName name
+                                    ++ concat funcStmnts
+                      else if name == "main"
+                              then do
+                                      -- return 0 if no return specified
+                                      return $ functionName name
+                                               ++ concat funcStmnts
+                                               ++ loadValue 0
+                                               ++ returnStatement
+                              else do
+                                      -- undefined if used by caller
+                                      return $ functionName name
+                                               ++ concat funcStmnts
 
 genASM (ParamNode param) = do
        case param of
