@@ -18,27 +18,29 @@ genASM (FunctionProtoNode name paramList) = do
         return ""
 
 genASM (FunctionNode name paramList statementList) = do
-        declareFunction name (length paramList)
-        defineFunction name (length paramList)
-        SymTab.initFunction name
-        paramExpr <- mapM genASM paramList
-        funcStmnts <- mapM genASM statementList
-        SymTab.closeFunction
-        case hasReturn statementList of
-             True  -> return $ functionName name
-                               ++ concat funcStmnts
-             False ->
-                     if name == "main"
-                        then do
-                                -- return 0 if no return specified
-                                return $ functionName name
-                                         ++ concat funcStmnts
-                                         ++ loadValue 0
-                                         ++ returnStatement
-                        else do
-                                -- undefined if used by caller
-                                return $ functionName name
-                                         ++ concat funcStmnts
+        defined <- SymTab.functionDefined name
+        if defined
+           then error $ "Function aleady defined: " ++ name
+           else do declareFunction name (length paramList)
+                   SymTab.initFunction name
+                   paramExpr <- mapM genASM paramList
+                   funcStmnts <- mapM genASM statementList
+                   SymTab.closeFunction
+                   case hasReturn statementList of
+                        True  -> return $ functionName name
+                                          ++ concat funcStmnts
+                        False ->
+                                if name == "main"
+                                   then do
+                                           -- return 0 if no return specified
+                                           return $ functionName name
+                                                    ++ concat funcStmnts
+                                                    ++ loadValue 0
+                                                    ++ returnStatement
+                                   else do
+                                           -- undefined if used by caller
+                                           return $ functionName name
+                                                    ++ concat funcStmnts
 
 genASM (ParamNode param) = do
        case param of
@@ -484,23 +486,11 @@ declareFunction :: String -> Int -> Evaluator ()
 declareFunction funcName paramCount = do
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
-             Nothing -> do
-                     SymTab.declareFunction funcName paramCount
-                     return ()
+             Nothing -> do SymTab.declareFunction funcName paramCount
              Just p  -> do
                      if p /= paramCount
                         then error $ "Mismatch in parameter counts for: " ++ funcName
-                        else return ()
-
-
-defineFunction :: String -> Int -> Evaluator Bool
-defineFunction funcName paramCount = do
-        alreadyDefined <- SymTab.functionDefined funcName
-        case alreadyDefined of
-             False -> do
-                     SymTab.declareFunction funcName paramCount
-                     return True
-             True  -> error $ "Function aleady defined: " ++ funcName
+                        else do SymTab.declareFunction funcName paramCount
 
 
 validSequence :: Maybe Int -> Maybe Int -> Bool
@@ -509,3 +499,4 @@ validSequence (Just callee) Nothing = error "caller undefined"
 validSequence (Just callee) (Just caller)
         | callee <= caller = True
         | otherwise        = False
+
