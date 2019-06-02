@@ -7,7 +7,7 @@ import qualified Data.Map as M
 
 data SymTab = SymTab { nextLabel   :: Int
                      , nextOffset  :: Int
-                     , nameStack   :: Stack String
+                     , frameStack  :: Stack String
                      , globalScope :: GlobalScope
                      , funcScopes  :: FuncScopes }
             deriving (Show)
