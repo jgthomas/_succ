@@ -87,4 +87,4 @@ paramPos paramName funcState =
 
 
 makeFuncState :: FuncState
-makeFuncState = Fs 0 0 M.empty
+makeFuncState = Fs 0 M.empty

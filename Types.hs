@@ -61,6 +61,5 @@ type FuncStates = M.Map String FuncState
 -
 -}
 data FuncState = Fs { paramCount :: Int
-                    , argCount   :: Int
                     , parameters :: FuncParams }
                deriving Show
