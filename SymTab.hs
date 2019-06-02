@@ -4,14 +4,15 @@ module SymTab (addVariable,
                labelNum,
                newSymTab,
                stackPointerValue,
-               module Declarations,
+               module GlobalScope,
                module FunctionState,
                module Scope) where
 
 
 import qualified Data.Map as M
 
-import Declarations
+--import Declarations
+import GlobalScope
 import FunctionState
 import Scope
 import Evaluator     (Evaluator(Ev))
@@ -26,7 +27,8 @@ newSymTab = Tab
             firstLabel
             memOffsetSize
             newStack
-            newDecTable
+            --newDecTable
+            newGlobalScope
             M.empty
             M.empty
             M.empty

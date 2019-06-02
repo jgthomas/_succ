@@ -1,12 +1,18 @@
 
-module GlobalScope where
+module GlobalScope (newGlobalScope,
+                    declareFunction,
+                    declareGlobal,
+                    decParamCount,
+                    decSeqNumber,
+                    currentSeqNumber) where
 
 
 import Data.Map as M
 
 
 import Evaluator (Evaluator(Ev))
-import NewTypes (GlobalScope(..), SymTab(globalScope))
+import FrameStack (currentFunction)
+import Types (GlobalScope(..), SymTab(globalScope))
 
 
 {- API -}
@@ -45,7 +51,7 @@ currentSeqNumber = do
         seqNumber currFuncName
 
 
-defineGlobal :: String -> Evaluator ()
+defineGlobal :: String -> String -> Evaluator ()
 defineGlobal varName varLabel = do
         addGlobal varName varLabel
 
@@ -53,7 +59,7 @@ defineGlobal varName varLabel = do
 {- Internal -}
 
 
-addGlobal :: String -> Evaluator ()
+addGlobal :: String -> String -> Evaluator ()
 addGlobal varName varLabel = Ev $ \symTab ->
         let gscope  = globalScope symTab
             gvars   = globalVars gscope

@@ -30,20 +30,27 @@ type ProgramScope = M.Map String FunctionScope
 data SymTab = Tab { label        :: Int
                   , offset       :: Int
                   , frameStack   :: Stack String
-                  , declarations :: Declared
+                  , globalScope  :: GlobalScope
                   , funcStates   :: FuncStates
                   , scopeLevels  :: M.Map String Int
                   , scopesData   :: ProgramScope }
             deriving Show
 
 
-type SeqNums = M.Map String Int
-type ParamCounts = M.Map String Int
+--type SeqNums = M.Map String Int
+--type ParamCounts = M.Map String Int
+--
+--data Declared = D { seqNum    :: Int
+--                  , declOrder :: SeqNums
+--                  , parameter :: ParamCounts }
+--              deriving Show
 
-data Declared = D { seqNum    :: Int
-                  , declOrder :: SeqNums
-                  , parameter :: ParamCounts }
-              deriving Show
+
+data GlobalScope = Gscope { seqNum       :: Int
+                          , declarations :: M.Map String Int
+                          , decParams    :: M.Map String Int
+                          , globalVars   :: M.Map String String }
+                 deriving (Show)
 
 
 newtype Stack a = Stack [a] deriving Show
