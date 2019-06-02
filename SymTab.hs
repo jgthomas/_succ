@@ -15,7 +15,7 @@ import Declarations
 import FunctionState
 import Scope
 import Evaluator     (Evaluator(Ev))
-import Types         (SymTab(Tab, labelNo, offset))
+import Types         (SymTab(Tab, label, offset))
 import FrameStack    (newStack, currentScope)
 
 
@@ -68,8 +68,8 @@ incrementOffset currOff = Ev $ \symTab ->
 
 nextLabel :: Evaluator Int
 nextLabel = Ev $ \symTab ->
-        let num = labelNo symTab
-            symTab' = symTab { labelNo = succ num }
+        let num = label symTab
+            symTab' = symTab { label = succ num }
             in
         (num, symTab')
 

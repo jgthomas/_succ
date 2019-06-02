@@ -27,7 +27,7 @@ type ProgramScope = M.Map String FunctionScope
 -          key=variable name, value=offset from %rbp where stored
 -
 -}
-data SymTab = Tab { labelNo      :: Int
+data SymTab = Tab { label        :: Int
                   , offset       :: Int
                   , frameStack   :: Stack String
                   , declarations :: Declared
