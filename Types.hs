@@ -43,6 +43,7 @@ data GlobalScope = Gscope { seqNum       :: Int
                  deriving (Show)
 
 
-data FuncState = Fs { paramCount :: Int
-                    , parameters :: M.Map String Int }
+data FuncState = Fs { paramCount   :: Int
+                    , currentScope :: Int
+                    , parameters   :: M.Map String Int }
                deriving Show
