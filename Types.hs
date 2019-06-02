@@ -12,10 +12,6 @@ type ProgramScope = M.Map String FunctionScope
 {-
 - State of the whole program
 -
-- labelNo      : the number of the next label to output in asm
-- offset       : the offset from %rbp where the next local variable should be stored
-- nameStack    : stack of program function calls, current function at top
-- declarations : key=function name, value=number indicating sequence of when declared
 - funcStates   : key=function name, value=state container for that function
 - scopeLevels  : key=function name, value=current scope depth in that function
 - scopesData   : triply nested map tracking the variables in each scope
@@ -35,15 +31,6 @@ data SymTab = Tab { label        :: Int
                   , scopeLevels  :: M.Map String Int
                   , scopesData   :: ProgramScope }
             deriving Show
-
-
---type SeqNums = M.Map String Int
---type ParamCounts = M.Map String Int
---
---data Declared = D { seqNum    :: Int
---                  , declOrder :: SeqNums
---                  , parameter :: ParamCounts }
---              deriving Show
 
 
 data GlobalScope = Gscope { seqNum       :: Int

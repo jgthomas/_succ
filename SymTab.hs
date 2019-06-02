@@ -11,7 +11,6 @@ module SymTab (addVariable,
 
 import qualified Data.Map as M
 
---import Declarations
 import GlobalScope
 import FunctionState
 import Scope
@@ -27,7 +26,6 @@ newSymTab = Tab
             firstLabel
             memOffsetSize
             newStack
-            --newDecTable
             newGlobalScope
             M.empty
             M.empty
