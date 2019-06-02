@@ -1,8 +1,6 @@
 
 module SymTab (addVariable,
-               closeFunction,
                currentScope,
-               initFunction,
                labelNum,
                newSymTab,
                stackPointerValue,
@@ -18,10 +16,7 @@ import FunctionState
 import Scope
 import Evaluator     (Evaluator(Ev))
 import Types         (SymTab(Tab, labelNo, offset))
-import SimpleStack   (newStack,
-                      currentScope,
-                      popFunctionName,
-                      pushFunctionName)
+import SimpleStack   (newStack, currentScope)
 
 
 {- API -}
@@ -35,20 +30,6 @@ newSymTab = Tab
             M.empty
             M.empty
             M.empty
-
-
-initFunction :: String -> Evaluator ()
-initFunction name = do
-        pushFunctionName name
-        newScopeRecord name
-        newFuncScopesData name
-        newFuncState name
-        return ()
-
-
-closeFunction :: Evaluator Bool
-closeFunction = do
-        popFunctionName
 
 
 stackPointerValue :: Evaluator Int

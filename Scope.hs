@@ -1,6 +1,8 @@
 
 module Scope (initScope,
               closeScope,
+              initFunction,
+              closeFunction,
               functionDefined,
               getBreak,
               setBreak,
@@ -8,14 +10,13 @@ module Scope (initScope,
               setContinue,
               checkVariable,
               variableOffset,
-              newScopeRecord,
-              newFuncScopesData,
               storeVar) where
 
 
 import qualified Data.Map as M
 
-import SimpleStack (currentFunction)
+import SimpleStack (currentFunction, popFunctionName, pushFunctionName)
+import FunctionState (newFuncState)
 import Evaluator (Evaluator(Ev))
 import Types (SymTab(scopeLevels, scopesData),
               LocalScope,
@@ -24,6 +25,20 @@ import Types (SymTab(scopeLevels, scopesData),
 
 
 {- API -}
+
+initFunction :: String -> Evaluator ()
+initFunction name = do
+        pushFunctionName name
+        newScopeRecord name
+        newFuncScopesData name
+        newFuncState name
+        return ()
+
+
+closeFunction :: Evaluator Bool
+closeFunction = do
+        popFunctionName
+
 
 initScope :: Evaluator ()
 initScope = do
