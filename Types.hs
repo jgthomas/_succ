@@ -43,7 +43,6 @@ data GlobalScope = Gscope { seqNum       :: Int
 newtype Stack a = Stack [a] deriving Show
 
 
-type FuncParams = M.Map String Int
 type FuncStates = M.Map String FuncState
 
 {-
@@ -55,5 +54,5 @@ type FuncStates = M.Map String FuncState
 -
 -}
 data FuncState = Fs { paramCount :: Int
-                    , parameters :: FuncParams }
+                    , parameters :: M.Map String Int }
                deriving Show
