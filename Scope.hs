@@ -16,9 +16,9 @@ module Scope (initScope,
 import qualified Data.Map as M
 
 import qualified FrameStack (currentFunction, popFunctionName, pushFunctionName)
-import FunctionState (newFuncState)
 import Evaluator (Evaluator(Ev))
-import Types (SymTab(scopeLevels, scopesData),
+import Types (SymTab(scopeLevels, scopesData, funcStates),
+              FuncState(..),
               LocalScope,
               FunctionScope,
               ProgramScope)
@@ -107,6 +107,18 @@ storeVar varName off = do
 
 
 {- Internal -}
+
+newFuncState :: String -> Evaluator String
+newFuncState funcName = Ev $ \symTab ->
+        let states = funcStates symTab
+            symTab' = symTab { funcStates = M.insert funcName makeFuncState states }
+            in
+        (funcName, symTab')
+
+
+makeFuncState :: FuncState
+makeFuncState = Fs 0 M.empty
+
 
 getOffset :: String -> Evaluator (Maybe Int)
 getOffset name = do

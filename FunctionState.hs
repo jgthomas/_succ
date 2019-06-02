@@ -1,6 +1,5 @@
 
-module FunctionState (newFuncState,
-                      addParameter,
+module FunctionState (addParameter,
                       parameterPosition,
                       parameterDeclared) where
 
@@ -13,14 +12,6 @@ import FrameStack (currentFunction)
 
 
 {- API -}
-
-newFuncState :: String -> Evaluator String
-newFuncState funcName = Ev $ \symTab ->
-        let states = funcStates symTab
-            symTab' = symTab { funcStates = M.insert funcName makeFuncState states }
-            in
-        (funcName, symTab')
-
 
 addParameter :: String -> Evaluator ()
 addParameter paramName = do
@@ -79,7 +70,3 @@ addParam paramName funcState =
             funcState'' = funcState' { parameters = M.insert paramName pos params }
             in
         return funcState''
-
-
-makeFuncState :: FuncState
-makeFuncState = Fs 0 M.empty
