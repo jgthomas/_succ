@@ -25,29 +25,34 @@ newFuncState funcName = Ev $ \symTab ->
 addParameter :: String -> Evaluator FuncStates
 addParameter paramName = do
         currFuncName <- currentFunction
-        funcState <- getFunctionState currFuncName
-        funcState' <- addParam paramName funcState
+        funcState    <- getFunctionState currFuncName
+        funcState'   <- addParam paramName funcState
         setFunctionState currFuncName funcState'
 
 
 parameterPosition :: String -> Evaluator (Maybe Int)
 parameterPosition paramName = do
-        currFuncName <- currentFunction
-        funcState <- getFunctionState currFuncName
-        paramPos paramName funcState
+        paramPosition paramName
 
 
 parameterDeclared :: String -> Evaluator Bool
 parameterDeclared paramName = do
-        currFuncName <- currentFunction
-        funcState <- getFunctionState currFuncName
-        pos <- paramPos paramName funcState
+        pos <- paramPosition paramName
         case pos of
              Just pos -> return True
              Nothing  -> return False
 
 
 {- Internal -}
+
+paramPosition :: String -> Evaluator (Maybe Int)
+paramPosition paramName = do
+        currFuncName <- currentFunction
+        funcState    <- getFunctionState currFuncName
+        case M.lookup paramName $ parameters funcState of
+             Just pos -> return (Just pos)
+             Nothing  -> return Nothing
+
 
 getFunctionState :: String -> Evaluator FuncState
 getFunctionState funcName = Ev $ \symTab ->
@@ -75,15 +80,6 @@ addParam paramName funcState =
             funcState'' = funcState' { parameters = M.insert paramName pos params }
             in
         return funcState''
-
-
-paramPos :: String -> FuncState -> Evaluator (Maybe Int)
-paramPos paramName funcState =
-        let params = parameters funcState
-            in
-        case M.lookup paramName params of
-             Just pos -> return (Just pos)
-             Nothing  -> return Nothing
 
 
 makeFuncState :: FuncState
