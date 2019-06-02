@@ -57,18 +57,16 @@ genASM (FuncCallNode name argList) = do
                                 caller <- SymTab.currentSeqNumber
                                 if validSequence callee caller
                                    then do
-                                           argsString <- mapM genASM argList
-                                           SymTab.resetArguments
+                                           argString <- processArgs argList 0 []
                                            return $ saveCallerRegisters
-                                                    ++ concat argsString
+                                                    ++ argString
                                                     ++ (makeFunctionCall name)
                                                     ++ restoreCallerRegisters
                                    else error "Invalid declaration sequence"
 
 genASM (ArgNode arg) = do
         argAsm <- genASM arg
-        argPos <- SymTab.nextArgumentPos
-        return $ argAsm ++ putInRegister (selectRegister argPos)
+        return argAsm
 
 genASM (CompoundStmtNode blockItems) = do
         SymTab.initScope
@@ -461,6 +459,21 @@ hasReturn blockItems =
                      case last blockItems of
                           (ReturnNode val) -> True
                           _                -> False
+
+
+processArgs :: [Tree] -> Int -> [String] -> Evaluator String
+processArgs argList argPos argASM = do
+        if (length argList) == 0
+           then return $ concat argASM
+           else do
+                   asm <- processArg argPos $ head argList
+                   processArgs (tail argList) (argPos+1) (argASM ++ [asm])
+
+
+processArg :: Int -> Tree -> Evaluator String
+processArg argPos arg = do
+        argASM <- genASM arg
+        return $ argASM ++ putInRegister (selectRegister argPos)
 
 
 declareGlobal :: String -> Maybe Tree -> Evaluator String
