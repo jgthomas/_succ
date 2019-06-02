@@ -101,23 +101,6 @@ variableOffset name = do
         getOffset name
 
 
-newScopeRecord :: String -> Evaluator Int
-newScopeRecord name = Ev $ \symTab ->
-        let scopes = scopeLevels symTab
-            symTab' = symTab { scopeLevels = M.insert name baseScope scopes }
-            in
-        (baseScope, symTab')
-
-
-newFuncScopesData :: String -> Evaluator ()
-newFuncScopesData name = do
-        progScope <- updateProgramScope name M.empty
-        funcScope <- getFunctionScope name progScope
-        funcScope' <- updateFunctionScope baseScope M.empty funcScope
-        updateProgramScope name funcScope'
-        return ()
-
-
 storeVar :: String -> Int -> Evaluator ()
 storeVar varName off = do
         store varName off
@@ -161,6 +144,23 @@ store name value = do
         locScope' <- storeVariable name value locScope
         funcScope' <- updateFunctionScope scopeLevel locScope' funcScope
         updateProgramScope currFuncName funcScope'
+        return ()
+
+
+newScopeRecord :: String -> Evaluator Int
+newScopeRecord name = Ev $ \symTab ->
+        let scopes = scopeLevels symTab
+            symTab' = symTab { scopeLevels = M.insert name baseScope scopes }
+            in
+        (baseScope, symTab')
+
+
+newFuncScopesData :: String -> Evaluator ()
+newFuncScopesData name = do
+        progScope <- updateProgramScope name M.empty
+        funcScope <- getFunctionScope name progScope
+        funcScope' <- updateFunctionScope baseScope M.empty funcScope
+        updateProgramScope name funcScope'
         return ()
 
 
