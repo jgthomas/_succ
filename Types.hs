@@ -29,7 +29,7 @@ type ProgramScope = M.Map String FunctionScope
 -}
 data SymTab = Tab { labelNo      :: Int
                   , offset       :: Int
-                  , nameStack    :: Stack String
+                  , frameStack   :: Stack String
                   , declarations :: Declared
                   , funcStates   :: FuncStates
                   , scopeLevels  :: M.Map String Int

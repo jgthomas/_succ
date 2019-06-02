@@ -9,7 +9,7 @@ import qualified Data.Map as M
 
 import Evaluator (Evaluator(Ev))
 import Types (SymTab(funcStates), FuncState(..), FuncStates(..))
-import SimpleStack (currentFunction)
+import FrameStack (currentFunction)
 
 
 {- API -}

@@ -7,7 +7,7 @@ module FrameStack (currentFunction,
 
 
 import Evaluator (Evaluator(Ev))
-import NewTypes (SymTab(frameStack), Stack(Stack))
+import Types (SymTab(frameStack), Stack(Stack))
 
 
 {- API -}

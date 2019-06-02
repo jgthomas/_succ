@@ -16,7 +16,7 @@ import FunctionState
 import Scope
 import Evaluator     (Evaluator(Ev))
 import Types         (SymTab(Tab, labelNo, offset))
-import SimpleStack   (newStack, currentScope)
+import FrameStack    (newStack, currentScope)
 
 
 {- API -}

@@ -11,7 +11,7 @@ import Data.Map as M
 
 import Evaluator (Evaluator(Ev))
 import Types (Declared(..), SymTab(declarations), SeqNums, ParamCounts)
-import SimpleStack (currentFunction)
+import FrameStack (currentFunction)
 
 
 {- API -}

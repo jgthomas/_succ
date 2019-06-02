@@ -15,7 +15,7 @@ module Scope (initScope,
 
 import qualified Data.Map as M
 
-import qualified SimpleStack (currentFunction, popFunctionName, pushFunctionName)
+import qualified FrameStack (currentFunction, popFunctionName, pushFunctionName)
 import FunctionState (newFuncState)
 import Evaluator (Evaluator(Ev))
 import Types (SymTab(scopeLevels, scopesData),
@@ -28,21 +28,21 @@ import Types (SymTab(scopeLevels, scopesData),
 
 initFunction :: String -> Evaluator ()
 initFunction name = do
-        SimpleStack.pushFunctionName name
+        FrameStack.pushFunctionName name
         newScopeRecord name
         newFuncScopesData name
         newFuncState name
         return ()
 
 
-closeFunction :: Evaluator Bool
+closeFunction :: Evaluator ()
 closeFunction = do
-        SimpleStack.popFunctionName
+        FrameStack.popFunctionName
 
 
 initScope :: Evaluator ()
 initScope = do
-        currFuncName <- SimpleStack.currentFunction
+        currFuncName <- FrameStack.currentFunction
         newScopeLevel <- incrementScope
         progScope <- getProgramScope
         funcScope <- getFunctionScope currFuncName progScope
@@ -86,7 +86,7 @@ setContinue labelNo = do
 
 checkVariable :: String -> Evaluator Bool
 checkVariable varName = do
-        currFuncName <- SimpleStack.currentFunction
+        currFuncName <- FrameStack.currentFunction
         scopeLevel <- findScope currFuncName
         progScope <- getProgramScope
         funcScope <- getFunctionScope currFuncName progScope
@@ -110,7 +110,7 @@ storeVar varName off = do
 
 getOffset :: String -> Evaluator (Maybe Int)
 getOffset name = do
-        currFuncName <- SimpleStack.currentFunction
+        currFuncName <- FrameStack.currentFunction
         scopeLevel <- findScope currFuncName
         findOffset currFuncName scopeLevel name
 
@@ -136,7 +136,7 @@ lookUp func scope name = do
 
 store :: String -> Int -> Evaluator ()
 store name value = do
-        currFuncName <- SimpleStack.currentFunction
+        currFuncName <- FrameStack.currentFunction
         scopeLevel <- findScope currFuncName
         progScope <- getProgramScope
         funcScope <- getFunctionScope currFuncName progScope
@@ -237,7 +237,7 @@ findScope name = Ev $ \symTab ->
 
 stepScope :: (Int -> Int) -> Evaluator Int
 stepScope func = do
-        currFuncName <- SimpleStack.currentFunction
+        currFuncName <- FrameStack.currentFunction
         scopeLevel <- findScope currFuncName
         switchScope currFuncName $ func scopeLevel
 
