@@ -19,7 +19,6 @@ import Scope
 import Evaluator     (Evaluator(Ev))
 import Types         (SymTab(Tab, labelNo, offset))
 import SimpleStack   (newStack,
-                      currentFunction,
                       currentScope,
                       popFunctionName,
                       pushFunctionName)
