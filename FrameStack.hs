@@ -52,12 +52,12 @@ queryStack = Ev $ \symTab -> (stackPeek $ frameStack symTab, symTab)
 
 stackPeek :: Stack a -> Maybe a
 stackPeek (Stack []) = Nothing
-stackPeek (Stack s) = Just $ head s
+stackPeek (Stack s)  = Just $ head s
 
 
 stackPop :: Stack a -> Stack a
 stackPop (Stack []) = (Stack [])
-stackPop (Stack s) = Stack (tail s)
+stackPop (Stack s)  = Stack (tail s)
 
 
 stackPush :: a -> Stack a -> Stack a
