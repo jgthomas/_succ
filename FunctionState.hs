@@ -2,9 +2,7 @@
 module FunctionState (newFuncState,
                       addParameter,
                       parameterPosition,
-                      parameterDeclared,
-                      nextArgumentPos,
-                      resetArguments) where
+                      parameterDeclared) where
 
 
 import qualified Data.Map as M
@@ -49,23 +47,6 @@ parameterDeclared paramName = do
              Nothing  -> return False
 
 
-nextArgumentPos :: Evaluator Int
-nextArgumentPos = do
-        currFuncName <- currentFunction
-        funcState <- getFunctionState currFuncName
-        funcState' <- incrementArgCount funcState
-        setFunctionState currFuncName funcState'
-        return $ argCount funcState
-
-
-resetArguments :: Evaluator FuncStates
-resetArguments = do
-        currFuncName <- currentFunction
-        funcState <- getFunctionState currFuncName
-        funcState' <- resetArgs funcState
-        setFunctionState currFuncName funcState'
-
-
 {- Internal -}
 
 getFunctionState :: String -> Evaluator FuncState
@@ -103,21 +84,6 @@ paramPos paramName funcState =
         case M.lookup paramName params of
              Just pos -> return (Just pos)
              Nothing  -> return Nothing
-
-
-incrementArgCount :: FuncState -> Evaluator FuncState
-incrementArgCount funcState =
-        let count = argCount funcState
-            funcState' = funcState { argCount = count + 1 }
-            in
-        return funcState'
-
-
-resetArgs :: FuncState -> Evaluator FuncState
-resetArgs funcState =
-        let funcState' = funcState { argCount = 0 }
-            in
-        return funcState'
 
 
 makeFuncState :: FuncState
