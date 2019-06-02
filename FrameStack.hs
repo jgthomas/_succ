@@ -1,9 +1,9 @@
 
-module SimpleStack (newStack,
-                    currentFunction,
-                    currentScope,
-                    popFunctionName,
-                    pushFunctionName) where
+module FrameStack (currentFunction,
+                   currentScope,
+                   newStack,
+                   popFunctionName,
+                   pushFunctionName) where
 
 
 import Evaluator (Evaluator(Ev)
