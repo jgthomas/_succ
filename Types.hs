@@ -10,10 +10,6 @@ type FunctionScope = M.Map Int LocalScope
 type ProgramScope = M.Map String FunctionScope
 
 {-
-- State of the whole program
--
-- funcStates   : key=function name, value=state container for that function
-- scopeLevels  : key=function name, value=current scope depth in that function
 - scopesData   : triply nested map tracking the variables in each scope
 -    ProgramScope
 -          key=function name, value=map of the scopes in each function
