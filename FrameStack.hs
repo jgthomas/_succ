@@ -6,7 +6,7 @@ module FrameStack (currentFunction,
                    pushFunctionName) where
 
 
-import Evaluator (Evaluator(Ev)
+import Evaluator (Evaluator(Ev))
 import NewTypes (SymTab(frameStack), Stack(Stack))
 
 
