@@ -29,7 +29,6 @@ newSymTab = Tab
             newGlobalScope
             M.empty
             M.empty
-            M.empty
 
 
 stackPointerValue :: Evaluator Int

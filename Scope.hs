@@ -17,7 +17,7 @@ import qualified Data.Map as M
 
 import qualified FrameStack (currentFunction, popFunctionName, pushFunctionName)
 import Evaluator (Evaluator(Ev))
-import Types (SymTab(scopeLevels, scopesData, funcStates),
+import Types (SymTab(scopesData, funcStates),
               FuncState(..),
               LocalScope,
               FunctionScope,
@@ -29,7 +29,6 @@ import Types (SymTab(scopeLevels, scopesData, funcStates),
 initFunction :: String -> Evaluator ()
 initFunction name = do
         FrameStack.pushFunctionName name
-        newScopeRecord name
         newFuncScopesData name
         newFuncState name
         return ()
@@ -159,14 +158,6 @@ store name value = do
         return ()
 
 
-newScopeRecord :: String -> Evaluator Int
-newScopeRecord name = Ev $ \symTab ->
-        let scopes = scopeLevels symTab
-            symTab' = symTab { scopeLevels = M.insert name baseScope scopes }
-            in
-        (baseScope, symTab')
-
-
 newFuncScopesData :: String -> Evaluator ()
 newFuncScopesData name = do
         progScope <- updateProgramScope name M.empty
@@ -239,12 +230,11 @@ decrementScope = do
 
 findScope :: String -> Evaluator Int
 findScope name = Ev $ \symTab ->
-        let scopes = scopeLevels symTab
-            scopeLevel = M.lookup name scopes
+        let funcState = M.lookup name $ funcStates symTab
             in
-        case scopeLevel of
-             Just scope -> (scope, symTab)
-             Nothing    -> error $ "No scopes defined for function " ++ name
+        case funcState of
+             Just fs -> (currentScope fs, symTab)
+             Nothing -> error $ "No scopes defined for function " ++ name
 
 
 stepScope :: (Int -> Int) -> Evaluator Int
@@ -255,11 +245,16 @@ stepScope func = do
 
 
 switchScope :: String -> Int -> Evaluator Int
-switchScope name newScopeLevel = Ev $ \symTab ->
-        let scopes = scopeLevels symTab
-            symTab' = symTab { scopeLevels = M.insert name newScopeLevel scopes }
+switchScope name newLevel = Ev $ \symTab ->
+        let funcState = M.lookup name $ funcStates symTab
             in
-        (newScopeLevel, symTab')
+        case funcState of
+             Just fs ->
+                     let fs'  = fs { currentScope = newLevel }
+                         symTab' = symTab { funcStates = M.insert name fs' $ funcStates symTab }
+                         in
+                     (newLevel, symTab')
+             Nothing -> error $ "No scopes defined for function " ++ name
 
 
 scopeLimit :: Int

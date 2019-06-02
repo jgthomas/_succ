@@ -28,7 +28,6 @@ data SymTab = Tab { label        :: Int
                   , frameStack   :: Stack String
                   , globalScope  :: GlobalScope
                   , funcStates   :: M.Map String FuncState
-                  , scopeLevels  :: M.Map String Int
                   , scopesData   :: ProgramScope }
             deriving Show
 
