@@ -8,7 +8,7 @@ module FunctionState (newFuncState,
 import qualified Data.Map as M
 
 import Evaluator (Evaluator(Ev))
-import Types (SymTab(funcStates), FuncState(..), FuncStates(..))
+import Types (SymTab(funcStates), FuncState(..))
 import FrameStack (currentFunction)
 
 
@@ -22,7 +22,7 @@ newFuncState funcName = Ev $ \symTab ->
         (funcName, symTab')
 
 
-addParameter :: String -> Evaluator FuncStates
+addParameter :: String -> Evaluator ()
 addParameter paramName = do
         currFuncName <- currentFunction
         funcState    <- getFunctionState currFuncName
@@ -63,13 +63,12 @@ getFunctionState funcName = Ev $ \symTab ->
              Nothing    -> error $ "No state defined for: " ++ funcName
 
 
-setFunctionState :: String -> FuncState -> Evaluator FuncStates
+setFunctionState :: String -> FuncState -> Evaluator ()
 setFunctionState funcName funcState = Ev $ \symTab ->
         let states = funcStates symTab
             symTab' = symTab { funcStates = M.insert funcName funcState states }
-            states' = funcStates symTab
             in
-        (states', symTab')
+        ((), symTab')
 
 
 addParam :: String -> FuncState -> Evaluator FuncState

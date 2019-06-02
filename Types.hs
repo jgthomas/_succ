@@ -27,10 +27,13 @@ data SymTab = Tab { label        :: Int
                   , offset       :: Int
                   , frameStack   :: Stack String
                   , globalScope  :: GlobalScope
-                  , funcStates   :: FuncStates
+                  , funcStates   :: M.Map String FuncState
                   , scopeLevels  :: M.Map String Int
                   , scopesData   :: ProgramScope }
             deriving Show
+
+
+newtype Stack a = Stack [a] deriving Show
 
 
 data GlobalScope = Gscope { seqNum       :: Int
@@ -40,19 +43,6 @@ data GlobalScope = Gscope { seqNum       :: Int
                  deriving (Show)
 
 
-newtype Stack a = Stack [a] deriving Show
-
-
-type FuncStates = M.Map String FuncState
-
-{-
-- State of a function
--
-- paramCount : the number of parameters the function has
-- argCount   : counter for arguments passed
-- parameters : key=parameter name, value=parameter position
--
--}
 data FuncState = Fs { paramCount :: Int
                     , parameters :: M.Map String Int }
                deriving Show
