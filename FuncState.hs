@@ -20,11 +20,12 @@ import qualified Data.Map as M
 
 import qualified FrameStack (currentFunction, popFunctionName, pushFunctionName)
 import Evaluator (Evaluator(Ev))
-import Types (SymTab(scopesData, funcStates),
-              FuncState(..),
-              LocalScope,
-              FunctionScope,
-              ProgramScope)
+import Types (SymTab(scopesData, funcStates), FuncState(..))
+
+
+type LocalScope = M.Map String Int
+type FunctionScope = M.Map Int LocalScope
+type ProgramScope = M.Map String FunctionScope
 
 
 {- API -}
