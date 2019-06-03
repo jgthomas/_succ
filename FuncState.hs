@@ -18,9 +18,9 @@ module FuncState (initScope,
 
 import qualified Data.Map as M
 
+import Evaluator            (Evaluator(Ev))
+import Types                (SymTab(scopesData, funcStates), FuncState(..))
 import qualified FrameStack (currentFunction, popFunctionName, pushFunctionName)
-import Evaluator (Evaluator(Ev))
-import Types (SymTab(scopesData, funcStates), FuncState(..))
 
 
 type LocalScope = M.Map String Int
