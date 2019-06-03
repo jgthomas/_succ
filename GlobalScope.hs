@@ -63,6 +63,12 @@ defineGlobal varName varLabel = do
         updateGlobalScope $ addGlobal varName varLabel gscope
 
 
+globalLabel :: String -> Evaluator (Maybe String)
+globalLabel name = do
+        gscope <- getGlobalScope
+        return $ M.lookup name $ globalVars gscope
+
+
 {- Internal -}
 
 getGlobalScope :: Evaluator GlobalScope
