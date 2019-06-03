@@ -17,11 +17,7 @@ import qualified FrameStack (currentFunction)
 {- API -}
 
 newGlobalScope :: GlobalScope
-newGlobalScope = Gscope
-                 0
-                 M.empty
-                 M.empty
-                 M.empty
+newGlobalScope = Gscope 0 M.empty M.empty M.empty
 
 
 declareFunction :: String -> Int -> Evaluator ()
