@@ -12,9 +12,9 @@ import qualified Data.Map as M
 
 import GlobalScope
 import FuncState
-import Evaluator     (Evaluator(Ev))
-import Types         (SymTab(Tab, label, offset))
-import FrameStack    (newStack, currentScope)
+import Evaluator    (Evaluator(Ev))
+import Types        (SymTab(Tab, label, offset))
+import FrameStack   (newStack, currentScope)
 
 
 {- API -}
