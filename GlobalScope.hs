@@ -9,7 +9,6 @@ module GlobalScope (newGlobalScope,
 
 import Data.Map as M
 
-
 import Evaluator  (Evaluator(Ev))
 import FrameStack (currentFunction)
 import Types      (GlobalScope(..), SymTab(globalScope))
