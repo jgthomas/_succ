@@ -69,9 +69,7 @@ getGlobalScope = Ev $ \symTab ->
 
 updateGlobalScope :: GlobalScope -> Evaluator ()
 updateGlobalScope gscope = Ev $ \symTab ->
-        let symTab' = symTab { globalScope = gscope }
-            in
-        ((), symTab')
+        ((), symTab { globalScope = gscope })
 
 
 addGlobal :: String -> String -> Evaluator ()
