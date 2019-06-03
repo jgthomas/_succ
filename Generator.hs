@@ -488,6 +488,7 @@ defineGlobal :: String -> Tree -> Evaluator String
 defineGlobal name constNode = do
         const <- genASM constNode
         label <- SymTab.labelNum
+        SymTab.defineGlobal name ("_" ++ name ++ (show label))
         return $ initializedGlobal (name ++ (show label)) $ read const
 
 

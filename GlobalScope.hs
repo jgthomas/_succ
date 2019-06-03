@@ -4,7 +4,8 @@ module GlobalScope (newGlobalScope,
                     declareGlobal,
                     decParamCount,
                     decSeqNumber,
-                    currentSeqNumber) where
+                    currentSeqNumber,
+                    defineGlobal) where
 
 
 import qualified Data.Map as M
