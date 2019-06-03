@@ -52,10 +52,26 @@ currentSeqNumber = do
 
 defineGlobal :: String -> String -> Evaluator ()
 defineGlobal varName varLabel = do
-        addGlobal varName varLabel
+        gscope <- getGlobalScope
+        let gvars   = M.insert varName varLabel $ globalVars gscope
+            gscope' = gscope { globalVars = gvars }
+        updateGlobalScope gscope'
+        --addGlobal varName varLabel
 
 
 {- Internal -}
+
+
+getGlobalScope :: Evaluator GlobalScope
+getGlobalScope = Ev $ \symTab ->
+        (globalScope symTab, symTab)
+
+
+updateGlobalScope :: GlobalScope -> Evaluator ()
+updateGlobalScope gscope = Ev $ \symTab ->
+        let symTab' = symTab { globalScope = gscope }
+            in
+        ((), symTab')
 
 
 addGlobal :: String -> String -> Evaluator ()
