@@ -31,7 +31,9 @@ declareFunction funcName paramCount = do
 
 declareGlobal :: String -> Evaluator ()
 declareGlobal name = do
-        declareVar name
+        gscope <- getGlobalScope
+        updateGlobalScope $ addSymbol gscope name
+        --declareVar name
 
 
 decParamCount :: String -> Evaluator (Maybe Int)
@@ -70,6 +72,10 @@ updateGlobalScope gscope = Ev $ \symTab ->
 
 addGlobal :: String -> String -> GlobalScope -> GlobalScope
 addGlobal n l s = s { globalVars = M.insert n l $ globalVars s }
+
+
+--decGlobal :: String -> Int -> GlobalScope -> GlobalScope
+--decGlobal n i s = s { declarations = M.insert n i $ declarations s }
 
 
 --addGlobal :: String -> String -> Evaluator ()
