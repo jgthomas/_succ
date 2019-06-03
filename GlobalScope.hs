@@ -40,18 +40,21 @@ declareGlobal name = do
 
 decParamCount :: String -> Evaluator (Maybe Int)
 decParamCount funcName = do
-        paramCount funcName
+        gscope <- getGlobalScope
+        return $ M.lookup funcName $ decParams gscope
 
 
 decSeqNumber :: String -> Evaluator (Maybe Int)
-decSeqNumber funcName = do
-        seqNumber funcName
+decSeqNumber name = do
+        gscope <- getGlobalScope
+        return $ M.lookup name $ declarations gscope
 
 
 currentSeqNumber :: Evaluator (Maybe Int)
 currentSeqNumber = do
-        currFuncName <- FrameStack.currentFunction
-        seqNumber currFuncName
+        currFunc <- FrameStack.currentFunction
+        gscope   <- getGlobalScope
+        return $ M.lookup currFunc $ declarations gscope
 
 
 defineGlobal :: String -> String -> Evaluator ()
@@ -92,23 +95,3 @@ addParams gscope funcName paramCount =
             gscope'  = gscope { decParams = M.insert funcName paramCount paramTab }
             in
         gscope'
-
-
-paramCount :: String -> Evaluator (Maybe Int)
-paramCount funcName = Ev $ \symTab ->
-        let gscope = globalScope symTab
-            params = decParams gscope
-            in
-        case M.lookup funcName params of
-             Just n  -> (Just n, symTab)
-             Nothing -> (Nothing, symTab)
-
-
-seqNumber :: String -> Evaluator (Maybe Int)
-seqNumber funcName = Ev $ \symTab ->
-        let gscope = globalScope symTab
-            seqTab = declarations gscope
-            in
-        case M.lookup funcName seqTab of
-             Just n  -> (Just n, symTab)
-             Nothing -> (Nothing, symTab)
