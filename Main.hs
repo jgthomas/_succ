@@ -1,16 +1,20 @@
 
 
-import System.IO (openFile, IOMode(ReadMode), hGetContents, writeFile, hClose)
 import System.Environment (getArgs)
-import System.FilePath (dropExtension)
-import System.Process (system)
-import Control.Monad (when)
+import System.FilePath    (dropExtension)
+import System.Process     (system)
+import Control.Monad      (when)
+import System.IO          (openFile,
+                           IOMode(ReadMode),
+                           hGetContents,
+                           writeFile,
+                           hClose)
 
-import Lexer (tokenize)
-import Parser (parse)
+import Lexer     (tokenize)
+import Parser    (parse)
 import Generator (genASM)
 import Evaluator (Evaluator(Ev))
-import SymTab (newSymTab)
+import SymTab    (newSymTab)
 
 
 main :: IO()
@@ -36,6 +40,8 @@ main = do
                     when (length asm > 0) $
                        writeFile outfileName asm
 
-        system $ "gcc -g " ++ outfileName ++ " -o " ++ (dropExtension outfileName)
+        system $ "gcc -g "
+                  ++ outfileName ++ " -o "
+                  ++ (dropExtension outfileName)
         system $ "rm " ++ outfileName
         hClose handle

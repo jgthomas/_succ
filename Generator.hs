@@ -1,9 +1,9 @@
 
 module Generator (genASM) where
 
-import Tokens (Operator(..))
-import AST (Tree(..))
+import AST       (Tree(..))
 import Evaluator (Evaluator)
+import Tokens    (Operator(..))
 import qualified SymTab
 
 

@@ -2,8 +2,8 @@
 module Parser (parse) where
 
 
+import AST    (Tree(..))
 import Tokens (Operator(..), Keyword(..), Token(..))
-import AST (Tree(..))
 
 
 parse :: [Token] -> Tree

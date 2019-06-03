@@ -2,7 +2,7 @@
 module Lexer (tokenize) where
 
 
-import Data.Char
+import Data.Char (isDigit, isAlpha, isSpace)
 
 import Tokens (Operator(..), Keyword(..), Token(..))
 
