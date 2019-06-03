@@ -26,14 +26,16 @@ newGlobalScope = Gscope
 
 declareFunction :: String -> Int -> Evaluator ()
 declareFunction funcName paramCount = do
-        declareFunc funcName paramCount
+        gscope <- getGlobalScope
+        let gscope'  = addSymbol gscope funcName
+            gscope'' = addParams gscope' funcName paramCount
+        updateGlobalScope gscope''
 
 
 declareGlobal :: String -> Evaluator ()
 declareGlobal name = do
         gscope <- getGlobalScope
         updateGlobalScope $ addSymbol gscope name
-        --declareVar name
 
 
 decParamCount :: String -> Evaluator (Maybe Int)
@@ -72,39 +74,6 @@ updateGlobalScope gscope = Ev $ \symTab ->
 
 addGlobal :: String -> String -> GlobalScope -> GlobalScope
 addGlobal n l s = s { globalVars = M.insert n l $ globalVars s }
-
-
---decGlobal :: String -> Int -> GlobalScope -> GlobalScope
---decGlobal n i s = s { declarations = M.insert n i $ declarations s }
-
-
---addGlobal :: String -> String -> Evaluator ()
---addGlobal varName varLabel = Ev $ \symTab ->
---        let gscope  = globalScope symTab
---            gvars   = globalVars gscope
---            gscope' = gscope { globalVars = M.insert varName varLabel gvars }
---            symTab' = symTab { globalScope = gscope' }
---            in
---        ((), symTab')
-
-
-declareFunc :: String -> Int -> Evaluator ()
-declareFunc funcName paramCount = Ev $ \symTab ->
-        let gscope   = globalScope symTab
-            gscope'  = addSymbol gscope funcName
-            gscope'' = addParams gscope' funcName paramCount
-            symTab'  = symTab { globalScope = gscope'' }
-            in
-        ((), symTab')
-
-
-declareVar :: String -> Evaluator ()
-declareVar varName = Ev $ \symTab ->
-        let gscope  = globalScope symTab
-            gscope' = addSymbol gscope varName
-            symTab' = symTab { globalScope = gscope' }
-            in
-        ((), symTab')
 
 
 addSymbol :: GlobalScope -> String -> GlobalScope
