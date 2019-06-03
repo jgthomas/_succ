@@ -5,13 +5,13 @@ module SymTab (addVariable,
                newSymTab,
                stackPointerValue,
                module GlobalScope,
-               module Scope) where
+               module FuncState) where
 
 
 import qualified Data.Map as M
 
 import GlobalScope
-import Scope
+import FuncState
 import Evaluator     (Evaluator(Ev))
 import Types         (SymTab(Tab, label, offset))
 import FrameStack    (newStack, currentScope)

@@ -1,19 +1,19 @@
 
-module Scope (initScope,
-              closeScope,
-              initFunction,
-              closeFunction,
-              functionDefined,
-              getBreak,
-              setBreak,
-              getContinue,
-              setContinue,
-              checkVariable,
-              variableOffset,
-              addParameter,
-              parameterPosition,
-              parameterDeclared,
-              storeVar) where
+module FuncState (initScope,
+                  closeScope,
+                  initFunction,
+                  closeFunction,
+                  functionDefined,
+                  getBreak,
+                  setBreak,
+                  getContinue,
+                  setContinue,
+                  checkVariable,
+                  variableOffset,
+                  addParameter,
+                  parameterPosition,
+                  parameterDeclared,
+                  storeVar) where
 
 
 import qualified Data.Map as M
