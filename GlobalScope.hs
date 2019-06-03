@@ -27,15 +27,15 @@ newGlobalScope = Gscope
 declareFunction :: String -> Int -> Evaluator ()
 declareFunction funcName paramCount = do
         gscope <- getGlobalScope
-        let gscope'  = addSymbol gscope funcName
-            gscope'' = addParams gscope' funcName paramCount
+        let gscope'  = addSymbol funcName gscope
+            gscope'' = addParams funcName paramCount gscope'
         updateGlobalScope gscope''
 
 
 declareGlobal :: String -> Evaluator ()
 declareGlobal name = do
         gscope <- getGlobalScope
-        updateGlobalScope $ addSymbol gscope name
+        updateGlobalScope $ addSymbol name gscope
 
 
 decParamCount :: String -> Evaluator (Maybe Int)
@@ -85,8 +85,12 @@ addGlobal :: String -> String -> GlobalScope -> GlobalScope
 addGlobal n l s = s { globalVars = M.insert n l $ globalVars s }
 
 
-addSymbol :: GlobalScope -> String -> GlobalScope
-addSymbol gscope name =
+addParams :: String -> Int -> GlobalScope -> GlobalScope
+addParams n p s = s { decParams = M.insert n p $ decParams s }
+
+
+addSymbol :: String -> GlobalScope -> GlobalScope
+addSymbol name gscope =
         let n        = seqNum gscope
             declared = declarations gscope
             gscope'  = gscope { seqNum = n + 1 }
@@ -95,9 +99,3 @@ addSymbol gscope name =
         gscope''
 
 
-addParams :: GlobalScope -> String -> Int -> GlobalScope
-addParams gscope funcName paramCount =
-        let paramTab = decParams gscope
-            gscope'  = gscope { decParams = M.insert funcName paramCount paramTab }
-            in
-        gscope'
