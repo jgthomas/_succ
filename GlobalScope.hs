@@ -7,7 +7,7 @@ module GlobalScope (newGlobalScope,
                     currentSeqNumber) where
 
 
-import Data.Map as M
+import qualified Data.Map as M
 
 import Evaluator  (Evaluator(Ev))
 import FrameStack (currentFunction)
