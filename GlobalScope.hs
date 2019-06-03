@@ -9,9 +9,9 @@ module GlobalScope (newGlobalScope,
 
 import qualified Data.Map as M
 
-import Evaluator  (Evaluator(Ev))
-import FrameStack (currentFunction)
-import Types      (GlobalScope(..), SymTab(globalScope))
+import Evaluator            (Evaluator(Ev))
+import Types                (GlobalScope(..), SymTab(globalScope))
+import qualified FrameStack (currentFunction)
 
 
 {- API -}
@@ -46,7 +46,7 @@ decSeqNumber funcName = do
 
 currentSeqNumber :: Evaluator (Maybe Int)
 currentSeqNumber = do
-        currFuncName <- currentFunction
+        currFuncName <- FrameStack.currentFunction
         seqNumber currFuncName
 
 
