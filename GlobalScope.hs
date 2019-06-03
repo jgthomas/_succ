@@ -91,8 +91,7 @@ addParams n p s = s { decParams = M.insert n p $ decParams s }
 
 addSymbol :: String -> GlobalScope -> GlobalScope
 addSymbol name gs =
-        let n    = seqNum gs
-            dec  = declarations gs
-            gs'  = gs { seqNum = n + 1 }
+        let i   = seqNum gs
+            gs' = gs { seqNum = i + 1 }
             in
-        gs' { declarations = M.insert name n dec }
+        gs' { declarations = M.insert name i $ declarations gs' }
