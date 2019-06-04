@@ -317,10 +317,7 @@ addParam n st =
 -- OFFSET
 
 currentOffset :: Evaluator Int
-currentOffset = Ev $ \symTab ->
-        let currOff = offset symTab
-            in
-        (currOff, symTab)
+currentOffset = Ev $ \symTab -> (offset symTab, symTab)
 
 
 incrementOffset :: Int -> Evaluator Int
