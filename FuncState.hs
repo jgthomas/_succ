@@ -156,7 +156,7 @@ newFuncState funcName = Ev $ \symTab ->
 
 
 makeFuncState :: FuncState
-makeFuncState = Fs 0 0 M.empty
+makeFuncState = Fs 0 0 M.empty M.empty
 
 
 getOffset :: String -> Evaluator (Maybe Int)
