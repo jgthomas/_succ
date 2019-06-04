@@ -251,6 +251,7 @@ getVar varName varMap =
              Just v  -> Just v
              Nothing -> Nothing
 
+-- SCOPE
 
 incrementScope :: Evaluator Int
 incrementScope = do
@@ -309,12 +310,10 @@ paramPosition paramName = do
 
 
 getFunctionState :: String -> Evaluator FuncState
-getFunctionState funcName = Ev $ \symTab ->
-        let states = funcStates symTab
-            in
-        case M.lookup funcName states of
-             Just state -> (state, symTab)
-             Nothing    -> error $ "No state defined for: " ++ funcName
+getFunctionState n = Ev $ \symTab ->
+        case M.lookup n $ funcStates symTab of
+             Just st -> (st, symTab)
+             Nothing -> error $ "No state defined for: " ++ n
 
 
 setFunctionState :: String -> FuncState -> Evaluator ()
