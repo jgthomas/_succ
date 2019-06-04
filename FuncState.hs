@@ -124,7 +124,7 @@ addParameter :: String -> Evaluator ()
 addParameter paramName = do
         currFuncName <- FrameStack.currentFunction
         funcState    <- getFunctionState currFuncName
-        funcState'   <- addParam paramName funcState
+        let funcState' = addParam paramName funcState
         setFunctionState currFuncName funcState'
 
 
@@ -306,6 +306,8 @@ baseScope :: Int
 baseScope = 0
 
 
+-- FuncState
+
 getFunctionState :: String -> Evaluator FuncState
 getFunctionState n = Ev $ \symTab ->
         case M.lookup n $ funcStates symTab of
@@ -318,15 +320,15 @@ setFunctionState n st = Ev $ \symTab ->
         ((), symTab { funcStates = M.insert n st $ funcStates symTab })
 
 
-addParam :: String -> FuncState -> Evaluator FuncState
+addParam :: String -> FuncState -> FuncState
 addParam n st =
-        let params = parameters st
-            pos = paramCount st
-            st' = st { paramCount = pos + 1 }
-            st'' = st' { parameters = M.insert n pos params }
+        let pos = paramCount st
+            st' = st { paramCount = succ pos }
             in
-        return st''
+        st' { parameters = M.insert n pos $ parameters st' }
 
+
+-- OFFSET
 
 currentOffset :: Evaluator Int
 currentOffset = Ev $ \symTab ->
