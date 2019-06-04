@@ -317,11 +317,8 @@ getFunctionState n = Ev $ \symTab ->
 
 
 setFunctionState :: String -> FuncState -> Evaluator ()
-setFunctionState funcName funcState = Ev $ \symTab ->
-        let states = funcStates symTab
-            symTab' = symTab { funcStates = M.insert funcName funcState states }
-            in
-        ((), symTab')
+setFunctionState n st = Ev $ \symTab ->
+        ((), symTab { funcStates = M.insert n st $ funcStates symTab })
 
 
 addParam :: String -> FuncState -> Evaluator FuncState
