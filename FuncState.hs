@@ -108,7 +108,8 @@ addVariable :: String -> Evaluator Int
 addVariable varName = do
         currOff <- currentOffset
         store varName currOff
-        incrementOffset currOff
+        incrementOffset
+        return currOff
 
 
 stackPointerValue :: Evaluator Int
@@ -320,11 +321,9 @@ currentOffset :: Evaluator Int
 currentOffset = Ev $ \symTab -> (offset symTab, symTab)
 
 
-incrementOffset :: Int -> Evaluator Int
-incrementOffset currOff = Ev $ \symTab ->
-        let symTab' = symTab { offset = currOff + memOffsetSize }
-            in
-        (currOff, symTab')
+incrementOffset :: Evaluator ()
+incrementOffset = Ev $ \symTab ->
+        ((), symTab { offset = (offset symTab) + memOffsetSize })
 
 
 memOffsetSize :: Int
