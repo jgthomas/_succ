@@ -277,14 +277,10 @@ findScope name = do
 stepScope :: (Int -> Int) -> Evaluator Int
 stepScope f = do
         currFuncName <- FrameStack.currentFunction
-        scopeLevel   <- findScope currFuncName
-        switchScope currFuncName $ f scopeLevel
-
-
-switchScope :: String -> Int -> Evaluator Int
-switchScope name newLevel = do
-        funcState <- getFunctionState name
-        setFunctionState name $ funcState { currentScope = newLevel }
+        funcState    <- getFunctionState currFuncName
+        let newLevel   = f $ currentScope funcState
+            funcState' = funcState { currentScope = newLevel }
+        setFunctionState currFuncName funcState'
         return newLevel
 
 
