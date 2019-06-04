@@ -118,6 +118,8 @@ stackPointerValue = do
         return $ negate currOff
 
 
+-- PARAMETERS DECLARED
+
 addParameter :: String -> Evaluator ()
 addParameter paramName = do
         currFuncName <- FrameStack.currentFunction
@@ -128,12 +130,16 @@ addParameter paramName = do
 
 parameterPosition :: String -> Evaluator (Maybe Int)
 parameterPosition paramName = do
-        paramPosition paramName
+        currFuncName <- FrameStack.currentFunction
+        funcState    <- getFunctionState currFuncName
+        case M.lookup paramName $ parameters funcState of
+             Just pos -> return (Just pos)
+             Nothing  -> return Nothing
 
 
 parameterDeclared :: String -> Evaluator Bool
 parameterDeclared paramName = do
-        pos <- paramPosition paramName
+        pos <- parameterPosition paramName
         case pos of
              Just pos -> return True
              Nothing  -> return False
@@ -300,15 +306,6 @@ baseScope :: Int
 baseScope = 0
 
 
-paramPosition :: String -> Evaluator (Maybe Int)
-paramPosition paramName = do
-        currFuncName <- FrameStack.currentFunction
-        funcState    <- getFunctionState currFuncName
-        case M.lookup paramName $ parameters funcState of
-             Just pos -> return (Just pos)
-             Nothing  -> return Nothing
-
-
 getFunctionState :: String -> Evaluator FuncState
 getFunctionState n = Ev $ \symTab ->
         case M.lookup n $ funcStates symTab of
@@ -322,13 +319,13 @@ setFunctionState n st = Ev $ \symTab ->
 
 
 addParam :: String -> FuncState -> Evaluator FuncState
-addParam paramName funcState =
-        let params = parameters funcState
-            pos = paramCount funcState
-            funcState' = funcState { paramCount = pos + 1 }
-            funcState'' = funcState' { parameters = M.insert paramName pos params }
+addParam n st =
+        let params = parameters st
+            pos = paramCount st
+            st' = st { paramCount = pos + 1 }
+            st'' = st' { parameters = M.insert n pos params }
             in
-        return funcState''
+        return st''
 
 
 currentOffset :: Evaluator Int
