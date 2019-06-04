@@ -270,12 +270,9 @@ decrementScope = do
 
 
 findScope :: String -> Evaluator Int
-findScope name = Ev $ \symTab ->
-        let funcState = M.lookup name $ funcStates symTab
-            in
-        case funcState of
-             Just fs -> (currentScope fs, symTab)
-             Nothing -> error $ "No scopes defined for function " ++ name
+findScope name = do
+        funcState <- getFunctionState name
+        return $ currentScope funcState
 
 
 stepScope :: (Int -> Int) -> Evaluator Int
