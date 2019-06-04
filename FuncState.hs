@@ -33,7 +33,10 @@ type ProgramScope = M.Map String FunctionScope
 initFunction :: String -> Evaluator ()
 initFunction name = do
         FrameStack.pushFunctionName name
-        newFuncScopesData name
+        progScope <- updateProgramScope name M.empty
+        funcScope <- getFunctionScope name progScope
+        funcScope' <- updateFunctionScope baseScope M.empty funcScope
+        updateProgramScope name funcScope'
         newFuncState name
         return ()
 
@@ -198,13 +201,22 @@ store name value = do
         return ()
 
 
-newFuncScopesData :: String -> Evaluator ()
-newFuncScopesData name = do
-        progScope <- updateProgramScope name M.empty
-        funcScope <- getFunctionScope name progScope
-        funcScope' <- updateFunctionScope baseScope M.empty funcScope
-        updateProgramScope name funcScope'
-        return ()
+
+{- ### -}
+
+--storeFS :: String -> Int -> Evaluator ()
+--storeFS :: name value = do
+--        currFuncName <- FrameStack.currentFunction
+--        funcState    <- getFunctionState currFuncName
+--
+--
+--getScope :: Int -> FuncState -> LocalScope
+--getScope scope fs =
+--        case M.lookup scope $ scopes fs of
+--             Just s  -> s
+--             Nothing -> error "scope not defined"
+
+{- ### -}
 
 
 getLocalScope :: Int -> FunctionScope -> Evaluator LocalScope
