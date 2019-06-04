@@ -1,9 +1,7 @@
 
-module SymTab (addVariable,
-               currentScope,
+module SymTab (currentScope,
                labelNum,
                newSymTab,
-               stackPointerValue,
                module GlobalScope,
                module FuncState) where
 
@@ -13,7 +11,7 @@ import qualified Data.Map as M
 import GlobalScope
 import FuncState
 import Evaluator    (Evaluator(Ev))
-import Types        (SymTab(Tab, label, offset))
+import Types        (SymTab(Tab, label))
 import FrameStack   (newStack, currentScope)
 
 
@@ -29,38 +27,9 @@ newSymTab = Tab
             M.empty
 
 
-stackPointerValue :: Evaluator Int
-stackPointerValue = do
-        currOff <- currentOffset
-        return $ negate currOff
-
-
-addVariable :: String -> Evaluator Int
-addVariable varName = do
-        currOff <- currentOffset
-        storeVar varName currOff
-        incrementOffset currOff
-
-
 labelNum :: Evaluator Int
 labelNum = do
         nextLabel
-
-
-{- Internal -}
-
-currentOffset :: Evaluator Int
-currentOffset = Ev $ \symTab ->
-        let currOff = offset symTab
-            in
-        (currOff, symTab)
-
-
-incrementOffset :: Int -> Evaluator Int
-incrementOffset currOff = Ev $ \symTab ->
-        let symTab' = symTab { offset = currOff + memOffsetSize }
-            in
-        (currOff, symTab')
 
 
 nextLabel :: Evaluator Int
@@ -69,10 +38,6 @@ nextLabel = Ev $ \symTab ->
             symTab' = symTab { label = succ num }
             in
         (num, symTab')
-
-
-memOffsetSize :: Int
-memOffsetSize = (-8)
 
 
 firstLabel :: Int

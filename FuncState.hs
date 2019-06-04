@@ -13,13 +13,14 @@ module FuncState (initScope,
                   addParameter,
                   parameterPosition,
                   parameterDeclared,
-                  storeVar) where
-
+                  memOffsetSize,
+                  addVariable,
+                  stackPointerValue) where
 
 import qualified Data.Map as M
 
 import Evaluator            (Evaluator(Ev))
-import Types                (SymTab(scopesData, funcStates), FuncState(..))
+import Types                (SymTab(scopesData, funcStates, offset), FuncState(..))
 import qualified FrameStack (currentFunction, popFunctionName, pushFunctionName)
 
 
@@ -104,9 +105,17 @@ variableOffset name = do
         getOffset name
 
 
-storeVar :: String -> Int -> Evaluator ()
-storeVar varName off = do
-        store varName off
+addVariable :: String -> Evaluator Int
+addVariable varName = do
+        currOff <- currentOffset
+        store varName currOff
+        incrementOffset currOff
+
+
+stackPointerValue :: Evaluator Int
+stackPointerValue = do
+        currOff <- currentOffset
+        return $ negate currOff
 
 
 addParameter :: String -> Evaluator ()
@@ -324,3 +333,21 @@ addParam paramName funcState =
             funcState'' = funcState' { parameters = M.insert paramName pos params }
             in
         return funcState''
+
+
+currentOffset :: Evaluator Int
+currentOffset = Ev $ \symTab ->
+        let currOff = offset symTab
+            in
+        (currOff, symTab)
+
+
+incrementOffset :: Int -> Evaluator Int
+incrementOffset currOff = Ev $ \symTab ->
+        let symTab' = symTab { offset = currOff + memOffsetSize }
+            in
+        (currOff, symTab')
+
+
+memOffsetSize :: Int
+memOffsetSize = (-8)
