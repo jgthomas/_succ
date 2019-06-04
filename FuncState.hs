@@ -1,4 +1,3 @@
-
 module FuncState (initScope,
                   closeScope,
                   initFunction,
@@ -283,16 +282,10 @@ stepScope func = do
 
 
 switchScope :: String -> Int -> Evaluator Int
-switchScope name newLevel = Ev $ \symTab ->
-        let funcState = M.lookup name $ funcStates symTab
-            in
-        case funcState of
-             Just fs ->
-                     let fs'  = fs { currentScope = newLevel }
-                         symTab' = symTab { funcStates = M.insert name fs' $ funcStates symTab }
-                         in
-                     (newLevel, symTab')
-             Nothing -> error $ "No scopes defined for function " ++ name
+switchScope name newLevel = do
+        funcState <- getFunctionState name
+        setFunctionState name $ funcState { currentScope = newLevel }
+        return newLevel
 
 
 scopeLimit :: Int
