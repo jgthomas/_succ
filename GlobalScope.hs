@@ -6,6 +6,7 @@ module GlobalScope (newGlobalScope,
                     decSeqNumber,
                     currentSeqNumber,
                     globalLabel,
+                    checkVarDefined,
                     defineGlobal) where
 
 
@@ -29,10 +30,12 @@ declareFunction funcName paramCount = do
         updateGlobalScope gscope''
 
 
-declareGlobal :: String -> Evaluator ()
-declareGlobal name = do
+declareGlobal :: String -> String -> Evaluator ()
+declareGlobal name label = do
         gscope <- getGlobalScope
-        updateGlobalScope $ addSymbol name gscope
+        let gscope'  = addSymbol name gscope
+            gscope'' = addGlobal name label gscope'
+        updateGlobalScope gscope''
 
 
 decParamCount :: String -> Evaluator (Maybe Int)
@@ -54,10 +57,16 @@ currentSeqNumber = do
         return $ M.lookup currFunc $ declarations gscope
 
 
-defineGlobal :: String -> String -> Evaluator ()
-defineGlobal varName varLabel = do
+defineGlobal :: String -> Evaluator ()
+defineGlobal name = do
         gscope <- getGlobalScope
-        updateGlobalScope $ addGlobal varName varLabel gscope
+        updateGlobalScope $ varAsDefined name gscope
+
+
+checkVarDefined :: String -> Evaluator Bool
+checkVarDefined name = do
+        gscope <- getGlobalScope
+        return $ S.member name $ declaredVars gscope
 
 
 globalLabel :: String -> Evaluator (Maybe String)
@@ -84,6 +93,10 @@ addGlobal n l s = s { globalVars = M.insert n l $ globalVars s }
 
 addParams :: String -> Int -> GlobalScope -> GlobalScope
 addParams n p s = s { decParams = M.insert n p $ decParams s }
+
+
+varAsDefined :: String -> GlobalScope -> GlobalScope
+varAsDefined n s = s { declaredVars = S.insert n $ declaredVars s }
 
 
 addSymbol :: String -> GlobalScope -> GlobalScope

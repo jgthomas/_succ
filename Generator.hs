@@ -474,23 +474,34 @@ processArg argPos arg = do
 
 declareGlobal :: String -> Maybe Tree -> Evaluator String
 declareGlobal name toAssign = do
-        SymTab.declareGlobal name
-        case toAssign of
-             Nothing     -> return ""
-             Just assign -> genASM assign
+        currLabel <- SymTab.globalLabel name
+        case currLabel of
+             Nothing -> do
+                     labnum <- SymTab.labelNum
+                     let globLab = mkGlobLabel name labnum
+                     SymTab.declareGlobal name globLab
+                     case toAssign of
+                          Nothing     -> return ""
+                          Just assign -> genASM assign
+             _ -> do
+                     case toAssign of
+                          Nothing     -> return ""
+                          Just assign -> genASM assign
 
 
 defineGlobal :: String -> Tree -> Evaluator String
 defineGlobal name constNode = do
-        currLab <- SymTab.globalLabel name
-        case currLab of
-             Nothing -> do
-                     const  <- genASM constNode
-                     labnum <- SymTab.labelNum
-                     let globLab = mkGlobLabel name labnum
-                     SymTab.defineGlobal name globLab
-                     return $ initializedGlobal globLab const
-             _ -> error $ "global variable already defined: " ++ name
+        defined <- SymTab.checkVarDefined name
+        if defined
+           then error $ "global variable already defined: " ++ name
+           else do
+                   const <- genASM constNode
+                   label <- SymTab.globalLabel name
+                   case label of
+                        Nothing  -> error $ "variable not yet declared: " ++ name
+                        Just lab -> do
+                                SymTab.defineGlobal name
+                                return $ initializedGlobal lab const
 
 
 mkGlobLabel :: String -> Int -> String
