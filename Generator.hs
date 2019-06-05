@@ -438,7 +438,7 @@ uninitializedGlobal label =
 
 {-
 - gcc treats global labels as position
-- independent, PIE, by default, as so as
+- independent, PIE, by default, and so as
 - relative to %rip, so loads need to be
 - from that relative locations as well
 -}
