@@ -82,11 +82,13 @@ getContinue = do
 setBreak :: Int -> Evaluator ()
 setBreak labelNo = do
         store "@Break" labelNo
+        storeFS "@Break" labelNo
 
 
 setContinue :: Int -> Evaluator ()
 setContinue labelNo = do
         store "@Continue" labelNo
+        storeFS "@Continue" labelNo
 
 
 checkVariable :: String -> Evaluator Bool
@@ -110,7 +112,7 @@ addVariable :: String -> Evaluator Int
 addVariable varName = do
         currOff <- currentOffset
         store varName currOff
-        --storeFS varName currOff
+        storeFS varName currOff -- FS
         incrementOffset
         return currOff
 
@@ -215,7 +217,7 @@ storeFS name value = do
         let level      = currentScope funcState
             scope      = getScope level funcState
             scope'     = M.insert name value scope
-            funcState' = funcState { scopes = M.insert level scope $ scopes funcState }
+            funcState' = funcState { scopes = M.insert level scope' $ scopes funcState }
         setFunctionState currFuncName funcState'
 
 
