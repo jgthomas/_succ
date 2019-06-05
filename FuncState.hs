@@ -81,26 +81,32 @@ getContinue = do
 
 setBreak :: Int -> Evaluator ()
 setBreak labelNo = do
-        store "@Break" labelNo
+        --store "@Break" labelNo
         storeFS "@Break" labelNo
 
 
 setContinue :: Int -> Evaluator ()
 setContinue labelNo = do
-        store "@Continue" labelNo
+        --store "@Continue" labelNo
         storeFS "@Continue" labelNo
 
 
 checkVariable :: String -> Evaluator Bool
 checkVariable varName = do
         currFuncName <- FrameStack.currentFunction
-        scopeLevel <- findScope currFuncName
-        progScope <- getProgramScope
-        funcScope <- getFunctionScope currFuncName progScope
-        locScope <- getLocalScope scopeLevel funcScope
-        case getVar varName locScope of
-             Just v  -> return True
-             Nothing -> return False
+        scopeLevel   <- findScope currFuncName
+        test         <- lookUpFS currFuncName scopeLevel varName
+        case test of
+             Just off -> return True
+             Nothing  -> return False
+        --currFuncName <- FrameStack.currentFunction
+        --scopeLevel <- findScope currFuncName
+        --progScope <- getProgramScope
+        --funcScope <- getFunctionScope currFuncName progScope
+        --locScope <- getLocalScope scopeLevel funcScope
+        --case getVar varName locScope of
+        --     Just v  -> return True
+        --     Nothing -> return False
 
 
 variableOffset :: String -> Evaluator (Maybe Int)
@@ -111,7 +117,7 @@ variableOffset name = do
 addVariable :: String -> Evaluator Int
 addVariable varName = do
         currOff <- currentOffset
-        store varName currOff
+        --store varName currOff
         storeFS varName currOff -- FS
         incrementOffset
         return currOff
@@ -186,25 +192,25 @@ findOffset func scope name =
                         Just off -> return (Just off)
 
 
-lookUp :: String -> Int -> String -> Evaluator (Maybe Int)
-lookUp func scope name = do
-        progScope <- getProgramScope
-        funcScope <- getFunctionScope func progScope
-        locScope <- getLocalScope scope funcScope
-        return $ getVar name locScope
+--lookUp :: String -> Int -> String -> Evaluator (Maybe Int)
+--lookUp func scope name = do
+--        progScope <- getProgramScope
+--        funcScope <- getFunctionScope func progScope
+--        locScope <- getLocalScope scope funcScope
+--        return $ getVar name locScope
 
 
-store :: String -> Int -> Evaluator ()
-store name value = do
-        currFuncName <- FrameStack.currentFunction
-        scopeLevel <- findScope currFuncName
-        progScope <- getProgramScope
-        funcScope <- getFunctionScope currFuncName progScope
-        locScope <- getLocalScope scopeLevel funcScope
-        locScope' <- storeVariable name value locScope
-        funcScope' <- updateFunctionScope scopeLevel locScope' funcScope
-        updateProgramScope currFuncName funcScope'
-        return ()
+--store :: String -> Int -> Evaluator ()
+--store name value = do
+--        currFuncName <- FrameStack.currentFunction
+--        scopeLevel <- findScope currFuncName
+--        progScope <- getProgramScope
+--        funcScope <- getFunctionScope currFuncName progScope
+--        locScope <- getLocalScope scopeLevel funcScope
+--        locScope' <- storeVariable name value locScope
+--        funcScope' <- updateFunctionScope scopeLevel locScope' funcScope
+--        updateProgramScope currFuncName funcScope'
+--        return ()
 
 
 
