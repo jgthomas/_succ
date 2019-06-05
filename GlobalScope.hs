@@ -11,7 +11,7 @@ module GlobalScope (newGlobalScope,
 import qualified Data.Map as M
 
 import Evaluator            (Evaluator(Ev))
-import Types                (GlobalScope(..), SymTab(globalScope))
+import Types                (SymTab(globalScope), GlobalScope(..))
 import qualified FrameStack (currentFunction)
 
 
