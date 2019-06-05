@@ -38,7 +38,6 @@ initFunction name = do
         funcScope' <- updateFunctionScope baseScope M.empty funcScope
         updateProgramScope name funcScope'
         newFuncState name
-        return ()
 
 
 closeFunction :: Evaluator ()
@@ -151,16 +150,13 @@ parameterDeclared paramName = do
 
 {- Internal -}
 
-newFuncState :: String -> Evaluator String
-newFuncState funcName = Ev $ \symTab ->
-        let states = funcStates symTab
-            symTab' = symTab { funcStates = M.insert funcName makeFuncState states }
-            in
-        (funcName, symTab')
+newFuncState :: String -> Evaluator ()
+newFuncState name = Ev $ \symTab ->
+        ((), symTab { funcStates = M.insert name makeFs $ funcStates symTab })
 
 
-makeFuncState :: FuncState
-makeFuncState = Fs 0 0 M.empty M.empty
+makeFs :: FuncState
+makeFs = Fs 0 0 M.empty M.empty
 
 
 getOffset :: String -> Evaluator (Maybe Int)
