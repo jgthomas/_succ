@@ -29,7 +29,7 @@ main = do
         -- debugging
         --print contents
         --print $ tokenize contents
-        --print $ parse $ tokenize contents
+        print $ parse $ tokenize contents
 
         let outfileName = (dropExtension infileName) ++ ".s"
         let parsed = parse $ tokenize contents
