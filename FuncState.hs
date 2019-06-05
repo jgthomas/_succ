@@ -24,13 +24,6 @@ import Types                (SymTab(funcStates, offset), FuncState(..))
 import qualified FrameStack (currentFunction, popFunctionName, pushFunctionName)
 
 
-type LocalScope = M.Map String Int
-type FunctionScope = M.Map Int LocalScope
-type ProgramScope = M.Map String FunctionScope
-
-
-{- API -}
-
 initFunction :: String -> Evaluator ()
 initFunction name = do
         FrameStack.pushFunctionName name
@@ -192,7 +185,7 @@ lookUpFS func level var = do
         return $ M.lookup var scope
 
 
-getScope :: Int -> FuncState -> LocalScope
+getScope :: Int -> FuncState -> M.Map String Int
 getScope scope fs =
         case M.lookup scope $ scopes fs of
              Just s  -> s
