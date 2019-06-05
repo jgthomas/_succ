@@ -482,12 +482,16 @@ declareGlobal name toAssign = do
 
 defineGlobal :: String -> Tree -> Evaluator String
 defineGlobal name constNode = do
-        const  <- genASM constNode
-        labnum <- SymTab.labelNum
-        let globLab = mkGlobLabel name labnum
-        SymTab.defineGlobal name globLab
-        return $ (initializedGlobal globLab const)
-                 ++ (storeGlobal globLab const)
+        currLab <- SymTab.globalLabel name
+        case currLab of
+             Nothing -> do
+                     const  <- genASM constNode
+                     labnum <- SymTab.labelNum
+                     let globLab = mkGlobLabel name labnum
+                     SymTab.defineGlobal name globLab
+                     return $ (initializedGlobal globLab const)
+                              ++ (storeGlobal globLab const)
+             _ -> error $ "global variable already defined: " ++ name
 
 
 mkGlobLabel :: String -> Int -> String
