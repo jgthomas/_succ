@@ -15,8 +15,6 @@ import Types                (GlobalScope(..), SymTab(globalScope))
 import qualified FrameStack (currentFunction)
 
 
-{- API -}
-
 newGlobalScope :: GlobalScope
 newGlobalScope = Gscope 0 M.empty M.empty M.empty
 
