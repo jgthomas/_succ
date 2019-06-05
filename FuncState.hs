@@ -33,10 +33,6 @@ type ProgramScope = M.Map String FunctionScope
 initFunction :: String -> Evaluator ()
 initFunction name = do
         FrameStack.pushFunctionName name
-        --progScope <- updateProgramScope name M.empty
-        --funcScope <- getFunctionScope name progScope
-        --funcScope' <- updateFunctionScope baseScope M.empty funcScope
-        --updateProgramScope name funcScope'
         newFuncState name
 
 
@@ -49,10 +45,6 @@ initScope :: Evaluator ()
 initScope = do
         currFuncName <- FrameStack.currentFunction
         newScopeLevel <- incrementScope
-        --progScope <- getProgramScope
-        --funcScope <- getFunctionScope currFuncName progScope
-        --funcScope' <- updateFunctionScope newScopeLevel M.empty funcScope
-        --updateProgramScope currFuncName funcScope'
         addNestedScope currFuncName newScopeLevel -- FS
 
 
@@ -65,10 +57,6 @@ functionDefined :: String -> Evaluator Bool
 functionDefined funcName = do
         test <- checkFunctionState funcName
         return test
-        --progScope <- getProgramScope
-        --case M.lookup funcName progScope of
-        --     Just fScope -> return True
-        --     Nothing     -> return False
 
 
 getBreak :: Evaluator (Maybe Int)
@@ -83,13 +71,11 @@ getContinue = do
 
 setBreak :: Int -> Evaluator ()
 setBreak labelNo = do
-        --store "@Break" labelNo
         storeFS "@Break" labelNo
 
 
 setContinue :: Int -> Evaluator ()
 setContinue labelNo = do
-        --store "@Continue" labelNo
         storeFS "@Continue" labelNo
 
 
@@ -101,14 +87,6 @@ checkVariable varName = do
         case test of
              Just off -> return True
              Nothing  -> return False
-        --currFuncName <- FrameStack.currentFunction
-        --scopeLevel <- findScope currFuncName
-        --progScope <- getProgramScope
-        --funcScope <- getFunctionScope currFuncName progScope
-        --locScope <- getLocalScope scopeLevel funcScope
-        --case getVar varName locScope of
-        --     Just v  -> return True
-        --     Nothing -> return False
 
 
 variableOffset :: String -> Evaluator (Maybe Int)
@@ -119,8 +97,7 @@ variableOffset name = do
 addVariable :: String -> Evaluator Int
 addVariable varName = do
         currOff <- currentOffset
-        --store varName currOff
-        storeFS varName currOff -- FS
+        storeFS varName currOff
         incrementOffset
         return currOff
 
@@ -194,28 +171,6 @@ findOffset func scope name =
                         Just off -> return (Just off)
 
 
---lookUp :: String -> Int -> String -> Evaluator (Maybe Int)
---lookUp func scope name = do
---        progScope <- getProgramScope
---        funcScope <- getFunctionScope func progScope
---        locScope <- getLocalScope scope funcScope
---        return $ getVar name locScope
-
-
---store :: String -> Int -> Evaluator ()
---store name value = do
---        currFuncName <- FrameStack.currentFunction
---        scopeLevel <- findScope currFuncName
---        progScope <- getProgramScope
---        funcScope <- getFunctionScope currFuncName progScope
---        locScope <- getLocalScope scopeLevel funcScope
---        locScope' <- storeVariable name value locScope
---        funcScope' <- updateFunctionScope scopeLevel locScope' funcScope
---        updateProgramScope currFuncName funcScope'
---        return ()
-
-
-
 {- ### -}
 
 storeFS :: String -> Int -> Evaluator ()
@@ -245,56 +200,6 @@ getScope scope fs =
 
 {- ### -}
 
-
---getLocalScope :: Int -> FunctionScope -> Evaluator LocalScope
---getLocalScope scopeLevel funcScope = Ev $ \symTab ->
---        case M.lookup scopeLevel funcScope of
---             Just locScope -> (locScope, symTab)
---             Nothing       -> error "No scope defined for function"
---
---
---getFunctionScope :: String -> ProgramScope -> Evaluator FunctionScope
---getFunctionScope funcName progScope = Ev $ \symTab ->
---        case M.lookup funcName progScope of
---             Just funcScope -> (funcScope, symTab)
---             Nothing        -> error "No function scopes defined"
---
---
---getProgramScope :: Evaluator ProgramScope
---getProgramScope = Ev $ \symTab ->
---        let scopes = scopesData symTab
---            in
---        (scopes, symTab)
---
---
---storeVariable :: String -> Int -> LocalScope -> Evaluator LocalScope
---storeVariable varName value locScope =
---        let locScope' = M.insert varName value locScope
---            in
---        return locScope'
---
---
---updateFunctionScope :: Int -> LocalScope -> FunctionScope -> Evaluator FunctionScope
---updateFunctionScope scopeLevel locScope funcScope =
---        let funcScope' = M.insert scopeLevel locScope funcScope
---            in
---        return funcScope'
---
---
---updateProgramScope :: String -> FunctionScope -> Evaluator ProgramScope
---updateProgramScope funcName funcScope = Ev $ \symTab ->
---        let scopes = scopesData symTab
---            symTab' = symTab { scopesData = M.insert funcName funcScope scopes }
---            scopes' = scopesData symTab'
---            in
---        (scopes', symTab')
---
---
---getVar :: String -> LocalScope -> Maybe Int
---getVar varName varMap =
---        case M.lookup varName varMap of
---             Just v  -> Just v
---             Nothing -> Nothing
 
 -- SCOPE
 
