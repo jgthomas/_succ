@@ -439,7 +439,7 @@ uninitializedGlobal label =
 
 storeGlobal :: String -> Int -> String
 storeGlobal label val =
-        "movq $" ++ (show val) ++ ", _" ++ label ++ "(%rip)\n"
+        "movq $" ++ (show val) ++ ", " ++ label ++ "(%rip)\n"
 
 
 loadGlobal :: String -> String
@@ -482,15 +482,16 @@ declareGlobal name toAssign = do
 
 defineGlobal :: String -> Tree -> Evaluator String
 defineGlobal name constNode = do
-        const <- genASM constNode
-        label <- SymTab.labelNum
-        let globLab = mkGlobLabel $ show label
+        const  <- genASM constNode
+        labnum <- SymTab.labelNum
+        let globLab = mkGlobLabel name labnum
         SymTab.defineGlobal name globLab
-        return $ initializedGlobal globLab $ read const
+        return $ (initializedGlobal globLab $ read const)
+                 ++ (storeGlobal globLab $ read const)
 
 
-mkGlobLabel :: String -> String
-mkGlobLabel name = "_" ++ name
+mkGlobLabel :: String -> Int -> String
+mkGlobLabel name labnum = "_" ++ name ++ (show labnum)
 
 
 declareFunction :: String -> Int -> Evaluator ()
