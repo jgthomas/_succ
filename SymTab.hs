@@ -24,7 +24,7 @@ newSymTab = Tab
             newStack
             newGlobalScope
             M.empty
-            M.empty
+            --M.empty
 
 
 labelNum :: Evaluator Int

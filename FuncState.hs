@@ -19,7 +19,7 @@ module FuncState (initScope,
 import qualified Data.Map as M
 
 import Evaluator            (Evaluator(Ev))
-import Types                (SymTab(scopesData, funcStates, offset), FuncState(..))
+import Types                (SymTab(funcStates, offset), FuncState(..))
 import qualified FrameStack (currentFunction, popFunctionName, pushFunctionName)
 
 
