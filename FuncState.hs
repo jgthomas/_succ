@@ -65,19 +65,19 @@ getContinue = do
 
 setBreak :: Int -> Evaluator ()
 setBreak labelNo = do
-        storeFS "@Break" labelNo
+        store "@Break" labelNo
 
 
 setContinue :: Int -> Evaluator ()
 setContinue labelNo = do
-        storeFS "@Continue" labelNo
+        store "@Continue" labelNo
 
 
 checkVariable :: String -> Evaluator Bool
 checkVariable varName = do
         currFuncName <- FrameStack.currentFunction
         scopeLevel   <- findScope currFuncName
-        test         <- lookUpFS currFuncName scopeLevel varName
+        test         <- find currFuncName scopeLevel varName
         case test of
              Just off -> return True
              Nothing  -> return False
@@ -91,7 +91,7 @@ variableOffset name = do
 addVariable :: String -> Evaluator Int
 addVariable varName = do
         currOff <- currentOffset
-        storeFS varName currOff
+        store varName currOff
         incrementOffset
         return currOff
 
@@ -141,14 +141,14 @@ findOffset func scope name =
         if scope == scopeLimit
            then return Nothing
            else do
-                   offset <- lookUpFS func scope name
+                   offset <- find func scope name
                    case offset of
                         Nothing  -> findOffset func (pred scope) name
                         Just off -> return (Just off)
 
 
-storeFS :: String -> Int -> Evaluator ()
-storeFS name value = do
+store :: String -> Int -> Evaluator ()
+store name value = do
         currFuncName <- FrameStack.currentFunction
         funcState    <- getFunctionState currFuncName
         let level      = currentScope funcState
@@ -158,8 +158,8 @@ storeFS name value = do
         setFunctionState currFuncName funcState'
 
 
-lookUpFS :: String -> Int -> String -> Evaluator (Maybe Int)
-lookUpFS func level var = do
+find :: String -> Int -> String -> Evaluator (Maybe Int)
+find func level var = do
         funcState <- getFunctionState func
         let scope = getScope level funcState
         return $ M.lookup var scope
