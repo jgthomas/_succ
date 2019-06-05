@@ -33,10 +33,10 @@ type ProgramScope = M.Map String FunctionScope
 initFunction :: String -> Evaluator ()
 initFunction name = do
         FrameStack.pushFunctionName name
-        progScope <- updateProgramScope name M.empty
-        funcScope <- getFunctionScope name progScope
-        funcScope' <- updateFunctionScope baseScope M.empty funcScope
-        updateProgramScope name funcScope'
+        --progScope <- updateProgramScope name M.empty
+        --funcScope <- getFunctionScope name progScope
+        --funcScope' <- updateFunctionScope baseScope M.empty funcScope
+        --updateProgramScope name funcScope'
         newFuncState name
 
 
@@ -49,10 +49,10 @@ initScope :: Evaluator ()
 initScope = do
         currFuncName <- FrameStack.currentFunction
         newScopeLevel <- incrementScope
-        progScope <- getProgramScope
-        funcScope <- getFunctionScope currFuncName progScope
-        funcScope' <- updateFunctionScope newScopeLevel M.empty funcScope
-        updateProgramScope currFuncName funcScope'
+        --progScope <- getProgramScope
+        --funcScope <- getFunctionScope currFuncName progScope
+        --funcScope' <- updateFunctionScope newScopeLevel M.empty funcScope
+        --updateProgramScope currFuncName funcScope'
         addNestedScope currFuncName newScopeLevel -- FS
 
 
@@ -63,10 +63,12 @@ closeScope = do
 
 functionDefined :: String -> Evaluator Bool
 functionDefined funcName = do
-        progScope <- getProgramScope
-        case M.lookup funcName progScope of
-             Just fScope -> return True
-             Nothing     -> return False
+        test <- checkFunctionState funcName
+        return test
+        --progScope <- getProgramScope
+        --case M.lookup funcName progScope of
+        --     Just fScope -> return True
+        --     Nothing     -> return False
 
 
 getBreak :: Evaluator (Maybe Int)
@@ -244,55 +246,55 @@ getScope scope fs =
 {- ### -}
 
 
-getLocalScope :: Int -> FunctionScope -> Evaluator LocalScope
-getLocalScope scopeLevel funcScope = Ev $ \symTab ->
-        case M.lookup scopeLevel funcScope of
-             Just locScope -> (locScope, symTab)
-             Nothing       -> error "No scope defined for function"
-
-
-getFunctionScope :: String -> ProgramScope -> Evaluator FunctionScope
-getFunctionScope funcName progScope = Ev $ \symTab ->
-        case M.lookup funcName progScope of
-             Just funcScope -> (funcScope, symTab)
-             Nothing        -> error "No function scopes defined"
-
-
-getProgramScope :: Evaluator ProgramScope
-getProgramScope = Ev $ \symTab ->
-        let scopes = scopesData symTab
-            in
-        (scopes, symTab)
-
-
-storeVariable :: String -> Int -> LocalScope -> Evaluator LocalScope
-storeVariable varName value locScope =
-        let locScope' = M.insert varName value locScope
-            in
-        return locScope'
-
-
-updateFunctionScope :: Int -> LocalScope -> FunctionScope -> Evaluator FunctionScope
-updateFunctionScope scopeLevel locScope funcScope =
-        let funcScope' = M.insert scopeLevel locScope funcScope
-            in
-        return funcScope'
-
-
-updateProgramScope :: String -> FunctionScope -> Evaluator ProgramScope
-updateProgramScope funcName funcScope = Ev $ \symTab ->
-        let scopes = scopesData symTab
-            symTab' = symTab { scopesData = M.insert funcName funcScope scopes }
-            scopes' = scopesData symTab'
-            in
-        (scopes', symTab')
-
-
-getVar :: String -> LocalScope -> Maybe Int
-getVar varName varMap =
-        case M.lookup varName varMap of
-             Just v  -> Just v
-             Nothing -> Nothing
+--getLocalScope :: Int -> FunctionScope -> Evaluator LocalScope
+--getLocalScope scopeLevel funcScope = Ev $ \symTab ->
+--        case M.lookup scopeLevel funcScope of
+--             Just locScope -> (locScope, symTab)
+--             Nothing       -> error "No scope defined for function"
+--
+--
+--getFunctionScope :: String -> ProgramScope -> Evaluator FunctionScope
+--getFunctionScope funcName progScope = Ev $ \symTab ->
+--        case M.lookup funcName progScope of
+--             Just funcScope -> (funcScope, symTab)
+--             Nothing        -> error "No function scopes defined"
+--
+--
+--getProgramScope :: Evaluator ProgramScope
+--getProgramScope = Ev $ \symTab ->
+--        let scopes = scopesData symTab
+--            in
+--        (scopes, symTab)
+--
+--
+--storeVariable :: String -> Int -> LocalScope -> Evaluator LocalScope
+--storeVariable varName value locScope =
+--        let locScope' = M.insert varName value locScope
+--            in
+--        return locScope'
+--
+--
+--updateFunctionScope :: Int -> LocalScope -> FunctionScope -> Evaluator FunctionScope
+--updateFunctionScope scopeLevel locScope funcScope =
+--        let funcScope' = M.insert scopeLevel locScope funcScope
+--            in
+--        return funcScope'
+--
+--
+--updateProgramScope :: String -> FunctionScope -> Evaluator ProgramScope
+--updateProgramScope funcName funcScope = Ev $ \symTab ->
+--        let scopes = scopesData symTab
+--            symTab' = symTab { scopesData = M.insert funcName funcScope scopes }
+--            scopes' = scopesData symTab'
+--            in
+--        (scopes', symTab')
+--
+--
+--getVar :: String -> LocalScope -> Maybe Int
+--getVar varName varMap =
+--        case M.lookup varName varMap of
+--             Just v  -> Just v
+--             Nothing -> Nothing
 
 -- SCOPE
 
@@ -331,6 +333,13 @@ baseScope = 0
 
 
 -- FuncState
+
+checkFunctionState :: String -> Evaluator Bool
+checkFunctionState n = Ev $ \symTab ->
+        case M.lookup n $ funcStates symTab of
+             Just st -> (True, symTab)
+             Nothing -> (False, symTab)
+
 
 getFunctionState :: String -> Evaluator FuncState
 getFunctionState n = Ev $ \symTab ->
