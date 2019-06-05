@@ -10,7 +10,6 @@ data SymTab = Tab { label       :: Int
                   , frameStack  :: Stack String
                   , globalScope :: GlobalScope
                   , funcStates  :: M.Map String FuncState }
-                  --, scopesData  :: M.Map String (M.Map Int (M.Map String Int)) }
             deriving (Show)
 
 
