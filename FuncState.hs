@@ -111,6 +111,7 @@ addVariable :: String -> Evaluator Int
 addVariable varName = do
         currOff <- currentOffset
         store varName currOff
+        --storeFS varName currOff
         incrementOffset
         return currOff
 
@@ -159,7 +160,7 @@ newFuncState funcName = Ev $ \symTab ->
 
 
 makeFuncState :: FuncState
-makeFuncState = Fs 0 0 M.empty (M.singleton 0 M.empty)
+makeFuncState = Fs 0 0 M.empty M.empty
 
 
 getOffset :: String -> Evaluator (Maybe Int)
@@ -204,18 +205,23 @@ store name value = do
 
 {- ### -}
 
---storeFS :: String -> Int -> Evaluator ()
---storeFS :: name value = do
---        currFuncName <- FrameStack.currentFunction
---        funcState    <- getFunctionState currFuncName
---
---
---getScope :: Int -> FuncState -> LocalScope
---getScope scope fs =
---        case M.lookup scope $ scopes fs of
---             Just s  -> s
---             Nothing -> error "scope not defined"
---
+storeFS :: String -> Int -> Evaluator ()
+storeFS name value = do
+        currFuncName <- FrameStack.currentFunction
+        funcState    <- getFunctionState currFuncName
+        let level      = currentScope funcState
+            scope      = getScope level funcState
+            scope'     = M.insert name value scope
+            funcState' = funcState { scopes = M.insert level scope $ scopes funcState }
+        setFunctionState currFuncName funcState'
+
+
+getScope :: Int -> FuncState -> LocalScope
+getScope scope fs =
+        case M.lookup scope $ scopes fs of
+             Just s  -> s
+             Nothing -> error "scope not defined"
+
 
 {- ### -}
 
