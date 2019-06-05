@@ -418,13 +418,13 @@ testResult :: String
 testResult = "cmpq $0, %rax\n"
 
 
-initializedGlobal :: String -> Int -> String
+initializedGlobal :: String -> String -> String
 initializedGlobal label val =
         ".globl " ++ label ++ "\n"
         ++ ".data\n"
         ++ ".align 4\n"
         ++ label ++ ":\n"
-        ++ ".long " ++ (show val) ++ "\n"
+        ++ ".long " ++ val ++ "\n"
         ++ ".text\n"
 
 
@@ -437,9 +437,9 @@ uninitializedGlobal label =
         ++ ".text\n"
 
 
-storeGlobal :: String -> Int -> String
+storeGlobal :: String -> String -> String
 storeGlobal label val =
-        "movq $" ++ (show val) ++ ", " ++ label ++ "(%rip)\n"
+        "movq $" ++ val ++ ", " ++ label ++ "(%rip)\n"
 
 
 loadGlobal :: String -> String
@@ -486,8 +486,8 @@ defineGlobal name constNode = do
         labnum <- SymTab.labelNum
         let globLab = mkGlobLabel name labnum
         SymTab.defineGlobal name globLab
-        return $ (initializedGlobal globLab $ read const)
-                 ++ (storeGlobal globLab $ read const)
+        return $ (initializedGlobal globLab const)
+                 ++ (storeGlobal globLab const)
 
 
 mkGlobLabel :: String -> Int -> String
