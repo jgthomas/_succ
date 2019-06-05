@@ -5,6 +5,7 @@ module GlobalScope (newGlobalScope,
                     decParamCount,
                     decSeqNumber,
                     currentSeqNumber,
+                    globalLabel,
                     defineGlobal) where
 
 
