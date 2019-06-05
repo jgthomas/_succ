@@ -39,7 +39,7 @@ initScope :: Evaluator ()
 initScope = do
         currFuncName <- FrameStack.currentFunction
         newScopeLevel <- incrementScope
-        addNestedScope currFuncName newScopeLevel -- FS
+        addNestedScope currFuncName newScopeLevel
 
 
 closeScope :: Evaluator Int
@@ -102,8 +102,6 @@ stackPointerValue = do
         return $ negate currOff
 
 
--- PARAMETERS DECLARED
-
 addParameter :: String -> Evaluator ()
 addParameter paramName = do
         currFuncName <- FrameStack.currentFunction
@@ -129,23 +127,7 @@ parameterDeclared paramName = do
              Nothing  -> return False
 
 
-{- Internal -}
-
-newFuncState :: String -> Evaluator ()
-newFuncState name = Ev $ \symTab ->
-        ((), symTab { funcStates = M.insert name makeFs $ funcStates symTab })
-
-
-makeFs :: FuncState
-makeFs = Fs 0 0 M.empty (M.singleton 0 M.empty)
-
-
-addNestedScope :: String -> Int -> Evaluator ()
-addNestedScope name level = do
-        fs <- getFunctionState name
-        let fs' = fs { scopes = M.insert level M.empty $ scopes fs }
-        setFunctionState name fs'
-
+-- store and lookup
 
 getOffset :: String -> Evaluator (Maybe Int)
 getOffset name = do
@@ -164,8 +146,6 @@ findOffset func scope name =
                         Nothing  -> findOffset func (pred scope) name
                         Just off -> return (Just off)
 
-
-{- ### -}
 
 storeFS :: String -> Int -> Evaluator ()
 storeFS name value = do
@@ -192,10 +172,7 @@ getScope scope fs =
              Nothing -> error "scope not defined"
 
 
-{- ### -}
-
-
--- SCOPE
+-- scope
 
 incrementScope :: Evaluator Int
 incrementScope = do
@@ -233,6 +210,22 @@ baseScope = 0
 
 -- FuncState
 
+newFuncState :: String -> Evaluator ()
+newFuncState name = Ev $ \symTab ->
+        ((), symTab { funcStates = M.insert name makeFs $ funcStates symTab })
+
+
+makeFs :: FuncState
+makeFs = Fs 0 0 M.empty (M.singleton 0 M.empty)
+
+
+addNestedScope :: String -> Int -> Evaluator ()
+addNestedScope name level = do
+        fs <- getFunctionState name
+        let fs' = fs { scopes = M.insert level M.empty $ scopes fs }
+        setFunctionState name fs'
+
+
 checkFunctionState :: String -> Evaluator Bool
 checkFunctionState n = Ev $ \symTab ->
         case M.lookup n $ funcStates symTab of
@@ -260,7 +253,7 @@ addParam n st =
         st' { parameters = M.insert n pos $ parameters st' }
 
 
--- OFFSET
+-- offset
 
 currentOffset :: Evaluator Int
 currentOffset = Ev $ \symTab -> (offset symTab, symTab)
