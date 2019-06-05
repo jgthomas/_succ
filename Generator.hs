@@ -232,13 +232,9 @@ genASM (UnaryNode tree op) = do
 
 genASM (VarNode varName) = do
         offset <- SymTab.variableOffset varName
-        case offset of
-             Just off -> return $ varOffStack off
-             Nothing  -> do
-                     argPos <- SymTab.parameterPosition varName
-                     case argPos of
-                          Just pos -> return $ getFromRegister $ selectRegister pos
-                          Nothing  -> error $ "Undefined variable: '" ++ varName
+        argPos <- SymTab.parameterPosition varName
+        label  <- SymTab.globalLabel varName
+        return $ getVariableASM offset argPos label
 
 genASM (NullExprNode) = return ""
 
@@ -448,7 +444,7 @@ storeGlobal label val =
 
 loadGlobal :: String -> String
 loadGlobal label =
-        "movq _" ++ label ++ "(%rip), %rax\n"
+        "movq " ++ label ++ "(%rip), %rax\n"
 
 
 hasReturn :: [Tree] -> Bool
@@ -510,3 +506,9 @@ validSequence (Just callee) (Just caller)
         | callee <= caller = True
         | otherwise        = False
 
+
+getVariableASM :: Maybe Int -> Maybe Int -> Maybe String -> String
+getVariableASM (Just off) _ _ = varOffStack off
+getVariableASM _ (Just pos) _ = getFromRegister $ selectRegister pos
+getVariableASM _ _ (Just lab) = loadGlobal lab
+getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
