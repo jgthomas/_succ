@@ -53,7 +53,7 @@ initScope = do
         funcScope <- getFunctionScope currFuncName progScope
         funcScope' <- updateFunctionScope newScopeLevel M.empty funcScope
         updateProgramScope currFuncName funcScope'
-        return ()
+        addNestedScope currFuncName newScopeLevel -- FS
 
 
 closeScope :: Evaluator Int
@@ -156,7 +156,14 @@ newFuncState name = Ev $ \symTab ->
 
 
 makeFs :: FuncState
-makeFs = Fs 0 0 M.empty M.empty
+makeFs = Fs 0 0 M.empty (M.singleton 0 M.empty)
+
+
+addNestedScope :: String -> Int -> Evaluator ()
+addNestedScope name level = do
+        fs <- getFunctionState name
+        let fs' = fs { scopes = M.insert level M.empty $ scopes fs }
+        setFunctionState name fs'
 
 
 getOffset :: String -> Evaluator (Maybe Int)
