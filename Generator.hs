@@ -436,7 +436,12 @@ uninitializedGlobal label =
         ++ label ++ ":\n"
         ++ ".text\n"
 
-
+{-
+- gcc treats global labels as position
+- independent, PIE, by default, as so as
+- relative to %rip, so loads need to be
+- from that relative locations as well
+-}
 loadGlobal :: String -> String
 loadGlobal label =
         "movq " ++ label ++ "(%rip), %rax\n"
