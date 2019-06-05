@@ -10,6 +10,7 @@ module GlobalScope (newGlobalScope,
 
 
 import qualified Data.Map as M
+import qualified Data.Set as S
 
 import Evaluator            (Evaluator(Ev))
 import Types                (SymTab(globalScope), GlobalScope(..))
@@ -17,7 +18,7 @@ import qualified FrameStack (currentFunction)
 
 
 newGlobalScope :: GlobalScope
-newGlobalScope = Gscope 0 M.empty M.empty M.empty
+newGlobalScope = Gscope 0 M.empty M.empty M.empty S.empty
 
 
 declareFunction :: String -> Int -> Evaluator ()
