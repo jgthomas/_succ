@@ -159,7 +159,7 @@ newFuncState funcName = Ev $ \symTab ->
 
 
 makeFuncState :: FuncState
-makeFuncState = Fs 0 0 M.empty M.empty
+makeFuncState = Fs 0 0 M.empty (M.singleton 0 M.empty)
 
 
 getOffset :: String -> Evaluator (Maybe Int)
@@ -215,6 +215,7 @@ store name value = do
 --        case M.lookup scope $ scopes fs of
 --             Just s  -> s
 --             Nothing -> error "scope not defined"
+--
 
 {- ### -}
 
