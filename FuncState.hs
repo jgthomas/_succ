@@ -114,9 +114,7 @@ parameterPosition :: String -> Evaluator (Maybe Int)
 parameterPosition paramName = do
         currFuncName <- FrameStack.currentFunction
         funcState    <- getFunctionState currFuncName
-        case M.lookup paramName $ parameters funcState of
-             Just pos -> return (Just pos)
-             Nothing  -> return Nothing
+        return $ M.lookup paramName $ parameters funcState
 
 
 parameterDeclared :: String -> Evaluator Bool
