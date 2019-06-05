@@ -437,11 +437,6 @@ uninitializedGlobal label =
         ++ ".text\n"
 
 
-storeGlobal :: String -> String -> String
-storeGlobal label val =
-        "movq $" ++ val ++ ", " ++ label ++ "(%rip)\n"
-
-
 loadGlobal :: String -> String
 loadGlobal label =
         "movq " ++ label ++ "(%rip), %rax\n"
@@ -489,8 +484,7 @@ defineGlobal name constNode = do
                      labnum <- SymTab.labelNum
                      let globLab = mkGlobLabel name labnum
                      SymTab.defineGlobal name globLab
-                     return $ (initializedGlobal globLab const)
-                              ++ (storeGlobal globLab const)
+                     return $ initializedGlobal globLab const
              _ -> error $ "global variable already defined: " ++ name
 
 
