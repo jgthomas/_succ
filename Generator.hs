@@ -420,20 +420,20 @@ testResult = "cmpq $0, %rax\n"
 
 initializedGlobal :: String -> Int -> String
 initializedGlobal label val =
-        ".globl _" ++ label ++ "\n"
+        ".globl " ++ label ++ "\n"
         ++ ".data\n"
         ++ ".align 4\n"
-        ++ "_" ++ label ++ ":\n"
+        ++ label ++ ":\n"
         ++ ".long " ++ (show val) ++ "\n"
         ++ ".text\n"
 
 
 uninitializedGlobal :: String -> String
 uninitializedGlobal label =
-        ".globl _" ++ label ++ "\n"
+        ".globl " ++ label ++ "\n"
         ++ ".bss\n"
         ++ ".align 4\n"
-        ++ "_" ++ label ++ ":\n"
+        ++ label ++ ":\n"
         ++ ".text\n"
 
 
@@ -484,8 +484,13 @@ defineGlobal :: String -> Tree -> Evaluator String
 defineGlobal name constNode = do
         const <- genASM constNode
         label <- SymTab.labelNum
-        SymTab.defineGlobal name $ "_" ++ name ++ (show label)
-        return $ initializedGlobal (name ++ (show label)) $ read const
+        let globLab = mkGlobLabel $ show label
+        SymTab.defineGlobal name globLab
+        return $ initializedGlobal globLab $ read const
+
+
+mkGlobLabel :: String -> String
+mkGlobLabel name = "_" ++ name
 
 
 declareFunction :: String -> Int -> Evaluator ()
