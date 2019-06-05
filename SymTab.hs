@@ -15,8 +15,6 @@ import Types        (SymTab(Tab, label))
 import FrameStack   (newStack, currentScope)
 
 
-{- API -}
-
 newSymTab :: SymTab
 newSymTab = Tab
             firstLabel
