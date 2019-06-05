@@ -37,7 +37,7 @@ closeFunction = do
 
 initScope :: Evaluator ()
 initScope = do
-        currFuncName <- FrameStack.currentFunction
+        currFuncName  <- FrameStack.currentFunction
         newScopeLevel <- incrementScope
         addNestedScope currFuncName newScopeLevel
 
@@ -132,7 +132,7 @@ parameterDeclared paramName = do
 getOffset :: String -> Evaluator (Maybe Int)
 getOffset name = do
         currFuncName <- FrameStack.currentFunction
-        scopeLevel <- findScope currFuncName
+        scopeLevel   <- findScope currFuncName
         findOffset currFuncName scopeLevel name
 
 
