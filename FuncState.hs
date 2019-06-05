@@ -180,7 +180,7 @@ findOffset func scope name =
         if scope == scopeLimit
            then return Nothing
            else do
-                   offset <- lookUp func scope name
+                   offset <- lookUpFS func scope name
                    case offset of
                         Nothing  -> findOffset func (pred scope) name
                         Just off -> return (Just off)
@@ -219,6 +219,13 @@ storeFS name value = do
             scope'     = M.insert name value scope
             funcState' = funcState { scopes = M.insert level scope' $ scopes funcState }
         setFunctionState currFuncName funcState'
+
+
+lookUpFS :: String -> Int -> String -> Evaluator (Maybe Int)
+lookUpFS func level var = do
+        funcState <- getFunctionState func
+        let scope = getScope level funcState
+        return $ M.lookup var scope
 
 
 getScope :: Int -> FuncState -> LocalScope
