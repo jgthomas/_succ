@@ -561,6 +561,7 @@ uninitializedGlobal label =
         ++ label ++ ":\n"
         ++ ".text\n"
 
+
 {-
 - gcc treats global labels as position
 - independent, PIE, by default, and so as
