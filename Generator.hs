@@ -29,17 +29,13 @@ genASM (FunctionNode name paramList statementList) = do
                    processParameters paramList
                    statements <- mapM genASM statementList
                    SymTab.closeFunction
-                   if hasReturn statementList
-                      then return $ functionName name ++ concat statements
-                      else if name == "main"
-                              then do -- return 0 if no return specified
-                                      return $ functionName name
-                                               ++ concat statements
-                                               ++ loadValue 0
-                                               ++ returnStatement
-                              else do -- undefined if used by caller
-                                      return $ functionName name
-                                               ++ concat statements
+                   if hasReturn statementList || name /= "main"
+                      then return $ functionName name
+                                    ++ concat statements
+                      else return $ functionName name
+                                    ++ concat statements
+                                    ++ loadValue 0
+                                    ++ returnStatement
 
 genASM (ParamNode param) = do
        case param of
