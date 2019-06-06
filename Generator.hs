@@ -246,6 +246,130 @@ genASM (ConstantNode n) = do
            else return $ loadValue n
 
 
+checkArguments :: Maybe Int -> Int -> String -> Evaluator ()
+checkArguments Nothing a f = error $ "called function not declared: " ++ f
+checkArguments (Just n) a f
+       | n /= a    = error $ "argument count does not match parameter count: " ++ f
+       | otherwise = return ()
+
+
+processParameters :: [Tree] -> Evaluator ()
+processParameters params = do
+        mapM genASM params
+        return ()
+
+
+hasReturn :: [Tree] -> Bool
+hasReturn blockItems =
+        case length blockItems of
+             0                  -> False
+             _ ->
+                     case last blockItems of
+                          (ReturnNode val) -> True
+                          _                -> False
+
+
+processArgs :: [Tree] -> Int -> [String] -> Evaluator String
+processArgs argList argPos argASM = do
+        if (length argList) == 0
+           then return $ concat argASM
+           else do
+                   asm <- processArg argPos $ head argList
+                   processArgs (tail argList) (argPos+1) (argASM ++ [asm])
+
+
+processArg :: Int -> Tree -> Evaluator String
+processArg argPos arg = do
+        argASM <- genASM arg
+        return $ argASM ++ putInRegister (selectRegister argPos)
+
+
+declareGlobal :: String -> Maybe Tree -> Evaluator String
+declareGlobal name toAssign = do
+        existsFunc <- funcDec name
+        if existsFunc
+           then error $ "'" ++ name ++ "' already declared as function"
+           else do currLabel  <- SymTab.globalLabel name
+                   case currLabel of
+                        Just lab -> genAssignment toAssign
+                        Nothing  -> do
+                                labnum <- SymTab.labelNum
+                                let globLab = mkGlobLabel name labnum
+                                SymTab.declareGlobal name globLab
+                                genAssignment toAssign
+
+
+genAssignment :: Maybe Tree -> Evaluator String
+genAssignment toAssign = do
+        case toAssign of
+             Nothing     -> return ""
+             Just assign -> genASM assign
+
+
+funcDec :: String -> Evaluator Bool
+funcDec name = do
+        paramNum <- SymTab.decParamCount name
+        case paramNum of
+             Nothing -> return False
+             Just n  -> return True
+
+
+defineGlobal :: String -> Tree -> Evaluator String
+defineGlobal name constNode = do
+        defined <- SymTab.checkVarDefined name
+        if defined
+           then error $ "global variable already defined: " ++ name
+           else do
+                   const <- genASM constNode
+                   label <- SymTab.globalLabel name
+                   case label of
+                        Nothing  -> error $ "variable not yet declared: " ++ name
+                        Just lab -> do
+                                SymTab.defineGlobal name
+                                return $ initializedGlobal lab const
+
+
+mkGlobLabel :: String -> Int -> String
+mkGlobLabel name labnum = "_" ++ name ++ (show labnum)
+
+
+declareFunction :: String -> Int -> Evaluator ()
+declareFunction funcName paramCount = do
+        existsVar <- varDec funcName
+        if existsVar
+           then error $ "'" ++ funcName ++ "' already defined as variable"
+           else do prevParamCount <- SymTab.decParamCount funcName
+                   case prevParamCount of
+                        Nothing -> do SymTab.declareFunction funcName paramCount
+                        Just p  -> do
+                                if p /= paramCount
+                                   then error $ "Mismatch in parameter counts for: " ++ funcName
+                                   else do SymTab.declareFunction funcName paramCount
+
+
+varDec :: String -> Evaluator Bool
+varDec name = do
+        label <- SymTab.globalLabel name
+        case label of
+             Nothing -> return False
+             Just l  -> return True
+
+
+validSequence :: Maybe Int -> Maybe Int -> Bool
+validSequence Nothing (Just caller) = error "callee undefined"
+validSequence (Just callee) Nothing = error "caller undefined"
+validSequence (Just callee) (Just caller)
+        | callee <= caller = True
+        | otherwise        = False
+
+
+getVariableASM :: Maybe Int -> Maybe Int -> Maybe String -> String
+getVariableASM (Just off) _ _ = varOffStack off
+getVariableASM _ (Just pos) _ = getFromRegister $ selectRegister pos
+getVariableASM _ _ (Just lab) = loadGlobal lab
+getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
+
+
 functionName :: String -> String
 functionName f = ".globl "
                  ++ f
@@ -453,125 +577,3 @@ storeGlobal label =
         "movq %rax, " ++ label ++ "(%rip)\n"
 
 
-checkArguments :: Maybe Int -> Int -> String -> Evaluator ()
-checkArguments Nothing a f = error $ "called function not declared: " ++ f
-checkArguments (Just n) a f
-       | n /= a    = error $ "argument count does not match parameter count: " ++ f
-       | otherwise = return ()
-
-
-processParameters :: [Tree] -> Evaluator ()
-processParameters params = do
-        mapM genASM params
-        return ()
-
-
-hasReturn :: [Tree] -> Bool
-hasReturn blockItems =
-        case length blockItems of
-             0                  -> False
-             _ ->
-                     case last blockItems of
-                          (ReturnNode val) -> True
-                          _                -> False
-
-
-processArgs :: [Tree] -> Int -> [String] -> Evaluator String
-processArgs argList argPos argASM = do
-        if (length argList) == 0
-           then return $ concat argASM
-           else do
-                   asm <- processArg argPos $ head argList
-                   processArgs (tail argList) (argPos+1) (argASM ++ [asm])
-
-
-processArg :: Int -> Tree -> Evaluator String
-processArg argPos arg = do
-        argASM <- genASM arg
-        return $ argASM ++ putInRegister (selectRegister argPos)
-
-
-declareGlobal :: String -> Maybe Tree -> Evaluator String
-declareGlobal name toAssign = do
-        existsFunc <- funcDec name
-        if existsFunc
-           then error $ "'" ++ name ++ "' already declared as function"
-           else do currLabel  <- SymTab.globalLabel name
-                   case currLabel of
-                        Just lab -> genAssignment toAssign
-                        Nothing  -> do
-                                labnum <- SymTab.labelNum
-                                let globLab = mkGlobLabel name labnum
-                                SymTab.declareGlobal name globLab
-                                genAssignment toAssign
-
-
-genAssignment :: Maybe Tree -> Evaluator String
-genAssignment toAssign = do
-        case toAssign of
-             Nothing     -> return ""
-             Just assign -> genASM assign
-
-
-funcDec :: String -> Evaluator Bool
-funcDec name = do
-        paramNum <- SymTab.decParamCount name
-        case paramNum of
-             Nothing -> return False
-             Just n  -> return True
-
-
-defineGlobal :: String -> Tree -> Evaluator String
-defineGlobal name constNode = do
-        defined <- SymTab.checkVarDefined name
-        if defined
-           then error $ "global variable already defined: " ++ name
-           else do
-                   const <- genASM constNode
-                   label <- SymTab.globalLabel name
-                   case label of
-                        Nothing  -> error $ "variable not yet declared: " ++ name
-                        Just lab -> do
-                                SymTab.defineGlobal name
-                                return $ initializedGlobal lab const
-
-
-mkGlobLabel :: String -> Int -> String
-mkGlobLabel name labnum = "_" ++ name ++ (show labnum)
-
-
-declareFunction :: String -> Int -> Evaluator ()
-declareFunction funcName paramCount = do
-        existsVar <- varDec funcName
-        if existsVar
-           then error $ "'" ++ funcName ++ "' already defined as variable"
-           else do prevParamCount <- SymTab.decParamCount funcName
-                   case prevParamCount of
-                        Nothing -> do SymTab.declareFunction funcName paramCount
-                        Just p  -> do
-                                if p /= paramCount
-                                   then error $ "Mismatch in parameter counts for: " ++ funcName
-                                   else do SymTab.declareFunction funcName paramCount
-
-
-varDec :: String -> Evaluator Bool
-varDec name = do
-        label <- SymTab.globalLabel name
-        case label of
-             Nothing -> return False
-             Just l  -> return True
-
-
-validSequence :: Maybe Int -> Maybe Int -> Bool
-validSequence Nothing (Just caller) = error "callee undefined"
-validSequence (Just callee) Nothing = error "caller undefined"
-validSequence (Just callee) (Just caller)
-        | callee <= caller = True
-        | otherwise        = False
-
-
-getVariableASM :: Maybe Int -> Maybe Int -> Maybe String -> String
-getVariableASM (Just off) _ _ = varOffStack off
-getVariableASM _ (Just pos) _ = getFromRegister $ selectRegister pos
-getVariableASM _ _ (Just lab) = loadGlobal lab
-getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
