@@ -41,7 +41,7 @@ declareGlobal name label = do
 decParamCount :: String -> Evaluator (Maybe Int)
 decParamCount funcName = do
         gscope <- getGlobalScope
-        return $ M.lookup funcName $ decParams gscope
+        return $ M.lookup funcName $ funcParams gscope
 
 
 decSeqNumber :: String -> Evaluator (Maybe Int)
@@ -92,7 +92,7 @@ addGlobal n l s = s { declaredVars = M.insert n l $ declaredVars s }
 
 
 addParams :: String -> Int -> GlobalScope -> GlobalScope
-addParams n p s = s { decParams = M.insert n p $ decParams s }
+addParams n p s = s { funcParams = M.insert n p $ funcParams s }
 
 
 varAsDefined :: String -> GlobalScope -> GlobalScope

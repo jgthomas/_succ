@@ -19,7 +19,7 @@ newtype Stack a = Stack [a] deriving Show
 
 data GlobalScope = Gscope { seqNum       :: Int
                           , declarations :: M.Map String Int
-                          , decParams    :: M.Map String Int
+                          , funcParams   :: M.Map String Int
                           , declaredVars :: M.Map String String
                           , definedVars  :: S.Set String }
                  deriving (Show)
