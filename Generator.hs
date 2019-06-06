@@ -93,11 +93,11 @@ genASM (ForLoopNode init test iter block) = do
 
 genASM (WhileNode test whileBlock) = do
         loopLabel <- SymTab.labelNum
-        SymTab.setContinue loopLabel
         test      <- genASM test
         testLabel <- SymTab.labelNum
+        body      <- genASM whileBlock
+        SymTab.setContinue loopLabel
         SymTab.setBreak testLabel
-        body <- genASM whileBlock
         return $ (emitLabel loopLabel)
                  ++ test
                  ++ testResult
@@ -108,15 +108,15 @@ genASM (WhileNode test whileBlock) = do
 
 genASM (DoWhileNode block test) = do
         loopLabel <- SymTab.labelNum
-        continueLabel <- SymTab.labelNum
-        SymTab.setContinue continueLabel
+        contLabel <- SymTab.labelNum
         body      <- genASM block
         test      <- genASM test
         testLabel <- SymTab.labelNum
+        SymTab.setContinue contLabel
         SymTab.setBreak testLabel
         return $ (emitLabel loopLabel)
                  ++ body
-                 ++ (emitLabel continueLabel)
+                 ++ (emitLabel contLabel)
                  ++ test
                  ++ testResult
                  ++ (emitJump JE testLabel)
