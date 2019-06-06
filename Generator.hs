@@ -476,17 +476,19 @@ declareGlobal :: String -> Maybe Tree -> Evaluator String
 declareGlobal name toAssign = do
         currLabel <- SymTab.globalLabel name
         case currLabel of
-             Nothing -> do
+             Just lab -> genAssignment toAssign
+             Nothing  -> do
                      labnum <- SymTab.labelNum
                      let globLab = mkGlobLabel name labnum
                      SymTab.declareGlobal name globLab
-                     case toAssign of
-                          Nothing     -> return ""
-                          Just assign -> genASM assign
-             _ -> do
-                     case toAssign of
-                          Nothing     -> return ""
-                          Just assign -> genASM assign
+                     genAssignment toAssign
+
+
+genAssignment :: Maybe Tree -> Evaluator String
+genAssignment toAssign = do
+        case toAssign of
+             Nothing     -> return ""
+             Just assign -> genASM assign
 
 
 defineGlobal :: String -> Tree -> Evaluator String
