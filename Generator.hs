@@ -23,22 +23,23 @@ genASM (FunctionNode name paramList statementList) = do
         defined <- SymTab.functionDefined name
         if defined
            then error $ "Function aleady defined: " ++ name
-           else do declareFunction name (length paramList)
+           else do
+                   declareFunction name (length paramList)
                    SymTab.initFunction name
-                   paramExpr  <- mapM genASM paramList
-                   funcStmnts <- mapM genASM statementList
+                   processParameters paramList
+                   statements <- mapM genASM statementList
                    SymTab.closeFunction
                    if hasReturn statementList
-                      then return $ functionName name ++ concat funcStmnts
+                      then return $ functionName name ++ concat statements
                       else if name == "main"
                               then do -- return 0 if no return specified
                                       return $ functionName name
-                                               ++ concat funcStmnts
+                                               ++ concat statements
                                                ++ loadValue 0
                                                ++ returnStatement
                               else do -- undefined if used by caller
                                       return $ functionName name
-                                               ++ concat funcStmnts
+                                               ++ concat statements
 
 genASM (ParamNode param) = do
        case param of
@@ -457,6 +458,12 @@ loadGlobal label =
 storeGlobal :: String -> String
 storeGlobal label =
         "movq %rax, " ++ label ++ "(%rip)\n"
+
+
+processParameters :: [Tree] -> Evaluator ()
+processParameters params = do
+        mapM genASM params
+        return ()
 
 
 hasReturn :: [Tree] -> Bool
