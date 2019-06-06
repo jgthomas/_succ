@@ -365,6 +365,7 @@ buildAssignmentASM name value op
         | op == MultiplyAssign = genASM (BinaryNode (VarNode name) value Multiply)
         | op == DivideAssign   = genASM (BinaryNode (VarNode name) value Divide)
         | op == ModuloAssign   = genASM (BinaryNode (VarNode name) value Modulo)
+        | otherwise            = error $ "unrecognised assignment operator: " ++ (show op)
 
 
 validSequence :: Maybe Int -> Maybe Int -> Bool
