@@ -162,13 +162,13 @@ genASM (DeclarationNode varName value) = do
                                                     ++ varOnStack offset
                                                     ++ (adjustStackPointer adjust)
 
-genASM (AssignmentNode varName value operator) = do
+genASM (AssignmentNode varName value op) = do
         currScope <- SymTab.currentScope
         if currScope == "global"
            then defineGlobal varName value
            else do
                    offset <- SymTab.variableOffset varName
-                   assign <- genASM value
+                   assign <- buildAssignmentASM varName value op
                    case offset of
                         Just off -> do
                                 adjustment <- SymTab.stackPointerValue
@@ -355,6 +355,12 @@ varDec name = do
         case label of
              Nothing -> return False
              Just l  -> return True
+
+
+buildAssignmentASM :: String -> Tree -> Operator -> Evaluator String
+buildAssignmentASM name value op
+        | op == Assign     = genASM value
+        | op == PlusAssign = genASM (BinaryNode (VarNode name) value Plus)
 
 
 validSequence :: Maybe Int -> Maybe Int -> Bool
