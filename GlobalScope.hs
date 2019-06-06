@@ -55,8 +55,8 @@ decSeqNumber name = do
 currentSeqNumber :: Evaluator (Maybe Int)
 currentSeqNumber = do
         currFunc <- FrameStack.currentFunction
-        gscope   <- getGlobalScope
-        return $ M.lookup currFunc $ declarations gscope
+        seqnum   <- decSeqNumber currFunc
+        return seqnum
 
 
 defineGlobal :: String -> Evaluator ()
