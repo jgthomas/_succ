@@ -46,22 +46,17 @@ genASM (ParamNode param) = do
 
 genASM (FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
-        case paramCount of
-             Nothing -> error $ "Called function undefined: " ++ name
-             Just p  ->
-                     if p /= (length argList)
-                        then error $ "Mismatch parameters and arguments: " ++ name
-                        else do
-                                callee <- SymTab.decSeqNumber name
-                                caller <- SymTab.currentSeqNumber
-                                if validSequence callee caller
-                                   then do
-                                           argString <- processArgs argList 0 []
-                                           return $ saveCallerRegisters
-                                                    ++ argString
-                                                    ++ (makeFunctionCall name)
-                                                    ++ restoreCallerRegisters
-                                   else error "Invalid declaration sequence"
+        checkArguments paramCount (length argList) name
+        callee <- SymTab.decSeqNumber name
+        caller <- SymTab.currentSeqNumber
+        if validSequence callee caller
+           then do
+                   argString <- processArgs argList 0 []
+                   return $ saveCallerRegisters
+                            ++ argString
+                            ++ (makeFunctionCall name)
+                            ++ restoreCallerRegisters
+           else error $ "calling function before declaration " ++ name
 
 genASM (ArgNode arg) = do
         argAsm <- genASM arg
@@ -454,6 +449,13 @@ loadGlobal label =
 storeGlobal :: String -> String
 storeGlobal label =
         "movq %rax, " ++ label ++ "(%rip)\n"
+
+
+checkArguments :: Maybe Int -> Int -> String -> Evaluator ()
+checkArguments Nothing a f = error $ "called function not declared: " ++ f
+checkArguments (Just n) a f
+       | n /= a    = error $ "argument count does not match parameter count: " ++ f
+       | otherwise = return ()
 
 
 processParameters :: [Tree] -> Evaluator ()
