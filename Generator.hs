@@ -179,7 +179,7 @@ genASM (AssignmentNode varName value operator) = do
                                 globLab <- SymTab.globalLabel varName
                                 case globLab of
                                      Just lab -> return $ assign ++ storeGlobal lab
-                                     Nothing  -> error $ "Undefined variable: '"
+                                     Nothing  -> error $ "Undefined variable: "
                                                          ++ varName
 
 genASM (ExprStmtNode expression) = do
