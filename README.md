@@ -16,15 +16,15 @@ C goes in, X86_64 assembly code comes out
 
 ## supported language elements
 
-0. **Integer literals**
+**Integer literals**
 * Return statements (return 1)
 
-1. **Unary operators**
+**Unary operators**
 * Negation (-)
 * Logical negation (!)
 * Bitwise complement (~)
 
-2. **Binary operators**
+**Binary operators**
 * Addition (+)
 * Subtraction (-)
 * Multiplication (*)
@@ -40,30 +40,30 @@ C goes in, X86_64 assembly code comes out
 * Logical and (&&)
 * Assignment (=, +=, -=, *=, /=, %=)
 
-3. **Local variables**
+**Local variables**
 * Declaration (int a)
 * Assignment (a = 10)
 * Declaration and assignment (int a = 10)
 
-4. **Conditionals**
+**Conditionals**
 * if
 * else
 * conditional expressions (a = 1 ? 2 : 3)
 
-5. **Loops**
+**Loops**
 * for
 * while
 * do while
 * break
 * continue
 
-6. **Multiple functions**
+**Multiple functions**
 * Function calls
 * Function declarations
 * Function definitions
 * Passing parameters using x86_64 calling convention
 
-7. **Global variables**
+**Global variables**
 * Declaration
 * Definition
 * Initialized in *.data*
