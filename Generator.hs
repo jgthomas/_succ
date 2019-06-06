@@ -25,7 +25,7 @@ genASM (FunctionNode name paramList statementList) = do
            then error $ "Function aleady defined: " ++ name
            else do declareFunction name (length paramList)
                    SymTab.initFunction name
-                   paramExpr <- mapM genASM paramList
+                   paramExpr  <- mapM genASM paramList
                    funcStmnts <- mapM genASM statementList
                    SymTab.closeFunction
                    if hasReturn statementList
