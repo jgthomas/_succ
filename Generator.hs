@@ -170,13 +170,13 @@ genASM (DeclarationNode varName value) = do
 
 genASM (AssignmentNode varName value operator) = do
         currScope <- SymTab.currentScope
+        assign    <- genASM value
         if currScope == "global"
            then defineGlobal varName value
            else do
                    offset <- SymTab.variableOffset varName
                    case offset of
                         Just off -> do
-                                assign <- genASM value
                                 adjustment <- SymTab.stackPointerValue
                                 return $ assign
                                          ++ varOnStack off
@@ -184,7 +184,7 @@ genASM (AssignmentNode varName value operator) = do
                         Nothing -> do
                                 globLab <- SymTab.globalLabel varName
                                 case globLab of
-                                     Just lab -> return $ loadGlobal lab
+                                     Just lab -> return $ assign ++ storeGlobal lab
                                      Nothing  -> error $ "Undefined variable: '"
                                                          ++ varName
 
