@@ -116,7 +116,9 @@ parseStatement allToks@(first:toks) =
              TokOpenBrace        -> parseCompoundStmt toks
              TokIdent id         ->
                      case lookAhead toks of
-                          TokAssign    -> parseExprStatement allToks
+                          (TokOp op)
+                               | isAssignment op -> parseExprStatement allToks
+                               | otherwise       -> parseExpression allToks
                           TokOpenParen -> parseExprStatement allToks
                           _            -> parseExpression allToks
              _ -> parseExprStatement allToks
@@ -289,7 +291,8 @@ parseDeclaration (ty:id:toks) =
 parseOptionalAssign :: [Token] -> (Maybe Tree, [Token])
 parseOptionalAssign (id:equ:toks) =
         case equ of
-             TokAssign ->
+             (TokOp op)
+                | isAssignment op ->
                      let (exprTree, toks') = parseExpression (id:equ:toks)
                          in
                      (Just exprTree, toks')
@@ -301,13 +304,15 @@ parseExpression toks =
         let (expressTree, toks') = parseTernaryExpr toks
             in
         case lookAhead toks' of
-             TokAssign ->
-                     case expressTree of
-                          VarNode str ->
-                                  let (exTree, toks'') = parseExpression (accept toks')
-                                      in
-                                  (AssignmentNode str exTree Assign, toks'')
-                          _ -> error "Can only assign to variables"
+             (TokOp op)
+                | isAssignment op ->
+                        case expressTree of
+                             (VarNode id) ->
+                                     let (exTree, toks'') = parseExpression (accept toks')
+                                         in
+                                     (AssignmentNode id exTree op, toks'')
+                             _ -> error "can only assign to variables"
+                | otherwise -> error "invalid assignment operator"
              _ -> (expressTree, toks')
 
 
@@ -456,6 +461,10 @@ accept (t:ts) = ts
 
 validType :: Keyword -> Bool
 validType kwd = elem kwd [Int]
+
+
+isAssignment :: Operator -> Bool
+isAssignment op = elem op [Assign]
 
 
 data Error = SemiColon

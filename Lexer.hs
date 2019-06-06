@@ -19,7 +19,6 @@ tokenize (c:cs)
     | c == '?'          = TokQuestMark              : tokenize cs
     | c == ','          = TokComma                  : tokenize cs
     | isTwoCharOp c cs  = twoCharOperator c cs
-    | c == '='          = TokAssign                 : tokenize cs
     | elem c opSymbols  = TokOp (operator c)        : tokenize cs
     | identifierStart c = identifier c cs
     | isDigit c         = number c cs
@@ -81,6 +80,7 @@ operator c | c == '+' = Plus
            | c == '!' = LogicNegation
            | c == '>' = GreaterThan
            | c == '<' = LessThan
+           | c == '=' = Assign
 
 
 opSymbols :: String

@@ -40,7 +40,6 @@ data Token = TokOpenParen
            | TokOpenBrace
            | TokCloseBrace
            | TokSemiColon
-           | TokAssign
            | TokOp Operator
            | TokIdent String
            | TokConstInt Int
