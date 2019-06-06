@@ -20,6 +20,7 @@ data Operator = Plus
               | Equal
               | NotEqual
               | Assign
+              | PlusAssign
               deriving (Show, Eq)
 
 
