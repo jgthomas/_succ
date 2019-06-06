@@ -9,10 +9,10 @@ import qualified SymTab
 
 genASM :: Tree -> Evaluator String
 
-genASM (ProgramNode functionList) = do
-        prog  <- mapM genASM functionList
-        unDef <- SymTab.getUndefined
-        let bss = map uninitializedGlobal unDef
+genASM (ProgramNode topLevelItems) = do
+        prog  <- mapM genASM topLevelItems
+        undef <- SymTab.getUndefined
+        let bss = map uninitializedGlobal undef
         return $ concat prog ++ concat bss
 
 genASM (FunctionProtoNode name paramList) = do
