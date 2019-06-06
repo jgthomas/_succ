@@ -81,9 +81,9 @@ getUndefined :: Evaluator [String]
 getUndefined = do
         gscope <- getGlobalScope
         let definedSet  = definedVars gscope
-            declaredSet = S.fromList $ M.keys $ declaredVars gscope
-            undefined   = toList $ S.difference definedSet declaredSet
-        return $ M.elems $ M.filter (\x -> x `elem` undefined) $ declaredVars gscope
+            declaredSet = M.keysSet $ declaredVars gscope
+            undefined   = toList $ S.difference declaredSet definedSet
+        return $ M.elems $ M.filterWithKey (\k _ -> elem k undefined) $ declaredVars gscope
 
 
 {- Internal -}
