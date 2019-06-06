@@ -66,13 +66,13 @@ defineGlobal name = do
 checkVarDefined :: String -> Evaluator Bool
 checkVarDefined name = do
         gscope <- getGlobalScope
-        return $ S.member name $ declaredVars gscope
+        return $ S.member name $ definedVars gscope
 
 
 globalLabel :: String -> Evaluator (Maybe String)
 globalLabel name = do
         gscope <- getGlobalScope
-        return $ M.lookup name $ globalVars gscope
+        return $ M.lookup name $ declaredVars gscope
 
 
 {- Internal -}
@@ -88,7 +88,7 @@ updateGlobalScope gscope = Ev $ \symTab ->
 
 
 addGlobal :: String -> String -> GlobalScope -> GlobalScope
-addGlobal n l s = s { globalVars = M.insert n l $ globalVars s }
+addGlobal n l s = s { declaredVars = M.insert n l $ declaredVars s }
 
 
 addParams :: String -> Int -> GlobalScope -> GlobalScope
@@ -96,7 +96,7 @@ addParams n p s = s { decParams = M.insert n p $ decParams s }
 
 
 varAsDefined :: String -> GlobalScope -> GlobalScope
-varAsDefined n s = s { declaredVars = S.insert n $ declaredVars s }
+varAsDefined n s = s { definedVars = S.insert n $ definedVars s }
 
 
 addSymbol :: String -> GlobalScope -> GlobalScope
