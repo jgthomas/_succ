@@ -7,11 +7,13 @@ module GlobalScope (newGlobalScope,
                     currentSeqNumber,
                     globalLabel,
                     checkVarDefined,
+                    getUndefined,
                     defineGlobal) where
 
 
 import qualified Data.Map as M
 import qualified Data.Set as S
+import Data.Foldable (toList)
 
 import Evaluator            (Evaluator(Ev))
 import Types                (SymTab(globalScope), GlobalScope(..))
@@ -73,6 +75,14 @@ globalLabel :: String -> Evaluator (Maybe String)
 globalLabel name = do
         gscope <- getGlobalScope
         return $ M.lookup name $ declaredVars gscope
+
+
+getUndefined :: Evaluator [String]
+getUndefined = do
+        gscope <- getGlobalScope
+        let definedSet  = definedVars gscope
+            declaredSet = S.fromList $ M.keys $ declaredVars gscope
+        return $ toList $ S.difference definedSet declaredSet
 
 
 {- Internal -}
