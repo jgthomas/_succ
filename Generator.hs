@@ -486,14 +486,17 @@ processArg argPos arg = do
 
 declareGlobal :: String -> Maybe Tree -> Evaluator String
 declareGlobal name toAssign = do
-        currLabel <- SymTab.globalLabel name
-        case currLabel of
-             Just lab -> genAssignment toAssign
-             Nothing  -> do
-                     labnum <- SymTab.labelNum
-                     let globLab = mkGlobLabel name labnum
-                     SymTab.declareGlobal name globLab
-                     genAssignment toAssign
+        existsFunc <- funcDeclared name
+        if existsFunc
+           then error $ "'" ++ name ++ "' already declared as function"
+           else do currLabel  <- SymTab.globalLabel name
+                   case currLabel of
+                        Just lab -> genAssignment toAssign
+                        Nothing  -> do
+                                labnum <- SymTab.labelNum
+                                let globLab = mkGlobLabel name labnum
+                                SymTab.declareGlobal name globLab
+                                genAssignment toAssign
 
 
 genAssignment :: Maybe Tree -> Evaluator String
@@ -501,6 +504,14 @@ genAssignment toAssign = do
         case toAssign of
              Nothing     -> return ""
              Just assign -> genASM assign
+
+
+funcDeclared :: String -> Evaluator Bool
+funcDeclared name = do
+        paramNum <- SymTab.decParamCount name
+        case paramNum of
+             Nothing -> return False
+             Just n  -> return True
 
 
 defineGlobal :: String -> Tree -> Evaluator String
