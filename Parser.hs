@@ -464,7 +464,7 @@ validType kwd = elem kwd [Int]
 
 
 isAssignment :: Operator -> Bool
-isAssignment op = elem op [Assign]
+isAssignment op = elem op [Assign,PlusAssign]
 
 
 data Error = SemiColon
