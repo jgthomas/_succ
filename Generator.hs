@@ -486,7 +486,7 @@ processArg argPos arg = do
 
 declareGlobal :: String -> Maybe Tree -> Evaluator String
 declareGlobal name toAssign = do
-        existsFunc <- funcDeclared name
+        existsFunc <- funcDec name
         if existsFunc
            then error $ "'" ++ name ++ "' already declared as function"
            else do currLabel  <- SymTab.globalLabel name
@@ -506,8 +506,8 @@ genAssignment toAssign = do
              Just assign -> genASM assign
 
 
-funcDeclared :: String -> Evaluator Bool
-funcDeclared name = do
+funcDec :: String -> Evaluator Bool
+funcDec name = do
         paramNum <- SymTab.decParamCount name
         case paramNum of
              Nothing -> return False
@@ -535,13 +535,24 @@ mkGlobLabel name labnum = "_" ++ name ++ (show labnum)
 
 declareFunction :: String -> Int -> Evaluator ()
 declareFunction funcName paramCount = do
-        prevParamCount <- SymTab.decParamCount funcName
-        case prevParamCount of
-             Nothing -> do SymTab.declareFunction funcName paramCount
-             Just p  -> do
-                     if p /= paramCount
-                        then error $ "Mismatch in parameter counts for: " ++ funcName
-                        else do SymTab.declareFunction funcName paramCount
+        existsVar <- varDec funcName
+        if existsVar
+           then error $ "'" ++ funcName ++ "' already defined as variable"
+           else do prevParamCount <- SymTab.decParamCount funcName
+                   case prevParamCount of
+                        Nothing -> do SymTab.declareFunction funcName paramCount
+                        Just p  -> do
+                                if p /= paramCount
+                                   then error $ "Mismatch in parameter counts for: " ++ funcName
+                                   else do SymTab.declareFunction funcName paramCount
+
+
+varDec :: String -> Evaluator Bool
+varDec name = do
+        label <- SymTab.globalLabel name
+        case label of
+             Nothing -> return False
+             Just l  -> return True
 
 
 validSequence :: Maybe Int -> Maybe Int -> Bool
