@@ -55,8 +55,7 @@ decSeqNumber name = do
 currentSeqNumber :: Evaluator (Maybe Int)
 currentSeqNumber = do
         currFunc <- FrameStack.currentFunction
-        seqnum   <- decSeqNumber currFunc
-        return seqnum
+        decSeqNumber currFunc
 
 
 defineGlobal :: String -> Evaluator ()
