@@ -38,6 +38,7 @@ C goes in, X86_64 assembly code comes out
 * Less than or equal (<=)
 * Logical or (||)
 * Logical and (&&)
+* Assignment (=, +=, -=, *=, /=, %=)
 
 3. **Local variables**
 * Declaration (int a)
@@ -62,8 +63,13 @@ C goes in, X86_64 assembly code comes out
 * Function definitions
 * Passing parameters using x86_64 calling convention
 
+7. **Global variables**
+* Declaration
+* Definition
+* Initialized in *.data*
+* Uninitialized in *.bss*
+
 ## in progress
 
 * Remaning operators
-* Global variables
 * Pointers?
