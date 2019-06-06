@@ -13,7 +13,6 @@ module GlobalScope (newGlobalScope,
 
 import qualified Data.Map as M
 import qualified Data.Set as S
-import Data.Foldable (toList)
 
 import Evaluator            (Evaluator(Ev))
 import Types                (SymTab(globalScope), GlobalScope(..))
@@ -79,7 +78,7 @@ getUndefined = do
         gscope <- getGlobalScope
         let definedSet  = definedVars gscope
             declaredSet = M.keysSet $ declaredVars gscope
-            undefined   = toList $ S.difference declaredSet definedSet
+            undefined   = S.difference declaredSet definedSet
         return $ M.elems $ M.filterWithKey (\k _ -> elem k undefined) $ declaredVars gscope
 
 
