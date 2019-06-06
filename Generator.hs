@@ -203,11 +203,11 @@ genASM (ReturnNode tree) = do
         return $ rtn ++ returnStatement
 
 genASM (TernaryNode cond pass fail) = do
-        testVal <- genASM cond
+        testVal    <- genASM cond
         passAction <- genASM pass
         failAction <- genASM fail
-        failLabel <- SymTab.labelNum
-        passLabel <- SymTab.labelNum
+        failLabel  <- SymTab.labelNum
+        passLabel  <- SymTab.labelNum
         return $ testVal
                  ++ testResult
                  ++ (emitJump JE failLabel)
@@ -219,7 +219,7 @@ genASM (TernaryNode cond pass fail) = do
 
 genASM (BinaryNode left right op) = do
         nextLabel <- SymTab.labelNum
-        endLabel <- SymTab.labelNum
+        endLabel  <- SymTab.labelNum
         lft <- genASM left
         rgt <- genASM right
         case op of
