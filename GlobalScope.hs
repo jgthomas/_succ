@@ -35,9 +35,7 @@ declareFunction funcName paramCount = do
 declareGlobal :: String -> String -> Evaluator ()
 declareGlobal name label = do
         gscope <- getGlobalScope
-        let gscope'  = addSymbol name gscope
-            gscope'' = addGlobal name label gscope'
-        updateGlobalScope gscope''
+        updateGlobalScope $ addGlobal name label gscope
 
 
 decParamCount :: String -> Evaluator (Maybe Int)
