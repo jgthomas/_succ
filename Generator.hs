@@ -70,8 +70,8 @@ genASM (CompoundStmtNode blockItems) = do
 
 genASM (ForLoopNode init test iter block) = do
         SymTab.initScope
-        passLabel <- SymTab.labelNum
-        failLabel <- SymTab.labelNum
+        passLabel     <- SymTab.labelNum
+        failLabel     <- SymTab.labelNum
         continueLabel <- SymTab.labelNum
         SymTab.setBreak failLabel
         SymTab.setContinue continueLabel
@@ -94,7 +94,7 @@ genASM (ForLoopNode init test iter block) = do
 genASM (WhileNode test whileBlock) = do
         loopLabel <- SymTab.labelNum
         SymTab.setContinue loopLabel
-        test <- genASM test
+        test      <- genASM test
         testLabel <- SymTab.labelNum
         SymTab.setBreak testLabel
         body <- genASM whileBlock
@@ -110,8 +110,8 @@ genASM (DoWhileNode block test) = do
         loopLabel <- SymTab.labelNum
         continueLabel <- SymTab.labelNum
         SymTab.setContinue continueLabel
-        body <- genASM block
-        test <- genASM test
+        body      <- genASM block
+        test      <- genASM test
         testLabel <- SymTab.labelNum
         SymTab.setBreak testLabel
         return $ (emitLabel loopLabel)
@@ -124,18 +124,18 @@ genASM (DoWhileNode block test) = do
                  ++ (emitLabel testLabel)
 
 genASM (IfNode test action possElse) = do
-        testVal <- genASM test
+        testVal  <- genASM test
         ifAction <- genASM action
-        label <- SymTab.labelNum
+        label    <- SymTab.labelNum
         let ifLines = testVal
                       ++ testResult
                       ++ (emitJump JE label)
                       ++ ifAction
         case possElse of
-             Nothing       -> return $ ifLines ++ (emitLabel label)
-             Just possElse -> do
-                     elseAction <- genASM possElse
-                     nextLabel <- SymTab.labelNum
+             Nothing -> return $ ifLines ++ (emitLabel label)
+             Just e  -> do
+                     elseAction <- genASM e
+                     nextLabel  <- SymTab.labelNum
                      return $ ifLines
                               ++ (emitJump JMP nextLabel)
                               ++ (emitLabel label)
