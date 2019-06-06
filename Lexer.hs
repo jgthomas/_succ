@@ -62,6 +62,10 @@ twoCharOperator c cs =
              "==" -> TokOp Equal              : tokenize cs'
              "!=" -> TokOp NotEqual           : tokenize cs'
              "+=" -> TokOp PlusAssign         : tokenize cs'
+             "-=" -> TokOp MinusAssign        : tokenize cs'
+             "*=" -> TokOp MultiplyAssign     : tokenize cs'
+             "/=" -> TokOp DivideAssign       : tokenize cs'
+             "%=" -> TokOp ModuloAssign       : tokenize cs'
              _    -> error "Unrecognised two character operator"
 
 

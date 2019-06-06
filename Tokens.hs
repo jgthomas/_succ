@@ -21,6 +21,10 @@ data Operator = Plus
               | NotEqual
               | Assign
               | PlusAssign
+              | MinusAssign
+              | MultiplyAssign
+              | DivideAssign
+              | ModuloAssign
               deriving (Show, Eq)
 
 

@@ -359,8 +359,12 @@ varDec name = do
 
 buildAssignmentASM :: String -> Tree -> Operator -> Evaluator String
 buildAssignmentASM name value op
-        | op == Assign     = genASM value
-        | op == PlusAssign = genASM (BinaryNode (VarNode name) value Plus)
+        | op == Assign         = genASM value
+        | op == PlusAssign     = genASM (BinaryNode (VarNode name) value Plus)
+        | op == MinusAssign    = genASM (BinaryNode (VarNode name) value Minus)
+        | op == MultiplyAssign = genASM (BinaryNode (VarNode name) value Multiply)
+        | op == DivideAssign   = genASM (BinaryNode (VarNode name) value Divide)
+        | op == ModuloAssign   = genASM (BinaryNode (VarNode name) value Modulo)
 
 
 validSequence :: Maybe Int -> Maybe Int -> Bool
