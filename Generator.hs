@@ -326,7 +326,9 @@ defineGlobal name constNode = do
                         Nothing  -> error $ "variable not yet declared: " ++ name
                         Just lab -> do
                                 SymTab.defineGlobal name
-                                return $ initializedGlobal lab const
+                                if (read const) == 0
+                                   then return $ uninitializedGlobal lab
+                                   else return $ initializedGlobal lab const
 
 
 mkGlobLabel :: String -> Int -> String
