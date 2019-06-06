@@ -456,7 +456,7 @@ loadGlobal label =
 
 storeGlobal :: String -> String
 storeGlobal label =
-        "movq %rax," ++ label ++ "(%rip)\n"
+        "movq %rax, " ++ label ++ "(%rip)\n"
 
 
 hasReturn :: [Tree] -> Bool
