@@ -10,8 +10,10 @@ import qualified SymTab
 genASM :: Tree -> Evaluator String
 
 genASM (ProgramNode functionList) = do
-        prog <- mapM genASM functionList
-        return $ concat prog
+        prog  <- mapM genASM functionList
+        unDef <- SymTab.getUndefined
+        let bss = map uninitializedGlobal unDef
+        return $ concat prog ++ concat bss
 
 genASM (FunctionProtoNode name paramList) = do
         declareFunction name (length paramList)
@@ -179,7 +181,12 @@ genASM (AssignmentNode varName value operator) = do
                                 return $ assign
                                          ++ varOnStack off
                                          ++ (adjustStackPointer adjustment)
-                        Nothing -> error $ "Undefined variable: '" ++ varName
+                        Nothing -> do
+                                globLab <- SymTab.globalLabel varName
+                                case globLab of
+                                     Just lab -> return $ loadGlobal lab
+                                     Nothing  -> error $ "Undefined variable: '"
+                                                         ++ varName
 
 genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression
