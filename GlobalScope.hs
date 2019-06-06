@@ -47,7 +47,7 @@ decParamCount funcName = do
 decSeqNumber :: String -> Evaluator (Maybe Int)
 decSeqNumber name = do
         gscope <- getGlobalScope
-        return $ M.lookup name $ declarations gscope
+        return $ M.lookup name $ funcDecSeq gscope
 
 
 currentSeqNumber :: Evaluator (Maybe Int)
@@ -112,4 +112,4 @@ addSymbol name gs =
         let i   = seqNum gs
             gs' = gs { seqNum = i + 1 }
             in
-        gs' { declarations = M.insert name i $ declarations gs' }
+        gs' { funcDecSeq = M.insert name i $ funcDecSeq gs' }
