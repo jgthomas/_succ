@@ -454,6 +454,11 @@ loadGlobal label =
         "movq " ++ label ++ "(%rip), %rax\n"
 
 
+storeGlobal :: String -> String
+storeGlobal label =
+        "movq %rax," ++ label ++ "(%rip)\n"
+
+
 hasReturn :: [Tree] -> Bool
 hasReturn blockItems =
         case length blockItems of
