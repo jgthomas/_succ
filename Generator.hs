@@ -147,18 +147,20 @@ genASM (DeclarationNode varName value) = do
         if currScope == "global"
            then declareGlobal varName value
            else do
-                   varDeclared <- SymTab.checkVariable varName
-                   paramDeclared <- SymTab.parameterDeclared varName
-                   case varDeclared || paramDeclared of
-                        True  -> error $ "Variable '" ++ varName ++ "' already declared"
-                        False -> do
-                                offset <- SymTab.addVariable varName
-                                adjustment <- SymTab.stackPointerValue
-                                case value of
-                                     Nothing     -> return $ loadValue 0
-                                                             ++ varOnStack offset
-                                                             ++ (adjustStackPointer adjustment)
-                                     Just value  -> genASM value
+                   localDec <- SymTab.checkVariable varName
+                   paramDec <- SymTab.parameterDeclared varName
+                   if localDec || paramDec
+                      then error $ "already declared in scope: '" ++ varName
+                      else do
+                              offset <- SymTab.addVariable varName
+                              adjust <- SymTab.stackPointerValue
+                              case value of
+                                   Just v  ->
+                                           genASM v
+                                   Nothing ->
+                                           return $ loadValue 0
+                                                    ++ varOnStack offset
+                                                    ++ (adjustStackPointer adjust)
 
 genASM (AssignmentNode varName value operator) = do
         currScope <- SymTab.currentScope
