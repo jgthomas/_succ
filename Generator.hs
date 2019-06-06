@@ -323,7 +323,7 @@ defineGlobal name constNode = do
                    const <- genASM constNode
                    label <- SymTab.globalLabel name
                    case label of
-                        Nothing  -> error $ "variable not yet declared: " ++ name
+                        Nothing  -> error $ "variable not declared: " ++ name
                         Just lab -> do
                                 SymTab.defineGlobal name
                                 if (read const) == 0
