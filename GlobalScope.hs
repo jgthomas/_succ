@@ -38,11 +38,15 @@ declareGlobal name label = do
 
 
 decParamCount :: String -> Evaluator (Maybe Int)
-decParamCount name = M.lookup name . funcParams <$> getGlobalScope
+decParamCount name = lookUp name funcParams
 
 
 decSeqNumber :: String -> Evaluator (Maybe Int)
-decSeqNumber name = M.lookup name . funcDecSeq <$> getGlobalScope
+decSeqNumber name = lookUp name funcDecSeq
+
+
+globalLabel :: String -> Evaluator (Maybe String)
+globalLabel name = lookUp name declaredVars
 
 
 currentSeqNumber :: Evaluator (Maybe Int)
@@ -51,18 +55,14 @@ currentSeqNumber = do
         decSeqNumber currFunc
 
 
-defineGlobal :: String -> Evaluator ()
-defineGlobal name = do
-        gscope <- getGlobalScope
-        updateGlobalScope $ varAsDefined name gscope
-
-
 checkVarDefined :: String -> Evaluator Bool
 checkVarDefined name = S.member name . definedVars <$> getGlobalScope
 
 
-globalLabel :: String -> Evaluator (Maybe String)
-globalLabel name = M.lookup name . declaredVars <$> getGlobalScope
+defineGlobal :: String -> Evaluator ()
+defineGlobal name = do
+        gscope <- getGlobalScope
+        updateGlobalScope $ varAsDefined name gscope
 
 
 getUndefined :: Evaluator [String]
@@ -84,6 +84,10 @@ getGlobalScope = Ev $ \symTab ->
 updateGlobalScope :: GlobalScope -> Evaluator ()
 updateGlobalScope gscope = Ev $ \symTab ->
         ((), symTab { globalScope = gscope })
+
+
+lookUp :: (Ord a) => a -> (GlobalScope -> M.Map a b) -> Evaluator (Maybe b)
+lookUp name f = M.lookup name . f <$> getGlobalScope
 
 
 addGlobal :: String -> String -> GlobalScope -> GlobalScope
