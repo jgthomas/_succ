@@ -34,21 +34,21 @@ restoreBasePointer = "movq %rbp, %rsp\n"
 -- Local variables
 
 loadValue :: Int -> String
-loadValue n = "movq $" ++ (show n) ++ ", %rax\n"
+loadValue n = "movq $" ++ show n ++ ", %rax\n"
 
 
 varOnStack :: Int -> String
-varOnStack n = "movq %rax, " ++ (show n) ++ "(%rbp)\n"
+varOnStack n = "movq %rax, " ++ show n ++ "(%rbp)\n"
 
 
 varOffStack :: Int -> String
-varOffStack n = "movq " ++ (show n) ++ "(%rbp), %rax\n"
+varOffStack n = "movq " ++ show n ++ "(%rbp), %rax\n"
 
 
 adjustStackPointer :: Int -> String
 adjustStackPointer offset =
         "movq %rbp, %rsp\n"
-        ++ "subq $" ++ (show offset) ++ ", %rsp\n"
+        ++ "subq $" ++ show offset ++ ", %rsp\n"
 
 
 -- Operators
@@ -129,14 +129,14 @@ testResult = "cmpq $0, %rax\n"
 
 emitJump :: Jump -> Int -> String
 emitJump j n
-        | j == JMP  = "jmp _label_" ++ (show n) ++ "\n"
-        | j == JE   = "je _label_" ++ (show n) ++ "\n"
-        | j == JNE  = "jne _label_" ++ (show n) ++ "\n"
+        | j == JMP  = "jmp _label_" ++ show n ++ "\n"
+        | j == JE   = "je _label_" ++ show n ++ "\n"
+        | j == JNE  = "jne _label_" ++ show n ++ "\n"
         | otherwise = error "Unrecognised type of jump"
 
 
 emitLabel :: Int -> String
-emitLabel n = "_label_" ++ (show n) ++ ":\n"
+emitLabel n = "_label_" ++ show n ++ ":\n"
 
 
 -- Function calls and registers
