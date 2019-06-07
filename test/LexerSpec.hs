@@ -17,4 +17,4 @@ main = hspec $ do
                   tokenize "+=+" `shouldBe` [TokOp PlusAssign,TokOp Plus]
 
                 it "should be a two character operator then a single one" $
-                  tokenize "+==" `shouldBe` [TokOp PlusAssign,TokOp Plus]
+                  tokenize "+==" `shouldBe` [TokOp PlusAssign,TokOp Assign]
