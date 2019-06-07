@@ -17,6 +17,7 @@ module FuncState (initScope,
                   addVariable,
                   stackPointerValue) where
 
+import Data.Maybe            (fromMaybe)
 import qualified Data.Map as M
 
 import Evaluator            (Evaluator(Ev))
@@ -154,10 +155,9 @@ find func level var = do
 
 
 getScope :: Int -> FuncState -> M.Map String Int
-getScope scope fs =
-        case M.lookup scope $ scopes fs of
-             Just s  -> s
-             Nothing -> error "scope not defined"
+getScope scope fs = fromMaybe
+                    (error "scope not defined")
+                    (M.lookup scope $ scopes fs)
 
 
 -- scope
