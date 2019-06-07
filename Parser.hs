@@ -29,8 +29,8 @@ parseTopLevelItems itemList allToks@(a:toks) =
                         let (item, toks') = parseTopLevelItem allToks
                             in
                         parseTopLevelItems (itemList ++ [item]) toks'
-                | otherwise -> error $ errorMessage TypeError ++ (show typ)
-             _ -> error $ errorMessage TypeError ++ (show a)
+                | otherwise -> error $ errorMessage TypeError ++ show typ
+             _ -> error $ errorMessage TypeError ++ show a
 
 
 parseTopLevelItem :: [Token] -> (Tree, [Token])
@@ -63,7 +63,7 @@ parseFunction (id:toks) =
 
 parseFunctionParams :: [Tree] -> [Token] -> ([Tree], [Token])
 parseFunctionParams paramList (first:second:toks)
-        | first == TokCloseParen                       = (paramList, (second:toks))
+        | first == TokCloseParen                       = (paramList, second:toks)
         | first /= TokOpenParen && first /= TokComma   = error "Missing comma between parameters"
         | first == TokComma && second == TokCloseParen = error "Expected parameter type"
         | otherwise = case second of
@@ -285,7 +285,7 @@ parseDeclaration (ty:id:toks) =
                      if lookAhead toks' /= TokSemiColon
                         then error $ errorMessage SemiColon
                         else (DeclarationNode varName exprTree, accept toks')
-             _ -> error $ "invalid identifier: " ++ (show id)
+             _ -> error $ "invalid identifier: " ++ show id
 
 
 parseOptionalAssign :: [Token] -> (Maybe Tree, [Token])
@@ -296,7 +296,7 @@ parseOptionalAssign (id:equ:toks) =
                      let (exprTree, toks') = parseExpression (id:equ:toks)
                          in
                      (Just exprTree, toks')
-             _ -> (Nothing, (equ:toks))
+             _ -> (Nothing, equ:toks)
 
 
 parseExpression :: [Token] -> (Tree, [Token])
@@ -385,7 +385,7 @@ parseFactor allToks@(next:toks) =
                           TokOpenParen -> parseFunctionCall allToks
                           _            -> (VarNode str, toks)
              TokSemiColon    -> (NullExprNode, toks)
-             (TokOp op) | elem op [Minus, BitwiseCompl, LogicNegation] ->
+             (TokOp op) | op `elem` [Minus, BitwiseCompl, LogicNegation] ->
                      let (facTree, toks') = parseFactor toks
                          in
                      (UnaryNode facTree op, toks')
@@ -405,7 +405,7 @@ parseBinaryExp :: Tree
                -> (Tree, [Token])
 parseBinaryExp tree toks nextVal ops =
         case lookAhead toks of
-             (TokOp op) | elem op ops ->
+             (TokOp op) | op `elem` ops ->
                      let (nexTree, toks') = nextVal (accept toks)
                          in
                      parseBinaryExp (BinaryNode tree nexTree op) toks' nextVal ops
@@ -422,12 +422,12 @@ parseFunctionCall allToks@(id:paren:toks) =
         case id of
              TokIdent funcName ->
                      (FuncCallNode funcName funcArgList, toks')
-             _ -> error $ "Invalid function argument: " ++ (show id)
+             _ -> error $ "Invalid function argument: " ++ show id
 
 
 parseFunctionArgs :: [Tree] -> [Token] -> ([Tree], [Token])
 parseFunctionArgs argList (first:second:toks)
-        | first == TokCloseParen                       = (argList, (second:toks))
+        | first == TokCloseParen                       = (argList, second:toks)
         | first /= TokOpenParen && first /= TokComma   = error "Missing comma between arguments"
         | first == TokComma && second == TokCloseParen = error "Missing argument"
         | otherwise = case second of
@@ -460,12 +460,12 @@ accept (t:ts) = ts
 
 
 validType :: Keyword -> Bool
-validType kwd = elem kwd [Int]
+validType kwd = kwd `elem` [Int]
 
 
 isAssignment :: Operator -> Bool
-isAssignment op = elem op [Assign,PlusAssign,MinusAssign,
-                           MultiplyAssign,DivideAssign,ModuloAssign]
+isAssignment op = op `elem` [Assign,PlusAssign,MinusAssign,
+                             MultiplyAssign,DivideAssign,ModuloAssign]
 
 
 data Error = SemiColon
