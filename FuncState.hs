@@ -173,13 +173,11 @@ getScope scope fs =
 -- scope
 
 incrementScope :: Evaluator Int
-incrementScope = do
-        stepScope succ
+incrementScope = do stepScope succ
 
 
 decrementScope :: Evaluator Int
-decrementScope = do
-        stepScope pred
+decrementScope = do stepScope pred
 
 
 findScope :: String -> Evaluator Int
