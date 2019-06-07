@@ -38,15 +38,11 @@ declareGlobal name label = do
 
 
 decParamCount :: String -> Evaluator (Maybe Int)
-decParamCount funcName = do
-        gscope <- getGlobalScope
-        return $ M.lookup funcName $ funcParams gscope
+decParamCount name = M.lookup name . funcParams <$> getGlobalScope
 
 
 decSeqNumber :: String -> Evaluator (Maybe Int)
-decSeqNumber name = do
-        gscope <- getGlobalScope
-        return $ M.lookup name $ funcDecSeq gscope
+decSeqNumber name = M.lookup name . funcDecSeq <$> getGlobalScope
 
 
 currentSeqNumber :: Evaluator (Maybe Int)
@@ -62,15 +58,11 @@ defineGlobal name = do
 
 
 checkVarDefined :: String -> Evaluator Bool
-checkVarDefined name = do
-        gscope <- getGlobalScope
-        return $ S.member name $ definedVars gscope
+checkVarDefined name = S.member name . definedVars <$> getGlobalScope
 
 
 globalLabel :: String -> Evaluator (Maybe String)
-globalLabel name = do
-        gscope <- getGlobalScope
-        return $ M.lookup name $ declaredVars gscope
+globalLabel name = M.lookup name . declaredVars <$> getGlobalScope
 
 
 getUndefined :: Evaluator [String]
@@ -79,7 +71,7 @@ getUndefined = do
         let definedSet  = definedVars gscope
             declaredSet = M.keysSet $ declaredVars gscope
             undefined   = S.difference declaredSet definedSet
-        return $ M.elems $ M.filterWithKey (\k _ -> elem k undefined) $ declaredVars gscope
+        return $ M.elems $ M.filterWithKey (\k _ -> k `elem` undefined) $ declaredVars gscope
 
 
 {- Internal -}
