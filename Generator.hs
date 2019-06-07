@@ -56,7 +56,7 @@ genASM (FuncCallNode name argList) = do
                    argString <- processArgs argList 0 []
                    return $ ASM.saveCallerRegisters
                             ++ argString
-                            ++ (ASM.makeFunctionCall name)
+                            ++ ASM.makeFunctionCall name
                             ++ ASM.restoreCallerRegisters
            else error $ "calling function before declaration " ++ name
 
@@ -83,15 +83,15 @@ genASM (ForLoopNode init test iter block) = do
         body <- genASM block
         SymTab.closeScope
         return $ init
-                 ++ (ASM.emitLabel passLabel)
+                 ++ ASM.emitLabel passLabel
                  ++ test
                  ++ ASM.testResult
-                 ++ (ASM.emitJump JE failLabel)
+                 ++ ASM.emitJump JE failLabel
                  ++ body
-                 ++ (ASM.emitLabel continueLabel)
+                 ++ ASM.emitLabel continueLabel
                  ++ iter
-                 ++ (ASM.emitJump JMP passLabel)
-                 ++ (ASM.emitLabel failLabel)
+                 ++ ASM.emitJump JMP passLabel
+                 ++ ASM.emitLabel failLabel
 
 genASM (WhileNode test whileBlock) = do
         loopLabel <- SymTab.labelNum
@@ -100,13 +100,13 @@ genASM (WhileNode test whileBlock) = do
         body      <- genASM whileBlock
         SymTab.setContinue loopLabel
         SymTab.setBreak testLabel
-        return $ (ASM.emitLabel loopLabel)
+        return $ ASM.emitLabel loopLabel
                  ++ test
                  ++ ASM.testResult
-                 ++ (ASM.emitJump JE testLabel)
+                 ++ ASM.emitJump JE testLabel
                  ++ body
-                 ++ (ASM.emitJump JMP loopLabel)
-                 ++ (ASM.emitLabel testLabel)
+                 ++ ASM.emitJump JMP loopLabel
+                 ++ ASM.emitLabel testLabel
 
 genASM (DoWhileNode block test) = do
         loopLabel <- SymTab.labelNum
@@ -116,14 +116,14 @@ genASM (DoWhileNode block test) = do
         testLabel <- SymTab.labelNum
         SymTab.setContinue contLabel
         SymTab.setBreak testLabel
-        return $ (ASM.emitLabel loopLabel)
+        return $ ASM.emitLabel loopLabel
                  ++ body
-                 ++ (ASM.emitLabel contLabel)
+                 ++ ASM.emitLabel contLabel
                  ++ test
                  ++ ASM.testResult
-                 ++ (ASM.emitJump JE testLabel)
-                 ++ (ASM.emitJump JMP loopLabel)
-                 ++ (ASM.emitLabel testLabel)
+                 ++ ASM.emitJump JE testLabel
+                 ++ ASM.emitJump JMP loopLabel
+                 ++ ASM.emitLabel testLabel
 
 genASM (IfNode test action possElse) = do
         testVal  <- genASM test
@@ -131,18 +131,18 @@ genASM (IfNode test action possElse) = do
         label    <- SymTab.labelNum
         let ifLines = testVal
                       ++ ASM.testResult
-                      ++ (ASM.emitJump JE label)
+                      ++ ASM.emitJump JE label
                       ++ ifAction
         case possElse of
-             Nothing -> return $ ifLines ++ (ASM.emitLabel label)
+             Nothing -> return $ ifLines ++ ASM.emitLabel label
              Just e  -> do
                      elseAction <- genASM e
                      nextLabel  <- SymTab.labelNum
                      return $ ifLines
-                              ++ (ASM.emitJump JMP nextLabel)
-                              ++ (ASM.emitLabel label)
+                              ++ ASM.emitJump JMP nextLabel
+                              ++ ASM.emitLabel label
                               ++ elseAction
-                              ++ (ASM.emitLabel nextLabel)
+                              ++ ASM.emitLabel nextLabel
 
 genASM (DeclarationNode varName value) = do
         currScope <- SymTab.currentScope
@@ -162,7 +162,7 @@ genASM (DeclarationNode varName value) = do
                                    Nothing ->
                                            return $ ASM.loadValue 0
                                                     ++ ASM.varOnStack offset
-                                                    ++ (ASM.adjustStackPointer adjust)
+                                                    ++ ASM.adjustStackPointer adjust
 
 genASM (AssignmentNode varName value op) = do
         currScope <- SymTab.currentScope
@@ -176,11 +176,12 @@ genASM (AssignmentNode varName value op) = do
                                 adjustment <- SymTab.stackPointerValue
                                 return $ assign
                                          ++ ASM.varOnStack off
-                                         ++ (ASM.adjustStackPointer adjustment)
+                                         ++ ASM.adjustStackPointer adjustment
                         Nothing  -> do
                                 globLab <- SymTab.globalLabel varName
                                 case globLab of
-                                     Just lab -> return $ assign ++ ASM.storeGlobal lab
+                                     Just lab -> return $ assign
+                                                          ++ ASM.storeGlobal lab
                                      Nothing  -> error $ "Undefined variable: "
                                                          ++ varName
 
@@ -212,12 +213,12 @@ genASM (TernaryNode cond pass fail) = do
         passLabel  <- SymTab.labelNum
         return $ testVal
                  ++ ASM.testResult
-                 ++ (ASM.emitJump JE failLabel)
+                 ++ ASM.emitJump JE failLabel
                  ++ passAction
-                 ++ (ASM.emitJump JMP passLabel)
-                 ++ (ASM.emitLabel failLabel)
+                 ++ ASM.emitJump JMP passLabel
+                 ++ ASM.emitLabel failLabel
                  ++ failAction
-                 ++ (ASM.emitLabel passLabel)
+                 ++ ASM.emitLabel passLabel
 
 genASM (BinaryNode left right op) = do
         nextLabel <- SymTab.labelNum
@@ -225,13 +226,16 @@ genASM (BinaryNode left right op) = do
         lft <- genASM left
         rgt <- genASM right
         case op of
-             LogicalOR  -> return $ ASM.logicalOR lft rgt nextLabel endLabel
-             LogicalAND -> return $ ASM.logicalAND lft rgt nextLabel endLabel
-             _          -> return $ ASM.binary lft rgt op
+             LogicalOR  ->
+                     return $ ASM.logicalOR lft rgt nextLabel endLabel
+             LogicalAND ->
+                     return $ ASM.logicalAND lft rgt nextLabel endLabel
+             _          ->
+                     return $ ASM.binary lft rgt op
 
 genASM (UnaryNode tree op) = do
         unode <- genASM tree
-        return $ unode ++ (ASM.unary op)
+        return $ unode ++ ASM.unary op
 
 genASM (VarNode varName) = do
         offset <- SymTab.variableOffset varName
@@ -239,7 +243,7 @@ genASM (VarNode varName) = do
         label  <- SymTab.globalLabel varName
         return $ getVariableASM offset argPos label
 
-genASM (NullExprNode) = return ""
+genASM (NullExprNode) = return ASM.noOutput
 
 genASM (ConstantNode n) = do
         currScope <- SymTab.currentScope
@@ -283,7 +287,7 @@ processArgs argList argPos argASM = do
 processArg :: Int -> Tree -> Evaluator String
 processArg argPos arg = do
         argASM <- genASM arg
-        return $ argASM ++ ASM.putInRegister (ASM.selectRegister argPos)
+        return $ argASM ++ (ASM.putInRegister $ ASM.selectRegister argPos)
 
 
 declareGlobal :: String -> Maybe Tree -> Evaluator String
