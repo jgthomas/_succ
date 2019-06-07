@@ -147,10 +147,7 @@ store name value = do
 
 
 find :: String -> Int -> String -> Evaluator (Maybe Int)
-find func level var = do
-        funcState <- getFunctionState func
-        let scope = getScope level funcState
-        return $ M.lookup var scope
+find func level var = M.lookup var . getScope level <$> getFunctionState func
 
 
 getScope :: Int -> FuncState -> M.Map String Int
