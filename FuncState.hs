@@ -259,8 +259,8 @@ currentOffset = Ev $ \symTab -> (offset symTab, symTab)
 
 incrementOffset :: Evaluator ()
 incrementOffset = Ev $ \symTab ->
-        ((), symTab { offset = (offset symTab) + memOffsetSize })
+        ((), symTab { offset = offset symTab + memOffsetSize })
 
 
 memOffsetSize :: Int
-memOffsetSize = (-8)
+memOffsetSize = -8
