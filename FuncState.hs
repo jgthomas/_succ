@@ -104,8 +104,7 @@ addParameter paramName = do
 parameterPosition :: String -> Evaluator (Maybe Int)
 parameterPosition paramName = do
         currFuncName <- FrameStack.currentFunction
-        funcState    <- getFunctionState currFuncName
-        return $ M.lookup paramName $ parameters funcState
+        M.lookup paramName . parameters <$> getFunctionState currFuncName
 
 
 parameterDeclared :: String -> Evaluator Bool
