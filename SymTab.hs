@@ -25,16 +25,8 @@ newSymTab = Tab
 
 
 labelNum :: Evaluator Int
-labelNum = do
-        nextLabel
-
-
-nextLabel :: Evaluator Int
-nextLabel = Ev $ \symTab ->
-        let num = label symTab
-            symTab' = symTab { label = succ num }
-            in
-        (num, symTab')
+labelNum = Ev $ \symTab ->
+        (label symTab, symTab { label = succ $ label symTab })
 
 
 firstLabel :: Int
