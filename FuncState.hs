@@ -173,19 +173,15 @@ getScope scope fs =
 -- scope
 
 incrementScope :: Evaluator Int
-incrementScope = do
-        stepScope succ
+incrementScope = stepScope succ
 
 
 decrementScope :: Evaluator Int
-decrementScope = do
-        stepScope pred
+decrementScope = stepScope pred
 
 
 findScope :: String -> Evaluator Int
-findScope name = do
-        funcState <- getFunctionState name
-        return $ currentScope funcState
+findScope name = currentScope <$> getFunctionState name
 
 
 stepScope :: (Int -> Int) -> Evaluator Int
