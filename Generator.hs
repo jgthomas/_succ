@@ -1,10 +1,12 @@
 
 module Generator (genASM) where
 
-import AST       (Tree(..))
-import Evaluator (Evaluator)
-import Tokens    (Operator(..))
-import qualified SymTab
+import AST        (Tree(..))
+import Evaluator  (Evaluator)
+import Tokens     (Operator(..))
+import ASM_Tokens (Jump(..))
+import qualified  SymTab
+import qualified  ASM
 
 
 genASM :: Tree -> Evaluator String
@@ -12,12 +14,12 @@ genASM :: Tree -> Evaluator String
 genASM (ProgramNode topLevelItems) = do
         prog  <- mapM genASM topLevelItems
         undef <- SymTab.getUndefined
-        let bss = map uninitializedGlobal undef
+        let bss = map ASM.uninitializedGlobal undef
         return $ concat prog ++ concat bss
 
 genASM (FunctionProtoNode name paramList) = do
         declareFunction name (length paramList)
-        return ""
+        return ASM.noOutput
 
 genASM (FunctionNode name paramList statementList) = do
         defined <- SymTab.functionDefined name
@@ -30,18 +32,18 @@ genASM (FunctionNode name paramList statementList) = do
                    statements <- mapM genASM statementList
                    SymTab.closeFunction
                    if hasReturn statementList || name /= "main"
-                      then return $ functionName name
+                      then return $ ASM.functionName name
                                     ++ concat statements
-                      else return $ functionName name
+                      else return $ ASM.functionName name
                                     ++ concat statements
-                                    ++ loadValue 0
-                                    ++ returnStatement
+                                    ++ ASM.loadValue 0
+                                    ++ ASM.returnStatement
 
 genASM (ParamNode param) = do
        case param of
             VarNode name -> do
                     SymTab.addParameter name
-                    return ""
+                    return ASM.noOutput
             _ -> error $ "Invalid parameter: " ++ (show param)
 
 genASM (FuncCallNode name argList) = do
@@ -52,10 +54,10 @@ genASM (FuncCallNode name argList) = do
         if validSequence callee caller
            then do
                    argString <- processArgs argList 0 []
-                   return $ saveCallerRegisters
+                   return $ ASM.saveCallerRegisters
                             ++ argString
-                            ++ (makeFunctionCall name)
-                            ++ restoreCallerRegisters
+                            ++ (ASM.makeFunctionCall name)
+                            ++ ASM.restoreCallerRegisters
            else error $ "calling function before declaration " ++ name
 
 genASM (ArgNode arg) = do
@@ -81,15 +83,15 @@ genASM (ForLoopNode init test iter block) = do
         body <- genASM block
         SymTab.closeScope
         return $ init
-                 ++ (emitLabel passLabel)
+                 ++ (ASM.emitLabel passLabel)
                  ++ test
-                 ++ testResult
-                 ++ (emitJump JE failLabel)
+                 ++ ASM.testResult
+                 ++ (ASM.emitJump JE failLabel)
                  ++ body
-                 ++ (emitLabel continueLabel)
+                 ++ (ASM.emitLabel continueLabel)
                  ++ iter
-                 ++ (emitJump JMP passLabel)
-                 ++ (emitLabel failLabel)
+                 ++ (ASM.emitJump JMP passLabel)
+                 ++ (ASM.emitLabel failLabel)
 
 genASM (WhileNode test whileBlock) = do
         loopLabel <- SymTab.labelNum
@@ -98,13 +100,13 @@ genASM (WhileNode test whileBlock) = do
         body      <- genASM whileBlock
         SymTab.setContinue loopLabel
         SymTab.setBreak testLabel
-        return $ (emitLabel loopLabel)
+        return $ (ASM.emitLabel loopLabel)
                  ++ test
-                 ++ testResult
-                 ++ (emitJump JE testLabel)
+                 ++ ASM.testResult
+                 ++ (ASM.emitJump JE testLabel)
                  ++ body
-                 ++ (emitJump JMP loopLabel)
-                 ++ (emitLabel testLabel)
+                 ++ (ASM.emitJump JMP loopLabel)
+                 ++ (ASM.emitLabel testLabel)
 
 genASM (DoWhileNode block test) = do
         loopLabel <- SymTab.labelNum
@@ -114,33 +116,33 @@ genASM (DoWhileNode block test) = do
         testLabel <- SymTab.labelNum
         SymTab.setContinue contLabel
         SymTab.setBreak testLabel
-        return $ (emitLabel loopLabel)
+        return $ (ASM.emitLabel loopLabel)
                  ++ body
-                 ++ (emitLabel contLabel)
+                 ++ (ASM.emitLabel contLabel)
                  ++ test
-                 ++ testResult
-                 ++ (emitJump JE testLabel)
-                 ++ (emitJump JMP loopLabel)
-                 ++ (emitLabel testLabel)
+                 ++ ASM.testResult
+                 ++ (ASM.emitJump JE testLabel)
+                 ++ (ASM.emitJump JMP loopLabel)
+                 ++ (ASM.emitLabel testLabel)
 
 genASM (IfNode test action possElse) = do
         testVal  <- genASM test
         ifAction <- genASM action
         label    <- SymTab.labelNum
         let ifLines = testVal
-                      ++ testResult
-                      ++ (emitJump JE label)
+                      ++ ASM.testResult
+                      ++ (ASM.emitJump JE label)
                       ++ ifAction
         case possElse of
-             Nothing -> return $ ifLines ++ (emitLabel label)
+             Nothing -> return $ ifLines ++ (ASM.emitLabel label)
              Just e  -> do
                      elseAction <- genASM e
                      nextLabel  <- SymTab.labelNum
                      return $ ifLines
-                              ++ (emitJump JMP nextLabel)
-                              ++ (emitLabel label)
+                              ++ (ASM.emitJump JMP nextLabel)
+                              ++ (ASM.emitLabel label)
                               ++ elseAction
-                              ++ (emitLabel nextLabel)
+                              ++ (ASM.emitLabel nextLabel)
 
 genASM (DeclarationNode varName value) = do
         currScope <- SymTab.currentScope
@@ -158,9 +160,9 @@ genASM (DeclarationNode varName value) = do
                                    Just v  ->
                                            genASM v
                                    Nothing ->
-                                           return $ loadValue 0
-                                                    ++ varOnStack offset
-                                                    ++ (adjustStackPointer adjust)
+                                           return $ ASM.loadValue 0
+                                                    ++ ASM.varOnStack offset
+                                                    ++ (ASM.adjustStackPointer adjust)
 
 genASM (AssignmentNode varName value op) = do
         currScope <- SymTab.currentScope
@@ -173,12 +175,12 @@ genASM (AssignmentNode varName value op) = do
                         Just off -> do
                                 adjustment <- SymTab.stackPointerValue
                                 return $ assign
-                                         ++ varOnStack off
-                                         ++ (adjustStackPointer adjustment)
+                                         ++ ASM.varOnStack off
+                                         ++ (ASM.adjustStackPointer adjustment)
                         Nothing  -> do
                                 globLab <- SymTab.globalLabel varName
                                 case globLab of
-                                     Just lab -> return $ assign ++ storeGlobal lab
+                                     Just lab -> return $ assign ++ ASM.storeGlobal lab
                                      Nothing  -> error $ "Undefined variable: "
                                                          ++ varName
 
@@ -189,18 +191,18 @@ genASM (ExprStmtNode expression) = do
 genASM (ContinueNode) = do
         continueLabel <- SymTab.getContinue
         case continueLabel of
-             Just target -> return $ emitJump JMP target
+             Just target -> return $ ASM.emitJump JMP target
              Nothing     -> error "Continue statement outside loop"
 
 genASM (BreakNode) = do
         breakLabel <- SymTab.getBreak
         case breakLabel of
-             Just target -> return $ emitJump JMP target
+             Just target -> return $ ASM.emitJump JMP target
              Nothing     -> error "Break statement outside loop"
 
 genASM (ReturnNode tree) = do
         rtn <- genASM tree
-        return $ rtn ++ returnStatement
+        return $ rtn ++ ASM.returnStatement
 
 genASM (TernaryNode cond pass fail) = do
         testVal    <- genASM cond
@@ -209,13 +211,13 @@ genASM (TernaryNode cond pass fail) = do
         failLabel  <- SymTab.labelNum
         passLabel  <- SymTab.labelNum
         return $ testVal
-                 ++ testResult
-                 ++ (emitJump JE failLabel)
+                 ++ ASM.testResult
+                 ++ (ASM.emitJump JE failLabel)
                  ++ passAction
-                 ++ (emitJump JMP passLabel)
-                 ++ (emitLabel failLabel)
+                 ++ (ASM.emitJump JMP passLabel)
+                 ++ (ASM.emitLabel failLabel)
                  ++ failAction
-                 ++ (emitLabel passLabel)
+                 ++ (ASM.emitLabel passLabel)
 
 genASM (BinaryNode left right op) = do
         nextLabel <- SymTab.labelNum
@@ -223,13 +225,13 @@ genASM (BinaryNode left right op) = do
         lft <- genASM left
         rgt <- genASM right
         case op of
-             LogicalOR  -> return $ logicalOR lft rgt nextLabel endLabel
-             LogicalAND -> return $ logicalAND lft rgt nextLabel endLabel
-             _          -> return $ binary lft rgt op
+             LogicalOR  -> return $ ASM.logicalOR lft rgt nextLabel endLabel
+             LogicalAND -> return $ ASM.logicalAND lft rgt nextLabel endLabel
+             _          -> return $ ASM.binary lft rgt op
 
 genASM (UnaryNode tree op) = do
         unode <- genASM tree
-        return $ unode ++ (unary op)
+        return $ unode ++ (ASM.unary op)
 
 genASM (VarNode varName) = do
         offset <- SymTab.variableOffset varName
@@ -243,7 +245,7 @@ genASM (ConstantNode n) = do
         currScope <- SymTab.currentScope
         if currScope == "global"
            then return $ show n
-           else return $ loadValue n
+           else return $ ASM.loadValue n
 
 
 checkArguments :: Maybe Int -> Int -> String -> Evaluator ()
@@ -281,7 +283,7 @@ processArgs argList argPos argASM = do
 processArg :: Int -> Tree -> Evaluator String
 processArg argPos arg = do
         argASM <- genASM arg
-        return $ argASM ++ putInRegister (selectRegister argPos)
+        return $ argASM ++ ASM.putInRegister (ASM.selectRegister argPos)
 
 
 declareGlobal :: String -> Maybe Tree -> Evaluator String
@@ -302,7 +304,7 @@ declareGlobal name toAssign = do
 genAssignment :: Maybe Tree -> Evaluator String
 genAssignment toAssign = do
         case toAssign of
-             Nothing     -> return ""
+             Nothing     -> return ASM.noOutput
              Just assign -> genASM assign
 
 
@@ -327,8 +329,8 @@ defineGlobal name constNode = do
                         Just lab -> do
                                 SymTab.defineGlobal name
                                 if (read const) == 0
-                                   then return $ uninitializedGlobal lab
-                                   else return $ initializedGlobal lab const
+                                   then return $ ASM.uninitializedGlobal lab
+                                   else return $ ASM.initializedGlobal lab const
 
 
 mkGlobLabel :: String -> Int -> String
@@ -377,217 +379,9 @@ validSequence (Just callee) (Just caller)
 
 
 getVariableASM :: Maybe Int -> Maybe Int -> Maybe String -> String
-getVariableASM (Just off) _ _ = varOffStack off
-getVariableASM _ (Just pos) _ = getFromRegister $ selectRegister pos
-getVariableASM _ _ (Just lab) = loadGlobal lab
+getVariableASM (Just off) _ _ = ASM.varOffStack off
+getVariableASM _ (Just pos) _ = ASM.getFromRegister $ ASM.selectRegister pos
+getVariableASM _ _ (Just lab) = ASM.loadGlobal lab
 getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
-
-
-functionName :: String -> String
-functionName f = ".globl "
-                 ++ f
-                 ++ "\n"
-                 ++ f
-                 ++ ":\n"
-                 ++ saveBasePointer
-
-
-returnStatement :: String
-returnStatement = restoreBasePointer ++ "ret\n"
-
-
-saveBasePointer :: String
-saveBasePointer = "pushq %rbp\n"
-                  ++ "movq %rsp, %rbp\n"
-
-
-restoreBasePointer :: String
-restoreBasePointer = "movq %rbp, %rsp\n"
-                     ++ "popq %rbp\n"
-
-
-loadValue :: Int -> String
-loadValue n = "movq $" ++ (show n) ++ ", %rax\n"
-
-
-varOnStack :: Int -> String
-varOnStack n = "movq %rax, " ++ (show n) ++ "(%rbp)\n"
-
-
-adjustStackPointer :: Int -> String
-adjustStackPointer offset =
-        "movq %rbp, %rsp\n"
-        ++ "subq $" ++ (show offset) ++ ", %rsp\n"
-
-
-varOffStack :: Int -> String
-varOffStack n = "movq " ++ (show n) ++ "(%rbp), %rax\n"
-
-
-unary :: Operator -> String
-unary o
-   | o == Minus         = "neg %rax\n"
-   | o == BitwiseCompl  = "not %rax\n"
-   | o == LogicNegation = "cmpq $0, %rax\nmovq $0, %rax\nsete %al\n"
-
-
-binary :: String -> String -> Operator -> String
-binary val1 val2 o
-   | o == Plus               = loadValues val1 val2 ++ "addq %rcx, %rax\n"
-   | o == Multiply           = loadValues val1 val2 ++ "imul %rcx, %rax\n"
-   | o == Minus              = loadValues val2 val1 ++ "subq %rcx, %rax\n"
-   | o == Divide             = loadValues val2 val1 ++ "cqto\n" ++ "idivq %rcx\n"
-   | o == Modulo             = loadValues val2 val1 ++ moduloValues
-   | o == Equal              = comparison val1 val2 ++ "sete %al\n"
-   | o == NotEqual           = comparison val1 val2 ++ "setne %al\n"
-   | o == GreaterThan        = comparison val1 val2 ++ "setg %al\n"
-   | o == LessThan           = comparison val1 val2 ++ "setl %al\n"
-   | o == GreaterThanOrEqual = comparison val1 val2 ++ "setge %al\n"
-   | o == LessThanOrEqual    = comparison val1 val2 ++ "setle %al\n"
-
-
-logicalOR :: String -> String -> Int -> Int -> String
-logicalOR val1 val2 nextLabel endLabel = val1
-                       ++ "cmpq $0, %rax\n"
-                       ++ emitJump JE nextLabel
-                       ++ "movq $1, %rax\n"
-                       ++ emitJump JMP endLabel
-                       ++ emitLabel nextLabel
-                       ++ val2
-                       ++ "cmpq $0, %rax\n"
-                       ++ "movq $0, %rax\n"
-                       ++ "setne %al\n"
-                       ++ emitLabel endLabel
-
-
-logicalAND :: String -> String -> Int -> Int -> String
-logicalAND val1 val2 nextLabel endLabel = val1
-                       ++ "cmpq $0, %rax\n"
-                       ++ emitJump JNE nextLabel
-                       ++ emitJump JMP endLabel
-                       ++ emitLabel nextLabel
-                       ++ val2
-                       ++ "cmpq $0, %rax\n"
-                       ++ "movq $0, %rax\n"
-                       ++ "setne %al\n"
-                       ++ emitLabel endLabel
-
-
-loadValues :: String -> String -> String
-loadValues val1 val2 = val1
-                    ++ "pushq %rax\n"
-                    ++ val2
-                    ++ "popq %rcx\n"
-
-
-comparison :: String -> String -> String
-comparison val1 val2 = loadValues val1 val2
-                    ++ "cmpq %rax, %rcx\n"
-                    ++ "movq $0, %rax\n"
-
-
-moduloValues :: String
-moduloValues = "cqto\n"
-            ++ "idivq %rcx\n"
-            ++ "movq %rdx, %rax\n"
-
-
-data Jump = JMP
-          | JE
-          | JNE
-          deriving Eq
-
-
-emitJump :: Jump -> Int -> String
-emitJump j n
-        | j == JMP  = "jmp _label_" ++ (show n) ++ "\n"
-        | j == JE   = "je _label_" ++ (show n) ++ "\n"
-        | j == JNE  = "jne _label_" ++ (show n) ++ "\n"
-        | otherwise = error "Unrecognised type of jump"
-
-
-putInRegister :: String -> String
-putInRegister reg = "movq %rax, " ++ reg ++ "\n"
-
-
-getFromRegister :: String -> String
-getFromRegister reg = "movq " ++ reg ++ ", %rax\n"
-
-
-selectRegister :: Int -> String
-selectRegister callConvSeq
-        | callConvSeq == 0 = "%rdi"
-        | callConvSeq == 1 = "%rsi"
-        | callConvSeq == 2 = "%rdx"
-        | callConvSeq == 3 = "%rcx"
-        | callConvSeq == 4 = "%r8"
-        | callConvSeq == 5 = "%r9"
-
-
-makeFunctionCall :: String -> String
-makeFunctionCall funcName = "call " ++ funcName ++ "\n"
-
-
-saveCallerRegisters :: String
-saveCallerRegisters =
-        "pushq %rdi\n"
-        ++ "pushq %rsi\n"
-        ++ "pushq %rdx\n"
-        ++ "pushq %rcx\n"
-        ++ "pushq %r8\n"
-        ++ "pushq %r9\n"
-
-
-restoreCallerRegisters :: String
-restoreCallerRegisters =
-        "popq %r9\n"
-        ++ "popq %r8\n"
-        ++ "popq %rcx\n"
-        ++ "popq %rdx\n"
-        ++ "popq %rsi\n"
-        ++ "popq %rdi\n"
-
-
-emitLabel :: Int -> String
-emitLabel n = "_label_" ++ (show n) ++ ":\n"
-
-
-testResult :: String
-testResult = "cmpq $0, %rax\n"
-
-
-initializedGlobal :: String -> String -> String
-initializedGlobal label val =
-        ".globl " ++ label ++ "\n"
-        ++ ".data\n"
-        ++ ".align 4\n"
-        ++ label ++ ":\n"
-        ++ ".long " ++ val ++ "\n"
-        ++ ".text\n"
-
-
-uninitializedGlobal :: String -> String
-uninitializedGlobal label =
-        ".globl " ++ label ++ "\n"
-        ++ ".bss\n"
-        ++ ".align 4\n"
-        ++ label ++ ":\n"
-        ++ ".text\n"
-
-
-{-
-- gcc treats global labels as position
-- independent, PIE, by default, and so as
-- relative to %rip, so loads need to be
-- from that relative location as well
--}
-loadGlobal :: String -> String
-loadGlobal label =
-        "movq " ++ label ++ "(%rip), %rax\n"
-
-
-storeGlobal :: String -> String
-storeGlobal label =
-        "movq %rax, " ++ label ++ "(%rip)\n"
 
 
