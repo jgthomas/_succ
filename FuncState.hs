@@ -89,9 +89,7 @@ addVariable varName = do
 
 
 stackPointerValue :: Evaluator Int
-stackPointerValue = do
-        currOff <- currentOffset
-        return $ negate currOff
+stackPointerValue = negate <$> currentOffset
 
 
 addParameter :: String -> Evaluator ()
