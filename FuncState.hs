@@ -77,8 +77,7 @@ checkVariable varName = do
 
 
 variableOffset :: String -> Evaluator (Maybe Int)
-variableOffset name = do
-        getOffset name
+variableOffset name = getOffset name
 
 
 addVariable :: String -> Evaluator Int
