@@ -51,21 +51,21 @@ number c cs =
 
 
 twoCharOperator :: Char -> String -> [Token]
-twoCharOperator c cs =
-        let (so, cs') = span (\x -> elem x secondOpSymbols) cs
+twoCharOperator c (n:cs) =
+        let op = c:[n]
             in
-        case (c:so) of
-             "||" -> TokOp LogicalOR          : tokenize cs'
-             "&&" -> TokOp LogicalAND         : tokenize cs'
-             ">=" -> TokOp GreaterThanOrEqual : tokenize cs'
-             "<=" -> TokOp LessThanOrEqual    : tokenize cs'
-             "==" -> TokOp Equal              : tokenize cs'
-             "!=" -> TokOp NotEqual           : tokenize cs'
-             "+=" -> TokOp PlusAssign         : tokenize cs'
-             "-=" -> TokOp MinusAssign        : tokenize cs'
-             "*=" -> TokOp MultiplyAssign     : tokenize cs'
-             "/=" -> TokOp DivideAssign       : tokenize cs'
-             "%=" -> TokOp ModuloAssign       : tokenize cs'
+        case op of
+             "||" -> TokOp LogicalOR          : tokenize cs
+             "&&" -> TokOp LogicalAND         : tokenize cs
+             ">=" -> TokOp GreaterThanOrEqual : tokenize cs
+             "<=" -> TokOp LessThanOrEqual    : tokenize cs
+             "==" -> TokOp Equal              : tokenize cs
+             "!=" -> TokOp NotEqual           : tokenize cs
+             "+=" -> TokOp PlusAssign         : tokenize cs
+             "-=" -> TokOp MinusAssign        : tokenize cs
+             "*=" -> TokOp MultiplyAssign     : tokenize cs
+             "/=" -> TokOp DivideAssign       : tokenize cs
+             "%=" -> TokOp ModuloAssign       : tokenize cs
              _    -> error "Unrecognised two character operator"
 
 
