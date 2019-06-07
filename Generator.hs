@@ -277,7 +277,7 @@ hasReturn blockItems =
 
 processArgs :: [Tree] -> Int -> [String] -> Evaluator String
 processArgs argList argPos argASM = do
-        if (length argList) == 0
+        if length argList == 0
            then return $ concat argASM
            else do
                    asm <- processArg argPos $ head argList
@@ -287,7 +287,7 @@ processArgs argList argPos argASM = do
 processArg :: Int -> Tree -> Evaluator String
 processArg argPos arg = do
         argASM <- genASM arg
-        return $ argASM ++ (ASM.putInRegister $ ASM.selectRegister argPos)
+        return $ argASM ++ ASM.putInRegister (ASM.selectRegister argPos)
 
 
 declareGlobal :: String -> Maybe Tree -> Evaluator String
@@ -332,13 +332,13 @@ defineGlobal name constNode = do
                         Nothing  -> error $ "variable not declared: " ++ name
                         Just lab -> do
                                 SymTab.defineGlobal name
-                                if (read const) == 0
+                                if read const == 0
                                    then return $ ASM.uninitializedGlobal lab
                                    else return $ ASM.initializedGlobal lab const
 
 
 mkGlobLabel :: String -> Int -> String
-mkGlobLabel name labnum = "_" ++ name ++ (show labnum)
+mkGlobLabel name labnum = "_" ++ name ++ show labnum
 
 
 declareFunction :: String -> Int -> Evaluator ()
@@ -371,7 +371,7 @@ buildAssignmentASM name value op
         | op == MultiplyAssign = genASM (BinaryNode (VarNode name) value Multiply)
         | op == DivideAssign   = genASM (BinaryNode (VarNode name) value Divide)
         | op == ModuloAssign   = genASM (BinaryNode (VarNode name) value Modulo)
-        | otherwise            = error $ "unrecognised assignment operator: " ++ (show op)
+        | otherwise            = error $ "unrecognised assignment operator: " ++ show op
 
 
 validSequence :: Maybe Int -> Maybe Int -> Bool
