@@ -52,9 +52,7 @@ number c cs =
 
 twoCharOperator :: Char -> String -> [Token]
 twoCharOperator c (n:cs) =
-        let op = c:[n]
-            in
-        case op of
+        case c:[n] of
              "||" -> TokOp LogicalOR          : tokenize cs
              "&&" -> TokOp LogicalAND         : tokenize cs
              ">=" -> TokOp GreaterThanOrEqual : tokenize cs
