@@ -71,7 +71,7 @@ getUndefined = do
         let definedSet  = definedVars gscope
             declaredSet = M.keysSet $ declaredVars gscope
             undefined   = S.difference declaredSet definedSet
-        return $ M.elems $ M.filterWithKey (\k _ -> k `elem` undefined) $ declaredVars gscope
+        M.elems . M.filterWithKey (\k _ -> k `elem` undefined) . declaredVars <$> getGlobalScope
 
 
 {- Internal -}
