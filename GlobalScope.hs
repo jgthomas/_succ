@@ -87,7 +87,7 @@ updateGlobalScope gscope = Ev $ \symTab ->
 
 
 lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> Evaluator (Maybe a)
-lookUp name f = M.lookup name . f <$> getGlobalScope
+lookUp n f = M.lookup n . f <$> getGlobalScope
 
 
 addGlobal :: String -> String -> GlobalScope -> GlobalScope
