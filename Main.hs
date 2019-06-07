@@ -23,7 +23,7 @@ main :: IO()
 main = do
         args <- getArgs
         let infileName = head args
-        handle <- openFile infileName ReadMode
+        handle   <- openFile infileName ReadMode
         contents <- hGetContents handle
 
         -- debugging
@@ -31,8 +31,8 @@ main = do
         --print $ tokenize contents
         --print $ parse $ tokenize contents
 
-        let outfileName = (dropExtension infileName) ++ ".s"
-        let parsed = parse $ tokenize contents
+        let outfileName = dropExtension infileName ++ ".s"
+            parsed      = parse $ tokenize contents
 
         let symTab = newSymTab
             Ev act = genASM parsed
@@ -43,6 +43,6 @@ main = do
                        writeFile outfileName asm
 
         system $ "gcc -g " ++ outfileName
-                  ++ " -o " ++ (dropExtension outfileName)
+                  ++ " -o " ++ dropExtension outfileName
         system $ "rm " ++ outfileName
         hClose handle
