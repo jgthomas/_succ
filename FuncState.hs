@@ -47,9 +47,7 @@ closeScope = decrementScope
 
 
 functionDefined :: String -> Evaluator Bool
-functionDefined funcName = do
-        test <- checkFunctionState funcName
-        return test
+functionDefined funcName = checkFunctionState funcName
 
 
 getBreak :: Evaluator (Maybe Int)
