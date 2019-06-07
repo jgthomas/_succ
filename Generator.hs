@@ -44,7 +44,7 @@ genASM (ParamNode param) = do
             VarNode name -> do
                     SymTab.addParameter name
                     return ASM.noOutput
-            _ -> error $ "Invalid parameter: " ++ (show param)
+            _ -> error $ "Invalid parameter: " ++ show param
 
 genASM (FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
