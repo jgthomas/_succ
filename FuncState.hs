@@ -43,8 +43,7 @@ initScope = do
 
 
 closeScope :: Evaluator Int
-closeScope = do
-        decrementScope
+closeScope = decrementScope
 
 
 functionDefined :: String -> Evaluator Bool
@@ -54,23 +53,19 @@ functionDefined funcName = do
 
 
 getBreak :: Evaluator (Maybe Int)
-getBreak = do
-        getOffset "@Break"
+getBreak = getOffset "@Break"
 
 
 getContinue :: Evaluator (Maybe Int)
-getContinue = do
-        getOffset "@Continue"
+getContinue = getOffset "@Continue"
 
 
 setBreak :: Int -> Evaluator ()
-setBreak labelNo = do
-        store "@Break" labelNo
+setBreak labelNo = store "@Break" labelNo
 
 
 setContinue :: Int -> Evaluator ()
-setContinue labelNo = do
-        store "@Continue" labelNo
+setContinue labelNo = store "@Continue" labelNo
 
 
 checkVariable :: String -> Evaluator Bool
