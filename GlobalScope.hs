@@ -23,20 +23,6 @@ newGlobalScope :: GlobalScope
 newGlobalScope = Gscope 0 M.empty M.empty M.empty S.empty
 
 
-declareFunction :: String -> Int -> Evaluator ()
-declareFunction funcName paramCount = do
-        gscope <- getGlobalScope
-        let gscope'  = addSymbol funcName gscope
-            gscope'' = addParams funcName paramCount gscope'
-        updateGlobalScope gscope''
-
-
-declareGlobal :: String -> String -> Evaluator ()
-declareGlobal name label = do
-        gscope <- getGlobalScope
-        updateGlobalScope $ addGlobal name label gscope
-
-
 decParamCount :: String -> Evaluator (Maybe Int)
 decParamCount name = lookUp name funcParams
 
@@ -57,6 +43,20 @@ currentSeqNumber = do
 
 checkVarDefined :: String -> Evaluator Bool
 checkVarDefined name = S.member name . definedVars <$> getGlobalScope
+
+
+declareFunction :: String -> Int -> Evaluator ()
+declareFunction funcName paramCount = do
+        gscope <- getGlobalScope
+        let gscope'  = addSymbol funcName gscope
+            gscope'' = addParams funcName paramCount gscope'
+        updateGlobalScope gscope''
+
+
+declareGlobal :: String -> String -> Evaluator ()
+declareGlobal name label = do
+        gscope <- getGlobalScope
+        updateGlobalScope $ addGlobal name label gscope
 
 
 defineGlobal :: String -> Evaluator ()
