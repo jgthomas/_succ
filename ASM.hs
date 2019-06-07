@@ -6,6 +6,8 @@ import Tokens     (Operator(..))
 import ASM_Tokens (Jump(..))
 
 
+-- Functions
+
 functionName :: String -> String
 functionName f = ".globl "
                  ++ f
@@ -29,6 +31,8 @@ restoreBasePointer = "movq %rbp, %rsp\n"
                      ++ "popq %rbp\n"
 
 
+-- Local variables
+
 loadValue :: Int -> String
 loadValue n = "movq $" ++ (show n) ++ ", %rax\n"
 
@@ -37,15 +41,17 @@ varOnStack :: Int -> String
 varOnStack n = "movq %rax, " ++ (show n) ++ "(%rbp)\n"
 
 
+varOffStack :: Int -> String
+varOffStack n = "movq " ++ (show n) ++ "(%rbp), %rax\n"
+
+
 adjustStackPointer :: Int -> String
 adjustStackPointer offset =
         "movq %rbp, %rsp\n"
         ++ "subq $" ++ (show offset) ++ ", %rsp\n"
 
 
-varOffStack :: Int -> String
-varOffStack n = "movq " ++ (show n) ++ "(%rbp), %rax\n"
-
+-- Operators
 
 unary :: Operator -> String
 unary o
@@ -114,8 +120,11 @@ moduloValues = "cqto\n"
             ++ "idivq %rcx\n"
             ++ "movq %rdx, %rax\n"
 
+testResult :: String
+testResult = "cmpq $0, %rax\n"
 
 
+-- Jumps and labels
 
 emitJump :: Jump -> Int -> String
 emitJump j n
@@ -123,6 +132,16 @@ emitJump j n
         | j == JE   = "je _label_" ++ (show n) ++ "\n"
         | j == JNE  = "jne _label_" ++ (show n) ++ "\n"
         | otherwise = error "Unrecognised type of jump"
+
+
+emitLabel :: Int -> String
+emitLabel n = "_label_" ++ (show n) ++ ":\n"
+
+
+-- Function calls and registers
+
+makeFunctionCall :: String -> String
+makeFunctionCall funcName = "call " ++ funcName ++ "\n"
 
 
 putInRegister :: String -> String
@@ -141,10 +160,6 @@ selectRegister callConvSeq
         | callConvSeq == 3 = "%rcx"
         | callConvSeq == 4 = "%r8"
         | callConvSeq == 5 = "%r9"
-
-
-makeFunctionCall :: String -> String
-makeFunctionCall funcName = "call " ++ funcName ++ "\n"
 
 
 saveCallerRegisters :: String
@@ -167,13 +182,7 @@ restoreCallerRegisters =
         ++ "popq %rdi\n"
 
 
-emitLabel :: Int -> String
-emitLabel n = "_label_" ++ (show n) ++ ":\n"
-
-
-testResult :: String
-testResult = "cmpq $0, %rax\n"
-
+-- Global variables
 
 initializedGlobal :: String -> String -> String
 initializedGlobal label val =
@@ -210,5 +219,8 @@ storeGlobal label =
         "movq %rax, " ++ label ++ "(%rip)\n"
 
 
+-- General
+
 noOutput :: String
 noOutput = ""
+
