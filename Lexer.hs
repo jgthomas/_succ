@@ -10,27 +10,27 @@ import Tokens (Operator(..), Keyword(..), Token(..))
 tokenize :: String -> [Token]
 tokenize [] = []
 tokenize (c:cs)
-    | c == '('          = TokOpenParen              : tokenize cs
-    | c == ')'          = TokCloseParen             : tokenize cs
-    | c == '{'          = TokOpenBrace              : tokenize cs
-    | c == '}'          = TokCloseBrace             : tokenize cs
-    | c == ';'          = TokSemiColon              : tokenize cs
-    | c == ':'          = TokColon                  : tokenize cs
-    | c == '?'          = TokQuestMark              : tokenize cs
-    | c == ','          = TokComma                  : tokenize cs
-    | isTwoCharOp c cs  = twoCharOperator c cs
-    | elem c opSymbols  = TokOp (operator c)        : tokenize cs
-    | identifierStart c = identifier c cs
-    | isDigit c         = number c cs
-    | isSpace c         = tokenize cs
-    | otherwise         = error $ "Cannot tokenize " ++ [c]
+    | c == '('           = TokOpenParen              : tokenize cs
+    | c == ')'           = TokCloseParen             : tokenize cs
+    | c == '{'           = TokOpenBrace              : tokenize cs
+    | c == '}'           = TokCloseBrace             : tokenize cs
+    | c == ';'           = TokSemiColon              : tokenize cs
+    | c == ':'           = TokColon                  : tokenize cs
+    | c == '?'           = TokQuestMark              : tokenize cs
+    | c == ','           = TokComma                  : tokenize cs
+    | isTwoCharOp c cs   = twoCharOperator c cs
+    | c `elem` opSymbols = TokOp (operator c)        : tokenize cs
+    | identifierStart c  = identifier c cs
+    | isDigit c          = number c cs
+    | isSpace c          = tokenize cs
+    | otherwise          = error $ "Cannot tokenize " ++ [c]
 
 
 identifier :: Char -> String -> [Token]
 identifier c cs =
     let (str, cs') = span isValidInIdentifier cs
         in
-    case (c:str) of
+    case c : str of
          "int"      -> TokKeyword Int       : tokenize cs'
          "return"   -> TokKeyword Return    : tokenize cs'
          "if"       -> TokKeyword If        : tokenize cs'
