@@ -18,7 +18,7 @@ genASM (ProgramNode topLevelItems) = do
         return $ concat prog ++ concat bss
 
 genASM (FunctionProtoNode name paramList) = do
-        declareFunction name (length paramList)
+        declareFunction name $ length paramList
         return ASM.noOutput
 
 genASM (FunctionNode name paramList statementList) = do
