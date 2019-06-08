@@ -29,4 +29,4 @@ data Tree = ProgramNode [Tree]
           | BinaryNode Tree Tree Operator
           | TernaryNode Tree Tree Tree
           | AssignNode String Tree
-          deriving Show
+          deriving (Show)
