@@ -13,6 +13,7 @@ data Tree = ProgramNode [Tree]
           | CompoundStmtNode [Tree]               -- statements
           | ReturnNode Tree
           | AssignmentNode String Tree Operator
+          | AssignDereferenceNode String Tree Operator
           | ExprStmtNode Tree
           | IfNode Tree Tree (Maybe Tree)
           | WhileNode Tree Tree
