@@ -289,11 +289,11 @@ parseDeclaration (ty:id:toks) =
 
 
 parseOptionalAssign :: [Token] -> (Maybe Tree, [Token])
-parseOptionalAssign (id:equ:toks) =
+parseOptionalAssign allToks@(id:equ:toks) =
         case equ of
              (TokOp op)
                 | isAssignment op ->
-                     let (exprTree, toks') = parseExpression (id:equ:toks)
+                     let (exprTree, toks') = parseExpression allToks
                          in
                      (Just exprTree, toks')
              _ -> (Nothing, equ:toks)
