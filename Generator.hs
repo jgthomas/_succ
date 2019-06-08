@@ -141,8 +141,7 @@ genASM (IfNode test action possElse) = do
                      return $ ifLines
                               ++ ASM.emitJump JMP nextLabel
                               ++ ASM.emitLabel label
-                              ++ elseAction
-                              ++ ASM.emitLabel nextLabel
+                              ++ elseAction ++ ASM.emitLabel nextLabel
 
 genASM (PointerNode varName assign) = do
         pointerASM <- genASM (DeclarationNode varName Nothing)
@@ -184,7 +183,7 @@ genASM (AssignmentNode varName value op) = do
            then defineGlobal varName value
            else do
                    offset <- SymTab.variableOffset varName
-                   assign <- buildAssignmentASM varName value op
+                   assign <- buildAssignmentASM (VarNode varName) value op
                    case offset of
                         Just off -> do
                                 adjustment <- SymTab.stackPointerValue
@@ -387,14 +386,14 @@ varDec name = do
              Just l  -> return True
 
 
-buildAssignmentASM :: String -> Tree -> Operator -> Evaluator String
-buildAssignmentASM name value op
-        | op == Assign         = genASM value
-        | op == PlusAssign     = genASM (BinaryNode (VarNode name) value Plus)
-        | op == MinusAssign    = genASM (BinaryNode (VarNode name) value Minus)
-        | op == MultiplyAssign = genASM (BinaryNode (VarNode name) value Multiply)
-        | op == DivideAssign   = genASM (BinaryNode (VarNode name) value Divide)
-        | op == ModuloAssign   = genASM (BinaryNode (VarNode name) value Modulo)
+buildAssignmentASM :: Tree -> Tree -> Operator -> Evaluator String
+buildAssignmentASM varTree valueTree op
+        | op == Assign         = genASM valueTree
+        | op == PlusAssign     = genASM (BinaryNode varTree valueTree Plus)
+        | op == MinusAssign    = genASM (BinaryNode varTree valueTree Minus)
+        | op == MultiplyAssign = genASM (BinaryNode varTree valueTree Multiply)
+        | op == DivideAssign   = genASM (BinaryNode varTree valueTree Divide)
+        | op == ModuloAssign   = genASM (BinaryNode varTree valueTree Modulo)
         | otherwise            = error $ "unrecognised assignment operator: " ++ show op
 
 
