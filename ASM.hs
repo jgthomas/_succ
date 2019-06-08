@@ -220,6 +220,18 @@ storeGlobal label =
         "movq %rax, " ++ label ++ "(%rip)\n"
 
 
+-- Pointers
+
+varAddressLoad :: Int -> String
+varAddressLoad offset =
+        "leaq " ++ show offset ++ "(%rbp), %rax\n"
+
+
+varAddressStore :: Int -> String
+varAddressStore offset =
+        "movq %rax, " ++ show offset ++ "(%rbp)\n"
+
+
 -- General
 
 noOutput :: String
