@@ -198,6 +198,9 @@ genASM (AssignmentNode varName value op) = do
                                      Nothing  -> error $ "Undefined variable: "
                                                          ++ varName
 
+genASM (AssignDereferenceNode varName value op) = do
+        return "nop\n"
+
 genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression
         return exprsn
