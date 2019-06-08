@@ -400,9 +400,9 @@ parseFactor allToks@(next:toks) =
              TokSemiColon    -> (NullExprNode, toks)
              (TokConstInt n) -> (ConstantNode n, toks)
              (TokIdent str)  ->
-                     case lookAhead toks of
-                          TokOpenParen -> parseFunctionCall allToks
-                          _            -> (VarNode str, toks)
+                     if lookAhead toks == TokOpenParen
+                        then parseFunctionCall allToks
+                        else (VarNode str, toks)
              (TokOp op)
                 | op == Ampersand -> parseAddressOf toks
                 | op == Multiply  -> parseDereference toks
