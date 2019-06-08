@@ -263,6 +263,12 @@ genASM (AddressOfNode varName) = do
              Nothing  -> error $ "variable not declared: " ++ varName
              Just off -> return . ASM.varAddressLoad $ off
 
+genASM (DereferenceNode varName) = do
+        offset <- SymTab.variableOffset varName
+        case offset of
+             Nothing  -> error $ "variable not declared: " ++ varName
+             Just off -> return . ASM.dereferenceLoad $ off
+
 genASM (NullExprNode) = return ASM.noOutput
 
 genASM (ConstantNode n) = do
