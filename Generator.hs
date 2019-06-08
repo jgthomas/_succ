@@ -199,7 +199,11 @@ genASM (AssignmentNode varName value op) = do
                                                          ++ varName
 
 genASM (AssignDereferenceNode varName value op) = do
-        return "nop\n"
+        assign <- buildAssignmentASM (DereferenceNode varName) value op
+        offset <- SymTab.variableOffset varName
+        case offset of
+             Nothing  -> error $ "variable not declared: " ++ varName
+             Just off -> return $ assign ++ ASM.dereferenceStore off
 
 genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression
