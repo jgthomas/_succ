@@ -331,8 +331,8 @@ defineGlobal name constNode = do
                         Just lab -> do
                                 SymTab.defineGlobal name
                                 if read const == 0
-                                   then return $ ASM.uninitializedGlobal lab
-                                   else return $ ASM.initializedGlobal lab const
+                                   then return . ASM.uninitializedGlobal $ lab
+                                   else return . ASM.initializedGlobal lab $ const
 
 
 mkGlobLabel :: String -> Int -> String
@@ -382,7 +382,7 @@ validSequence (Just callee) (Just caller)
 
 getVariableASM :: Maybe Int -> Maybe Int -> Maybe String -> String
 getVariableASM (Just off) _ _ = ASM.varOffStack off
-getVariableASM _ (Just pos) _ = ASM.getFromRegister $ ASM.selectRegister pos
+getVariableASM _ (Just reg) _ = ASM.getFromRegister . ASM.selectRegister $ reg
 getVariableASM _ _ (Just lab) = ASM.loadGlobal lab
 getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
 
