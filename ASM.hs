@@ -232,6 +232,12 @@ varAddressStore offset =
         "movq %rax, " ++ show offset ++ "(%rbp)\n"
 
 
+dereferenceLoad :: Int -> String
+dereferenceLoad offset =
+        "movq " ++ show offset ++ "(%rbp), %rcx\n"
+        ++ "movq (%rcx), %rax\n"
+
+
 -- General
 
 noOutput :: String
