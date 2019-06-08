@@ -248,8 +248,8 @@ genASM (NullExprNode) = return ASM.noOutput
 genASM (ConstantNode n) = do
         currScope <- SymTab.currentScope
         if currScope == "global"
-           then return $ show n
-           else return $ ASM.loadValue n
+           then return . show $ n
+           else return . ASM.loadValue $ n
 
 
 checkArguments :: Maybe Int -> Int -> String -> Evaluator ()
