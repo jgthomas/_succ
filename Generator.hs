@@ -285,7 +285,7 @@ processArgs argList argPos argASM = do
 processArg :: Int -> Tree -> Evaluator String
 processArg argPos arg = do
         argASM <- genASM arg
-        return $ argASM ++ ASM.putInRegister (ASM.selectRegister argPos)
+        return $ argASM ++ (ASM.putInRegister . ASM.selectRegister $ argPos)
 
 
 declareGlobal :: String -> Maybe Tree -> Evaluator String
