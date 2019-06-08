@@ -36,7 +36,7 @@ parseTopLevelItems itemList allToks@(a:toks) =
 parseTopLevelItem :: [Token] -> (Tree, [Token])
 parseTopLevelItem allToks@(a:b:c:toks) =
         case c of
-             TokOpenParen -> parseFunction (accept allToks)
+             TokOpenParen -> parseFunction . accept $ allToks
              _            -> parseDeclaration allToks
 
 
@@ -52,7 +52,7 @@ parseFunction (id:toks) =
                      case lookAhead toks' of
                           TokSemiColon -> (FunctionProtoNode funcName funcParams, accept toks')
                           TokOpenBrace ->
-                                  let (funcBlockItems, toks'') = parseBlock [] (accept toks')
+                                  let (funcBlockItems, toks'') = parseBlock [] . accept $ toks'
                                       in
                                   if lookAhead toks'' /= TokCloseBrace
                                      then error $ errorMessage CloseBrace
@@ -232,7 +232,7 @@ parseWhileStatement (first:toks) =
         if lookAhead toks' /= TokCloseParen
            then error $ errorMessage CloseParen
            else
-        let (stmtTree, toks'') = parseStatement (accept toks')
+        let (stmtTree, toks'') = parseStatement . accept $ toks'
             in
         (WhileNode testTree stmtTree, toks'')
 
@@ -247,7 +247,7 @@ parseIfStatement (first:toks) =
         if lookAhead toks' /= TokCloseParen
            then error $ errorMessage CloseParen
            else
-        let (stmtTree, toks'') = parseStatement (accept toks')
+        let (stmtTree, toks'') = parseStatement . accept $ toks'
             (possElse, toks''') = parseOptionalElse toks''
             in
         (IfNode testTree stmtTree possElse, toks''')
@@ -308,7 +308,7 @@ parseExpression toks =
                 | isAssignment op ->
                         case expressTree of
                              (VarNode id) ->
-                                     let (exTree, toks'') = parseExpression (accept toks')
+                                     let (exTree, toks'') = parseExpression . accept $ toks'
                                          in
                                      (AssignmentNode id exTree op, toks'')
                              _ -> error "can only assign to variables"
@@ -322,12 +322,12 @@ parseTernaryExpr toks =
             in
         case lookAhead toks' of
              TokQuestMark ->
-                     let (exprTree, toks'') = parseExpression (accept toks')
+                     let (exprTree, toks'') = parseExpression . accept $ toks'
                          in
                      if lookAhead toks'' /= TokColon
                         then error "Missing colon on ternary expression"
                         else
-                     let (finalExprTree, toks''') = parseTernaryExpr (accept toks'')
+                     let (finalExprTree, toks''') = parseTernaryExpr . accept $ toks''
                          in
                      (TernaryNode condTree exprTree finalExprTree, toks''')
              _ -> (condTree, toks')
@@ -406,7 +406,7 @@ parseBinaryExp :: Tree
 parseBinaryExp tree toks nextVal ops =
         case lookAhead toks of
              (TokOp op) | op `elem` ops ->
-                     let (nexTree, toks') = nextVal (accept toks)
+                     let (nexTree, toks') = nextVal . accept $ toks
                          in
                      parseBinaryExp (BinaryNode tree nexTree op) toks' nextVal ops
              _ -> (tree, toks)
