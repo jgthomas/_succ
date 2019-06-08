@@ -68,7 +68,7 @@ genASM (CompoundStmtNode blockItems) = do
         SymTab.initScope
         blockLines <- mapM genASM blockItems
         SymTab.closeScope
-        return $ concat blockLines
+        return . concat $ blockLines
 
 genASM (ForLoopNode init test iter block) = do
         SymTab.initScope
