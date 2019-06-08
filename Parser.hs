@@ -329,6 +329,10 @@ parseExpression toks =
                                      let (exTree, toks'') = parseExpression . accept $ toks'
                                          in
                                      (AssignmentNode id exTree op, toks'')
+                             (DereferenceNode id) ->
+                                     let (exTree, toks'') = parseExpression . accept $ toks'
+                                         in
+                                     (AssignDereferenceNode id exTree op, toks'')
                              _ -> error $ "cannot assign to : " ++ show expressTree
                 | otherwise -> error "invalid assignment operator"
              _ -> (expressTree, toks')
