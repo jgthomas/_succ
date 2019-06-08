@@ -19,6 +19,7 @@ newtype Evaluator a = Ev (SymTab -> (a, SymTab))
 -  See: https://stackoverflow.com/a/34641501/5671759
 -}
 instance Functor Evaluator where
+        -- <$> infix
         fmap = liftM
 
 
