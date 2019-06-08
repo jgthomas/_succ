@@ -84,6 +84,7 @@ operator c | c == '+' = Plus
            | c == '>' = GreaterThan
            | c == '<' = LessThan
            | c == '=' = Assign
+           | c == '&' = Ampersand
 
 
 opSymbols :: String
