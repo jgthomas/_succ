@@ -280,12 +280,19 @@ parseDeclaration :: [Token] -> (Tree, [Token])
 parseDeclaration allToks@(id:toks) =
         case id of
              (TokIdent varName) ->
-                     let (exprTree, toks') = parseOptionalAssign allToks
+                     let (exprTree, toks') = parseOptAssign allToks
                          in
-                     if lookAhead toks' /= TokSemiColon
-                        then error $ errorMessage SemiColon
-                        else (DeclarationNode varName exprTree, accept toks')
+                     (DeclarationNode varName exprTree, toks')
              _ -> error $ "invalid identifier: " ++ show id
+
+
+parseOptAssign :: [Token] -> (Maybe Tree, [Token])
+parseOptAssign toks =
+        let (exprTree, toks') = parseOptionalAssign toks
+            in
+        if lookAhead toks' /= TokSemiColon
+           then error $ errorMessage SemiColon
+           else (exprTree, accept toks')
 
 
 parseOptionalAssign :: [Token] -> (Maybe Tree, [Token])
