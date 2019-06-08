@@ -397,19 +397,19 @@ parseTerm toks =
 parseFactor :: [Token] -> (Tree, [Token])
 parseFactor allToks@(next:toks) =
         case next of
+             TokSemiColon    -> (NullExprNode, toks)
              (TokConstInt n) -> (ConstantNode n, toks)
              (TokIdent str)  ->
                      case lookAhead toks of
                           TokOpenParen -> parseFunctionCall allToks
                           _            -> (VarNode str, toks)
-             TokSemiColon    -> (NullExprNode, toks)
              (TokOp op)
                 | op == Ampersand -> parseAddressOf toks
                 | op == Multiply  -> parseDereference toks
-             (TokOp op) | op `elem` [Minus, BitwiseCompl, LogicNegation] ->
-                     let (facTree, toks') = parseFactor toks
-                         in
-                     (UnaryNode facTree op, toks')
+                | op `elem` [Minus, BitwiseCompl, LogicNegation] ->
+                        let (facTree, toks') = parseFactor toks
+                            in
+                        (UnaryNode facTree op, toks')
              TokOpenParen ->
                      let (exprTree, toks') = parseExpression toks
                          in
