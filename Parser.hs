@@ -37,7 +37,7 @@ parseTopLevelItem :: [Token] -> (Tree, [Token])
 parseTopLevelItem allToks@(a:b:c:toks) =
         case c of
              TokOpenParen -> parseFunction . accept $ allToks
-             _            -> parseDeclaration allToks
+             _            -> parseDeclaration . accept $ allToks
 
 
 parseFunction :: [Token] -> (Tree, [Token])
@@ -99,7 +99,7 @@ parseBlock stmts toks =
 parseBlockItem :: [Token] -> (Tree, [Token])
 parseBlockItem toks =
         case lookAhead toks of
-             (TokKeyword kwd) | validType kwd -> parseDeclaration toks
+             (TokKeyword kwd) | validType kwd -> parseDeclaration . accept $ toks
              _                                -> parseStatement toks
 
 
@@ -277,10 +277,10 @@ parseNullStatement toks = (NullExprNode, toks)
 
 
 parseDeclaration :: [Token] -> (Tree, [Token])
-parseDeclaration (ty:id:toks) =
+parseDeclaration allToks@(id:toks) =
         case id of
              (TokIdent varName) ->
-                     let (exprTree, toks') = parseOptionalAssign (id:toks)
+                     let (exprTree, toks') = parseOptionalAssign allToks
                          in
                      if lookAhead toks' /= TokSemiColon
                         then error $ errorMessage SemiColon
