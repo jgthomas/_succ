@@ -25,6 +25,7 @@ data Operator = Plus
               | MultiplyAssign
               | DivideAssign
               | ModuloAssign
+              | Ampersand
               deriving (Show, Eq)
 
 
