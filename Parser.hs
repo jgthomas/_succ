@@ -113,7 +113,7 @@ parseStatement allToks@(first:toks) =
              TokKeyword Break    -> parseBreak toks
              TokKeyword Continue -> parseContinue toks
              TokOpenBrace        -> parseCompoundStmt toks
-             TokOp Multiply      -> parseExprStatement toks
+             TokOp Multiply      -> parseExpression allToks
              TokIdent id         ->
                      case lookAhead toks of
                           (TokOp op)
@@ -403,7 +403,9 @@ parseFactor allToks@(next:toks) =
                           TokOpenParen -> parseFunctionCall allToks
                           _            -> (VarNode str, toks)
              TokSemiColon    -> (NullExprNode, toks)
-             (TokOp op) | op == Ampersand -> parseAddressOf toks
+             (TokOp op)
+                | op == Ampersand -> parseAddressOf toks
+                | op == Multiply  -> parseDereference toks
              (TokOp op) | op `elem` [Minus, BitwiseCompl, LogicNegation] ->
                      let (facTree, toks') = parseFactor toks
                          in
@@ -435,6 +437,13 @@ parseAddressOf :: [Token] -> (Tree, [Token])
 parseAddressOf (id:toks) =
         case id of
              (TokIdent n) -> (AddressOfNode n, toks)
+             _            -> error $ "invalid identifier: " ++ show id
+
+
+parseDereference :: [Token] -> (Tree, [Token])
+parseDereference (id:toks) =
+        case id of
+             (TokIdent n) -> (DereferenceNode n, toks)
              _            -> error $ "invalid identifier: " ++ show id
 
 
