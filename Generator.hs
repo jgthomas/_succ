@@ -266,13 +266,11 @@ processParameters params = do
 
 
 hasReturn :: [Tree] -> Bool
-hasReturn blockItems =
-        case length blockItems of
-             0                  -> False
-             _ ->
-                     case last blockItems of
-                          (ReturnNode val) -> True
-                          _                -> False
+hasReturn items
+        | length items == 0 = False
+        | otherwise = case last items of
+                           ReturnNode val -> True
+                           _              -> False
 
 
 processArgs :: [Tree] -> Int -> [String] -> Evaluator String
