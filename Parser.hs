@@ -1,4 +1,3 @@
-
 module Parser (parse) where
 
 
@@ -279,10 +278,21 @@ parseNullStatement toks = (NullExprNode, toks)
 parseDeclaration :: [Token] -> (Tree, [Token])
 parseDeclaration allToks@(id:toks) =
         case id of
+             (TokOp Multiply)   -> parsePointerDec toks
              (TokIdent varName) ->
                      let (exprTree, toks') = parseOptAssign allToks
                          in
                      (DeclarationNode varName exprTree, toks')
+             _ -> error $ "invalid identifier: " ++ show id
+
+
+parsePointerDec :: [Token] -> (Tree, [Token])
+parsePointerDec allToks@(id:toks) =
+        case id of
+             (TokIdent varName) ->
+                     let (exprTree, toks') = parseOptAssign allToks
+                         in
+                     (PointerNode varName exprTree, toks')
              _ -> error $ "invalid identifier: " ++ show id
 
 
