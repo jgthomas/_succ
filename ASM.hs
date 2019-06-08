@@ -238,6 +238,12 @@ dereferenceLoad offset =
         ++ "movq (%rcx), %rax\n"
 
 
+dereferenceStore :: Int -> String
+dereferenceStore offset =
+        "movq " ++ show offset ++ "(%rbp), %rcx\n"
+        ++ "movq %rax, (%rcx)\n"
+
+
 -- General
 
 noOutput :: String
