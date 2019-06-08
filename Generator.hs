@@ -144,6 +144,20 @@ genASM (IfNode test action possElse) = do
                               ++ elseAction
                               ++ ASM.emitLabel nextLabel
 
+genASM (PointerNode varName assign) = do
+        pointerASM <- genASM (DeclarationNode varName Nothing)
+        offset     <- SymTab.variableOffset varName
+        case assign of
+             Just a -> do
+                     value  <- genASM a
+                     offset <- SymTab.variableOffset varName
+                     case offset of
+                          Nothing  -> error $ "variable not declared: " ++ varName
+                          Just off -> return $ pointerASM
+                                            ++ value
+                                            ++ ASM.varAddressStore off
+             _ -> return pointerASM
+
 genASM (DeclarationNode varName value) = do
         currScope <- SymTab.currentScope
         if currScope == "global"
@@ -242,6 +256,12 @@ genASM (VarNode varName) = do
         argPos <- SymTab.parameterPosition varName
         label  <- SymTab.globalLabel varName
         return $ getVariableASM offset argPos label
+
+genASM (AddressOfNode varName) = do
+        offset <- SymTab.variableOffset varName
+        case offset of
+             Nothing  -> error $ "variable not declared: " ++ varName
+             Just off -> return . ASM.varAddressLoad $ off
 
 genASM (NullExprNode) = return ASM.noOutput
 
