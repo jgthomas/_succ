@@ -27,6 +27,7 @@ data Tree = ProgramNode [Tree]
           | NullExprNode
           | VarNode String
           | AddressOfNode String
+          | DereferenceNode String
           | UnaryNode Tree Operator
           | BinaryNode Tree Tree Operator
           | TernaryNode Tree Tree Tree
