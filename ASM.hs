@@ -6,6 +6,26 @@ import Tokens     (Operator(..))
 import ASM_Tokens (Jump(..))
 
 
+-- Registers
+
+result  = "%rax"
+scratch = "%rcx"
+
+
+-- Instructions
+
+add = "addq "
+sub = "subq "
+mul = "imul "
+div = "idivq "
+
+push :: String -> String
+push reg = "pushq " ++ reg ++ "\n"
+
+pop :: String -> String
+pop reg = "popq " ++ reg ++ "\n"
+
+
 -- Functions
 
 functionName :: String -> String
@@ -62,10 +82,10 @@ unary o
 
 binary :: String -> String -> Operator -> String
 binary val1 val2 o
-   | o == Plus               = loadValues val1 val2 ++ "addq %rcx, %rax\n"
-   | o == Multiply           = loadValues val1 val2 ++ "imul %rcx, %rax\n"
-   | o == Minus              = loadValues val2 val1 ++ "subq %rcx, %rax\n"
-   | o == Divide             = loadValues val2 val1 ++ "cqto\n" ++ "idivq %rcx\n"
+   | o == Plus               = loadValues val1 val2 ++ compute add
+   | o == Multiply           = loadValues val1 val2 ++ compute mul
+   | o == Minus              = loadValues val2 val1 ++ compute sub
+   | o == Divide             = loadValues val2 val1 ++ "cqto\n" ++ "idivq " ++ scratch ++ "\n"
    | o == Modulo             = loadValues val2 val1 ++ moduloValues
    | o == Equal              = comparison val1 val2 ++ "sete %al\n"
    | o == NotEqual           = comparison val1 val2 ++ "setne %al\n"
@@ -73,6 +93,10 @@ binary val1 val2 o
    | o == LessThan           = comparison val1 val2 ++ "setl %al\n"
    | o == GreaterThanOrEqual = comparison val1 val2 ++ "setge %al\n"
    | o == LessThanOrEqual    = comparison val1 val2 ++ "setle %al\n"
+
+
+compute :: String -> String
+compute op = op ++ scratch ++ ", " ++ result ++ "\n"
 
 
 logicalOR :: String -> String -> Int -> Int -> String
@@ -103,21 +127,21 @@ logicalAND val1 val2 nextLabel endLabel = val1
 
 
 loadValues :: String -> String -> String
-loadValues val1 val2 = val1
-                    ++ "pushq %rax\n"
-                    ++ val2
-                    ++ "popq %rcx\n"
+loadValues load1 load2 = load1
+                         ++ push result
+                         ++ load2
+                         ++ pop scratch
 
 
 comparison :: String -> String -> String
-comparison val1 val2 = loadValues val1 val2
-                    ++ "cmpq %rax, %rcx\n"
-                    ++ "movq $0, %rax\n"
+comparison load1 load2 = loadValues load1 load2
+                         ++ "cmpq %rax, " ++ scratch ++ "\n"
+                         ++ "movq $0, %rax\n"
 
 
 moduloValues :: String
 moduloValues = "cqto\n"
-            ++ "idivq %rcx\n"
+            ++ "idivq " ++ scratch ++ "\n"
             ++ "movq %rdx, %rax\n"
 
 
@@ -234,14 +258,14 @@ varAddressStore offset =
 
 dereferenceLoad :: Int -> String
 dereferenceLoad offset =
-        "movq " ++ show offset ++ "(%rbp), %rcx\n"
-        ++ "movq (%rcx), %rax\n"
+        "movq " ++ show offset ++ "(%rbp), " ++ scratch ++ "\n"
+        ++ "movq (" ++ scratch ++ "), %rax\n"
 
 
 dereferenceStore :: Int -> String
 dereferenceStore offset =
-        "movq " ++ show offset ++ "(%rbp), %rcx\n"
-        ++ "movq %rax, (%rcx)\n"
+        "movq " ++ show offset ++ "(%rbp), " ++ scratch ++ "\n"
+        ++ "movq %rax, (" ++ scratch ++ ")\n"
 
 
 -- General
