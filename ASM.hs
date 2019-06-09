@@ -11,6 +11,8 @@ import ASM_Tokens (Jump(..))
 result  = "%rax"
 scratch = "%r12"
 
+allScratch = [scratch]
+
 
 -- Instructions
 
@@ -18,6 +20,8 @@ add = "addq "
 sub = "subq "
 mul = "imul "
 div = "idivq "
+
+ret = "ret\n"
 
 push :: String -> String
 push s = "pushq " ++ s ++ "\n"
@@ -36,10 +40,14 @@ functionName f =
         ++ f
         ++ ":\n"
         ++ saveBasePointer
+        ++ saveScratchResisters
 
 
 returnStatement :: String
-returnStatement = restoreBasePointer ++ "ret\n"
+returnStatement =
+        restoreScratchRegisters
+        ++ restoreBasePointer
+        ++ ret
 
 
 saveBasePointer :: String
@@ -52,6 +60,14 @@ restoreBasePointer :: String
 restoreBasePointer =
         "movq %rbp, %rsp\n"
         ++ "popq %rbp\n"
+
+
+saveScratchResisters :: String
+saveScratchResisters = concat . map push $ allScratch
+
+
+restoreScratchRegisters :: String
+restoreScratchRegisters = concat . map pop . reverse $ allScratch
 
 
 -- Local variables
