@@ -104,7 +104,7 @@ unary o
 binary :: String -> String -> Operator -> String
 binary val1 val2 o
    | o == Plus               = computeAdd val1 val2
-   | o == Minus              = compute sub val2 val1
+   | o == Minus              = computeSub val1 val2
    | o == Multiply           = computeMul val1 val2
    | o == Divide             = computeDiv val1 val2
    | o == Modulo             = computeMod val1 val2
@@ -176,10 +176,10 @@ computeMul load1 load2 =
         ++ imul scratch result
 
 
-compute :: String -> String -> String -> String
-compute op load1 load2 =
-        loadValues load1 load2
-        ++ op ++ scratch ++ ", " ++ result ++ "\n"
+computeSub :: String -> String -> String
+computeSub load1 load2 =
+        loadValues load2 load1
+        ++ sub scratch result
 
 
 loadValues :: String -> String -> String
@@ -326,7 +326,8 @@ add a b = "addq " ++ a ++ ", " ++ b ++ "\n"
 imul :: String -> String -> String
 imul a b = "imul " ++ a ++ ", " ++ b ++ "\n"
 
-sub = "subq "
+sub :: String -> String -> String
+sub a b = "subq " ++ a ++ ", " ++ b ++ "\n"
 
 idivq :: String -> String
 idivq target = "idivq " ++ target ++ "\n"
