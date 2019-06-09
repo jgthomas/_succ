@@ -14,25 +14,6 @@ scratch = "%r12"
 allScratch = [scratch]
 
 
--- Instructions
-
-add = "addq "
-sub = "subq "
-mul = "imul "
-div = "idivq "
-
-ret = "ret\n"
-
-move :: String -> String -> String
-move s d = "movq " ++ s ++ ", " ++ d ++ "\n"
-
-push :: String -> String
-push s = "pushq " ++ s ++ "\n"
-
-pop :: String -> String
-pop s = "popq " ++ s ++ "\n"
-
-
 -- Functions
 
 functionName :: String -> String
@@ -310,4 +291,23 @@ dereferenceStore offset =
 
 noOutput :: String
 noOutput = ""
+
+
+-- Instructions
+
+add = "addq "
+sub = "subq "
+mul = "imul "
+div = "idivq "
+
+ret = "ret\n"
+
+move :: String -> String -> String
+move s d = "movq " ++ s ++ ", " ++ d ++ "\n"
+
+push :: String -> String
+push s = "pushq " ++ s ++ "\n"
+
+pop :: String -> String
+pop s = "popq " ++ s ++ "\n"
 
