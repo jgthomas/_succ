@@ -7,7 +7,6 @@ import qualified Data.Set as S
 
 
 data SymTab = Tab { label       :: Int
-                  , offset      :: Int
                   , frameStack  :: Stack String
                   , globalScope :: GlobalScope
                   , funcStates  :: M.Map String FuncState }

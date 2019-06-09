@@ -13,7 +13,6 @@ module FuncState (initScope,
                   addParameter,
                   parameterPosition,
                   parameterDeclared,
-                  memOffsetSize,
                   addVariable,
                   stackPointerValue) where
 
@@ -21,7 +20,7 @@ import Data.Maybe            (fromMaybe)
 import qualified Data.Map as M
 
 import Evaluator            (Evaluator(Ev))
-import Types                (SymTab(funcStates, offset), FuncState(..))
+import Types                (SymTab(funcStates), FuncState(..))
 import qualified FrameStack (currentFunction, popFunctionName, pushFunctionName)
 
 
@@ -236,12 +235,17 @@ addParam n st =
 -- offset
 
 currentOffset :: Evaluator Int
-currentOffset = Ev $ \symTab -> (offset symTab, symTab)
+currentOffset = do
+        currFuncName <- FrameStack.currentFunction
+        funcOffset <$> getFunctionState currFuncName
 
 
 incrementOffset :: Evaluator ()
-incrementOffset = Ev $ \symTab ->
-        ((), symTab { offset = offset symTab + memOffsetSize })
+incrementOffset = do
+        currFuncName <- FrameStack.currentFunction
+        funcState    <- getFunctionState currFuncName
+        let funcState' = funcState { funcOffset = funcOffset funcState + memOffsetSize }
+        setFunctionState currFuncName funcState'
 
 
 memOffsetSize :: Int

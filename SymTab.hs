@@ -18,7 +18,6 @@ import FrameStack   (newStack, currentScope)
 newSymTab :: SymTab
 newSymTab = Tab
             firstLabel
-            memOffsetSize
             newStack
             newGlobalScope
             M.empty
