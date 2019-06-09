@@ -29,12 +29,13 @@ pop reg = "popq " ++ reg ++ "\n"
 -- Functions
 
 functionName :: String -> String
-functionName f = ".globl "
-                 ++ f
-                 ++ "\n"
-                 ++ f
-                 ++ ":\n"
-                 ++ saveBasePointer
+functionName f =
+        ".globl "
+        ++ f
+        ++ "\n"
+        ++ f
+        ++ ":\n"
+        ++ saveBasePointer
 
 
 returnStatement :: String
@@ -42,13 +43,15 @@ returnStatement = restoreBasePointer ++ "ret\n"
 
 
 saveBasePointer :: String
-saveBasePointer = "pushq %rbp\n"
-                  ++ "movq %rsp, %rbp\n"
+saveBasePointer =
+        "pushq %rbp\n"
+        ++ "movq %rsp, %rbp\n"
 
 
 restoreBasePointer :: String
-restoreBasePointer = "movq %rbp, %rsp\n"
-                     ++ "popq %rbp\n"
+restoreBasePointer =
+        "movq %rbp, %rsp\n"
+        ++ "popq %rbp\n"
 
 
 -- Local variables
@@ -148,21 +151,24 @@ computeMul load1 load2 = compute mul load1 load2
 
 
 compute :: String -> String -> String -> String
-compute op load1 load2 = loadValues load1 load2
-                         ++ op ++ scratch ++ ", " ++ result ++ "\n"
+compute op load1 load2 =
+        loadValues load1 load2
+        ++ op ++ scratch ++ ", " ++ result ++ "\n"
 
 
 loadValues :: String -> String -> String
-loadValues load1 load2 = load1
-                         ++ push result
-                         ++ load2
-                         ++ pop scratch
+loadValues load1 load2 =
+        load1
+        ++ push result
+        ++ load2
+        ++ pop scratch
 
 
 comparison :: String -> String -> String
-comparison load1 load2 = loadValues load1 load2
-                         ++ "cmpq %rax, " ++ scratch ++ "\n"
-                         ++ "movq $0, %rax\n"
+comparison load1 load2 =
+        loadValues load1 load2
+        ++ "cmpq %rax, " ++ scratch ++ "\n"
+        ++ "movq $0, %rax\n"
 
 
 testResult :: String
