@@ -70,8 +70,6 @@ restoreBasePointer :: String
 restoreBasePointer = move "%rbp" "%rsp" ++ pop "%rbp"
 
 
-
-
 -- Local variables
 
 loadValue :: Int -> String
