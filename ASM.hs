@@ -24,12 +24,12 @@ functionName f =
         ++ f
         ++ ":\n"
         ++ saveBasePointer
-        ++ saveScratchResisters
+        ++ saveResisters allScratch
 
 
 returnStatement :: String
 returnStatement =
-        restoreScratchRegisters
+        restoreRegisters allScratch
         ++ restoreBasePointer
         ++ ret
 
@@ -42,12 +42,12 @@ restoreBasePointer :: String
 restoreBasePointer = move "%rbp" "%rsp" ++ pop "%rbp"
 
 
-saveScratchResisters :: String
-saveScratchResisters = concat . map push $ allScratch
+saveResisters :: [String] -> String
+saveResisters regs = concat . map push $ regs
 
 
-restoreScratchRegisters :: String
-restoreScratchRegisters = concat . map pop . reverse $ allScratch
+restoreRegisters :: [String] -> String
+restoreRegisters regs = concat . map pop . reverse $ regs
 
 
 -- Local variables
