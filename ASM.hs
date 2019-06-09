@@ -59,7 +59,7 @@ returnStatement :: String
 returnStatement =
         restoreRegisters allScratch
         ++ restoreBasePointer
-        ++ ret
+        ++ "ret\n"
 
 
 saveBasePointer :: String
@@ -329,8 +329,6 @@ sub a b = "subq " ++ a ++ ", " ++ b ++ "\n"
 
 idivq :: String -> String
 idivq target = "idivq " ++ target ++ "\n"
-
-ret = "ret\n"
 
 push :: String -> String
 push s = "pushq " ++ s ++ "\n"
