@@ -82,9 +82,9 @@ unary o
 
 binary :: String -> String -> Operator -> String
 binary val1 val2 o
-   | o == Plus               = loadValues val1 val2 ++ compute add
-   | o == Multiply           = loadValues val1 val2 ++ compute mul
-   | o == Minus              = loadValues val2 val1 ++ compute sub
+   | o == Plus               = compute add val1 val2
+   | o == Minus              = compute sub val2 val1
+   | o == Multiply           = computeMul val1 val2
    | o == Divide             = computeDiv val1 val2
    | o == Modulo             = computeMod val1 val2
    | o == Equal              = comparison val1 val2 ++ "sete %al\n"
@@ -134,8 +134,14 @@ computeDiv load1 load2 = loadValues load2 load1
                          ++ "cqto\n"
                          ++ "idivq " ++ scratch ++ "\n"
 
-compute :: String -> String
-compute op = op ++ scratch ++ ", " ++ result ++ "\n"
+
+computeMul :: String -> String -> String
+computeMul load1 load2 = compute mul load1 load2
+
+
+compute :: String -> String -> String -> String
+compute op load1 load2 = loadValues load1 load2
+                         ++ op ++ scratch ++ ", " ++ result ++ "\n"
 
 
 loadValues :: String -> String -> String
