@@ -88,7 +88,7 @@ varOffStack offset = move (show offset ++ "(%rbp)") "%rax"
 
 adjustStackPointer :: Int -> String
 adjustStackPointer offset =
-        "movq %rbp, %rsp\n"
+        move "%rbp" "%rsp"
         ++ "subq $" ++ show offset ++ ", %rsp\n"
 
 
