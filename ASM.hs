@@ -20,10 +20,10 @@ mul = "imul "
 div = "idivq "
 
 push :: String -> String
-push reg = "pushq " ++ reg ++ "\n"
+push s = "pushq " ++ s ++ "\n"
 
 pop :: String -> String
-pop reg = "popq " ++ reg ++ "\n"
+pop s = "popq " ++ s ++ "\n"
 
 
 -- Functions
