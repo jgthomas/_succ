@@ -9,7 +9,7 @@ import ASM_Tokens (Jump(..))
 -- Registers
 
 result  = "%rax"
-scratch = "%rcx"
+scratch = "%r12"
 
 
 -- Instructions
@@ -86,17 +86,13 @@ binary val1 val2 o
    | o == Multiply           = loadValues val1 val2 ++ compute mul
    | o == Minus              = loadValues val2 val1 ++ compute sub
    | o == Divide             = loadValues val2 val1 ++ "cqto\n" ++ "idivq " ++ scratch ++ "\n"
-   | o == Modulo             = loadValues val2 val1 ++ moduloValues
+   | o == Modulo             = calcMod val1 val2
    | o == Equal              = comparison val1 val2 ++ "sete %al\n"
    | o == NotEqual           = comparison val1 val2 ++ "setne %al\n"
    | o == GreaterThan        = comparison val1 val2 ++ "setg %al\n"
    | o == LessThan           = comparison val1 val2 ++ "setl %al\n"
    | o == GreaterThanOrEqual = comparison val1 val2 ++ "setge %al\n"
    | o == LessThanOrEqual    = comparison val1 val2 ++ "setle %al\n"
-
-
-compute :: String -> String
-compute op = op ++ scratch ++ ", " ++ result ++ "\n"
 
 
 logicalOR :: String -> String -> Int -> Int -> String
@@ -126,6 +122,17 @@ logicalAND val1 val2 nextLabel endLabel = val1
                        ++ emitLabel endLabel
 
 
+calcMod :: String -> String -> String
+calcMod load1 load2 = loadValues load2 load1
+                      ++ "cqto\n"
+                      ++ "idivq " ++ scratch ++ "\n"
+                      ++ "movq %rdx, %rax\n"
+
+
+compute :: String -> String
+compute op = op ++ scratch ++ ", " ++ result ++ "\n"
+
+
 loadValues :: String -> String -> String
 loadValues load1 load2 = load1
                          ++ push result
@@ -137,12 +144,6 @@ comparison :: String -> String -> String
 comparison load1 load2 = loadValues load1 load2
                          ++ "cmpq %rax, " ++ scratch ++ "\n"
                          ++ "movq $0, %rax\n"
-
-
-moduloValues :: String
-moduloValues = "cqto\n"
-            ++ "idivq " ++ scratch ++ "\n"
-            ++ "movq %rdx, %rax\n"
 
 
 testResult :: String
