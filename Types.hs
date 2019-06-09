@@ -30,3 +30,23 @@ data FuncState = Fs { paramCount   :: Int
                     , parameters   :: M.Map String Int
                     , scopes       :: M.Map Int (M.Map String Int) }
                deriving (Show)
+
+
+data Type = IntVar
+          | IntPointer
+          deriving (Show, Eq)
+
+
+data LocalVar = LocVar { locOffset :: Int
+                       , locType   :: Type }
+              deriving (Show)
+
+
+data GlobalVar = GloVar { globLabel :: String
+                        , globType  :: Type }
+               deriving (Show)
+
+
+data ParamVar = ParVar { paramNum  :: Int
+                       , paramType :: Type }
+              deriving (Show)
