@@ -285,8 +285,7 @@ storeGlobal label = move "%rax" (label ++ "(%rip)")
 -- Pointers
 
 varAddressLoad :: Int -> String
-varAddressLoad offset =
-        "leaq " ++ show offset ++ "(%rbp), %rax\n"
+varAddressLoad offset = loadAdd (show offset ++ "(%rbp)") "%rax"
 
 
 varAddressStore :: Int -> String
@@ -320,12 +319,15 @@ div = "idivq "
 
 ret = "ret\n"
 
-move :: String -> String -> String
-move s d = "movq " ++ s ++ ", " ++ d ++ "\n"
-
 push :: String -> String
 push s = "pushq " ++ s ++ "\n"
 
 pop :: String -> String
 pop s = "popq " ++ s ++ "\n"
+
+move :: String -> String -> String
+move s d = "movq " ++ s ++ ", " ++ d ++ "\n"
+
+loadAdd :: String -> String -> String
+loadAdd s d = "leaq " ++ s ++ ", " ++ d ++ "\n"
 
