@@ -15,7 +15,10 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 import Evaluator            (Evaluator(Ev))
-import Types                (SymTab(globalScope), GlobalScope(..))
+import Types                (SymTab(globalScope),
+                             GlobalScope(..),
+                             GlobalVar(..),
+                             Type(..))
 import qualified FrameStack (currentFunction)
 
 
@@ -32,7 +35,11 @@ decSeqNumber name = lookUp name funcDecSeq
 
 
 globalLabel :: String -> Evaluator (Maybe String)
-globalLabel name = lookUp name declaredVars
+globalLabel name = do
+        globVar <- M.lookup name . declaredVars <$> getGlobalScope
+        case globVar of
+             Just gv -> return $ (Just $ globLabel gv)
+             Nothing -> return $ Nothing
 
 
 currentSeqNumber :: Evaluator (Maybe Int)
@@ -56,7 +63,8 @@ declareFunction funcName paramCount = do
 declareGlobal :: String -> String -> Evaluator ()
 declareGlobal name label = do
         gscope <- getGlobalScope
-        updateGlobalScope $ addGlobal name label gscope
+        let globVar = newGlobalVar label IntVar
+        updateGlobalScope $ addGlobal name globVar gscope
 
 
 defineGlobal :: String -> Evaluator ()
@@ -71,7 +79,11 @@ getUndefined = do
         let definedSet  = definedVars gscope
             declaredSet = M.keysSet $ declaredVars gscope
             undefined   = S.difference declaredSet definedSet
-        M.elems . M.filterWithKey (\k _ -> k `elem` undefined) . declaredVars <$> getGlobalScope
+        map globLabel
+            . M.elems
+            . M.filterWithKey (\k _ -> k `elem` undefined)
+            . declaredVars
+            <$> getGlobalScope
 
 
 {- Internal -}
@@ -90,8 +102,12 @@ lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> Evaluator (Maybe a)
 lookUp n f = M.lookup n . f <$> getGlobalScope
 
 
-addGlobal :: String -> String -> GlobalScope -> GlobalScope
-addGlobal n l s = s { declaredVars = M.insert n l $ declaredVars s }
+newGlobalVar :: String -> Type -> GlobalVar
+newGlobalVar label typ = GloVar label typ
+
+
+addGlobal :: String -> GlobalVar -> GlobalScope -> GlobalScope
+addGlobal n g s = s { declaredVars = M.insert n g $ declaredVars s }
 
 
 addParams :: String -> Int -> GlobalScope -> GlobalScope
