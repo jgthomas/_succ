@@ -38,7 +38,7 @@ globalLabel :: String -> Evaluator (Maybe String)
 globalLabel name = do
         globVar <- M.lookup name . declaredVars <$> getGlobalScope
         case globVar of
-             Just gv -> return $ (Just $ globLabel gv)
+             Just gv -> return $ Just . globLabel $ gv
              Nothing -> return $ Nothing
 
 
