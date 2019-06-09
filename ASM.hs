@@ -156,7 +156,7 @@ computeMod load1 load2 =
         push "%rdx"
         ++ loadValues load2 load1
         ++ "cqto\n"
-        ++ "idivq " ++ scratch ++ "\n"
+        ++ idivq scratch
         ++ move "%rdx" "%rax"
         ++ pop "%rdx"
 
@@ -166,7 +166,7 @@ computeDiv load1 load2 =
         push "%rdx"
         ++ loadValues load2 load1
         ++ "cqto\n"
-        ++ "idivq " ++ scratch ++ "\n"
+        ++ idivq scratch
         ++ pop "%rdx"
 
 
@@ -327,7 +327,9 @@ imul :: String -> String -> String
 imul a b = "imul " ++ a ++ ", " ++ b ++ "\n"
 
 sub = "subq "
-div = "idivq "
+
+idivq :: String -> String
+idivq target = "idivq " ++ target ++ "\n"
 
 ret = "ret\n"
 
