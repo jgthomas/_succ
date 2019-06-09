@@ -35,11 +35,7 @@ decSeqNumber name = lookUp name funcDecSeq
 
 
 globalLabel :: String -> Evaluator (Maybe String)
-globalLabel name = do
-        globVar <- M.lookup name . declaredVars <$> getGlobalScope
-        case globVar of
-             Just gv -> return $ Just . globLabel $ gv
-             Nothing -> return $ Nothing
+globalLabel name = extractLabel . M.lookup name . declaredVars <$> getGlobalScope
 
 
 currentSeqNumber :: Evaluator (Maybe Int)
@@ -104,6 +100,11 @@ lookUp n f = M.lookup n . f <$> getGlobalScope
 
 newGlobalVar :: String -> Type -> GlobalVar
 newGlobalVar label typ = GloVar label typ
+
+
+extractLabel :: Maybe GlobalVar -> Maybe String
+extractLabel (Just gv) = Just . globLabel $ gv
+extractLabel Nothing   = Nothing
 
 
 addGlobal :: String -> GlobalVar -> GlobalScope -> GlobalScope
