@@ -103,7 +103,7 @@ unary o
 
 binary :: String -> String -> Operator -> String
 binary val1 val2 o
-   | o == Plus               = compute add val1 val2
+   | o == Plus               = computeAdd val1 val2
    | o == Minus              = compute sub val2 val1
    | o == Multiply           = computeMul val1 val2
    | o == Divide             = computeDiv val1 val2
@@ -143,6 +143,12 @@ logicalAND load1 load2 nextLabel endLabel =
         ++ move "$0" "%rax"
         ++ "setne %al\n"
         ++ emitLabel endLabel
+
+
+computeAdd :: String -> String -> String
+computeAdd load1 load2 =
+        loadValues load1 load2
+        ++ add scratch result
 
 
 computeMod :: String -> String -> String
@@ -312,7 +318,9 @@ noOutput = ""
 
 -- Instructions
 
-add = "addq "
+add :: String -> String -> String
+add a b = "addq " ++ a ++ ", " ++ b ++ "\n"
+
 sub = "subq "
 mul = "imul "
 div = "idivq "
