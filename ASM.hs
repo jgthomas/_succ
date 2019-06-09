@@ -96,30 +96,32 @@ binary val1 val2 o
 
 
 logicalOR :: String -> String -> Int -> Int -> String
-logicalOR val1 val2 nextLabel endLabel = val1
-                       ++ "cmpq $0, %rax\n"
-                       ++ emitJump JE nextLabel
-                       ++ "movq $1, %rax\n"
-                       ++ emitJump JMP endLabel
-                       ++ emitLabel nextLabel
-                       ++ val2
-                       ++ "cmpq $0, %rax\n"
-                       ++ "movq $0, %rax\n"
-                       ++ "setne %al\n"
-                       ++ emitLabel endLabel
+logicalOR load1 load2 nextLabel endLabel =
+        load1
+        ++ testResult
+        ++ emitJump JE nextLabel
+        ++ "movq $1, %rax\n"
+        ++ emitJump JMP endLabel
+        ++ emitLabel nextLabel
+        ++ load2
+        ++ testResult
+        ++ "movq $0, %rax\n"
+        ++ "setne %al\n"
+        ++ emitLabel endLabel
 
 
 logicalAND :: String -> String -> Int -> Int -> String
-logicalAND val1 val2 nextLabel endLabel = val1
-                       ++ "cmpq $0, %rax\n"
-                       ++ emitJump JNE nextLabel
-                       ++ emitJump JMP endLabel
-                       ++ emitLabel nextLabel
-                       ++ val2
-                       ++ "cmpq $0, %rax\n"
-                       ++ "movq $0, %rax\n"
-                       ++ "setne %al\n"
-                       ++ emitLabel endLabel
+logicalAND load1 load2 nextLabel endLabel =
+        load1
+        ++ testResult
+        ++ emitJump JNE nextLabel
+        ++ emitJump JMP endLabel
+        ++ emitLabel nextLabel
+        ++ load2
+        ++ testResult
+        ++ "movq $0, %rax\n"
+        ++ "setne %al\n"
+        ++ emitLabel endLabel
 
 
 computeMod :: String -> String -> String
