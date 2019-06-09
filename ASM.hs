@@ -23,6 +23,9 @@ div = "idivq "
 
 ret = "ret\n"
 
+move :: String -> String -> String
+move s d = "movq " ++ s ++ ", " ++ d ++ "\n"
+
 push :: String -> String
 push s = "pushq " ++ s ++ "\n"
 
@@ -51,15 +54,11 @@ returnStatement =
 
 
 saveBasePointer :: String
-saveBasePointer =
-        "pushq %rbp\n"
-        ++ "movq %rsp, %rbp\n"
+saveBasePointer = push "%rbp" ++ move "%rsp" "%rbp"
 
 
 restoreBasePointer :: String
-restoreBasePointer =
-        "movq %rbp, %rsp\n"
-        ++ "popq %rbp\n"
+restoreBasePointer = move "%rbp" "%rsp" ++ pop "%rbp"
 
 
 saveScratchResisters :: String
