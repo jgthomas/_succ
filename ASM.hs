@@ -125,16 +125,22 @@ logicalAND load1 load2 nextLabel endLabel =
 
 
 computeMod :: String -> String -> String
-computeMod load1 load2 = loadValues load2 load1
-                      ++ "cqto\n"
-                      ++ "idivq " ++ scratch ++ "\n"
-                      ++ "movq %rdx, %rax\n"
+computeMod load1 load2 =
+        push "%rdx"
+        ++ loadValues load2 load1
+        ++ "cqto\n"
+        ++ "idivq " ++ scratch ++ "\n"
+        ++ "movq %rdx, %rax\n"
+        ++ pop "%rdx"
 
 
 computeDiv :: String -> String -> String
-computeDiv load1 load2 = loadValues load2 load1
-                         ++ "cqto\n"
-                         ++ "idivq " ++ scratch ++ "\n"
+computeDiv load1 load2 =
+        push "%rdx"
+        ++ loadValues load2 load1
+        ++ "cqto\n"
+        ++ "idivq " ++ scratch ++ "\n"
+        ++ pop "%rdx"
 
 
 computeMul :: String -> String -> String
