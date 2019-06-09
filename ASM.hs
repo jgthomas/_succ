@@ -85,8 +85,8 @@ binary val1 val2 o
    | o == Plus               = loadValues val1 val2 ++ compute add
    | o == Multiply           = loadValues val1 val2 ++ compute mul
    | o == Minus              = loadValues val2 val1 ++ compute sub
-   | o == Divide             = loadValues val2 val1 ++ "cqto\n" ++ "idivq " ++ scratch ++ "\n"
-   | o == Modulo             = calcMod val1 val2
+   | o == Divide             = computeDiv val1 val2
+   | o == Modulo             = computeMod val1 val2
    | o == Equal              = comparison val1 val2 ++ "sete %al\n"
    | o == NotEqual           = comparison val1 val2 ++ "setne %al\n"
    | o == GreaterThan        = comparison val1 val2 ++ "setg %al\n"
@@ -122,12 +122,17 @@ logicalAND val1 val2 nextLabel endLabel = val1
                        ++ emitLabel endLabel
 
 
-calcMod :: String -> String -> String
-calcMod load1 load2 = loadValues load2 load1
+computeMod :: String -> String -> String
+computeMod load1 load2 = loadValues load2 load1
                       ++ "cqto\n"
                       ++ "idivq " ++ scratch ++ "\n"
                       ++ "movq %rdx, %rax\n"
 
+
+computeDiv :: String -> String -> String
+computeDiv load1 load2 = loadValues load2 load1
+                         ++ "cqto\n"
+                         ++ "idivq " ++ scratch ++ "\n"
 
 compute :: String -> String
 compute op = op ++ scratch ++ ", " ++ result ++ "\n"
