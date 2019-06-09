@@ -26,6 +26,7 @@ data GlobalScope = Gscope { seqNum       :: Int
 
 
 data FuncState = Fs { paramCount   :: Int
+                    , funcOffset   :: Int
                     , currentScope :: Int
                     , parameters   :: M.Map String Int
                     , scopes       :: M.Map Int (M.Map String Int) }

@@ -196,7 +196,7 @@ newFuncState name = Ev $ \symTab ->
 
 
 makeFs :: FuncState
-makeFs = Fs 0 0 M.empty (M.singleton 0 M.empty)
+makeFs = Fs 0 memOffsetSize 0 M.empty (M.singleton 0 M.empty)
 
 
 addNestedScope :: String -> Int -> Evaluator ()
