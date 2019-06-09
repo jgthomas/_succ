@@ -1,5 +1,32 @@
 
-module ASM where
+module ASM (functionName,
+            returnStatement,
+            loadValue,
+            varOnStack,
+            varOffStack,
+            adjustStackPointer,
+            unary,
+            binary,
+            logicalOR,
+            logicalAND,
+            testResult,
+            emitJump,
+            emitLabel,
+            makeFunctionCall,
+            putInRegister,
+            getFromRegister,
+            selectRegister,
+            saveCallerRegisters,
+            restoreCallerRegisters,
+            initializedGlobal,
+            uninitializedGlobal,
+            loadGlobal,
+            storeGlobal,
+            varAddressLoad,
+            varAddressStore,
+            dereferenceLoad,
+            dereferenceStore,
+            noOutput) where
 
 
 import Tokens     (Operator(..))
