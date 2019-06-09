@@ -185,12 +185,12 @@ loadValues load1 load2 =
 comparison :: String -> String -> String
 comparison load1 load2 =
         loadValues load1 load2
-        ++ "cmpq %rax, " ++ scratch ++ "\n"
+        ++ comp "%rax" scratch
         ++ move "$0" "%rax"
 
 
 testResult :: String
-testResult = "cmpq $0, %rax\n"
+testResult = comp "$0" "%rax"
 
 
 -- Jumps and labels
@@ -333,4 +333,7 @@ move s d = "movq " ++ s ++ ", " ++ d ++ "\n"
 
 loadAdd :: String -> String -> String
 loadAdd s d = "leaq " ++ s ++ ", " ++ d ++ "\n"
+
+comp :: String -> String -> String
+comp a b = "cmpq " ++ a ++ ", " ++ b ++ "\n"
 
