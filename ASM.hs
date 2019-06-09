@@ -72,15 +72,15 @@ restoreScratchRegisters = concat . map pop . reverse $ allScratch
 -- Local variables
 
 loadValue :: Int -> String
-loadValue n = "movq $" ++ show n ++ ", %rax\n"
+loadValue n = move ("$" ++ show n) "%rax"
 
 
 varOnStack :: Int -> String
-varOnStack n = "movq %rax, " ++ show n ++ "(%rbp)\n"
+varOnStack offset = move "%rax" (show offset ++ "(%rbp)")
 
 
 varOffStack :: Int -> String
-varOffStack n = "movq " ++ show n ++ "(%rbp), %rax\n"
+varOffStack offset = move (show offset ++ "(%rbp)") "%rax"
 
 
 adjustStackPointer :: Int -> String
@@ -118,12 +118,12 @@ logicalOR load1 load2 nextLabel endLabel =
         load1
         ++ testResult
         ++ emitJump JE nextLabel
-        ++ "movq $1, %rax\n"
+        ++ move "$1" "%rax"
         ++ emitJump JMP endLabel
         ++ emitLabel nextLabel
         ++ load2
         ++ testResult
-        ++ "movq $0, %rax\n"
+        ++ move "$0" "%rax"
         ++ "setne %al\n"
         ++ emitLabel endLabel
 
@@ -137,7 +137,7 @@ logicalAND load1 load2 nextLabel endLabel =
         ++ emitLabel nextLabel
         ++ load2
         ++ testResult
-        ++ "movq $0, %rax\n"
+        ++ move "$0" "%rax"
         ++ "setne %al\n"
         ++ emitLabel endLabel
 
@@ -148,7 +148,7 @@ computeMod load1 load2 =
         ++ loadValues load2 load1
         ++ "cqto\n"
         ++ "idivq " ++ scratch ++ "\n"
-        ++ "movq %rdx, %rax\n"
+        ++ move "%rdx" "%rax"
         ++ pop "%rdx"
 
 
@@ -183,7 +183,7 @@ comparison :: String -> String -> String
 comparison load1 load2 =
         loadValues load1 load2
         ++ "cmpq %rax, " ++ scratch ++ "\n"
-        ++ "movq $0, %rax\n"
+        ++ move "$0" "%rax"
 
 
 testResult :: String
@@ -211,11 +211,11 @@ makeFunctionCall funcName = "call " ++ funcName ++ "\n"
 
 
 putInRegister :: String -> String
-putInRegister reg = "movq %rax, " ++ reg ++ "\n"
+putInRegister reg = move "%rax" reg
 
 
 getFromRegister :: String -> String
-getFromRegister reg = "movq " ++ reg ++ ", %rax\n"
+getFromRegister reg = move reg "%rax"
 
 
 selectRegister :: Int -> String
@@ -276,13 +276,11 @@ uninitializedGlobal label =
 - from that relative location as well
 -}
 loadGlobal :: String -> String
-loadGlobal label =
-        "movq " ++ label ++ "(%rip), %rax\n"
+loadGlobal label = move (label ++ "(%rip)") "%rax"
 
 
 storeGlobal :: String -> String
-storeGlobal label =
-        "movq %rax, " ++ label ++ "(%rip)\n"
+storeGlobal label = move "%rax" (label ++ "(%rip)")
 
 
 -- Pointers
@@ -293,20 +291,19 @@ varAddressLoad offset =
 
 
 varAddressStore :: Int -> String
-varAddressStore offset =
-        "movq %rax, " ++ show offset ++ "(%rbp)\n"
+varAddressStore offset = move "%rax" (show offset ++ "(%rbp)")
 
 
 dereferenceLoad :: Int -> String
 dereferenceLoad offset =
-        "movq " ++ show offset ++ "(%rbp), " ++ scratch ++ "\n"
-        ++ "movq (" ++ scratch ++ "), %rax\n"
+        move (show offset ++ "(%rbp)") scratch
+        ++ move ("(" ++ scratch ++ ")") "%rax"
 
 
 dereferenceStore :: Int -> String
 dereferenceStore offset =
-        "movq " ++ show offset ++ "(%rbp), " ++ scratch ++ "\n"
-        ++ "movq %rax, (" ++ scratch ++ ")\n"
+        move (show offset ++ "(%rbp)") scratch
+        ++ move "%rax" ("(" ++ scratch ++ ")")
 
 
 -- General
