@@ -171,7 +171,9 @@ computeDiv load1 load2 =
 
 
 computeMul :: String -> String -> String
-computeMul load1 load2 = compute mul load1 load2
+computeMul load1 load2 =
+        loadValues load1 load2
+        ++ imul scratch result
 
 
 compute :: String -> String -> String -> String
@@ -321,8 +323,10 @@ noOutput = ""
 add :: String -> String -> String
 add a b = "addq " ++ a ++ ", " ++ b ++ "\n"
 
+imul :: String -> String -> String
+imul a b = "imul " ++ a ++ ", " ++ b ++ "\n"
+
 sub = "subq "
-mul = "imul "
 div = "idivq "
 
 ret = "ret\n"
