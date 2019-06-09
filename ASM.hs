@@ -12,6 +12,7 @@ result  = "%rax"
 scratch = "%r12"
 
 allScratch = [scratch]
+params = ["%rdi","%rsi","%rdx","%rcx","%r8","%r9"]
 
 
 -- Functions
@@ -42,12 +43,6 @@ restoreBasePointer :: String
 restoreBasePointer = move "%rbp" "%rsp" ++ pop "%rbp"
 
 
-saveResisters :: [String] -> String
-saveResisters regs = concat . map push $ regs
-
-
-restoreRegisters :: [String] -> String
-restoreRegisters regs = concat . map pop . reverse $ regs
 
 
 -- Local variables
@@ -209,24 +204,20 @@ selectRegister callConvSeq
         | callConvSeq == 5 = "%r9"
 
 
+saveResisters :: [String] -> String
+saveResisters regs = concat . map push $ regs
+
+
+restoreRegisters :: [String] -> String
+restoreRegisters regs = concat . map pop . reverse $ regs
+
+
 saveCallerRegisters :: String
-saveCallerRegisters =
-        "pushq %rdi\n"
-        ++ "pushq %rsi\n"
-        ++ "pushq %rdx\n"
-        ++ "pushq %rcx\n"
-        ++ "pushq %r8\n"
-        ++ "pushq %r9\n"
+saveCallerRegisters = saveResisters params
 
 
 restoreCallerRegisters :: String
-restoreCallerRegisters =
-        "popq %r9\n"
-        ++ "popq %r8\n"
-        ++ "popq %rcx\n"
-        ++ "popq %rdx\n"
-        ++ "popq %rsi\n"
-        ++ "popq %rdi\n"
+restoreCallerRegisters = restoreRegisters params
 
 
 -- Global variables
