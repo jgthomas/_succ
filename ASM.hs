@@ -210,7 +210,7 @@ emitLabel n = "_label_" ++ show n ++ ":\n"
 -- Function calls and registers
 
 makeFunctionCall :: String -> String
-makeFunctionCall funcName = "call " ++ funcName ++ "\n"
+makeFunctionCall funcName = call funcName
 
 
 putInRegister :: String -> String
@@ -324,6 +324,9 @@ push s = "pushq " ++ s ++ "\n"
 
 pop :: String -> String
 pop s = "popq " ++ s ++ "\n"
+
+call :: String -> String
+call f = "call " ++ f ++ "\n"
 
 move :: String -> String -> String
 move s d = "movq " ++ s ++ ", " ++ d ++ "\n"
