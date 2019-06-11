@@ -6,7 +6,7 @@ Compiling a laughably small subset of C to unoptimised assembly since 2019
 
 ## what it does
 
-C goes in, X86_64 assembly code comes out
+C goes in, x86-64 assembly code comes out
 
 ## acknowledgements 
 
