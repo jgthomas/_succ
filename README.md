@@ -72,4 +72,4 @@ C goes in, x86-64 assembly code comes out
 ## in progress
 
 * Remaning operators
-* Pointers?
+* Pointers
