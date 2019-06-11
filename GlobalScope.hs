@@ -35,7 +35,7 @@ decSeqNumber name = lookUp name funcDecSeq
 
 
 globalLabel :: String -> Evaluator (Maybe String)
-globalLabel name = extractLabel . M.lookup name . declaredVars <$> getGlobalScope
+globalLabel name = extract globLabel . M.lookup name . declaredVars <$> getGlobalScope
 
 
 currentSeqNumber :: Evaluator (Maybe Int)
@@ -102,9 +102,9 @@ newGlobalVar :: String -> Type -> GlobalVar
 newGlobalVar label typ = GloVar label typ
 
 
-extractLabel :: Maybe GlobalVar -> Maybe String
-extractLabel (Just gv) = Just . globLabel $ gv
-extractLabel Nothing   = Nothing
+extract :: (GlobalVar -> a) -> Maybe GlobalVar -> Maybe a
+extract f (Just gv) = Just . f $ gv
+extract f Nothing   = Nothing
 
 
 addGlobal :: String -> GlobalVar -> GlobalScope -> GlobalScope
