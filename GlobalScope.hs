@@ -38,6 +38,10 @@ globalLabel :: String -> Evaluator (Maybe String)
 globalLabel name = extract globLabel . M.lookup name . declaredVars <$> getGlobalScope
 
 
+globalType :: String -> Evaluator (Maybe Type)
+globalType name = extract globType . M.lookup name . declaredVars <$> getGlobalScope
+
+
 currentSeqNumber :: Evaluator (Maybe Int)
 currentSeqNumber = do
         currFunc <- FrameStack.currentFunction
