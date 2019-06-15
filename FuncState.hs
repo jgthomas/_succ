@@ -20,7 +20,7 @@ import Data.Maybe            (fromMaybe)
 import qualified Data.Map as M
 
 import Evaluator            (Evaluator(Ev))
-import Types                (SymTab(funcStates), FuncState(..))
+import Types                (SymTab(funcStates), FuncState(..), ParamVar(..), Type(..))
 import qualified FrameStack (currentFunction, popFunctionName, pushFunctionName)
 
 
@@ -96,14 +96,20 @@ addParameter :: String -> Evaluator ()
 addParameter paramName = do
         currFuncName <- FrameStack.currentFunction
         funcState    <- getFunctionState currFuncName
-        let funcState' = addParam paramName funcState
+        let funcState' = addParam paramName IntVar funcState
         setFunctionState currFuncName funcState'
 
 
 parameterPosition :: String -> Evaluator (Maybe Int)
 parameterPosition paramName = do
         currFuncName <- FrameStack.currentFunction
-        M.lookup paramName . parameters <$> getFunctionState currFuncName
+        extract paramNum . M.lookup paramName . parameters <$> getFunctionState currFuncName
+
+
+parameterType :: String -> Evaluator (Maybe Type)
+parameterType paramName = do
+        currFuncName <- FrameStack.currentFunction
+        extract paramType . M.lookup paramName . parameters <$> getFunctionState currFuncName
 
 
 parameterDeclared :: String -> Evaluator Bool
@@ -224,14 +230,6 @@ setFunctionState n st = Ev $ \symTab ->
         ((), symTab { funcStates = M.insert n st $ funcStates symTab })
 
 
-addParam :: String -> FuncState -> FuncState
-addParam n st =
-        let pos = paramCount st
-            st' = st { paramCount = succ pos }
-            in
-        st' { parameters = M.insert n pos $ parameters st' }
-
-
 -- offset
 
 currentOffset :: Evaluator Int
@@ -250,3 +248,24 @@ incrementOffset = do
 
 memOffsetSize :: Int
 memOffsetSize = -8
+
+
+-- parameters
+
+newParamVar :: Int -> Type -> ParamVar
+newParamVar n t = ParVar n t
+
+
+addParam :: String -> Type -> FuncState -> FuncState
+addParam n t st =
+        let pos = paramCount st
+            st' = st { paramCount = succ pos }
+            parVar = newParamVar pos t
+            in
+        st' { parameters = M.insert n parVar $ parameters st' }
+
+
+extract :: (ParamVar -> a) -> Maybe ParamVar -> Maybe a
+extract f (Just pv) = Just . f $ pv
+extract f Nothing   = Nothing
+
