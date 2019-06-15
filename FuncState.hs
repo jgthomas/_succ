@@ -76,7 +76,7 @@ checkVariable :: String -> Evaluator Bool
 checkVariable varName = do
         currFuncName <- FrameStack.currentFunction
         scopeLevel   <- findScope currFuncName
-        test         <- localOffset . getLocalVar currFuncName scopeLevel $ varName
+        test         <- extract locOffset <$> getLocalVar currFuncName scopeLevel varName
         case test of
              Just off -> return True
              Nothing  -> return False
@@ -132,14 +132,14 @@ getOffset :: String -> Evaluator (Maybe Int)
 getOffset varName = do
         currFuncName <- FrameStack.currentFunction
         scopeLevel   <- findScope currFuncName
-        localOffset . find currFuncName scopeLevel $ varName
+        extract locOffset <$> find currFuncName scopeLevel varName
 
 
 getType :: String -> Evaluator (Maybe Type)
 getType varName = do
         currFuncName <- FrameStack.currentFunction
         scopeLevel   <- findScope currFuncName
-        localType . find currFuncName scopeLevel $ varName
+        extract locType <$> find currFuncName scopeLevel varName
 
 
 find :: String -> Int -> String -> Evaluator (Maybe LocalVar)
@@ -167,14 +167,6 @@ store name value typ = do
 
 newLocalVar :: Int -> Type -> LocalVar
 newLocalVar n t = LocVar n t
-
-
-localOffset :: Evaluator (Maybe LocalVar) -> Evaluator (Maybe Int)
-localOffset var = extract locOffset <$> var
-
-
-localType :: Evaluator (Maybe LocalVar) -> Evaluator (Maybe Type)
-localType var = extract locType <$> var
 
 
 getLocalVar :: String -> Int -> String -> Evaluator (Maybe LocalVar)
