@@ -265,7 +265,7 @@ addParam n t st =
         st' { parameters = M.insert n parVar $ parameters st' }
 
 
-extract :: (ParamVar -> a) -> Maybe ParamVar -> Maybe a
+extract :: (b -> a) -> Maybe b -> Maybe a
 extract f (Just pv) = Just . f $ pv
 extract f Nothing   = Nothing
 
