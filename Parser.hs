@@ -3,6 +3,7 @@ module Parser (parse) where
 
 
 import AST    (Tree(..))
+import Types  (Type(..))
 import Tokens (Operator(..), Keyword(..), Token(..))
 
 
