@@ -136,10 +136,10 @@ getOffset varName = do
 
 
 getType :: String -> Evaluator (Maybe Type)
-getType name = do
+getType varName = do
         currFuncName <- FrameStack.currentFunction
         scopeLevel   <- findScope currFuncName
-        extract locType <$> find currFuncName scopeLevel name
+        localType . find currFuncName scopeLevel $ varName
 
 
 find :: String -> Int -> String -> Evaluator (Maybe LocalVar)
@@ -171,6 +171,10 @@ newLocalVar n t = LocVar n t
 
 localOffset :: Evaluator (Maybe LocalVar) -> Evaluator (Maybe Int)
 localOffset var = extract locOffset <$> var
+
+
+localType :: Evaluator (Maybe LocalVar) -> Evaluator (Maybe Type)
+localType var = extract locType <$> var
 
 
 getLocalVar :: String -> Int -> String -> Evaluator (Maybe LocalVar)
