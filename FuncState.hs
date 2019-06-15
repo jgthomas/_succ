@@ -132,18 +132,25 @@ getOffset :: String -> Evaluator (Maybe Int)
 getOffset name = do
         currFuncName <- FrameStack.currentFunction
         scopeLevel   <- findScope currFuncName
-        find currFuncName scopeLevel name
+        extract locOffset <$> find currFuncName scopeLevel name
 
 
-find :: String -> Int -> String -> Evaluator (Maybe Int)
+getType :: String -> Evaluator (Maybe Type)
+getType name = do
+        currFuncName <- FrameStack.currentFunction
+        scopeLevel   <- findScope currFuncName
+        extract locType <$> find currFuncName scopeLevel name
+
+
+find :: String -> Int -> String -> Evaluator (Maybe LocalVar)
 find funcName scope name =
         if scope == scopeLimit
            then return Nothing
            else do
-                   offset <- localOffset funcName scope name
-                   case offset of
+                   locVar <- getLocalVar funcName scope name
+                   case locVar of
                         Nothing  -> find funcName (pred scope) name
-                        Just off -> return (Just off)
+                        Just lv  -> return (Just lv)
 
 
 store :: String -> Int -> Type -> Evaluator ()
@@ -162,14 +169,13 @@ newLocalVar :: Int -> Type -> LocalVar
 newLocalVar n t = LocVar n t
 
 
+getLocalVar :: String -> Int -> String -> Evaluator (Maybe LocalVar)
+getLocalVar funcName lev var =
+        M.lookup var . getScope lev <$> getFunctionState funcName
+
+
 localOffset :: String -> Int -> String -> Evaluator (Maybe Int)
-localOffset funcName lev var =
-        extract locOffset . M.lookup var . getScope lev <$> getFunctionState funcName
-
-
-localType :: String -> Int -> String -> Evaluator (Maybe Type)
-localType funcName lev var =
-        extract locType . M.lookup var . getScope lev <$> getFunctionState funcName
+localOffset funcName lev var = extract locOffset <$> getLocalVar funcName lev var
 
 
 getScope :: Int -> FuncState -> M.Map String LocalVar
