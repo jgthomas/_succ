@@ -157,6 +157,10 @@ store name value = do
         setFunctionState currFuncName funcState'
 
 
+newLocalVar :: Int -> Type -> LocalVar
+newLocalVar n t = LocVar n t
+
+
 localOffset:: String -> Int -> String -> Evaluator (Maybe Int)
 localOffset func level var = M.lookup var . getScope level <$> getFunctionState func
 
