@@ -37,7 +37,7 @@ parseTopLevelItem :: [Token] -> (Tree, [Token])
 parseTopLevelItem allToks@(a:b:c:toks) =
         case c of
              TokOpenParen -> parseFunction . accept $ allToks
-             _            -> parseDeclaration . accept $ allToks
+             _            -> parseDeclaration allToks
 
 
 parseFunction :: [Token] -> (Tree, [Token])
@@ -99,7 +99,7 @@ parseBlock stmts toks =
 parseBlockItem :: [Token] -> (Tree, [Token])
 parseBlockItem toks =
         case lookAhead toks of
-             (TokKeyword kwd) | validType kwd -> parseDeclaration . accept $ toks
+             (TokKeyword kwd) | validType kwd -> parseDeclaration toks
              _                                -> parseStatement toks
 
 
@@ -278,11 +278,11 @@ parseNullStatement toks = (NullExprNode, toks)
 
 
 parseDeclaration :: [Token] -> (Tree, [Token])
-parseDeclaration allToks@(id:toks) =
+parseDeclaration allToks@(typ:id:toks) =
         case id of
              (TokOp Multiply)   -> parsePointerDec toks
              (TokIdent varName) ->
-                     let (exprTree, toks') = parseOptAssign allToks
+                     let (exprTree, toks') = parseOptAssign . accept $ allToks
                          in
                      (DeclarationNode varName exprTree, toks')
              _ -> error $ "invalid identifier: " ++ show id
