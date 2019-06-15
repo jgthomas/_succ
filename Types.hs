@@ -34,6 +34,7 @@ data FuncState = Fs { paramCount   :: Int
 
 data Type = IntVar
           | IntPointer
+          | Label
           deriving (Show, Eq)
 
 
