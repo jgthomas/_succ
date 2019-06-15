@@ -129,10 +129,10 @@ parameterDeclared paramName = do
 -- store and lookup
 
 getOffset :: String -> Evaluator (Maybe Int)
-getOffset name = do
+getOffset varName = do
         currFuncName <- FrameStack.currentFunction
         scopeLevel   <- findScope currFuncName
-        extract locOffset <$> find currFuncName scopeLevel name
+        localOffset . find currFuncName scopeLevel $ varName
 
 
 getType :: String -> Evaluator (Maybe Type)
