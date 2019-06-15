@@ -76,7 +76,7 @@ checkVariable :: String -> Evaluator Bool
 checkVariable varName = do
         currFuncName <- FrameStack.currentFunction
         scopeLevel   <- findScope currFuncName
-        test         <- localOffset currFuncName scopeLevel varName
+        test         <- localOffset . getLocalVar currFuncName scopeLevel $ varName
         case test of
              Just off -> return True
              Nothing  -> return False
@@ -174,8 +174,8 @@ getLocalVar funcName lev var =
         M.lookup var . getScope lev <$> getFunctionState funcName
 
 
-localOffset :: String -> Int -> String -> Evaluator (Maybe Int)
-localOffset funcName lev var = extract locOffset <$> getLocalVar funcName lev var
+localOffset :: Evaluator (Maybe LocalVar) -> Evaluator (Maybe Int)
+localOffset var = extract locOffset <$> var
 
 
 getScope :: Int -> FuncState -> M.Map String LocalVar
