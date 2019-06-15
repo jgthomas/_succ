@@ -129,17 +129,18 @@ parameterDeclared paramName = do
 -- store and lookup
 
 getOffset :: String -> Evaluator (Maybe Int)
-getOffset varName = do
-        currFuncName <- FrameStack.currentFunction
-        scopeLevel   <- findScope currFuncName
-        extract locOffset <$> find currFuncName scopeLevel varName
+getOffset varName = getAttr varName locOffset
 
 
 getType :: String -> Evaluator (Maybe Type)
-getType varName = do
+getType varName = getAttr varName locType
+
+
+getAttr :: String -> (LocalVar -> a) -> Evaluator (Maybe a)
+getAttr varName f = do
         currFuncName <- FrameStack.currentFunction
         scopeLevel   <- findScope currFuncName
-        extract locType <$> find currFuncName scopeLevel varName
+        extract f <$> find currFuncName scopeLevel varName
 
 
 find :: String -> Int -> String -> Evaluator (Maybe LocalVar)
