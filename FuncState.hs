@@ -19,9 +19,15 @@ module FuncState (initScope,
 import Data.Maybe            (fromMaybe)
 import qualified Data.Map as M
 
-import Evaluator            (Evaluator(Ev))
-import Types                (SymTab(funcStates), FuncState(..), ParamVar(..), Type(..))
-import qualified FrameStack (currentFunction, popFunctionName, pushFunctionName)
+import Evaluator             (Evaluator(Ev))
+import Types                 (SymTab(funcStates),
+                              FuncState(..),
+                              LocalVar(..),
+                              ParamVar(..),
+                              Type(..))
+import qualified FrameStack  (currentFunction,
+                              popFunctionName,
+                              pushFunctionName)
 
 
 initFunction :: String -> Evaluator ()
