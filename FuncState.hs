@@ -132,17 +132,17 @@ getOffset :: String -> Evaluator (Maybe Int)
 getOffset name = do
         currFuncName <- FrameStack.currentFunction
         scopeLevel   <- findScope currFuncName
-        findOffset currFuncName scopeLevel name
+        find currFuncName scopeLevel name
 
 
-findOffset :: String -> Int -> String -> Evaluator (Maybe Int)
-findOffset funcName scope name =
+find :: String -> Int -> String -> Evaluator (Maybe Int)
+find funcName scope name =
         if scope == scopeLimit
            then return Nothing
            else do
                    offset <- localOffset funcName scope name
                    case offset of
-                        Nothing  -> findOffset funcName (pred scope) name
+                        Nothing  -> find funcName (pred scope) name
                         Just off -> return (Just off)
 
 
