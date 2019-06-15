@@ -169,13 +169,13 @@ newLocalVar :: Int -> Type -> LocalVar
 newLocalVar n t = LocVar n t
 
 
+localOffset :: Evaluator (Maybe LocalVar) -> Evaluator (Maybe Int)
+localOffset var = extract locOffset <$> var
+
+
 getLocalVar :: String -> Int -> String -> Evaluator (Maybe LocalVar)
 getLocalVar funcName lev var =
         M.lookup var . getScope lev <$> getFunctionState funcName
-
-
-localOffset :: Evaluator (Maybe LocalVar) -> Evaluator (Maybe Int)
-localOffset var = extract locOffset <$> var
 
 
 getScope :: Int -> FuncState -> M.Map String LocalVar
