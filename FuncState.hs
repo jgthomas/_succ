@@ -167,6 +167,11 @@ localOffset funcName lev var =
         extract locOffset . M.lookup var . getScope lev <$> getFunctionState funcName
 
 
+localType :: String -> Int -> String -> Evaluator (Maybe Type)
+localType funcName lev var =
+        extract locType . M.lookup var . getScope lev <$> getFunctionState funcName
+
+
 getScope :: Int -> FuncState -> M.Map String LocalVar
 getScope scope fs = fromMaybe
                     (error "scope not defined")
