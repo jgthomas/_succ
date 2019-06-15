@@ -65,11 +65,11 @@ getContinue = getOffset "@Continue"
 
 
 setBreak :: Int -> Evaluator ()
-setBreak labelNo = store "@Break" labelNo
+setBreak labelNo = store "@Break" labelNo Label
 
 
 setContinue :: Int -> Evaluator ()
-setContinue labelNo = store "@Continue" labelNo
+setContinue labelNo = store "@Continue" labelNo Label
 
 
 checkVariable :: String -> Evaluator Bool
@@ -89,7 +89,7 @@ variableOffset name = getOffset name
 addVariable :: String -> Evaluator Int
 addVariable varName = do
         currOff <- currentOffset
-        store varName currOff
+        store varName currOff IntVar
         incrementOffset
         return currOff
 
@@ -146,13 +146,14 @@ findOffset func scope name =
                         Just off -> return (Just off)
 
 
-store :: String -> Int -> Evaluator ()
-store name value = do
+store :: String -> Int -> Type -> Evaluator ()
+store name value typ = do
         currFuncName <- FrameStack.currentFunction
         funcState    <- getFunctionState currFuncName
         let level      = currentScope funcState
             scope      = getScope level funcState
-            scope'     = M.insert name value scope
+            locVar     = newLocalVar value typ
+            scope'     = M.insert name locVar scope
             funcState' = funcState { scopes = M.insert level scope' $ scopes funcState }
         setFunctionState currFuncName funcState'
 
@@ -162,15 +163,11 @@ newLocalVar n t = LocVar n t
 
 
 localOffset :: String -> Int -> String -> Evaluator (Maybe Int)
-localOffset func level var = M.lookup var . getScope level <$> getFunctionState func
+localOffset funcName lev var =
+        extract locOffset . M.lookup var . getScope lev <$> getFunctionState funcName
 
 
---localOffset :: String -> Int -> String -> Evaluator (Maybe Int)
---localOffset funcName lev var =
---        extract locOffset . M.lookup var . getScope lev <$> getFunctionState funcName
-
-
-getScope :: Int -> FuncState -> M.Map String Int
+getScope :: Int -> FuncState -> M.Map String LocalVar
 getScope scope fs = fromMaybe
                     (error "scope not defined")
                     (M.lookup scope $ scopes fs)

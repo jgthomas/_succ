@@ -28,7 +28,7 @@ data FuncState = Fs { paramCount   :: Int
                     , funcOffset   :: Int
                     , currentScope :: Int
                     , parameters   :: M.Map String ParamVar
-                    , scopes       :: M.Map Int (M.Map String Int) }
+                    , scopes       :: M.Map Int (M.Map String LocalVar) }
                deriving (Show)
 
 
