@@ -136,13 +136,13 @@ getOffset name = do
 
 
 findOffset :: String -> Int -> String -> Evaluator (Maybe Int)
-findOffset func scope name =
+findOffset funcName scope name =
         if scope == scopeLimit
            then return Nothing
            else do
-                   offset <- localOffset func scope name
+                   offset <- localOffset funcName scope name
                    case offset of
-                        Nothing  -> findOffset func (pred scope) name
+                        Nothing  -> findOffset funcName (pred scope) name
                         Just off -> return (Just off)
 
 
