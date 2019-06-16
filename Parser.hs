@@ -80,11 +80,14 @@ parseFunctionParams paramList (first:second:toks)
 
 parseParam :: [Token] -> (Tree, [Token])
 parseParam allToks@(ast:toks) =
-        let (paramTree, toks') = parseParamValue allToks--parseExpression toks
+        let (paramTree, toks') = parseParamValue allToks
             in
         case paramTree of
-             VarNode str -> (ParamNode paramTree, toks')
-             _           -> error "Invalid function parameter"
+             VarNode str ->
+                     case ast of
+                          (TokIdent a)     -> (ParamNode paramTree, toks')
+                          (TokOp Multiply) -> (ParamNode paramTree, toks')
+             _ -> error "Invalid function parameter"
 
 
 parseParamValue :: [Token] -> (Tree, [Token])
