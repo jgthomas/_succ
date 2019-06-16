@@ -24,7 +24,7 @@ import Types                 (SymTab(funcStates),
                               FuncState(..),
                               LocalVar(..),
                               ParamVar(..),
-                              Type(..))
+                              Type(Label))
 import qualified FrameStack  (currentFunction,
                               popFunctionName,
                               pushFunctionName)
@@ -98,11 +98,11 @@ stackPointerValue :: Evaluator Int
 stackPointerValue = negate <$> currentOffset
 
 
-addParameter :: String -> Evaluator ()
-addParameter paramName = do
+addParameter :: String -> Type -> Evaluator ()
+addParameter paramName typ = do
         currFuncName <- FrameStack.currentFunction
         funcState    <- getFunctionState currFuncName
-        let funcState' = addParam paramName IntVar funcState
+        let funcState' = addParam paramName typ funcState
         setFunctionState currFuncName funcState'
 
 

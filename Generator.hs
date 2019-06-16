@@ -40,10 +40,10 @@ genASM (FunctionNode name paramList statementList) = do
                                     ++ ASM.loadValue 0
                                     ++ ASM.returnStatement
 
-genASM (ParamNode param) = do
+genASM (ParamNode typ param) = do
        case param of
             VarNode name -> do
-                    SymTab.addParameter name
+                    SymTab.addParameter name typ
                     return ASM.noOutput
             _ -> error $ "Invalid parameter: " ++ show param
 

@@ -85,8 +85,8 @@ parseParam allToks@(ast:toks) =
         case paramTree of
              VarNode str ->
                      case ast of
-                          (TokIdent a)     -> (ParamNode paramTree, toks')
-                          (TokOp Multiply) -> (ParamNode paramTree, toks')
+                          (TokIdent a)     -> (ParamNode IntVar paramTree, toks')
+                          (TokOp Multiply) -> (ParamNode IntPointer paramTree, toks')
              _ -> error "Invalid function parameter"
 
 
