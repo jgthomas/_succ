@@ -5,6 +5,7 @@ import AST        (Tree(..))
 import Evaluator  (Evaluator)
 import Tokens     (Operator(..))
 import ASM_Tokens (Jump(..))
+import Types      (Type)
 import qualified  SymTab
 import qualified  ASM
 
@@ -160,7 +161,7 @@ genASM (PointerNode varName typ assign) = do
 genASM (DeclarationNode varName typ value) = do
         currScope <- SymTab.currentScope
         if currScope == "global"
-           then declareGlobal varName value
+           then declareGlobal varName typ value
            else do
                    localDec <- SymTab.checkVariable varName
                    paramDec <- SymTab.parameterDeclared varName
@@ -320,8 +321,8 @@ processArg argPos arg = do
         return $ argASM ++ (ASM.putInRegister . ASM.selectRegister $ argPos)
 
 
-declareGlobal :: String -> Maybe Tree -> Evaluator String
-declareGlobal name toAssign = do
+declareGlobal :: String -> Type -> Maybe Tree -> Evaluator String
+declareGlobal name typ toAssign = do
         existsFunc <- funcDec name
         if existsFunc
            then error $ "'" ++ name ++ "' already declared as function"
