@@ -146,7 +146,6 @@ genASM (IfNode test action possElse) = do
 
 genASM (PointerNode varName typ assign) = do
         pointerASM <- genASM (DeclarationNode varName typ Nothing)
-        offset     <- SymTab.variableOffset varName
         case assign of
              Just a -> do
                      value  <- genASM a
