@@ -307,7 +307,7 @@ relAddress offset = show offset ++ "(%rbp)"
 
 
 varAddressLoad :: Int -> String
-varAddressLoad offset = loadAdd (relAddress offset) "%rax"
+varAddressLoad offset = loadAddOf (relAddress offset) "%rax"
 
 
 varAddressStore :: Int -> String
@@ -358,8 +358,8 @@ call f = "call " ++ f ++ "\n"
 move :: String -> String -> String
 move s d = "movq " ++ s ++ ", " ++ d ++ "\n"
 
-loadAdd :: String -> String -> String
-loadAdd s d = "leaq " ++ s ++ ", " ++ d ++ "\n"
+loadAddOf :: String -> String -> String
+loadAddOf s d = "leaq " ++ s ++ ", " ++ d ++ "\n"
 
 comp :: String -> String -> String
 comp a b = "cmpq " ++ a ++ ", " ++ b ++ "\n"
