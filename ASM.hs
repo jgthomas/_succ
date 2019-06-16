@@ -26,6 +26,7 @@ module ASM (functionName,
             varAddressStore,
             dereferenceLoad,
             dereferenceStore,
+            relAddress,
             noOutput) where
 
 
@@ -289,6 +290,10 @@ storeGlobal label = move "%rax" (label ++ "(%rip)")
 
 
 -- Pointers
+
+relAddress :: Int -> String
+relAddress offset = show offset ++ "(%rbp)"
+
 
 varAddressLoad :: Int -> String
 varAddressLoad offset = loadAdd (show offset ++ "(%rbp)") "%rax"
