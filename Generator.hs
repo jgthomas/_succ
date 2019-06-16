@@ -202,7 +202,7 @@ genASM (AssignDereferenceNode varName value op) = do
         assign <- buildAssignmentASM (DereferenceNode varName) value op
         offset <- SymTab.variableOffset varName
         case offset of
-             Just off -> return $ assign ++ (ASM.derefStoreLocal . ASM.relAddress $ off)
+             Just off -> return $ assign ++ ASM.derefStoreLocal off
              Nothing  -> do
                      argPos <- SymTab.parameterPosition varName
                      case argPos of
@@ -276,7 +276,7 @@ genASM (AddressOfNode varName) = do
 genASM (DereferenceNode varName) = do
         offset <- SymTab.variableOffset varName
         case offset of
-             Just off -> return . ASM.derefLoadLocal . ASM.relAddress $ off
+             Just off -> return . ASM.derefLoadLocal $ off
              Nothing  -> do
                      argPos <- SymTab.parameterPosition varName
                      case argPos of

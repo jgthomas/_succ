@@ -315,15 +315,15 @@ varAddressStore :: String -> String
 varAddressStore address = move "%rax" address
 
 
-derefLoadLocal :: String -> String
-derefLoadLocal address =
-        move address scratch
+derefLoadLocal :: Int -> String
+derefLoadLocal offset =
+        move (relAddress offset) scratch
         ++ move ("(" ++ scratch ++ ")") "%rax"
 
 
-derefStoreLocal :: String -> String
-derefStoreLocal address =
-        move address scratch
+derefStoreLocal :: Int -> String
+derefStoreLocal offset =
+        move (relAddress offset) scratch
         ++ move "%rax" ("(" ++ scratch ++ ")")
 
 
