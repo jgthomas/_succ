@@ -295,8 +295,7 @@ extract f Nothing   = Nothing
 allTypes :: String -> Evaluator [Type]
 allTypes funcName = do
         paramList <- M.elems . parameters <$> getFunctionState funcName
-        let srtParams = sortBy (compare `on` fst) $ paramData <$> paramList
-        return $ snd <$> srtParams
+        return $ snd <$> (sortBy (compare `on` fst) $ paramData <$> paramList)
 
 
 paramData :: ParamVar -> (Int, Type)
