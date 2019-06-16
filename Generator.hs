@@ -332,7 +332,7 @@ declareGlobal name typ toAssign = do
                         Nothing  -> do
                                 labnum <- SymTab.labelNum
                                 let globLab = mkGlobLabel name labnum
-                                SymTab.declareGlobal name globLab
+                                SymTab.declareGlobal name typ globLab
                                 genAssignment toAssign
 
 

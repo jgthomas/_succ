@@ -18,7 +18,7 @@ import Evaluator            (Evaluator(Ev))
 import Types                (SymTab(globalScope),
                              GlobalScope(..),
                              GlobalVar(..),
-                             Type(..))
+                             Type)
 import qualified FrameStack (currentFunction)
 
 
@@ -60,10 +60,10 @@ declareFunction funcName paramCount = do
         updateGlobalScope gscope''
 
 
-declareGlobal :: String -> String -> Evaluator ()
-declareGlobal name label = do
+declareGlobal :: String -> Type -> String -> Evaluator ()
+declareGlobal name typ label = do
         gscope <- getGlobalScope
-        let globVar = newGlobalVar label IntVar
+        let globVar = newGlobalVar label typ
         updateGlobalScope $ addGlobal name globVar gscope
 
 
