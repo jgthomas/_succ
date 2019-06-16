@@ -295,23 +295,23 @@ relAddress :: Int -> String
 relAddress offset = show offset ++ "(%rbp)"
 
 
-varAddressLoad :: Int -> String
-varAddressLoad offset = loadAdd (show offset ++ "(%rbp)") "%rax"
+varAddressLoad :: String -> String
+varAddressLoad address = loadAdd address "%rax"
 
 
-varAddressStore :: Int -> String
-varAddressStore offset = move "%rax" (show offset ++ "(%rbp)")
+varAddressStore :: String -> String
+varAddressStore address = move "%rax" address
 
 
-dereferenceLoad :: Int -> String
-dereferenceLoad offset =
-        move (show offset ++ "(%rbp)") scratch
+dereferenceLoad :: String -> String
+dereferenceLoad address =
+        move address scratch
         ++ move ("(" ++ scratch ++ ")") "%rax"
 
 
-dereferenceStore :: Int -> String
-dereferenceStore offset =
-        move (show offset ++ "(%rbp)") scratch
+dereferenceStore :: String -> String
+dereferenceStore address =
+        move address scratch
         ++ move "%rax" ("(" ++ scratch ++ ")")
 
 
