@@ -307,12 +307,12 @@ relAddress :: Int -> String
 relAddress offset = show offset ++ "(%rbp)"
 
 
-varAddressLoad :: String -> String
-varAddressLoad address = loadAdd address "%rax"
+varAddressLoad :: Int -> String
+varAddressLoad offset = loadAdd (relAddress offset) "%rax"
 
 
-varAddressStore :: String -> String
-varAddressStore address = move "%rax" address
+varAddressStore :: Int -> String
+varAddressStore offset = move "%rax" (relAddress offset)
 
 
 derefLoadLocal :: Int -> String

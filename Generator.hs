@@ -154,7 +154,7 @@ genASM (PointerNode varName typ assign) = do
                           Nothing  -> error $ "variable not declared: " ++ varName
                           Just off -> return $ pointerASM
                                             ++ value
-                                            ++ (ASM.varAddressStore . ASM.relAddress $ off)
+                                            ++ ASM.varAddressStore off
              _ -> return pointerASM
 
 genASM (DeclarationNode varName typ value) = do
@@ -271,7 +271,7 @@ genASM (AddressOfNode varName) = do
         offset <- SymTab.variableOffset varName
         case offset of
              Nothing  -> error $ "variable not declared: " ++ varName
-             Just off -> return . ASM.varAddressLoad . ASM.relAddress $ off
+             Just off -> return . ASM.varAddressLoad $ off
 
 genASM (DereferenceNode varName) = do
         offset <- SymTab.variableOffset varName
