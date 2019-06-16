@@ -26,7 +26,6 @@ module ASM (functionName,
             varAddressStore,
             derefLoadLocal,
             derefStoreLocal,
-            relAddress,
             derefLoadParam,
             derefStoreParam,
             noOutput) where
