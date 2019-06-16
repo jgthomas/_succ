@@ -17,6 +17,8 @@ module FuncState (initScope,
                   stackPointerValue) where
 
 import Data.Maybe            (fromMaybe)
+import Data.Function         (on)
+import Data.List             (sortBy)
 import qualified Data.Map as M
 
 import Evaluator             (Evaluator(Ev))
@@ -288,4 +290,15 @@ addParam n t st =
 extract :: (b -> a) -> Maybe b -> Maybe a
 extract f (Just pv) = Just . f $ pv
 extract f Nothing   = Nothing
+
+
+allTypes :: String -> Evaluator [Type]
+allTypes funcName = do
+        paramList <- M.elems . parameters <$> getFunctionState funcName
+        let srtParams = sortBy (compare `on` fst) $ paramData <$> paramList
+        return $ snd <$> srtParams
+
+
+paramData :: ParamVar -> (Int, Type)
+paramData pv = (paramNum pv, paramType pv)
 
