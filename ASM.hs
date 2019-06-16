@@ -24,8 +24,8 @@ module ASM (functionName,
             storeGlobal,
             varAddressLoad,
             varAddressStore,
-            dereferenceLoad,
-            dereferenceStore,
+            derefLoadLocal,
+            derefStoreLocal,
             relAddress,
             derefLoadParam,
             derefStoreParam,
@@ -315,14 +315,14 @@ varAddressStore :: String -> String
 varAddressStore address = move "%rax" address
 
 
-dereferenceLoad :: String -> String
-dereferenceLoad address =
+derefLoadLocal :: String -> String
+derefLoadLocal address =
         move address scratch
         ++ move ("(" ++ scratch ++ ")") "%rax"
 
 
-dereferenceStore :: String -> String
-dereferenceStore address =
+derefStoreLocal :: String -> String
+derefStoreLocal address =
         move address scratch
         ++ move "%rax" ("(" ++ scratch ++ ")")
 
