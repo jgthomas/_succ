@@ -143,8 +143,8 @@ genASM (IfNode test action possElse) = do
                               ++ ASM.emitLabel label
                               ++ elseAction ++ ASM.emitLabel nextLabel
 
-genASM (PointerNode varName assign) = do
-        pointerASM <- genASM (DeclarationNode varName Nothing)
+genASM (PointerNode varName typ assign) = do
+        pointerASM <- genASM (DeclarationNode varName typ Nothing)
         offset     <- SymTab.variableOffset varName
         case assign of
              Just a -> do
@@ -157,7 +157,7 @@ genASM (PointerNode varName assign) = do
                                             ++ ASM.varAddressStore off
              _ -> return pointerASM
 
-genASM (DeclarationNode varName value) = do
+genASM (DeclarationNode varName typ value) = do
         currScope <- SymTab.currentScope
         if currScope == "global"
            then declareGlobal varName value

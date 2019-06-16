@@ -285,7 +285,7 @@ parseDeclaration allToks@(typ:id:toks) =
              (TokIdent varName) ->
                      let (exprTree, toks') = parseOptAssign . accept $ allToks
                          in
-                     (DeclarationNode varName exprTree, toks')
+                     (DeclarationNode varName IntVar exprTree, toks')
              _ -> error $ "invalid identifier: " ++ show id
 
 
@@ -295,7 +295,7 @@ parsePointerDec allToks@(typ:ast:id:toks) =
              (TokIdent varName) ->
                      let (exprTree, toks') = parseOptAssign (id:toks)
                          in
-                     (PointerNode varName exprTree, toks')
+                     (PointerNode varName IntPointer exprTree, toks')
              _ -> error $ "invalid identifier: " ++ show id
 
 
