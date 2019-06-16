@@ -281,7 +281,7 @@ parseNullStatement toks = (NullExprNode, toks)
 parseDeclaration :: [Token] -> (Tree, [Token])
 parseDeclaration allToks@(typ:id:toks) =
         case id of
-             (TokOp Multiply)   -> parsePointerDec toks
+             (TokOp Multiply)   -> parsePointerDec allToks
              (TokIdent varName) ->
                      let (exprTree, toks') = parseOptAssign . accept $ allToks
                          in
@@ -290,10 +290,10 @@ parseDeclaration allToks@(typ:id:toks) =
 
 
 parsePointerDec :: [Token] -> (Tree, [Token])
-parsePointerDec allToks@(id:toks) =
+parsePointerDec allToks@(typ:ast:id:toks) =
         case id of
              (TokIdent varName) ->
-                     let (exprTree, toks') = parseOptAssign allToks
+                     let (exprTree, toks') = parseOptAssign (id:toks)
                          in
                      (PointerNode varName exprTree, toks')
              _ -> error $ "invalid identifier: " ++ show id
