@@ -167,7 +167,7 @@ genASM (DeclarationNode varName typ value) = do
                    if localDec || paramDec
                       then error $ "already declared in scope: '" ++ varName
                       else do
-                              offset <- SymTab.addVariable varName
+                              offset <- SymTab.addVariable varName typ
                               adjust <- SymTab.stackPointerValue
                               case value of
                                    Just v  ->

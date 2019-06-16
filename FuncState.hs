@@ -86,10 +86,10 @@ variableOffset :: String -> Evaluator (Maybe Int)
 variableOffset name = getOffset name
 
 
-addVariable :: String -> Evaluator Int
-addVariable varName = do
+addVariable :: String -> Type -> Evaluator Int
+addVariable varName typ = do
         currOff <- currentOffset
-        store varName currOff IntVar
+        store varName currOff typ
         incrementOffset
         return currOff
 
