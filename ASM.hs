@@ -314,7 +314,7 @@ derefStoreLocal offset =
         ++ move result (addressIn scratch)
 
 
--- Composite
+-- Addressing
 
 fromBasePointer :: Int -> String
 fromBasePointer n = relAddress (show n) basePointer
@@ -333,6 +333,9 @@ relAddress offset base = offset ++ indirectAddressing base
 
 indirectAddressing :: String -> String
 indirectAddressing s = "(" ++ s ++ ")"
+
+
+-- Other
 
 literalValue :: Int -> String
 literalValue n = "$" ++ show n
