@@ -296,12 +296,12 @@ storeGlobal label = move "%rax" (label ++ "(%rip)")
 
 derefLoadParam :: Int -> String
 derefLoadParam reg =
-        move ("(" ++ selectRegister reg ++ ")") "%rax"
+        move (valueFromAddressIn . selectRegister $ reg) "%rax"
 
 
 derefStoreParam :: Int -> String
 derefStoreParam reg =
-        move "%rax" ("(" ++ selectRegister reg ++ ")")
+        move "%rax" (addressIn . selectRegister $ reg)
 
 
 varAddressLoad :: Int -> String
@@ -315,13 +315,13 @@ varAddressStore offset = move "%rax" (relAddress offset)
 derefLoadLocal :: Int -> String
 derefLoadLocal offset =
         move (relAddress offset) scratch
-        ++ move ("(" ++ scratch ++ ")") "%rax"
+        ++ move (valueFromAddressIn scratch) "%rax"
 
 
 derefStoreLocal :: Int -> String
 derefStoreLocal offset =
         move (relAddress offset) scratch
-        ++ move "%rax" ("(" ++ scratch ++ ")")
+        ++ move "%rax" (addressIn scratch)
 
 
 -- General
@@ -334,6 +334,15 @@ literalValue n = "$" ++ show n
 
 relAddress :: Int -> String
 relAddress offset = show offset ++ "(%rbp)"
+
+addressIn :: String -> String
+addressIn s = indirectAddressing s
+
+valueFromAddressIn :: String -> String
+valueFromAddressIn s = indirectAddressing s
+
+indirectAddressing :: String -> String
+indirectAddressing s = "(" ++ s ++ ")"
 
 
 -- Instructions
