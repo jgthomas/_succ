@@ -200,11 +200,11 @@ comparison :: String -> String -> String
 comparison load1 load2 =
         loadValues load1 load2
         ++ comp result scratch
-        ++ move "$0" result
+        ++ move (literalValue 0) result
 
 
 testResult :: String
-testResult = comp "$0" result
+testResult = comp (literalValue 0) result
 
 
 -- Jumps and labels
