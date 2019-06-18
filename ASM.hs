@@ -51,11 +51,9 @@ params = ["%rdi","%rsi","%rdx","%rcx","%r8","%r9"]
 -- Functions
 
 functionName :: String -> String
-functionName f =
-        ".globl "
-        ++ f
-        ++ "\n"
-        ++ f
+functionName funcName =
+        declareGlobl funcName
+        ++ funcName
         ++ ":\n"
         ++ saveBasePointer
         ++ saveResisters allScratch
@@ -265,7 +263,7 @@ restoreCallerRegisters = restoreRegisters params
 
 initializedGlobal :: String -> String -> String
 initializedGlobal label val =
-        ".globl " ++ label ++ "\n"
+        declareGlobl label
         ++ ".data\n"
         ++ ".align 4\n"
         ++ label ++ ":\n"
@@ -275,7 +273,7 @@ initializedGlobal label val =
 
 uninitializedGlobal :: String -> String
 uninitializedGlobal label =
-        ".globl " ++ label ++ "\n"
+        declareGlobl label
         ++ ".bss\n"
         ++ ".align 4\n"
         ++ label ++ ":\n"
@@ -391,3 +389,6 @@ comp a b = "cmpq " ++ a ++ ", " ++ b ++ "\n"
 
 returnControl :: String
 returnControl = "ret\n"
+
+declareGlobl :: String -> String
+declareGlobl name = ".globl " ++ name ++ "\n"
