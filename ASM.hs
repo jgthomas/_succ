@@ -32,7 +32,7 @@ module ASM (functionName,
 
 
 import Tokens     (Operator(..))
-import ASM_Tokens (Jump(..), Section(..))
+import ASM_Tokens (Jump(..), Section(..), Set(..))
 
 
 -- Functions
@@ -98,12 +98,12 @@ binary val1 val2 o
    | o == Multiply           = computeMul val1 val2
    | o == Divide             = computeDiv val1 val2
    | o == Modulo             = computeMod val1 val2
-   | o == Equal              = comparison val1 val2 ++ "sete %al\n"
-   | o == NotEqual           = comparison val1 val2 ++ "setne %al\n"
-   | o == GreaterThan        = comparison val1 val2 ++ "setg %al\n"
-   | o == LessThan           = comparison val1 val2 ++ "setl %al\n"
-   | o == GreaterThanOrEqual = comparison val1 val2 ++ "setge %al\n"
-   | o == LessThanOrEqual    = comparison val1 val2 ++ "setle %al\n"
+   | o == Equal              = comparison val1 val2 ++ setBitIf Equ
+   | o == NotEqual           = comparison val1 val2 ++ setBitIf NEqu
+   | o == GreaterThan        = comparison val1 val2 ++ setBitIf GThan
+   | o == LessThan           = comparison val1 val2 ++ setBitIf LThan
+   | o == GreaterThanOrEqual = comparison val1 val2 ++ setBitIf GThanE
+   | o == LessThanOrEqual    = comparison val1 val2 ++ setBitIf LThanE
 
 
 logicalOR :: String -> String -> Int -> Int -> String
@@ -117,7 +117,7 @@ logicalOR load1 load2 nextLabel endLabel =
         ++ load2
         ++ testResult
         ++ move (literalValue 0) result
-        ++ "setne %al\n"
+        ++ setBitIf NEqu
         ++ emitLabel endLabel
 
 
@@ -131,7 +131,7 @@ logicalAND load1 load2 nextLabel endLabel =
         ++ load2
         ++ testResult
         ++ move (literalValue 0) result
-        ++ "setne %al\n"
+        ++ setBitIf NEqu
         ++ emitLabel endLabel
 
 
@@ -378,6 +378,16 @@ comp a b = "cmpq " ++ a ++ ", " ++ b ++ "\n"
 
 returnControl :: String
 returnControl = "ret\n"
+
+setBitIf :: Set -> String
+setBitIf set
+        | set == Equ    = "sete " ++ bit ++ "\n"
+        | set == NEqu   = "setne " ++ bit ++ "\n"
+        | set == GThan  = "setg " ++ bit ++ "\n"
+        | set == GThanE = "setge " ++ bit ++ "\n"
+        | set == LThan  = "setl " ++ bit ++ "\n"
+        | set == LThanE = "setle " ++ bit ++ "\n"
+        where bit = "%al"
 
 
 -- Directives
