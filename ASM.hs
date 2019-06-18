@@ -145,21 +145,19 @@ computeAdd load1 load2 =
 
 computeMod :: String -> String -> String
 computeMod load1 load2 =
-        push "%rdx"
+        push regArg3
         ++ loadValues load2 load1
-        ++ "cqto\n"
         ++ idivq scratch
-        ++ move "%rdx" result
-        ++ pop "%rdx"
+        ++ move regModResult result
+        ++ pop regArg3
 
 
 computeDiv :: String -> String -> String
 computeDiv load1 load2 =
-        push "%rdx"
+        push regArg3
         ++ loadValues load2 load1
-        ++ "cqto\n"
         ++ idivq scratch
-        ++ pop "%rdx"
+        ++ pop regArg3
 
 
 computeMul :: String -> String -> String
@@ -358,7 +356,8 @@ sub :: String -> String -> String
 sub a b = "subq " ++ a ++ ", " ++ b ++ "\n"
 
 idivq :: String -> String
-idivq target = "idivq " ++ target ++ "\n"
+idivq target = signExtendRaxRdx
+               ++ "idivq " ++ target ++ "\n"
 
 push :: String -> String
 push s = "pushq " ++ s ++ "\n"
@@ -397,6 +396,9 @@ setBitIf set
         | set == LThanE = "setle " ++ bit ++ "\n"
         where bit = "%al"
 
+signExtendRaxRdx :: String
+signExtendRaxRdx = "cqto\n"
+
 
 -- Directives
 
@@ -434,6 +436,8 @@ regArg3 = "%rdx"
 regArg4 = "%rcx"
 regArg5 = "%r8"
 regArg6 = "%r9"
+
+regModResult = "%rdx"
 
 allScratch = [scratch]
 params = [regArg1,regArg2,regArg3,regArg4,regArg5,regArg6]
