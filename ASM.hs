@@ -329,7 +329,7 @@ fromInstructionPointer :: String -> String
 fromInstructionPointer lab = relAddress lab instrPointer
 
 relAddress :: String -> String -> String
-relAddress offset base = offset ++ "(" ++ base ++ ")"
+relAddress offset base = offset ++ indirectAddressing base
 
 addressIn :: String -> String
 addressIn s = indirectAddressing s
