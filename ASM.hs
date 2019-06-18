@@ -221,12 +221,12 @@ getFromRegister reg = move reg result
 
 selectRegister :: Int -> String
 selectRegister callConvSeq
-        | callConvSeq == 0 = "%rdi"
-        | callConvSeq == 1 = "%rsi"
-        | callConvSeq == 2 = "%rdx"
-        | callConvSeq == 3 = "%rcx"
-        | callConvSeq == 4 = "%r8"
-        | callConvSeq == 5 = "%r9"
+        | callConvSeq == 0 = regArg1
+        | callConvSeq == 1 = regArg2
+        | callConvSeq == 2 = regArg3
+        | callConvSeq == 3 = regArg4
+        | callConvSeq == 4 = regArg5
+        | callConvSeq == 5 = regArg6
 
 
 saveResisters :: [String] -> String
@@ -407,5 +407,12 @@ basePointer = "%rbp"
 instrPointer = "%rip"
 stackPointer = "%rsp"
 
+regArg1 = "%rdi"
+regArg2 = "%rsi"
+regArg3 = "%rdx"
+regArg4 = "%rcx"
+regArg5 = "%r8"
+regArg6 = "%r9"
+
 allScratch = [scratch]
-params = ["%rdi","%rsi","%rdx","%rcx","%r8","%r9"]
+params = [regArg1,regArg2,regArg3,regArg4,regArg5,regArg6]
