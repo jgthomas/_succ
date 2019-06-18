@@ -42,6 +42,7 @@ scratch = "%r12"
 
 basePointer = "%rbp"
 instructionPointer = "%rip"
+stackPointer = "%rsp"
 
 allScratch = [scratch]
 params = ["%rdi","%rsi","%rdx","%rcx","%r8","%r9"]
@@ -80,15 +81,15 @@ restoreBasePointer = move "%rbp" "%rsp"
 -- Local variables
 
 loadValue :: Int -> String
-loadValue n = move (literalValue n) "%rax"
+loadValue n = move (literalValue n) result
 
 
 varOnStack :: Int -> String
-varOnStack offset = move "%rax" (fromBasePointer offset)
+varOnStack offset = move result (fromBasePointer offset)
 
 
 varOffStack :: Int -> String
-varOffStack offset = move (fromBasePointer offset) "%rax"
+varOffStack offset = move (fromBasePointer offset) result
 
 
 adjustStackPointer :: Int -> String
@@ -126,12 +127,12 @@ logicalOR load1 load2 nextLabel endLabel =
         load1
         ++ testResult
         ++ emitJump JE nextLabel
-        ++ move "$1" "%rax"
+        ++ move "$1" result
         ++ emitJump JMP endLabel
         ++ emitLabel nextLabel
         ++ load2
         ++ testResult
-        ++ move "$0" "%rax"
+        ++ move "$0" result
         ++ "setne %al\n"
         ++ emitLabel endLabel
 
@@ -145,7 +146,7 @@ logicalAND load1 load2 nextLabel endLabel =
         ++ emitLabel nextLabel
         ++ load2
         ++ testResult
-        ++ move "$0" "%rax"
+        ++ move "$0" result
         ++ "setne %al\n"
         ++ emitLabel endLabel
 
@@ -162,7 +163,7 @@ computeMod load1 load2 =
         ++ loadValues load2 load1
         ++ "cqto\n"
         ++ idivq scratch
-        ++ move "%rdx" "%rax"
+        ++ move "%rdx" result
         ++ pop "%rdx"
 
 
@@ -198,12 +199,12 @@ loadValues load1 load2 =
 comparison :: String -> String -> String
 comparison load1 load2 =
         loadValues load1 load2
-        ++ comp "%rax" scratch
-        ++ move "$0" "%rax"
+        ++ comp result scratch
+        ++ move "$0" result
 
 
 testResult :: String
-testResult = comp "$0" "%rax"
+testResult = comp "$0" result
 
 
 -- Jumps and labels
@@ -227,11 +228,11 @@ makeFunctionCall funcName = call funcName
 
 
 putInRegister :: String -> String
-putInRegister reg = move "%rax" reg
+putInRegister reg = move result reg
 
 
 getFromRegister :: String -> String
-getFromRegister reg = move reg "%rax"
+getFromRegister reg = move reg result
 
 
 selectRegister :: Int -> String
@@ -289,44 +290,44 @@ uninitializedGlobal label =
 -}
 loadGlobal :: String -> String
 loadGlobal label =
-        move (fromInstructionPointer label) "%rax"
+        move (fromInstructionPointer label) result
 
 
 storeGlobal :: String -> String
 storeGlobal label =
-        move "%rax" (fromInstructionPointer label)
+        move result (fromInstructionPointer label)
 
 
 -- Pointers
 
 derefLoadParam :: Int -> String
 derefLoadParam reg =
-        move (valueFromAddressIn . selectRegister $ reg) "%rax"
+        move (valueFromAddressIn . selectRegister $ reg) result
 
 
 derefStoreParam :: Int -> String
 derefStoreParam reg =
-        move "%rax" (addressIn . selectRegister $ reg)
+        move result (addressIn . selectRegister $ reg)
 
 
 varAddressLoad :: Int -> String
-varAddressLoad offset = loadAddOf (fromBasePointer offset) "%rax"
+varAddressLoad offset = loadAddOf (fromBasePointer offset) result
 
 
 varAddressStore :: Int -> String
-varAddressStore offset = move "%rax" (fromBasePointer offset)
+varAddressStore offset = move result (fromBasePointer offset)
 
 
 derefLoadLocal :: Int -> String
 derefLoadLocal offset =
         move (fromBasePointer offset) scratch
-        ++ move (valueFromAddressIn scratch) "%rax"
+        ++ move (valueFromAddressIn scratch) result
 
 
 derefStoreLocal :: Int -> String
 derefStoreLocal offset =
         move (fromBasePointer offset) scratch
-        ++ move "%rax" (addressIn scratch)
+        ++ move result (addressIn scratch)
 
 
 -- General
