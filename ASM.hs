@@ -191,20 +191,6 @@ testResult :: String
 testResult = comp (literalValue 0) result
 
 
--- Jumps and labels
-
-emitJump :: Jump -> Int -> String
-emitJump j n
-        | j == JMP  = "jmp _label_" ++ show n ++ "\n"
-        | j == JE   = "je _label_" ++ show n ++ "\n"
-        | j == JNE  = "jne _label_" ++ show n ++ "\n"
-        | otherwise = error "Unrecognised type of jump"
-
-
-emitLabel :: Int -> String
-emitLabel n = "_label_" ++ show n ++ ":\n"
-
-
 -- Function calls and registers
 
 makeFunctionCall :: String -> String
@@ -399,6 +385,13 @@ setBitIf set
 signExtendRaxRdx :: String
 signExtendRaxRdx = "cqto\n"
 
+emitJump :: Jump -> Int -> String
+emitJump j n
+        | j == JMP  = "jmp _label_" ++ show n ++ "\n"
+        | j == JE   = "je _label_" ++ show n ++ "\n"
+        | j == JNE  = "jne _label_" ++ show n ++ "\n"
+        | otherwise = error "Unrecognised type of jump"
+
 
 -- Directives
 
@@ -419,6 +412,9 @@ align = ".align 4\n"
 
 asLong :: String -> String
 asLong l = ".long " ++ l ++ "\n"
+
+emitLabel :: Int -> String
+emitLabel n = "_label_" ++ show n ++ ":\n"
 
 
 -- Registers
