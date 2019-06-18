@@ -65,11 +65,13 @@ returnStatement =
 
 
 saveBasePointer :: String
-saveBasePointer = push "%rbp" ++ move "%rsp" "%rbp"
+saveBasePointer = push "%rbp"
+                  ++ move "%rsp" "%rbp"
 
 
 restoreBasePointer :: String
-restoreBasePointer = move "%rbp" "%rsp" ++ pop "%rbp"
+restoreBasePointer = move "%rbp" "%rsp"
+                     ++ pop "%rbp"
 
 
 -- Local variables
