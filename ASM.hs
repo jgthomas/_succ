@@ -77,7 +77,7 @@ restoreBasePointer = move "%rbp" "%rsp"
 -- Local variables
 
 loadValue :: Int -> String
-loadValue n = move ("$" ++ show n) "%rax"
+loadValue n = move (literalValue n) "%rax"
 
 
 varOnStack :: Int -> String
@@ -91,7 +91,11 @@ varOffStack offset = move (relAddress offset) "%rax"
 adjustStackPointer :: Int -> String
 adjustStackPointer offset =
         move "%rbp" "%rsp"
-        ++ sub ("$" ++ show offset) "%rsp"
+        ++ sub (literalValue offset) "%rsp"
+
+
+literalValue :: Int -> String
+literalValue n = "$" ++ show n
 
 
 -- Operators
