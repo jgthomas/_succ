@@ -69,13 +69,13 @@ returnStatement =
 
 
 saveBasePointer :: String
-saveBasePointer = push "%rbp"
-                  ++ move "%rsp" "%rbp"
+saveBasePointer = push basePointer
+                  ++ move stackPointer basePointer
 
 
 restoreBasePointer :: String
-restoreBasePointer = move "%rbp" "%rsp"
-                     ++ pop "%rbp"
+restoreBasePointer = move basePointer stackPointer
+                     ++ pop basePointer
 
 
 -- Local variables
@@ -94,8 +94,8 @@ varOffStack offset = move (fromBasePointer offset) result
 
 adjustStackPointer :: Int -> String
 adjustStackPointer offset =
-        move "%rbp" "%rsp"
-        ++ sub (literalValue offset) "%rsp"
+        move basePointer stackPointer
+        ++ sub (literalValue offset) stackPointer
 
 
 -- Operators
