@@ -65,7 +65,7 @@ returnStatement :: String
 returnStatement =
         restoreRegisters allScratch
         ++ restoreBasePointer
-        ++ "ret\n"
+        ++ returnControl
 
 
 saveBasePointer :: String
@@ -389,3 +389,5 @@ loadAddOf s d = "leaq " ++ s ++ ", " ++ d ++ "\n"
 comp :: String -> String -> String
 comp a b = "cmpq " ++ a ++ ", " ++ b ++ "\n"
 
+returnControl :: String
+returnControl = "ret\n"
