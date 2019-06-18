@@ -94,10 +94,6 @@ adjustStackPointer offset =
         ++ sub (literalValue offset) "%rsp"
 
 
-literalValue :: Int -> String
-literalValue n = "$" ++ show n
-
-
 -- Operators
 
 unary :: Operator -> String
@@ -308,10 +304,6 @@ derefStoreParam reg =
         move "%rax" ("(" ++ selectRegister reg ++ ")")
 
 
-relAddress :: Int -> String
-relAddress offset = show offset ++ "(%rbp)"
-
-
 varAddressLoad :: Int -> String
 varAddressLoad offset = loadAddOf (relAddress offset) "%rax"
 
@@ -336,6 +328,12 @@ derefStoreLocal offset =
 
 noOutput :: String
 noOutput = ""
+
+literalValue :: Int -> String
+literalValue n = "$" ++ show n
+
+relAddress :: Int -> String
+relAddress offset = show offset ++ "(%rbp)"
 
 
 -- Instructions
