@@ -79,11 +79,11 @@ loadValue n = move ("$" ++ show n) "%rax"
 
 
 varOnStack :: Int -> String
-varOnStack offset = move "%rax" (show offset ++ "(%rbp)")
+varOnStack offset = move "%rax" (relAddress offset)
 
 
 varOffStack :: Int -> String
-varOffStack offset = move (show offset ++ "(%rbp)") "%rax"
+varOffStack offset = move (relAddress offset) "%rax"
 
 
 adjustStackPointer :: Int -> String
