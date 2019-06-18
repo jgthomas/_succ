@@ -314,13 +314,7 @@ derefStoreLocal offset =
         ++ move result (addressIn scratch)
 
 
--- General
-
-noOutput :: String
-noOutput = ""
-
-literalValue :: Int -> String
-literalValue n = "$" ++ show n
+-- Composite
 
 fromBasePointer :: Int -> String
 fromBasePointer n = relAddress (show n) basePointer
@@ -328,17 +322,23 @@ fromBasePointer n = relAddress (show n) basePointer
 fromInstructionPointer :: String -> String
 fromInstructionPointer lab = relAddress lab instrPointer
 
-relAddress :: String -> String -> String
-relAddress offset base = offset ++ indirectAddressing base
-
 addressIn :: String -> String
 addressIn s = indirectAddressing s
 
 valueFromAddressIn :: String -> String
 valueFromAddressIn s = indirectAddressing s
 
+relAddress :: String -> String -> String
+relAddress offset base = offset ++ indirectAddressing base
+
 indirectAddressing :: String -> String
 indirectAddressing s = "(" ++ s ++ ")"
+
+literalValue :: Int -> String
+literalValue n = "$" ++ show n
+
+noOutput :: String
+noOutput = ""
 
 
 -- Instructions
@@ -377,7 +377,7 @@ returnControl :: String
 returnControl = "ret\n"
 
 
--- directives
+-- Directives
 
 declareGlobl :: String -> String
 declareGlobl name = ".globl " ++ name ++ "\n"
