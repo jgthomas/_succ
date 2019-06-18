@@ -35,19 +35,6 @@ import Tokens     (Operator(..))
 import ASM_Tokens (Jump(..))
 
 
--- Registers
-
-result  = "%rax"
-scratch = "%r12"
-
-basePointer = "%rbp"
-instrPointer = "%rip"
-stackPointer = "%rsp"
-
-allScratch = [scratch]
-params = ["%rdi","%rsi","%rdx","%rcx","%r8","%r9"]
-
-
 -- Functions
 
 functionName :: String -> String
@@ -394,3 +381,16 @@ declareGlobl name = ".globl " ++ name ++ "\n"
 
 globlLabel :: String -> String
 globlLabel name = name ++ ":\n"
+
+
+-- Registers
+
+result  = "%rax"
+scratch = "%r12"
+
+basePointer = "%rbp"
+instrPointer = "%rip"
+stackPointer = "%rsp"
+
+allScratch = [scratch]
+params = ["%rdi","%rsi","%rdx","%rcx","%r8","%r9"]
