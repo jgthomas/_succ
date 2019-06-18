@@ -88,7 +88,9 @@ unary :: Operator -> String
 unary o
    | o == Minus         = makeNegative result
    | o == BitwiseCompl  = invertBits result
-   | o == LogicNegation = "cmpq $0, %rax\nmovq $0, %rax\nsete %al\n"
+   | o == LogicNegation = comp (literalValue 0) result
+                          ++ move (literalValue 0) result
+                          ++ setBitIf Equ
 
 
 binary :: String -> String -> Operator -> String
