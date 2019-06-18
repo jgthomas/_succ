@@ -32,7 +32,7 @@ module ASM (functionName,
 
 
 import Tokens     (Operator(..))
-import ASM_Tokens (Jump(..))
+import ASM_Tokens (Jump(..), Section(..))
 
 
 -- Functions
@@ -250,20 +250,20 @@ restoreCallerRegisters = restoreRegisters params
 initializedGlobal :: String -> String -> String
 initializedGlobal label val =
         declareGlobl label
-        ++ ".data\n"
-        ++ ".align 4\n"
+        ++ section DATA
+        ++ align
         ++ globlLabel label
-        ++ ".long " ++ val ++ "\n"
-        ++ ".text\n"
+        ++ asLong val
+        ++ section TEXT
 
 
 uninitializedGlobal :: String -> String
 uninitializedGlobal label =
         declareGlobl label
-        ++ ".bss\n"
-        ++ ".align 4\n"
+        ++ section BSS
+        ++ align
         ++ globlLabel label
-        ++ ".text\n"
+        ++ section TEXT
 
 
 {-
@@ -376,11 +376,26 @@ comp a b = "cmpq " ++ a ++ ", " ++ b ++ "\n"
 returnControl :: String
 returnControl = "ret\n"
 
+
+-- directives
+
 declareGlobl :: String -> String
 declareGlobl name = ".globl " ++ name ++ "\n"
 
 globlLabel :: String -> String
 globlLabel name = name ++ ":\n"
+
+section :: Section -> String
+section sect
+        | sect == TEXT = ".text\n"
+        | sect == DATA = ".data\n"
+        | sect == BSS  = ".bss\n"
+
+align :: String
+align = ".align 4\n"
+
+asLong :: String -> String
+asLong l = ".long " ++ l ++ "\n"
 
 
 -- Registers
