@@ -127,12 +127,12 @@ logicalOR load1 load2 nextLabel endLabel =
         load1
         ++ testResult
         ++ emitJump JE nextLabel
-        ++ move "$1" result
+        ++ move (literalValue 1) result
         ++ emitJump JMP endLabel
         ++ emitLabel nextLabel
         ++ load2
         ++ testResult
-        ++ move "$0" result
+        ++ move (literalValue 0) result
         ++ "setne %al\n"
         ++ emitLabel endLabel
 
@@ -146,7 +146,7 @@ logicalAND load1 load2 nextLabel endLabel =
         ++ emitLabel nextLabel
         ++ load2
         ++ testResult
-        ++ move "$0" result
+        ++ move (literalValue 0) result
         ++ "setne %al\n"
         ++ emitLabel endLabel
 
