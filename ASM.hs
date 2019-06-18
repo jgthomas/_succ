@@ -86,8 +86,8 @@ adjustStackPointer offset =
 
 unary :: Operator -> String
 unary o
-   | o == Minus         = "neg %rax\n"
-   | o == BitwiseCompl  = "not %rax\n"
+   | o == Minus         = makeNegative result
+   | o == BitwiseCompl  = invertBits result
    | o == LogicNegation = "cmpq $0, %rax\nmovq $0, %rax\nsete %al\n"
 
 
@@ -375,6 +375,12 @@ loadAddOf s d = "leaq " ++ s ++ ", " ++ d ++ "\n"
 
 comp :: String -> String -> String
 comp a b = "cmpq " ++ a ++ ", " ++ b ++ "\n"
+
+makeNegative :: String -> String
+makeNegative s = "neg " ++ s ++ "\n"
+
+invertBits :: String -> String
+invertBits s = "not " ++ s ++ "\n"
 
 returnControl :: String
 returnControl = "ret\n"
