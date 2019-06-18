@@ -40,6 +40,9 @@ import ASM_Tokens (Jump(..))
 result  = "%rax"
 scratch = "%r12"
 
+basePointer = "%rbp"
+instructionPointer = "%rip"
+
 allScratch = [scratch]
 params = ["%rdi","%rsi","%rdx","%rcx","%r8","%r9"]
 
@@ -81,11 +84,11 @@ loadValue n = move (literalValue n) "%rax"
 
 
 varOnStack :: Int -> String
-varOnStack offset = move "%rax" (relAddress offset)
+varOnStack offset = move "%rax" (fromBasePointer offset)
 
 
 varOffStack :: Int -> String
-varOffStack offset = move (relAddress offset) "%rax"
+varOffStack offset = move (fromBasePointer offset) "%rax"
 
 
 adjustStackPointer :: Int -> String
@@ -285,11 +288,13 @@ uninitializedGlobal label =
 - from that relative location as well
 -}
 loadGlobal :: String -> String
-loadGlobal label = move (label ++ "(%rip)") "%rax"
+loadGlobal label =
+        move (fromInstructionPointer label) "%rax"
 
 
 storeGlobal :: String -> String
-storeGlobal label = move "%rax" (label ++ "(%rip)")
+storeGlobal label =
+        move "%rax" (fromInstructionPointer label)
 
 
 -- Pointers
@@ -305,22 +310,22 @@ derefStoreParam reg =
 
 
 varAddressLoad :: Int -> String
-varAddressLoad offset = loadAddOf (relAddress offset) "%rax"
+varAddressLoad offset = loadAddOf (fromBasePointer offset) "%rax"
 
 
 varAddressStore :: Int -> String
-varAddressStore offset = move "%rax" (relAddress offset)
+varAddressStore offset = move "%rax" (fromBasePointer offset)
 
 
 derefLoadLocal :: Int -> String
 derefLoadLocal offset =
-        move (relAddress offset) scratch
+        move (fromBasePointer offset) scratch
         ++ move (valueFromAddressIn scratch) "%rax"
 
 
 derefStoreLocal :: Int -> String
 derefStoreLocal offset =
-        move (relAddress offset) scratch
+        move (fromBasePointer offset) scratch
         ++ move "%rax" (addressIn scratch)
 
 
@@ -332,8 +337,14 @@ noOutput = ""
 literalValue :: Int -> String
 literalValue n = "$" ++ show n
 
-relAddress :: Int -> String
-relAddress offset = show offset ++ "(%rbp)"
+fromBasePointer :: Int -> String
+fromBasePointer n = relAddress (show n) basePointer
+
+fromInstructionPointer :: String -> String
+fromInstructionPointer lab = relAddress lab instructionPointer
+
+relAddress :: String -> String -> String
+relAddress offset base = offset ++ "(" ++ base ++ ")"
 
 addressIn :: String -> String
 addressIn s = indirectAddressing s
