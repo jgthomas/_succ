@@ -41,7 +41,7 @@ result  = "%rax"
 scratch = "%r12"
 
 basePointer = "%rbp"
-instructionPointer = "%rip"
+instrPointer = "%rip"
 stackPointer = "%rsp"
 
 allScratch = [scratch]
@@ -342,7 +342,7 @@ fromBasePointer :: Int -> String
 fromBasePointer n = relAddress (show n) basePointer
 
 fromInstructionPointer :: String -> String
-fromInstructionPointer lab = relAddress lab instructionPointer
+fromInstructionPointer lab = relAddress lab instrPointer
 
 relAddress :: String -> String -> String
 relAddress offset base = offset ++ "(" ++ base ++ ")"
