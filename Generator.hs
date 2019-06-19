@@ -389,13 +389,15 @@ declareFunction funcName paramList = do
         existsVar <- varDec funcName
         if existsVar
            then error $ "'" ++ funcName ++ "' already defined as variable"
-           else do prevParamCount <- SymTab.decParamCount funcName
+           else do
+                   prevParamCount <- SymTab.decParamCount funcName
                    case prevParamCount of
                         Nothing -> do SymTab.declareFunction funcName (length paramList)
                         Just p  -> do
                                 if p /= length paramList
                                    then error $ "Mismatch in parameter counts for: " ++ funcName
                                    else do
+                                           checkParamTypesMatch funcName paramList
                                            SymTab.declareFunction funcName (length paramList)
                                            defined <- SymTab.checkFuncDefined funcName
                                            if not defined
@@ -409,6 +411,22 @@ varDec name = do
         case label of
              Nothing -> return False
              Just l  -> return True
+
+
+checkParamTypesMatch :: String -> [Tree] -> Evaluator ()
+checkParamTypesMatch name paramList = do
+        currParamTypes <- SymTab.allTypes name
+        let newParamTypes = getParamType <$> paramList
+        if currParamTypes /= newParamTypes
+           then error $ "mismatching types for parameters: "
+                        ++ show currParamTypes ++ " vs."
+                        ++ show newParamTypes ++ " "
+                        ++ "for function: " ++ name
+           else return ()
+
+
+getParamType :: Tree -> Type
+getParamType (ParamNode typ tree) = typ
 
 
 buildAssignmentASM :: Tree -> Tree -> Operator -> Evaluator String
