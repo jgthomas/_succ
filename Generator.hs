@@ -19,9 +19,9 @@ genASM (ProgramNode topLevelItems) = do
 
 genASM (FunctionProtoNode name paramList) = do
         declareFunction name $ length paramList
-        --SymTab.initFunction name
+        SymTab.initFunction name
         --processParameters paramList
-        --SymTab.closeFunction
+        SymTab.closeFunction
         return ASM.noOutput
 
 genASM (FunctionNode name paramList statementList) = do
