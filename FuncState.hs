@@ -19,6 +19,7 @@ module FuncState (initScope,
                   allTypes,
                   stackPointerValue) where
 
+
 import Data.Maybe            (fromMaybe)
 import Data.Function         (on)
 import Data.List             (sortBy)
