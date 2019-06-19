@@ -3,7 +3,6 @@ module FuncState (initScope,
                   closeScope,
                   initFunction,
                   closeFunction,
-                  functionDefined,
                   getBreak,
                   setBreak,
                   getContinue,
@@ -39,7 +38,7 @@ import qualified FrameStack  (currentFunction,
 initFunction :: String -> Evaluator ()
 initFunction name = do
         FrameStack.pushFunctionName name
-        check <- functionDefined name
+        check <- checkFunctionState name
         if not check
            then newFuncState name
            else return ()
@@ -59,10 +58,6 @@ initScope = do
 
 closeScope :: Evaluator Int
 closeScope = decrementScope
-
-
-functionDefined :: String -> Evaluator Bool
-functionDefined funcName = checkFunctionState funcName
 
 
 delFuncState :: String -> Evaluator ()
