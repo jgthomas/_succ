@@ -1,11 +1,10 @@
-
 module Generator (genASM) where
 
 import AST        (Tree(..))
 import Evaluator  (Evaluator)
 import Tokens     (Operator(..))
 import ASM_Tokens (Jump(..))
-import Types      (Type)
+import Types      (Type(IntVar))
 import qualified  SymTab
 import qualified  ASM
 
@@ -50,6 +49,7 @@ genASM (ParamNode typ param) = do
 genASM (FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
         checkArguments paramCount (length argList) name
+        --validateArgumentTypes name argList
         callee <- SymTab.decSeqNumber name
         caller <- SymTab.currentSeqNumber
         if validSequence callee caller
@@ -427,3 +427,19 @@ getVariableASM _ _ (Just lab) = ASM.loadGlobal lab
 getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
 
 
+validateArgumentTypes :: String -> [Tree] -> Evaluator ()
+validateArgumentTypes funcName argList = do
+        paramTypes <- SymTab.allTypes funcName
+        argTypes   <- mapM getArgType argList
+        if paramTypes /= argTypes
+           then error "mismatch between types of parameters and arguments"
+           else return ()
+
+
+getArgType :: Tree -> Evaluator Type
+getArgType (ArgNode (VarNode name)) = do
+        typ <- SymTab.variableType name
+        case typ of
+             Just t  -> return t
+             Nothing -> error "ow!"
+getArgType _ = return IntVar

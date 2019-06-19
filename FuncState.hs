@@ -1,4 +1,3 @@
-
 module FuncState (initScope,
                   closeScope,
                   initFunction,
@@ -15,6 +14,7 @@ module FuncState (initScope,
                   parameterPosition,
                   parameterDeclared,
                   addVariable,
+                  allTypes,
                   stackPointerValue) where
 
 import Data.Maybe            (fromMaybe)
@@ -123,6 +123,12 @@ parameterType :: String -> Evaluator (Maybe Type)
 parameterType paramName = do
         currFuncName <- FrameStack.currentFunction
         extract paramType . M.lookup paramName . parameters <$> getFunctionState currFuncName
+
+
+allTypes :: String -> Evaluator [Type]
+allTypes funcName = do
+        paramList <- M.elems . parameters <$> getFunctionState funcName
+        return $ snd <$> (sortBy (compare `on` fst) $ paramData <$> paramList)
 
 
 parameterDeclared :: String -> Evaluator Bool
@@ -295,12 +301,6 @@ addParam n t st =
 extract :: (b -> a) -> Maybe b -> Maybe a
 extract f (Just pv) = Just . f $ pv
 extract f Nothing   = Nothing
-
-
-allTypes :: String -> Evaluator [Type]
-allTypes funcName = do
-        paramList <- M.elems . parameters <$> getFunctionState funcName
-        return $ snd <$> (sortBy (compare `on` fst) $ paramData <$> paramList)
 
 
 paramData :: ParamVar -> (Int, Type)
