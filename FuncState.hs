@@ -10,6 +10,7 @@ module FuncState (initScope,
                   setContinue,
                   checkVariable,
                   variableOffset,
+                  variableType,
                   addParameter,
                   parameterPosition,
                   parameterDeclared,
@@ -86,6 +87,10 @@ checkVariable varName = do
 
 variableOffset :: String -> Evaluator (Maybe Int)
 variableOffset name = getOffset name
+
+
+variableType :: String -> Evaluator (Maybe Type)
+variableType name = getType name
 
 
 addVariable :: String -> Type -> Evaluator Int
