@@ -1,4 +1,6 @@
+
 module Generator (genASM) where
+
 import AST        (Tree(..))
 import Evaluator  (Evaluator)
 import Tokens     (Operator(..))
