@@ -519,7 +519,8 @@ isAssignment op = op `elem` [Assign,PlusAssign,MinusAssign,
 setType :: Token -> Token -> Type
 setType (TokKeyword Int) (TokOp Multiply) = IntPointer
 setType (TokKeyword Int) _                = IntVar
-setType _                _                = error $ "unrecognised type "
+setType a                b                = error $ "unrecognised type: "
+                                            ++ show a ++ " " ++ show b
 
 
 data Error = SemiColon
