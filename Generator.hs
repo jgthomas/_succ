@@ -1,5 +1,4 @@
 module Generator (genASM) where
-
 import AST        (Tree(..))
 import Evaluator  (Evaluator)
 import Tokens     (Operator(..))
@@ -20,12 +19,11 @@ genASM (ProgramNode topLevelItems) = do
 genASM (FunctionProtoNode name paramList) = do
         declareFunction name $ length paramList
         SymTab.initFunction name
-        --processParameters paramList
+        processParameters paramList
         SymTab.closeFunction
         return ASM.noOutput
 
 genASM (FunctionNode name paramList statementList) = do
-        --defined <- SymTab.functionDefined name
         defined <- SymTab.checkFuncDefined name
         if defined
            then error $ "Function aleady defined: " ++ name
@@ -54,7 +52,7 @@ genASM (ParamNode typ param) = do
 genASM (FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
         checkArguments paramCount (length argList) name
-        --validateArgumentTypes name argList
+        validateArgumentTypes name argList
         callee <- SymTab.decSeqNumber name
         caller <- SymTab.currentSeqNumber
         if validSequence callee caller
@@ -395,7 +393,12 @@ declareFunction funcName paramCount = do
                         Just p  -> do
                                 if p /= paramCount
                                    then error $ "Mismatch in parameter counts for: " ++ funcName
-                                   else do SymTab.declareFunction funcName paramCount
+                                   else do
+                                           SymTab.declareFunction funcName paramCount
+                                           defined <- SymTab.checkFuncDefined funcName
+                                           if not defined
+                                              then do SymTab.delFuncState funcName
+                                              else return ()
 
 
 varDec :: String -> Evaluator Bool

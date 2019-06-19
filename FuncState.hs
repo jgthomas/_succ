@@ -14,9 +14,9 @@ module FuncState (initScope,
                   parameterPosition,
                   parameterDeclared,
                   addVariable,
+                  delFuncState,
                   allTypes,
                   stackPointerValue) where
-
 import Data.Maybe            (fromMaybe)
 import Data.Function         (on)
 import Data.List             (sortBy)
@@ -36,7 +36,6 @@ import qualified FrameStack  (currentFunction,
 initFunction :: String -> Evaluator ()
 initFunction name = do
         FrameStack.pushFunctionName name
-        --newFuncState name
         check <- functionDefined name
         if not check
            then newFuncState name
@@ -61,6 +60,10 @@ closeScope = decrementScope
 
 functionDefined :: String -> Evaluator Bool
 functionDefined funcName = checkFunctionState funcName
+
+
+delFuncState :: String -> Evaluator ()
+delFuncState name = delFunctionState name
 
 
 getBreak :: Evaluator (Maybe Int)
@@ -265,6 +268,11 @@ getFunctionState n = Ev $ \symTab ->
 setFunctionState :: String -> FuncState -> Evaluator ()
 setFunctionState n st = Ev $ \symTab ->
         ((), symTab { funcStates = M.insert n st $ funcStates symTab })
+
+
+delFunctionState :: String -> Evaluator ()
+delFunctionState n = Ev $ \symTab ->
+        ((), symTab { funcStates = M.delete n . funcStates $ symTab })
 
 
 -- offset
