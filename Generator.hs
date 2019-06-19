@@ -440,16 +440,16 @@ getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
 validateArgumentTypes :: String -> [Tree] -> Evaluator ()
 validateArgumentTypes funcName argList = do
         paramTypes <- SymTab.allTypes funcName
-        argTypes   <- mapM getArgType argList
+        argTypes   <- mapM getType argList
         if paramTypes /= argTypes
            then error "mismatch between types of parameters and arguments"
            else return ()
 
 
-getArgType :: Tree -> Evaluator Type
-getArgType (ArgNode (VarNode name)) = do
+getType :: Tree -> Evaluator Type
+getType (ArgNode (VarNode name)) = do
         typ <- SymTab.variableType name
         case typ of
              Just t  -> return t
              Nothing -> error "ow!"
-getArgType _ = return IntVar
+getType _ = return IntVar
