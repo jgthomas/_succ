@@ -19,7 +19,7 @@ genASM (ProgramNode topLevelItems) = do
         return $ concat prog ++ concat bss
 
 genASM (FunctionProtoNode name paramList) = do
-        declareFunction name $ length paramList
+        declareFunction name paramList
         SymTab.initFunction name
         processParameters paramList
         SymTab.closeFunction
@@ -30,7 +30,7 @@ genASM (FunctionNode name paramList statementList) = do
         if defined
            then error $ "Function aleady defined: " ++ name
            else do
-                   declareFunction name $ length paramList
+                   declareFunction name paramList
                    SymTab.defineFunction name
                    SymTab.initFunction name
                    processParameters paramList
@@ -384,19 +384,19 @@ mkGlobLabel :: String -> Int -> String
 mkGlobLabel name labnum = "_" ++ name ++ show labnum
 
 
-declareFunction :: String -> Int -> Evaluator ()
-declareFunction funcName paramCount = do
+declareFunction :: String -> [Tree] -> Evaluator ()
+declareFunction funcName paramList = do
         existsVar <- varDec funcName
         if existsVar
            then error $ "'" ++ funcName ++ "' already defined as variable"
            else do prevParamCount <- SymTab.decParamCount funcName
                    case prevParamCount of
-                        Nothing -> do SymTab.declareFunction funcName paramCount
+                        Nothing -> do SymTab.declareFunction funcName (length paramList)
                         Just p  -> do
-                                if p /= paramCount
+                                if p /= length paramList
                                    then error $ "Mismatch in parameter counts for: " ++ funcName
                                    else do
-                                           SymTab.declareFunction funcName paramCount
+                                           SymTab.declareFunction funcName (length paramList)
                                            defined <- SymTab.checkFuncDefined funcName
                                            if not defined
                                               then do SymTab.delFuncState funcName
