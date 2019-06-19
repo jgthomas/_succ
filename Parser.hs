@@ -63,7 +63,7 @@ parseFunction (id:toks) =
 
 
 parseFunctionParams :: [Tree] -> [Token] -> ([Tree], [Token])
-parseFunctionParams paramList (first:second:toks)
+parseFunctionParams paramList allToks@(first:second:toks)
         | first == TokCloseParen                       = (paramList, second:toks)
         | first /= TokOpenParen && first /= TokComma   = error "Missing comma between parameters"
         | first == TokComma && second == TokCloseParen = error "Expected parameter type"
@@ -295,7 +295,7 @@ parseDeclaration allToks@(typ:id:toks) =
              (TokIdent varName) ->
                      let (exprTree, toks') = parseOptAssign . accept $ allToks
                          in
-                     (DeclarationNode varName IntVar exprTree, toks')
+                     (DeclarationNode varName (setType typ id) exprTree, toks')
              _ -> error $ "invalid identifier: " ++ show id
 
 
@@ -305,7 +305,7 @@ parsePointerDec allToks@(typ:ast:id:toks) =
              (TokIdent varName) ->
                      let (exprTree, toks') = parseOptAssign (id:toks)
                          in
-                     (PointerNode varName IntPointer exprTree, toks')
+                     (PointerNode varName (setType typ ast) exprTree, toks')
              _ -> error $ "invalid identifier: " ++ show id
 
 
@@ -517,6 +517,12 @@ validType kwd = kwd `elem` [Int]
 isAssignment :: Operator -> Bool
 isAssignment op = op `elem` [Assign,PlusAssign,MinusAssign,
                              MultiplyAssign,DivideAssign,ModuloAssign]
+
+
+setType :: Token -> Token -> Type
+setType (TokKeyword Int) (TokOp Multiply) = IntPointer
+setType (TokKeyword Int) _                = IntVar
+setType _                _                = error $ "unrecognised type "
 
 
 data Error = SemiColon
