@@ -94,18 +94,18 @@ unary o
 
 
 binary :: String -> String -> Operator -> String
-binary val1 val2 o
-   | o == Plus               = computeAdd val1 val2
-   | o == Minus              = computeSub val1 val2
-   | o == Multiply           = computeMul val1 val2
-   | o == Divide             = computeDiv val1 val2
-   | o == Modulo             = computeMod val1 val2
-   | o == Equal              = comparison val1 val2 ++ setBitIf Equ
-   | o == NotEqual           = comparison val1 val2 ++ setBitIf NEqu
-   | o == GreaterThan        = comparison val1 val2 ++ setBitIf GThan
-   | o == LessThan           = comparison val1 val2 ++ setBitIf LThan
-   | o == GreaterThanOrEqual = comparison val1 val2 ++ setBitIf GThanE
-   | o == LessThanOrEqual    = comparison val1 val2 ++ setBitIf LThanE
+binary load1 load2 o
+   | o == Plus               = computeAdd load1 load2
+   | o == Minus              = computeSub load1 load2
+   | o == Multiply           = computeMul load1 load2
+   | o == Divide             = computeDiv load1 load2
+   | o == Modulo             = computeMod load1 load2
+   | o == Equal              = comparison load1 load2 ++ setBitIf Equ
+   | o == NotEqual           = comparison load1 load2 ++ setBitIf NEqu
+   | o == GreaterThan        = comparison load1 load2 ++ setBitIf GThan
+   | o == LessThan           = comparison load1 load2 ++ setBitIf LThan
+   | o == GreaterThanOrEqual = comparison load1 load2 ++ setBitIf GThanE
+   | o == LessThanOrEqual    = comparison load1 load2 ++ setBitIf LThanE
 
 
 logicalOR :: String -> String -> Int -> Int -> String
