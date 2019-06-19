@@ -469,5 +469,5 @@ getArgType (ArgNode (VarNode name)) = do
         typ <- SymTab.variableType name
         case typ of
              Just t  -> return t
-             Nothing -> error "ow!"
+             Nothing -> error $ "no type associated with variable: " ++ name
 getArgType _ = return IntVar
