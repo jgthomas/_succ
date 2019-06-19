@@ -20,7 +20,8 @@ data GlobalScope = Gscope { seqNum       :: Int
                           , funcDecSeq   :: M.Map String Int
                           , funcParams   :: M.Map String Int
                           , declaredVars :: M.Map String GlobalVar
-                          , definedVars  :: S.Set String }
+                          , definedVars  :: S.Set String
+                          , definedFuncs :: S.Set String }
                  deriving (Show)
 
 

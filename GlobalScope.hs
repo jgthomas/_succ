@@ -1,12 +1,14 @@
 
 module GlobalScope (newGlobalScope,
                     declareFunction,
+                    defineFunction,
                     declareGlobal,
                     decParamCount,
                     decSeqNumber,
                     currentSeqNumber,
                     globalLabel,
                     checkVarDefined,
+                    checkFuncDefined,
                     getUndefined,
                     defineGlobal) where
 
@@ -23,7 +25,7 @@ import qualified FrameStack (currentFunction)
 
 
 newGlobalScope :: GlobalScope
-newGlobalScope = Gscope 0 M.empty M.empty M.empty S.empty
+newGlobalScope = Gscope 0 M.empty M.empty M.empty S.empty S.empty
 
 
 decParamCount :: String -> Evaluator (Maybe Int)
@@ -52,12 +54,22 @@ checkVarDefined :: String -> Evaluator Bool
 checkVarDefined name = S.member name . definedVars <$> getGlobalScope
 
 
+checkFuncDefined :: String -> Evaluator Bool
+checkFuncDefined name = S.member name . definedFuncs <$> getGlobalScope
+
+
 declareFunction :: String -> Int -> Evaluator ()
 declareFunction funcName paramCount = do
         gscope <- getGlobalScope
         let gscope'  = addSymbol funcName gscope
             gscope'' = addParams funcName paramCount gscope'
         updateGlobalScope gscope''
+
+
+defineFunction :: String -> Evaluator ()
+defineFunction name = do
+        gscope <- getGlobalScope
+        updateGlobalScope $ funcAsDefined name gscope
 
 
 declareGlobal :: String -> Type -> String -> Evaluator ()
@@ -121,6 +133,10 @@ addParams n p s = s { funcParams = M.insert n p $ funcParams s }
 
 varAsDefined :: String -> GlobalScope -> GlobalScope
 varAsDefined n s = s { definedVars = S.insert n $ definedVars s }
+
+
+funcAsDefined :: String -> GlobalScope -> GlobalScope
+funcAsDefined n s = s { definedFuncs = S.insert n $ definedFuncs s }
 
 
 addSymbol :: String -> GlobalScope -> GlobalScope

@@ -37,6 +37,10 @@ initFunction :: String -> Evaluator ()
 initFunction name = do
         FrameStack.pushFunctionName name
         newFuncState name
+        --check <- functionDefined name
+        --if not check
+        --   then newFuncState name
+        --   else return ()
 
 
 closeFunction :: Evaluator ()
