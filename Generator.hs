@@ -419,7 +419,7 @@ checkParamTypesMatch name paramList = do
         let newParamTypes = getParamType <$> paramList
         if currParamTypes /= newParamTypes
            then error $ "mismatching types for parameters: "
-                        ++ show currParamTypes ++ " vs."
+                        ++ show currParamTypes ++ " vs. "
                         ++ show newParamTypes ++ " "
                         ++ "for function: " ++ name
            else return ()
