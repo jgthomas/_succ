@@ -71,7 +71,7 @@ parseFunctionParams paramList allToks@(first:second:toks)
                            TokCloseParen -> (paramList, toks)
                            (TokKeyword typ)
                               | validType typ ->
-                                     let (paramTree, toks') = parseParam toks
+                                     let (paramTree, toks') = parseParam . accept $ allToks
                                          in
                                      parseFunctionParams (paramList ++ [paramTree]) toks'
                               | otherwise -> error "Invalid parameter type"
@@ -79,15 +79,12 @@ parseFunctionParams paramList allToks@(first:second:toks)
 
 
 parseParam :: [Token] -> (Tree, [Token])
-parseParam allToks@(ast:toks) =
-        let (paramTree, toks') = parseParamValue allToks
+parseParam allToks@(typ:ast:toks) =
+        let (paramTree, toks') = parseParamValue . accept $ allToks
             in
         case paramTree of
-             VarNode str ->
-                     case ast of
-                          (TokIdent a)     -> (ParamNode IntVar paramTree, toks')
-                          (TokOp Multiply) -> (ParamNode IntPointer paramTree, toks')
-             _ -> error "Invalid function parameter"
+             VarNode str -> (ParamNode (setType typ ast) paramTree, toks')
+             _           -> error "Invalid function parameter"
 
 
 parseParamValue :: [Token] -> (Tree, [Token])
