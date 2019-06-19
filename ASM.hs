@@ -422,7 +422,7 @@ emitLabel n = "_label_" ++ show n ++ ":\n"
 result  = "%rax"
 scratch = "%r12"
 
-basePointer = "%rbp"
+basePointer  = "%rbp"
 instrPointer = "%rip"
 stackPointer = "%rsp"
 
