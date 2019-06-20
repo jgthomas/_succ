@@ -5,7 +5,7 @@ import AST        (Tree(..))
 import Evaluator  (Evaluator)
 import Tokens     (Operator(..))
 import ASM_Tokens (Jump(..))
-import Types      (Type(IntVar))
+import Types      (Type(..))
 import qualified  SymTab
 import qualified  ASM
 
@@ -459,9 +459,12 @@ validateArgumentTypes :: String -> [Tree] -> Evaluator ()
 validateArgumentTypes funcName argList = do
         paramTypes <- SymTab.allTypes funcName
         argTypes   <- mapM getArgType argList
-        if paramTypes /= argTypes
-           then error "mismatch between types of parameters and arguments"
-           else return ()
+        if paramTypes == argTypes
+           then return ()
+           else error $ "mismatch between types of parameters: "
+                        ++ show paramTypes
+                        ++ " and arguments: "
+                        ++ show argTypes
 
 
 getArgType :: Tree -> Evaluator Type
@@ -470,4 +473,5 @@ getArgType (ArgNode (VarNode name)) = do
         case typ of
              Just t  -> return t
              Nothing -> error $ "no type associated with variable: " ++ name
-getArgType _ = return IntVar
+getArgType (ArgNode (AddressOfNode name)) = return IntPointer
+getArgType _                              = return IntVar
