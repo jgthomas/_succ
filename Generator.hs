@@ -465,10 +465,11 @@ validateArgumentTypes funcName argList = do
 
 
 getType :: Tree -> Evaluator Type
-getType (ArgNode (VarNode name))       = getVariableType name
-getType (ArgNode (AddressOfNode name)) = return IntPointer
-getType (ParamNode typ tree)           = return typ
-getType _                              = return IntVar
+getType (ArgNode tree)       = getType tree
+getType (ParamNode typ tree) = return typ
+getType (VarNode name)       = getVariableType name
+getType (AddressOfNode name) = return IntPointer
+getType _                    = return IntVar
 
 
 getVariableType :: String -> Evaluator Type
