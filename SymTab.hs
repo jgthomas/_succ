@@ -25,7 +25,7 @@ newSymTab = Tab
 
 labelNum :: Evaluator Int
 labelNum = Ev $ \symTab ->
-        (label symTab, symTab { label = succ $ label symTab })
+        (label symTab, symTab { label = succ . label $ symTab })
 
 
 firstLabel :: Int
