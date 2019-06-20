@@ -416,17 +416,13 @@ varDec name = do
 checkParamTypesMatch :: String -> [Tree] -> Evaluator ()
 checkParamTypesMatch name paramList = do
         currParamTypes <- SymTab.allTypes name
-        let newParamTypes = getParamType <$> paramList
-        if currParamTypes /= newParamTypes
-           then error $ "mismatching types for parameters: "
+        newParamTypes  <- mapM getType paramList
+        if currParamTypes == newParamTypes
+           then return ()
+           else error $ "mismatching types for parameters: "
                         ++ show currParamTypes ++ " vs. "
                         ++ show newParamTypes ++ " "
                         ++ "for function: " ++ name
-           else return ()
-
-
-getParamType :: Tree -> Type
-getParamType (ParamNode typ tree) = typ
 
 
 buildAssignmentASM :: Tree -> Tree -> Operator -> Evaluator String
@@ -458,7 +454,7 @@ getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
 validateArgumentTypes :: String -> [Tree] -> Evaluator ()
 validateArgumentTypes funcName argList = do
         paramTypes <- SymTab.allTypes funcName
-        argTypes   <- mapM getArgType argList
+        argTypes   <- mapM getType argList
         if paramTypes == argTypes
            then return ()
            else error $ "mismatch between types of parameters: "
@@ -467,10 +463,11 @@ validateArgumentTypes funcName argList = do
                         ++ show argTypes
 
 
-getArgType :: Tree -> Evaluator Type
-getArgType (ArgNode (VarNode name))       = getVariableType name
-getArgType (ArgNode (AddressOfNode name)) = return IntPointer
-getArgType _                              = return IntVar
+getType :: Tree -> Evaluator Type
+getType (ArgNode (VarNode name))       = getVariableType name
+getType (ArgNode (AddressOfNode name)) = return IntPointer
+getType (ParamNode typ tree)           = return typ
+getType _                              = return IntVar
 
 
 getVariableType :: String -> Evaluator Type
