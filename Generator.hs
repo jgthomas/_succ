@@ -461,6 +461,7 @@ validateArgumentTypes funcName argList = do
                         ++ show paramTypes
                         ++ " and arguments: "
                         ++ show argTypes
+                        ++ " for function: " ++ funcName
 
 
 getType :: Tree -> Evaluator Type
