@@ -468,10 +468,14 @@ validateArgumentTypes funcName argList = do
 
 
 getArgType :: Tree -> Evaluator Type
-getArgType (ArgNode (VarNode name)) = do
+getArgType (ArgNode (VarNode name))       = getVariableType name
+getArgType (ArgNode (AddressOfNode name)) = return IntPointer
+getArgType _                              = return IntVar
+
+
+getVariableType :: String -> Evaluator Type
+getVariableType name = do
         typ <- SymTab.variableType name
         case typ of
              Just t  -> return t
              Nothing -> error $ "no type associated with variable: " ++ name
-getArgType (ArgNode (AddressOfNode name)) = return IntPointer
-getArgType _                              = return IntVar
