@@ -184,18 +184,13 @@ genASM (AssignmentNode varName value op) = do
            then defineGlobal varName value
            else do
                    offset <- SymTab.variableOffset varName
+                   globLab <- SymTab.globalLabel varName
                    assign <- buildAssignmentASM (VarNode varName) value op
-                   case offset of
-                        Just off -> do
-                                adjustment <- SymTab.stackPointerValue
-                                return $ assign
-                                         ++ ASM.varOnStack off
-                                         ++ ASM.adjustStackPointer adjustment
-                        Nothing  -> do
-                                globLab <- SymTab.globalLabel varName
-                                case globLab of
-                                     Just lab -> return $ assign ++ ASM.storeGlobal lab
-                                     Nothing  -> error $ "Undefined variable: " ++ varName
+                   if offset == Nothing && globLab == Nothing
+                      then error $ "Undefined variable: " ++ varName
+                      else do
+                              varToAssign <- assignToVariable offset globLab
+                              return $ assign ++ varToAssign
 
 genASM (AssignDereferenceNode varName value op) = do
         assign <- buildAssignmentASM (DereferenceNode varName) value op
@@ -449,6 +444,14 @@ getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
 storeAtDereferenced :: Maybe Int -> Maybe Int -> String
 storeAtDereferenced (Just off) _ = ASM.derefStoreLocal off
 storeAtDereferenced _ (Just pos) = ASM.derefStoreParam pos
+
+
+assignToVariable :: Maybe Int -> Maybe String -> Evaluator String
+assignToVariable (Just off) _ = do
+        adjustment <- SymTab.stackPointerValue
+        return $ ASM.varOnStack off ++ ASM.adjustStackPointer adjustment
+assignToVariable _ (Just lab) = do
+        return $ ASM.storeGlobal lab
 
 
 -- Type checking
