@@ -448,8 +448,8 @@ getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
 
 
 dereferenceVariable :: Maybe Int -> Maybe Int -> String
-dereferenceVariable (Just off) _ = ASM.derefStoreLocal $ off
-dereferenceVariable _ (Just pos) = ASM.derefStoreParam $ pos
+dereferenceVariable (Just off) _ = ASM.derefStoreLocal off
+dereferenceVariable _ (Just pos) = ASM.derefStoreParam pos
 
 
 -- Type checking
