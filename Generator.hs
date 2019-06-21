@@ -395,7 +395,6 @@ processParameters name params = do
         SymTab.initFunction name
         mapM genASM params
         SymTab.closeFunction
-        return ()
 
 
 hasReturn :: [Tree] -> Bool
