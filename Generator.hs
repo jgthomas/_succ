@@ -194,10 +194,8 @@ genASM (AssignmentNode varName value op) = do
                         Nothing  -> do
                                 globLab <- SymTab.globalLabel varName
                                 case globLab of
-                                     Just lab -> return $ assign
-                                                          ++ ASM.storeGlobal lab
-                                     Nothing  -> error $ "Undefined variable: "
-                                                         ++ varName
+                                     Just lab -> return $ assign ++ ASM.storeGlobal lab
+                                     Nothing  -> error $ "Undefined variable: " ++ varName
 
 genASM (AssignDereferenceNode varName value op) = do
         assign <- buildAssignmentASM (DereferenceNode varName) value op
