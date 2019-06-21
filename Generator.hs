@@ -297,6 +297,92 @@ genASM (ConstantNode n) = do
            else return . ASM.loadValue $ n
 
 
+-- Global variables
+
+declareGlobal :: String -> Type -> Maybe Tree -> Evaluator String
+declareGlobal name typ toAssign = do
+        existsFunc <- funcDec name
+        if existsFunc
+           then error $ "'" ++ name ++ "' already declared as function"
+           else do currLabel  <- SymTab.globalLabel name
+                   case currLabel of
+                        Just lab -> genAssignment toAssign
+                        Nothing  -> do
+                                labnum <- SymTab.labelNum
+                                let globLab = mkGlobLabel name labnum
+                                SymTab.declareGlobal name typ globLab
+                                genAssignment toAssign
+
+
+mkGlobLabel :: String -> Int -> String
+mkGlobLabel name labnum = "_" ++ name ++ show labnum
+
+
+funcDec :: String -> Evaluator Bool
+funcDec name = do
+        paramNum <- SymTab.decParamCount name
+        case paramNum of
+             Nothing -> return False
+             Just n  -> return True
+
+
+genAssignment :: Maybe Tree -> Evaluator String
+genAssignment toAssign = do
+        case toAssign of
+             Nothing     -> return ASM.noOutput
+             Just assign -> genASM assign
+
+
+defineGlobal :: String -> Tree -> Evaluator String
+defineGlobal name constNode = do
+        defined <- SymTab.checkVarDefined name
+        if defined
+           then error $ "global variable already defined: " ++ name
+           else do
+                   const <- genASM constNode
+                   label <- SymTab.globalLabel name
+                   case label of
+                        Nothing  -> error $ "variable not declared: " ++ name
+                        Just lab -> do
+                                SymTab.defineGlobal name
+                                if read const == 0
+                                   then return . ASM.uninitializedGlobal $ lab
+                                   else return . ASM.initializedGlobal lab $ const
+
+
+-- Functions / function calls
+
+declareFunction :: String -> [Tree] -> Evaluator ()
+declareFunction funcName paramList = do
+        checkIfVariable funcName
+        prevParamCount <- SymTab.decParamCount funcName
+        case prevParamCount of
+             Nothing    -> do SymTab.declareFunction funcName (length paramList)
+             Just count -> do
+                     checkCountsMatch count funcName paramList
+                     checkTypesMatch funcName paramList
+                     SymTab.declareFunction funcName (length paramList)
+                     defined <- SymTab.checkFuncDefined funcName
+                     if not defined
+                        then do SymTab.delFuncState funcName
+                        else return ()
+
+
+checkIfVariable :: String -> Evaluator ()
+checkIfVariable name = do
+        label <- SymTab.globalLabel name
+        case label of
+             Nothing -> return ()
+             Just l  -> error $ "already defined as variable: " ++ name
+
+
+checkCountsMatch :: Int -> String -> [Tree] -> Evaluator ()
+checkCountsMatch count name paramList =
+        if count /= length paramList
+           then error $ "mismatch in parameter/argument counts for: " ++ name
+           else return ()
+
+
 checkArguments :: Maybe Int -> Int -> String -> Evaluator ()
 checkArguments Nothing a f = error $ "called function not declared: " ++ f
 checkArguments (Just n) a f
@@ -333,99 +419,15 @@ processArg argPos arg = do
         return $ argASM ++ (ASM.putInRegister . ASM.selectRegister $ argPos)
 
 
-declareGlobal :: String -> Type -> Maybe Tree -> Evaluator String
-declareGlobal name typ toAssign = do
-        existsFunc <- funcDec name
-        if existsFunc
-           then error $ "'" ++ name ++ "' already declared as function"
-           else do currLabel  <- SymTab.globalLabel name
-                   case currLabel of
-                        Just lab -> genAssignment toAssign
-                        Nothing  -> do
-                                labnum <- SymTab.labelNum
-                                let globLab = mkGlobLabel name labnum
-                                SymTab.declareGlobal name typ globLab
-                                genAssignment toAssign
+validSequence :: Maybe Int -> Maybe Int -> Bool
+validSequence Nothing (Just caller) = error "callee undefined"
+validSequence (Just callee) Nothing = error "caller undefined"
+validSequence (Just callee) (Just caller)
+        | callee <= caller = True
+        | otherwise        = False
 
 
-genAssignment :: Maybe Tree -> Evaluator String
-genAssignment toAssign = do
-        case toAssign of
-             Nothing     -> return ASM.noOutput
-             Just assign -> genASM assign
-
-
-funcDec :: String -> Evaluator Bool
-funcDec name = do
-        paramNum <- SymTab.decParamCount name
-        case paramNum of
-             Nothing -> return False
-             Just n  -> return True
-
-
-defineGlobal :: String -> Tree -> Evaluator String
-defineGlobal name constNode = do
-        defined <- SymTab.checkVarDefined name
-        if defined
-           then error $ "global variable already defined: " ++ name
-           else do
-                   const <- genASM constNode
-                   label <- SymTab.globalLabel name
-                   case label of
-                        Nothing  -> error $ "variable not declared: " ++ name
-                        Just lab -> do
-                                SymTab.defineGlobal name
-                                if read const == 0
-                                   then return . ASM.uninitializedGlobal $ lab
-                                   else return . ASM.initializedGlobal lab $ const
-
-
-mkGlobLabel :: String -> Int -> String
-mkGlobLabel name labnum = "_" ++ name ++ show labnum
-
-
-declareFunction :: String -> [Tree] -> Evaluator ()
-declareFunction funcName paramList = do
-        checkIfVariable funcName
-        prevParamCount <- SymTab.decParamCount funcName
-        case prevParamCount of
-             Nothing    -> do SymTab.declareFunction funcName (length paramList)
-             Just count -> do
-                     checkCountsMatch count funcName paramList
-                     checkTypesMatch funcName paramList
-                     SymTab.declareFunction funcName (length paramList)
-                     defined <- SymTab.checkFuncDefined funcName
-                     if not defined
-                        then do SymTab.delFuncState funcName
-                        else return ()
-
-
-checkIfVariable :: String -> Evaluator ()
-checkIfVariable name = do
-        label <- SymTab.globalLabel name
-        case label of
-             Nothing -> return ()
-             Just l  -> error $ "already defined as variable: " ++ name
-
-
-checkCountsMatch :: Int -> String -> [Tree] -> Evaluator ()
-checkCountsMatch count name paramList =
-        if count /= length paramList
-           then error $ "mismatch in parameter/argument counts for: " ++ name
-           else return ()
-
-
-checkTypesMatch :: String -> [Tree] -> Evaluator ()
-checkTypesMatch name paramList = do
-        currTypes <- SymTab.allTypes name
-        newTypes  <- mapM getType paramList
-        if currTypes == newTypes
-           then return ()
-           else error $ "mismatching types for parameters/arguments: "
-                        ++ show currTypes ++ " vs. "
-                        ++ show newTypes ++ " "
-                        ++ "for function: " ++ name
-
+-- Variable assignment
 
 buildAssignmentASM :: Tree -> Tree -> Operator -> Evaluator String
 buildAssignmentASM varTree valueTree op
@@ -438,19 +440,25 @@ buildAssignmentASM varTree valueTree op
         | otherwise            = error $ "unrecognised assignment operator: " ++ show op
 
 
-validSequence :: Maybe Int -> Maybe Int -> Bool
-validSequence Nothing (Just caller) = error "callee undefined"
-validSequence (Just callee) Nothing = error "caller undefined"
-validSequence (Just callee) (Just caller)
-        | callee <= caller = True
-        | otherwise        = False
-
-
 getVariableASM :: Maybe Int -> Maybe Int -> Maybe String -> String
 getVariableASM (Just off) _ _ = ASM.varOffStack off
 getVariableASM _ (Just reg) _ = ASM.getFromRegister . ASM.selectRegister $ reg
 getVariableASM _ _ (Just lab) = ASM.loadGlobal lab
 getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
+
+
+-- Type checking
+
+checkTypesMatch :: String -> [Tree] -> Evaluator ()
+checkTypesMatch name paramList = do
+        currTypes <- SymTab.allTypes name
+        newTypes  <- mapM getType paramList
+        if currTypes == newTypes
+           then return ()
+           else error $ "mismatching types for parameters/arguments: "
+                        ++ show currTypes ++ " vs. "
+                        ++ show newTypes ++ " "
+                        ++ "for function: " ++ name
 
 
 getType :: Tree -> Evaluator Type
