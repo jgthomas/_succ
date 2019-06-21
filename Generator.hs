@@ -28,10 +28,10 @@ genASM (FunctionNode name paramList statementList) = do
            then error $ "Function aleady defined: " ++ name
            else do
                    declareFunction name paramList
-                   SymTab.defineFunction name
                    SymTab.initFunction name
                    statements <- mapM genASM statementList
                    SymTab.closeFunction
+                   SymTab.defineFunction name
                    if hasReturn statementList || name /= "main"
                       then return $ ASM.functionName name
                                     ++ concat statements
