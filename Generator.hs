@@ -20,9 +20,6 @@ genASM (ProgramNode topLevelItems) = do
 
 genASM (FunctionProtoNode name paramList) = do
         declareFunction name paramList
-        SymTab.initFunction name
-        processParameters paramList
-        SymTab.closeFunction
         return ASM.noOutput
 
 genASM (FunctionNode name paramList statementList) = do
@@ -33,7 +30,6 @@ genASM (FunctionNode name paramList statementList) = do
                    declareFunction name paramList
                    SymTab.defineFunction name
                    SymTab.initFunction name
-                   processParameters paramList
                    statements <- mapM genASM statementList
                    SymTab.closeFunction
                    if hasReturn statementList || name /= "main"
@@ -357,14 +353,18 @@ declareFunction funcName paramList = do
         checkIfVariable funcName
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
-             Nothing    -> do SymTab.declareFunction funcName (length paramList)
+             Nothing    -> do
+                     SymTab.declareFunction funcName (length paramList)
+                     processParameters funcName paramList
              Just count -> do
                      checkCountsMatch count funcName paramList
                      checkTypesMatch funcName paramList
                      SymTab.declareFunction funcName (length paramList)
                      defined <- SymTab.checkFuncDefined funcName
                      if not defined
-                        then do SymTab.delFuncState funcName
+                        then do
+                                SymTab.delFuncState funcName
+                                processParameters funcName paramList
                         else return ()
 
 
@@ -390,9 +390,11 @@ checkArguments (Just n) a f
        | otherwise = return ()
 
 
-processParameters :: [Tree] -> Evaluator ()
-processParameters params = do
+processParameters :: String -> [Tree] -> Evaluator ()
+processParameters name params = do
+        SymTab.initFunction name
         mapM genASM params
+        SymTab.closeFunction
         return ()
 
 
