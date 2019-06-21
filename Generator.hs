@@ -49,7 +49,7 @@ genASM (ParamNode typ param) = do
 
 genASM (FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
-        checkArguments paramCount (length argList) name
+        checkArguments paramCount name argList
         checkTypesMatch name argList
         callee <- SymTab.decSeqNumber name
         caller <- SymTab.currentSeqNumber
@@ -376,11 +376,9 @@ checkCountsMatch count name paramList =
            else return ()
 
 
-checkArguments :: Maybe Int -> Int -> String -> Evaluator ()
-checkArguments Nothing a f = error $ "called function not declared: " ++ f
-checkArguments (Just n) a f
-       | n /= a    = error $ "argument count does not match parameter count: " ++ f
-       | otherwise = return ()
+checkArguments :: Maybe Int -> String -> [Tree] -> Evaluator ()
+checkArguments Nothing name argList  = error $ "called function not declared: " ++ name
+checkArguments (Just n) name argList = checkCountsMatch n name argList
 
 
 processParameters :: String -> [Tree] -> Evaluator ()
