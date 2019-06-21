@@ -386,28 +386,33 @@ mkGlobLabel name labnum = "_" ++ name ++ show labnum
 
 declareFunction :: String -> [Tree] -> Evaluator ()
 declareFunction funcName paramList = do
-        checkDefinedAsVar funcName
+        checkIfVariable funcName
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
-             Nothing -> do SymTab.declareFunction funcName (length paramList)
-             Just p  -> do
-                     if p /= length paramList
-                        then error $ "Mismatch in parameter counts for: " ++ funcName
-                        else do
-                                checkParamTypesMatch funcName paramList
-                                SymTab.declareFunction funcName (length paramList)
-                                defined <- SymTab.checkFuncDefined funcName
-                                if not defined
-                                   then do SymTab.delFuncState funcName
-                                   else return ()
+             Nothing    -> do SymTab.declareFunction funcName (length paramList)
+             Just count -> do
+                     checkParamCountsMatch count funcName paramList
+                     checkParamTypesMatch funcName paramList
+                     SymTab.declareFunction funcName (length paramList)
+                     defined <- SymTab.checkFuncDefined funcName
+                     if not defined
+                        then do SymTab.delFuncState funcName
+                        else return ()
 
 
-checkDefinedAsVar :: String -> Evaluator ()
-checkDefinedAsVar name = do
+checkIfVariable :: String -> Evaluator ()
+checkIfVariable name = do
         label <- SymTab.globalLabel name
         case label of
              Nothing -> return ()
              Just l  -> error $ "already defined as variable: " ++ name
+
+
+checkParamCountsMatch :: Int -> String -> [Tree] -> Evaluator ()
+checkParamCountsMatch count name paramList =
+        if count /= length paramList
+           then error $ "Mismatch in parameter counts for: " ++ name
+           else return ()
 
 
 checkParamTypesMatch :: String -> [Tree] -> Evaluator ()
