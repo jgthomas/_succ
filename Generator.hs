@@ -333,19 +333,24 @@ mkGlobLabel name labnum = "_" ++ name ++ show labnum
 
 defineGlobal :: String -> Tree -> Evaluator String
 defineGlobal name constNode = do
+        checkIfDefined name
+        const <- genASM constNode
+        label <- SymTab.globalLabel name
+        case label of
+             Nothing  -> error $ "variable not declared: " ++ name
+             Just lab -> do
+                     SymTab.defineGlobal name
+                     if read const == 0
+                        then return . ASM.uninitializedGlobal $ lab
+                        else return . ASM.initializedGlobal lab $ const
+
+
+checkIfDefined :: String -> Evaluator ()
+checkIfDefined name = do
         defined <- SymTab.checkVarDefined name
         if defined
            then error $ "global variable already defined: " ++ name
-           else do
-                   const <- genASM constNode
-                   label <- SymTab.globalLabel name
-                   case label of
-                        Nothing  -> error $ "variable not declared: " ++ name
-                        Just lab -> do
-                                SymTab.defineGlobal name
-                                if read const == 0
-                                   then return . ASM.uninitializedGlobal $ lab
-                                   else return . ASM.initializedGlobal lab $ const
+           else return ()
 
 
 -- Functions / function calls
