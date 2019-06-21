@@ -209,7 +209,7 @@ genASM (AssignDereferenceNode varName value op) = do
         argPos <- SymTab.parameterPosition varName
         if offset == Nothing && argPos == Nothing
            then error $ "variable not declared: " ++ varName
-           else return $ assign ++ dereferenceVariable offset argPos
+           else return $ assign ++ storeAtDereferenced offset argPos
 
 genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression
@@ -447,9 +447,9 @@ getVariableASM _ _ (Just lab) = ASM.loadGlobal lab
 getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
 
 
-dereferenceVariable :: Maybe Int -> Maybe Int -> String
-dereferenceVariable (Just off) _ = ASM.derefStoreLocal off
-dereferenceVariable _ (Just pos) = ASM.derefStoreParam pos
+storeAtDereferenced :: Maybe Int -> Maybe Int -> String
+storeAtDereferenced (Just off) _ = ASM.derefStoreLocal off
+storeAtDereferenced _ (Just pos) = ASM.derefStoreParam pos
 
 
 -- Type checking
