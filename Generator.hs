@@ -268,7 +268,7 @@ genASM (DereferenceNode varName) = do
         offset <- SymTab.variableOffset varName
         argPos <- SymTab.parameterPosition varName
         if offset == Nothing && argPos == Nothing
-           then error $ "variable not declared: " ++ varName
+           then error $ "trying to dereference undeclared variable: " ++ varName
            else return $ loadDereferenced offset argPos
 
 genASM (NullExprNode) = return ASM.noOutput
@@ -416,7 +416,7 @@ validSequence (Just callee) (Just caller)
         | otherwise        = False
 
 
--- Variable assignment
+-- Variables
 
 buildAssignmentASM :: Tree -> Tree -> Operator -> Evaluator String
 buildAssignmentASM varTree valueTree op
