@@ -206,13 +206,10 @@ genASM (AssignmentNode varName value op) = do
 genASM (AssignDereferenceNode varName value op) = do
         assign <- buildAssignmentASM (DereferenceNode varName) value op
         offset <- SymTab.variableOffset varName
-        case offset of
-             Just off -> return $ assign ++ ASM.derefStoreLocal off
-             Nothing  -> do
-                     argPos <- SymTab.parameterPosition varName
-                     case argPos of
-                          Just pos -> return $ assign ++ ASM.derefStoreParam pos
-                          Nothing  -> error $ "variable not declared: " ++ varName
+        argPos <- SymTab.parameterPosition varName
+        if offset == Nothing && argPos == Nothing
+           then error $ "variable not declared: " ++ varName
+           else return $ assign ++ dereferenceVariable offset argPos
 
 genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression
@@ -448,6 +445,11 @@ getVariableASM (Just off) _ _ = ASM.varOffStack off
 getVariableASM _ (Just reg) _ = ASM.getFromRegister . ASM.selectRegister $ reg
 getVariableASM _ _ (Just lab) = ASM.loadGlobal lab
 getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
+
+
+dereferenceVariable :: Maybe Int -> Maybe Int -> String
+dereferenceVariable (Just off) _ = ASM.derefStoreLocal $ off
+dereferenceVariable _ (Just pos) = ASM.derefStoreParam $ pos
 
 
 -- Type checking
