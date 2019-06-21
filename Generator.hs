@@ -301,29 +301,23 @@ genASM (ConstantNode n) = do
 
 declareGlobal :: String -> Type -> Maybe Tree -> Evaluator String
 declareGlobal name typ toAssign = do
-        existsFunc <- funcDec name
-        if existsFunc
-           then error $ "'" ++ name ++ "' already declared as function"
-           else do currLabel  <- SymTab.globalLabel name
-                   case currLabel of
-                        Just lab -> genAssignment toAssign
-                        Nothing  -> do
-                                labnum <- SymTab.labelNum
-                                let globLab = mkGlobLabel name labnum
-                                SymTab.declareGlobal name typ globLab
-                                genAssignment toAssign
+        checkIfFunction name
+        currLabel <- SymTab.globalLabel name
+        case currLabel of
+             Just lab -> genAssignment toAssign
+             Nothing  -> do
+                     labnum <- SymTab.labelNum
+                     let globLab = mkGlobLabel name labnum
+                     SymTab.declareGlobal name typ globLab
+                     genAssignment toAssign
 
 
-mkGlobLabel :: String -> Int -> String
-mkGlobLabel name labnum = "_" ++ name ++ show labnum
-
-
-funcDec :: String -> Evaluator Bool
-funcDec name = do
+checkIfFunction :: String -> Evaluator ()
+checkIfFunction name = do
         paramNum <- SymTab.decParamCount name
         case paramNum of
-             Nothing -> return False
-             Just n  -> return True
+             Nothing -> return ()
+             Just n  -> error $ "already declared as function: " ++ name
 
 
 genAssignment :: Maybe Tree -> Evaluator String
@@ -331,6 +325,10 @@ genAssignment toAssign = do
         case toAssign of
              Nothing     -> return ASM.noOutput
              Just assign -> genASM assign
+
+
+mkGlobLabel :: String -> Int -> String
+mkGlobLabel name labnum = "_" ++ name ++ show labnum
 
 
 defineGlobal :: String -> Tree -> Evaluator String
