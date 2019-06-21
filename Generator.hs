@@ -54,7 +54,7 @@ genASM (ParamNode typ param) = do
 genASM (FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
         checkArguments paramCount (length argList) name
-        validateArgumentTypes name argList
+        checkTypesMatch name argList
         callee <- SymTab.decSeqNumber name
         caller <- SymTab.currentSeqNumber
         if validSequence callee caller
@@ -391,8 +391,8 @@ declareFunction funcName paramList = do
         case prevParamCount of
              Nothing    -> do SymTab.declareFunction funcName (length paramList)
              Just count -> do
-                     checkParamCountsMatch count funcName paramList
-                     checkParamTypesMatch funcName paramList
+                     checkCountsMatch count funcName paramList
+                     checkTypesMatch funcName paramList
                      SymTab.declareFunction funcName (length paramList)
                      defined <- SymTab.checkFuncDefined funcName
                      if not defined
@@ -408,22 +408,22 @@ checkIfVariable name = do
              Just l  -> error $ "already defined as variable: " ++ name
 
 
-checkParamCountsMatch :: Int -> String -> [Tree] -> Evaluator ()
-checkParamCountsMatch count name paramList =
+checkCountsMatch :: Int -> String -> [Tree] -> Evaluator ()
+checkCountsMatch count name paramList =
         if count /= length paramList
-           then error $ "Mismatch in parameter counts for: " ++ name
+           then error $ "mismatch in parameter/argument counts for: " ++ name
            else return ()
 
 
-checkParamTypesMatch :: String -> [Tree] -> Evaluator ()
-checkParamTypesMatch name paramList = do
-        currParamTypes <- SymTab.allTypes name
-        newParamTypes  <- mapM getType paramList
-        if currParamTypes == newParamTypes
+checkTypesMatch :: String -> [Tree] -> Evaluator ()
+checkTypesMatch name paramList = do
+        currTypes <- SymTab.allTypes name
+        newTypes  <- mapM getType paramList
+        if currTypes == newTypes
            then return ()
-           else error $ "mismatching types for parameters: "
-                        ++ show currParamTypes ++ " vs. "
-                        ++ show newParamTypes ++ " "
+           else error $ "mismatching types for parameters/arguments: "
+                        ++ show currTypes ++ " vs. "
+                        ++ show newTypes ++ " "
                         ++ "for function: " ++ name
 
 
@@ -451,19 +451,6 @@ getVariableASM (Just off) _ _ = ASM.varOffStack off
 getVariableASM _ (Just reg) _ = ASM.getFromRegister . ASM.selectRegister $ reg
 getVariableASM _ _ (Just lab) = ASM.loadGlobal lab
 getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
-
-
-validateArgumentTypes :: String -> [Tree] -> Evaluator ()
-validateArgumentTypes funcName argList = do
-        paramTypes <- SymTab.allTypes funcName
-        argTypes   <- mapM getType argList
-        if paramTypes == argTypes
-           then return ()
-           else error $ "mismatch between types of parameters: "
-                        ++ show paramTypes
-                        ++ " and arguments: "
-                        ++ show argTypes
-                        ++ " for function: " ++ funcName
 
 
 getType :: Tree -> Evaluator Type
