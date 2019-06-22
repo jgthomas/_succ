@@ -177,9 +177,9 @@ genASM (AssignmentNode varName value op) = do
         if currScope == "global"
            then defineGlobal varName value
            else do
-                   offset <- SymTab.variableOffset varName
+                   offset  <- SymTab.variableOffset varName
                    globLab <- SymTab.globalLabel varName
-                   assign <- buildAssignmentASM (VarNode varName) value op
+                   assign  <- buildAssignmentASM (VarNode varName) value op
                    if offset == Nothing && globLab == Nothing
                       then error $ "Undefined variable: " ++ varName
                       else do
