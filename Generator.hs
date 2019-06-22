@@ -148,15 +148,15 @@ genASM (IfNode test action possElse) = do
 genASM (PointerNode varName typ assign) = do
         pointerASM <- genASM (DeclarationNode varName typ Nothing)
         case assign of
-             Just a -> do
+             Nothing -> return pointerASM
+             Just a  -> do
                      value  <- genASM a
                      offset <- SymTab.variableOffset varName
                      case offset of
                           Nothing  -> error $ "variable not declared: " ++ varName
                           Just off -> return $ pointerASM
-                                            ++ value
-                                            ++ ASM.varAddressStore off
-             _ -> return pointerASM
+                                               ++ value
+                                               ++ ASM.varAddressStore off
 
 genASM (DeclarationNode varName typ value) = do
         currScope <- SymTab.currentScope
