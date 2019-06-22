@@ -163,20 +163,14 @@ genASM (DeclarationNode varName typ value) = do
         if currScope == "global"
            then declareGlobal varName typ value
            else do
-                   localDec <- SymTab.checkVariable varName
-                   paramDec <- SymTab.parameterDeclared varName
-                   if localDec || paramDec
-                      then error $ "already declared in scope: '" ++ varName
-                      else do
-                              offset <- SymTab.addVariable varName typ
-                              adjust <- SymTab.stackPointerValue
-                              case value of
-                                   Just v  ->
-                                           genASM v
-                                   Nothing ->
-                                           return $ ASM.loadValue 0
-                                                    ++ ASM.varOnStack offset
-                                                    ++ ASM.adjustStackPointer adjust
+                   checkIfUsedInScope varName
+                   offset <- SymTab.addVariable varName typ
+                   adjust <- SymTab.stackPointerValue
+                   case value of
+                        Just v  -> genASM v
+                        Nothing -> return $ ASM.loadValue 0
+                                            ++ ASM.varOnStack offset
+                                            ++ ASM.adjustStackPointer adjust
 
 genASM (AssignmentNode varName value op) = do
         currScope <- SymTab.currentScope
@@ -452,6 +446,15 @@ assignToVariable (Just off) _ = do
         return $ ASM.varOnStack off ++ ASM.adjustStackPointer adjustment
 assignToVariable _ (Just lab) = do
         return $ ASM.storeGlobal lab
+
+
+checkIfUsedInScope :: String -> Evaluator ()
+checkIfUsedInScope name = do
+        localDec <- SymTab.checkVariable name
+        paramDec <- SymTab.parameterDeclared name
+        if localDec || paramDec
+           then error $ "already declared in scope: '" ++ name
+           else return ()
 
 
 -- Type checking
