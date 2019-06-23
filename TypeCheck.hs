@@ -11,14 +11,14 @@ import SymTab    (variableType,
 
 
 getType :: Tree -> Evaluator Type
-getType (ArgNode tree)                  = getType tree
-getType (ParamNode typ tree)            = return typ
-getType (VarNode name)                  = getVariableType name
-getType (AddressOfNode name)            = return IntPointer
-getType (TernaryNode l m r)             = getTernaryType l m r
-getType (BinaryNode l r op)             = getBinaryType l r op
-getType (UnaryNode tree op)             = getType tree
-getType (ConstantNode const)            = return IntVar
+getType (ArgNode tree)       = getType tree
+getType (ParamNode typ tree) = return typ
+getType (VarNode name)       = getVariableType name
+getType (AddressOfNode name) = return IntPointer
+getType (TernaryNode l m r)  = getTernaryType l m r
+getType (BinaryNode l r op)  = getBinaryType l r op
+getType (UnaryNode tree op)  = getType tree
+getType (ConstantNode const) = return IntVar
 
 
 getVariableType :: String -> Evaluator Type
