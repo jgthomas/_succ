@@ -96,11 +96,7 @@ variableOffset name = getOffset name
 
 
 variableType :: String -> Evaluator (Maybe Type)
-variableType name = do
-        currScope <- FrameStack.currentFunction
-        if currScope == "global"
-           then return Nothing
-           else getType name
+variableType name = getType name
 
 
 addVariable :: String -> Type -> Evaluator Int
@@ -132,11 +128,7 @@ parameterPosition paramName = do
 parameterType :: String -> Evaluator (Maybe Type)
 parameterType paramName = do
         currFuncName <- FrameStack.currentFunction
-        if currFuncName == "global"
-           then return Nothing
-           else extract paramType
-                . M.lookup paramName
-                . parameters <$> getFunctionState currFuncName
+        extract paramType . M.lookup paramName . parameters <$> getFunctionState currFuncName
 
 
 allTypes :: String -> Evaluator [Type]
