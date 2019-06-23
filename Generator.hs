@@ -51,7 +51,7 @@ genASM (ParamNode typ param) = do
 genASM (FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
         checkArguments paramCount name argList
-        checkTypes name argList paramArgsMismatch
+        TypeCheck.argsMatchParams name argList
         callee <- SymTab.decSeqNumber name
         caller <- SymTab.currentSeqNumber
         if validSequence callee caller
@@ -344,7 +344,7 @@ declareFunction funcName paramList = do
                      processParameters funcName paramList
              Just count -> do
                      checkCountsMatch count funcName paramList
-                     checkTypes funcName paramList paramDecMismatch
+                     TypeCheck.paramsMatchparams funcName paramList
                      SymTab.declareFunction funcName (length paramList)
                      defined <- SymTab.checkFuncDefined funcName
                      if not defined
@@ -457,28 +457,3 @@ checkIfUsedInScope name = do
         if localDec || paramDec
            then error $ "already declared in scope: '" ++ name
            else return ()
-
-
--- Types
-
-checkTypes :: String -> [Tree] -> (String -> [Type] -> [Type] -> String) -> Evaluator ()
-checkTypes name treeList errFunc = do
-        currTypes <- SymTab.allTypes name
-        newTypes  <- mapM TypeCheck.getType treeList
-        if currTypes == newTypes
-           then return ()
-           else error $ errFunc name currTypes newTypes
-
-
-paramArgsMismatch :: String -> [Type] -> [Type] -> String
-paramArgsMismatch name params args =
-        "mismatching parameters: " ++ show params
-        ++ " and arguments: " ++ show args
-        ++ " for function: " ++ name
-
-
-paramDecMismatch :: String -> [Type] -> [Type] -> String
-paramDecMismatch name oldParams newParams =
-        "declarations have mismatching parameter types: "
-        ++ show oldParams ++ " vs. " ++ show newParams
-        ++ " for function: " ++ name
