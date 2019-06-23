@@ -101,6 +101,12 @@ ternaryType :: Type -> Type -> Type -> Type
 ternaryType IntVar IntVar IntVar = IntVar
 
 
+permitted :: Type -> [Type]
+permitted IntVar     = [IntVar,IntPointer]
+permitted IntPointer = [IntVar,IntPointer]
+permitted typ        = error $ "unrecognised type: " ++ show typ
+
+
 data TypeError = NoType String
                | ParamParam String [Type] [Type]
                | ArgParam String [Type] [Type]
