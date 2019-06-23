@@ -15,14 +15,14 @@ paramDeclaration :: String -> [Tree] -> Evaluator ()
 paramDeclaration name treeList = do
         (oldParams, newParams) <- passedTypes name treeList
         let errorType = (ParamParam name oldParams newParams)
-        checkPassedTypes oldParams newParams errorType
+        checkTypes oldParams newParams errorType
 
 
 argsMatchParams :: String -> [Tree] -> Evaluator ()
 argsMatchParams name treeList = do
         (params, args) <- passedTypes name treeList
         let errorType = (ArgParam name params args)
-        checkPassedTypes params args errorType
+        checkTypes params args errorType
 
 
 globalVarType :: String -> Type -> Evaluator ()
@@ -33,7 +33,7 @@ globalVarType name newTyp = do
              Just oldTyp ->
                      let errorType = (VarType name oldTyp newTyp)
                          in
-                     checkPassedTypes [oldTyp] [newTyp] errorType
+                     checkTypes [oldTyp] [newTyp] errorType
 
 
 passedTypes :: String -> [Tree] -> Evaluator ([Type], [Type])
@@ -43,8 +43,8 @@ passedTypes name treeList = do
         return (currTypes, newTypes)
 
 
-checkPassedTypes :: [Type] -> [Type] -> TypeError -> Evaluator ()
-checkPassedTypes oldTypes newTypes errorType =
+checkTypes :: [Type] -> [Type] -> TypeError -> Evaluator ()
+checkTypes oldTypes newTypes errorType =
         if oldTypes == newTypes
            then return ()
            else error $ typeError errorType
