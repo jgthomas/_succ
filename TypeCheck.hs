@@ -14,6 +14,8 @@ getType (ArgNode tree)       = getType tree
 getType (ParamNode typ tree) = return typ
 getType (VarNode name)       = getVariableType name
 getType (AddressOfNode name) = return IntPointer
+getType (UnaryNode tree op)  = getType tree
+getType (ConstantNode const) = return IntVar
 getType _                    = return IntVar
 
 
