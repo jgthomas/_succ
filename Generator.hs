@@ -179,6 +179,7 @@ genASM (AssignmentNode varName value op) = do
         if currScope == "global"
            then defineGlobal varName value
            else do
+                   TypeCheck.assignment varName value
                    offset  <- SymTab.variableOffset varName
                    globLab <- SymTab.globalLabel varName
                    assign  <- buildAssignmentASM (VarNode varName) value op

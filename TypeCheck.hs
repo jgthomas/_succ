@@ -1,7 +1,8 @@
 
 module TypeCheck (paramDeclaration,
                   argsMatchParams,
-                  globalVarType) where
+                  globalVarType,
+                  assignment) where
 
 import Evaluator   (Evaluator)
 import AST         (Tree(..))
@@ -36,6 +37,15 @@ globalVarType name newTyp = do
                      checkTypes [oldTyp] [newTyp] errorType
 
 
+assignment :: String -> Tree -> Evaluator ()
+assignment name value = do
+        varType <- getVariableType name
+        valType <- getType value
+        if valType `elem` permitted varType
+           then return ()
+           else error $ typeError (AssignLoc name varType valType)
+
+
 passedTypes :: String -> [Tree] -> Evaluator ([Type], [Type])
 passedTypes name treeList = do
         currTypes <- allTypes name
@@ -51,14 +61,18 @@ checkTypes oldTypes newTypes errorType =
 
 
 getType :: Tree -> Evaluator Type
-getType (ArgNode tree)       = getType tree
-getType (ParamNode typ tree) = return typ
-getType (VarNode name)       = getVariableType name
-getType (AddressOfNode name) = return IntPointer
-getType (TernaryNode l m r)  = getTernaryType l m r
-getType (BinaryNode l r op)  = getBinaryType l r op
-getType (UnaryNode tree op)  = getType tree
-getType (ConstantNode const) = return IntVar
+getType (ArgNode tree)                = getType tree
+getType (ParamNode typ tree)          = return typ
+getType (VarNode name)                = getVariableType name
+getType (AddressOfNode name)          = return IntPointer
+getType (TernaryNode l m r)           = getTernaryType l m r
+getType (BinaryNode l r op)           = getBinaryType l r op
+getType (UnaryNode tree op)           = getType tree
+getType (ConstantNode const)          = return IntVar
+getType (FuncCallNode name args)      = return IntVar
+getType (ExprStmtNode tree)           = getType tree
+getType (AssignmentNode name tree op) = getType tree
+getType (DereferenceNode name)        = return IntVar
 
 
 getVariableType :: String -> Evaluator Type
@@ -111,6 +125,7 @@ data TypeError = NoType String
                | ParamParam String [Type] [Type]
                | ArgParam String [Type] [Type]
                | VarType String Type Type
+               | AssignLoc String Type Type
                deriving Eq
 
 
@@ -132,3 +147,8 @@ typeError (VarType name oldTyp newTyp) =
         "previous declaration of " ++ name
         ++ " as: " ++ show oldTyp
         ++ " new declaration as: " ++ show newTyp
+
+typeError (AssignLoc name varTyp valTyp) =
+        "cannot assign: " ++ show valTyp
+        ++ " to variable: " ++ name
+        ++ " of type: " ++ show varTyp
