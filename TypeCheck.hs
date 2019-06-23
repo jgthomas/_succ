@@ -1,7 +1,7 @@
 
 module TypeCheck (paramDeclaration,
                   argsMatchParams,
-                  checkVarType) where
+                  globalVarType) where
 
 import Evaluator   (Evaluator)
 import AST         (Tree(..))
@@ -25,12 +25,15 @@ argsMatchParams name treeList = do
         checkPassedTypes params args errorType
 
 
-checkVarType :: String -> Type -> Evaluator ()
-checkVarType name newTyp = do
-        oldTyp <- getVariableType name
-        if oldTyp == newTyp
-           then return ()
-           else error $ typeError (VarType name oldTyp newTyp)
+globalVarType :: String -> Type -> Evaluator ()
+globalVarType name newTyp = do
+        oldTyp <- globalType name
+        case oldTyp of
+             Nothing     -> error $ typeError (NoType name)
+             Just oldTyp ->
+                     if oldTyp == newTyp
+                     then return ()
+                     else error $ typeError (VarType name oldTyp newTyp)
 
 
 passedTypes :: String -> [Tree] -> Evaluator ([Type], [Type])
