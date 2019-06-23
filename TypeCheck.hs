@@ -110,7 +110,7 @@ data TypeError = NoType String
 
 typeError :: TypeError -> String
 
-typeError (NoType name) = "no type associated with variable: " ++ name
+typeError (NoType name) = "no type associated with: " ++ name
 
 typeError (ParamParam name oldParams newParams) =
         "declarations have mismatching parameter types: "
