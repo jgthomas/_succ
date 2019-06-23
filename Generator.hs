@@ -482,7 +482,16 @@ getType _                    = return IntVar
 
 getVariableType :: String -> Evaluator Type
 getVariableType name = do
-        typ <- SymTab.variableType name
-        case typ of
+        typL <- SymTab.variableType name
+        typP <- SymTab.parameterType name
+        typG <- SymTab.globalType name
+        case varType typL typP typG of
              Just t  -> return t
              Nothing -> error $ "no type associated with variable: " ++ name
+
+
+varType :: Maybe Type -> Maybe Type -> Maybe Type -> Maybe Type
+varType (Just typL) _ _         = (Just typL)
+varType _ (Just typP) _         = (Just typP)
+varType _ _ (Just typG)         = (Just typG)
+varType Nothing Nothing Nothing = Nothing
