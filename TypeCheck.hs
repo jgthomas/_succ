@@ -21,7 +21,6 @@ getType (TernaryNode l m r)             = getTernaryType l m r
 getType (BinaryNode l r op)             = getBinaryType l r op
 getType (UnaryNode tree op)             = getType tree
 getType (ConstantNode const)            = return IntVar
-getType _                               = return IntVar
 
 
 getVariableType :: String -> Evaluator Type
