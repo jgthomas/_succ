@@ -17,6 +17,7 @@ getType (ArgNode tree)                  = getType tree
 getType (ParamNode typ tree)            = return typ
 getType (VarNode name)                  = getVariableType name
 getType (AddressOfNode name)            = return IntPointer
+getType (TernaryNode l m r)             = getTernaryType l m r
 getType (BinaryNode l r op)             = getBinaryType l r op
 getType (UnaryNode tree op)             = getType tree
 getType (ConstantNode const)            = return IntVar
@@ -49,3 +50,15 @@ getBinaryType left right op = do
 
 binType :: Type -> Type -> Operator -> Type
 binType IntVar IntVar _ = IntVar
+
+
+getTernaryType :: Tree -> Tree -> Tree -> Evaluator Type
+getTernaryType left mid right = do
+        leftType  <- getType left
+        midType   <- getType mid
+        rightType <- getType right
+        return $ ternaryType leftType midType rightType
+
+
+ternaryType :: Type -> Type -> Type -> Type
+ternaryType IntVar IntVar IntVar = IntVar
