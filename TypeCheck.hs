@@ -1,6 +1,7 @@
 
 module TypeCheck (paramsMatchparams,
-                  argsMatchParams) where
+                  argsMatchParams,
+                  checkVarType) where
 
 import Evaluator   (Evaluator)
 import AST         (Tree(..))
@@ -22,6 +23,14 @@ argsMatchParams name treeList = do
         (params, args) <- passedTypes name treeList
         let errorType = (ArgParam name params args)
         checkPassedTypes params args errorType
+
+
+checkVarType :: String -> Type -> Evaluator ()
+checkVarType name newTyp = do
+        oldTyp <- getVariableType name
+        if oldTyp == newTyp
+           then return ()
+           else error $ typeError (VarType name oldTyp newTyp)
 
 
 passedTypes :: String -> [Tree] -> Evaluator ([Type], [Type])
@@ -92,6 +101,7 @@ ternaryType IntVar IntVar IntVar = IntVar
 data TypeError = NoType String
                | ParamParam String [Type] [Type]
                | ArgParam String [Type] [Type]
+               | VarType String Type Type
                deriving Eq
 
 
@@ -108,3 +118,8 @@ typeError (ArgParam name params args) =
         "mismatching parameters: " ++ show params
         ++ " and arguments: " ++ show args
         ++ " for function: " ++ name
+
+typeError (VarType name oldTyp newTyp) =
+        "previous declaration of " ++ name
+        ++ " as: " ++ show oldTyp
+        ++ " new declaration as: " ++ show newTyp

@@ -283,7 +283,9 @@ declareGlobal name typ toAssign = do
         checkIfFunction name
         currLabel <- SymTab.globalLabel name
         case currLabel of
-             Just lab -> genAssignment toAssign
+             Just lab -> do
+                     TypeCheck.checkVarType name typ
+                     genAssignment toAssign
              Nothing  -> do
                      labnum <- SymTab.labelNum
                      let globLab = mkGlobLabel name labnum
