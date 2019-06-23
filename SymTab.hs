@@ -8,11 +8,11 @@ module SymTab (currentScope,
 
 import qualified Data.Map as M
 
-import GlobalScope
-import FuncState
-import Evaluator    (Evaluator(Ev))
-import Types        (SymTab(Tab, label))
-import FrameStack   (newStack, currentScope)
+import Evaluator   (Evaluator(Ev))
+import Types       (SymTab(Tab, label))
+import FrameStack  (newStack, currentScope)
+import GlobalScope hiding (globalType)
+import FuncState   hiding (allTypes, variableType, parameterType)
 
 
 newSymTab :: SymTab

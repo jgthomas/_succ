@@ -2,14 +2,12 @@
 module TypeCheck (paramsMatchparams,
                   argsMatchParams) where
 
-import Evaluator (Evaluator)
-import AST       (Tree(..))
-import Types     (Type(..))
-import Tokens    (Operator(..))
-import SymTab    (allTypes,
-                  variableType,
-                  parameterType,
-                  globalType)
+import Evaluator   (Evaluator)
+import AST         (Tree(..))
+import Types       (Type(..))
+import Tokens      (Operator(..))
+import GlobalScope (globalType)
+import FuncState   (allTypes, variableType, parameterType)
 
 
 paramsMatchparams :: String -> [Tree] -> Evaluator ()
@@ -28,7 +26,7 @@ argsMatchParams name treeList = do
 
 passedTypes :: String -> [Tree] -> Evaluator ([Type], [Type])
 passedTypes name treeList = do
-        currTypes <- SymTab.allTypes name
+        currTypes <- allTypes name
         newTypes  <- mapM getType treeList
         return (currTypes, newTypes)
 
@@ -53,9 +51,9 @@ getType (ConstantNode const) = return IntVar
 
 getVariableType :: String -> Evaluator Type
 getVariableType name = do
-        typL <- SymTab.variableType name
-        typP <- SymTab.parameterType name
-        typG <- SymTab.globalType name
+        typL <- variableType name
+        typP <- parameterType name
+        typG <- globalType name
         case varType typL typP typG of
              Just t  -> return t
              Nothing -> error $ typeError (NoType name)
