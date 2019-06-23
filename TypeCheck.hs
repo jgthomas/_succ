@@ -1,5 +1,5 @@
 
-module TypeCheck (paramsMatchparams,
+module TypeCheck (paramDeclaration,
                   argsMatchParams,
                   checkVarType) where
 
@@ -11,8 +11,8 @@ import GlobalScope (globalType)
 import FuncState   (allTypes, variableType, parameterType)
 
 
-paramsMatchparams :: String -> [Tree] -> Evaluator ()
-paramsMatchparams name treeList = do
+paramDeclaration :: String -> [Tree] -> Evaluator ()
+paramDeclaration name treeList = do
         (oldParams, newParams) <- passedTypes name treeList
         let errorType = (ParamParam name oldParams newParams)
         checkPassedTypes oldParams newParams errorType
