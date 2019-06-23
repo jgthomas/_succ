@@ -8,6 +8,7 @@ import ASM_Tokens (Jump(..))
 import Types      (Type(..))
 import qualified  SymTab
 import qualified  ASM
+import qualified  TypeCheck
 
 
 genASM :: Tree -> Evaluator String
@@ -50,7 +51,7 @@ genASM (ParamNode typ param) = do
 genASM (FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
         checkArguments paramCount name argList
-        checkTypesMatch name argList
+        checkTypes name argList paramArgsMismatch
         callee <- SymTab.decSeqNumber name
         caller <- SymTab.currentSeqNumber
         if validSequence callee caller
@@ -343,7 +344,7 @@ declareFunction funcName paramList = do
                      processParameters funcName paramList
              Just count -> do
                      checkCountsMatch count funcName paramList
-                     checkTypesMatch funcName paramList
+                     checkTypes funcName paramList paramDecMismatch
                      SymTab.declareFunction funcName (length paramList)
                      defined <- SymTab.checkFuncDefined funcName
                      if not defined
@@ -458,40 +459,26 @@ checkIfUsedInScope name = do
            else return ()
 
 
--- Type checking
+-- Types
 
-checkTypesMatch :: String -> [Tree] -> Evaluator ()
-checkTypesMatch name paramList = do
+checkTypes :: String -> [Tree] -> (String -> [Type] -> [Type] -> String) -> Evaluator ()
+checkTypes name treeList errFunc = do
         currTypes <- SymTab.allTypes name
-        newTypes  <- mapM getType paramList
+        newTypes  <- mapM TypeCheck.getType treeList
         if currTypes == newTypes
            then return ()
-           else error $ "mismatching types for parameters/arguments: "
-                        ++ show currTypes ++ " vs. "
-                        ++ show newTypes ++ " "
-                        ++ "for function: " ++ name
+           else error $ errFunc name currTypes newTypes
 
 
-getType :: Tree -> Evaluator Type
-getType (ArgNode tree)       = getType tree
-getType (ParamNode typ tree) = return typ
-getType (VarNode name)       = getVariableType name
-getType (AddressOfNode name) = return IntPointer
-getType _                    = return IntVar
+paramArgsMismatch :: String -> [Type] -> [Type] -> String
+paramArgsMismatch name params args =
+        "mismatching parameters: " ++ show params
+        ++ " and arguments: " ++ show args
+        ++ " for function: " ++ name
 
 
-getVariableType :: String -> Evaluator Type
-getVariableType name = do
-        typL <- SymTab.variableType name
-        typP <- SymTab.parameterType name
-        typG <- SymTab.globalType name
-        case varType typL typP typG of
-             Just t  -> return t
-             Nothing -> error $ "no type associated with variable: " ++ name
-
-
-varType :: Maybe Type -> Maybe Type -> Maybe Type -> Maybe Type
-varType (Just typL) _ _         = (Just typL)
-varType _ (Just typP) _         = (Just typP)
-varType _ _ (Just typG)         = (Just typG)
-varType Nothing Nothing Nothing = Nothing
+paramDecMismatch :: String -> [Type] -> [Type] -> String
+paramDecMismatch name oldParams newParams =
+        "declarations have mismatching parameter types: "
+        ++ show oldParams ++ " vs. " ++ show newParams
+        ++ " for function: " ++ name
