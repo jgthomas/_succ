@@ -31,9 +31,9 @@ globalVarType name newTyp = do
         case oldTyp of
              Nothing     -> error $ typeError (NoType name)
              Just oldTyp ->
-                     if oldTyp == newTyp
-                     then return ()
-                     else error $ typeError (VarType name oldTyp newTyp)
+                     let errorType = (VarType name oldTyp newTyp)
+                         in
+                     checkPassedTypes [oldTyp] [newTyp] errorType
 
 
 passedTypes :: String -> [Tree] -> Evaluator ([Type], [Type])
