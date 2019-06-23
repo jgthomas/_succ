@@ -11,8 +11,6 @@ import SymTab    (variableType,
 
 
 getType :: Tree -> Evaluator Type
-getType (DeclarationNode name typ tree) = return typ
-getType (PointerNode name typ tree)     = return typ
 getType (ArgNode tree)                  = getType tree
 getType (ParamNode typ tree)            = return typ
 getType (VarNode name)                  = getVariableType name
