@@ -51,13 +51,23 @@ parseFunction (typ:id:toks) =
                      let (funcParams, toks') = parseFunctionParams [] toks
                          in
                      case lookAhead toks' of
-                          TokSemiColon -> (FunctionProtoNode funcName funcParams, accept toks')
+                          TokSemiColon ->
+                                  (FunctionProtoNode
+                                  (setType typ id)
+                                  funcName
+                                  funcParams,
+                                  accept toks')
                           TokOpenBrace ->
                                   let (funcBlockItems, toks'') = parseBlock [] . accept $ toks'
                                       in
                                   if lookAhead toks'' /= TokCloseBrace
                                      then error $ errorMessage CloseBrace
-                                     else (FunctionNode funcName funcParams funcBlockItems, accept toks'')
+                                     else (FunctionNode
+                                          (setType typ id)
+                                          funcName
+                                          funcParams
+                                          funcBlockItems,
+                                          accept toks'')
                           _ -> error "Invalid function declaration"
              _ -> error "No identifier supplied"
 

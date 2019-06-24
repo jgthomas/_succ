@@ -19,11 +19,11 @@ genASM (ProgramNode topLevelItems) = do
         let bss = ASM.uninitializedGlobal <$> undef
         return $ concat prog ++ concat bss
 
-genASM (FunctionProtoNode name paramList) = do
+genASM (FunctionProtoNode typ name paramList) = do
         declareFunction name paramList
         return ASM.noOutput
 
-genASM (FunctionNode name paramList statementList) = do
+genASM (FunctionNode typ name paramList statementList) = do
         defined <- SymTab.checkFuncDefined name
         if defined
            then error $ "Function aleady defined: " ++ name
