@@ -8,6 +8,7 @@ import Evaluator   (Evaluator)
 import AST         (Tree(..))
 import Types       (Type(..))
 import Tokens      (Operator(..))
+import FrameStack  (currentScope)
 import GlobalScope (globalType)
 import FuncState   (allTypes, variableType, parameterType)
 
@@ -77,12 +78,20 @@ getType (DereferenceNode name)        = return IntVar
 
 getVariableType :: String -> Evaluator Type
 getVariableType name = do
+        currScope <- currentScope
+        if currScope == "global"
+           then do
+                   typG <- globalType name
+                   extractType name typG
+           else checkAllVariableTypes name
+
+
+checkAllVariableTypes :: String -> Evaluator Type
+checkAllVariableTypes name = do
         typL <- variableType name
         typP <- parameterType name
         typG <- globalType name
-        case varType typL typP typG of
-             Just t  -> return t
-             Nothing -> error $ typeError (NoType name)
+        extractType name $ varType typL typP typG
 
 
 varType :: Maybe Type -> Maybe Type -> Maybe Type -> Maybe Type
@@ -90,6 +99,11 @@ varType (Just typL) _ _         = (Just typL)
 varType _ (Just typP) _         = (Just typP)
 varType _ _ (Just typG)         = (Just typG)
 varType Nothing Nothing Nothing = Nothing
+
+
+extractType :: String -> Maybe Type -> Evaluator Type
+extractType name (Just typ) = return typ
+extractType name Nothing    = error $ typeError (NoType name)
 
 
 getBinaryType :: Tree -> Tree -> Operator -> Evaluator Type
