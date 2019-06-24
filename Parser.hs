@@ -122,15 +122,27 @@ parseStatement allToks@(first:toks) =
              TokKeyword Break    -> parseBreak toks
              TokKeyword Continue -> parseContinue toks
              TokOpenBrace        -> parseCompoundStmt toks
-             TokOp Multiply      -> parseExpression allToks
-             TokIdent id         ->
-                     case lookAhead toks of
+             TokOp Multiply      -> parseIdentifier allToks
+             TokIdent id         -> parseIdentifier allToks
+             _                   -> parseExprStatement allToks
+
+
+parseIdentifier :: [Token] -> (Tree, [Token])
+parseIdentifier allToks@(first:second:third:toks) =
+        case first of
+             (TokIdent id) ->
+                     case second of
                           (TokOp op)
                                | isAssignment op -> parseExprStatement allToks
                                | otherwise       -> parseExpression allToks
-                          TokOpenParen -> parseExprStatement allToks
-                          _            -> parseExpression allToks
-             _ -> parseExprStatement allToks
+                          TokOpenParen           -> parseExprStatement allToks
+                          _                      -> parseExpression allToks
+             (TokOp Multiply) ->
+                     case third of
+                          (TokOp op)
+                               | isAssignment op -> parseExprStatement allToks
+                               | otherwise       -> parseExpression allToks
+                          _                      -> parseExpression allToks
 
 
 {-
@@ -139,7 +151,7 @@ parseStatement allToks@(first:toks) =
 - null expression:         ;
 - expression statements:   2 + 2;
 - elements of loops:       (i = 0; i < 10; i++)
-- assignments:             a = 10;
+- assignments:             a = 10; *p = 10;
 - function calls:          dog(8);
 -
 -}
