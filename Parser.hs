@@ -42,31 +42,41 @@ parseTopLevelItem allToks@(a:b:c:toks) =
 
 
 parseFunction :: [Token] -> (Tree, [Token])
-parseFunction (typ:id:toks) =
-        case id of
-             (TokIdent funcName) ->
-                     let (funcParams, toks') = parseFunctionParams [] toks
+parseFunction allToks@(typ:ast:id:toks) =
+        let funcType            = setType typ ast
+            funcName            = parseFuncName ast id
+            (funcParams, toks') = parseParams ast id toks
+            in
+        case lookAhead toks' of
+             TokSemiColon ->
+                     (FunctionProtoNode
+                     funcType
+                     funcName
+                     funcParams,
+                     accept toks')
+             TokOpenBrace ->
+                     let (blockItems, toks'') = parseBlock [] . accept $ toks'
                          in
-                     case lookAhead toks' of
-                          TokSemiColon ->
-                                  (FunctionProtoNode
-                                  (setType typ id)
-                                  funcName
-                                  funcParams,
-                                  accept toks')
-                          TokOpenBrace ->
-                                  let (funcBlockItems, toks'') = parseBlock [] . accept $ toks'
-                                      in
-                                  if lookAhead toks'' /= TokCloseBrace
-                                     then error $ errorMessage CloseBrace
-                                     else (FunctionNode
-                                          (setType typ id)
-                                          funcName
-                                          funcParams
-                                          funcBlockItems,
-                                          accept toks'')
-                          _ -> error "Invalid function declaration"
-             _ -> error "No identifier supplied"
+                     if lookAhead toks'' /= TokCloseBrace
+                        then error $ errorMessage CloseBrace
+                        else (FunctionNode
+                             funcType
+                             funcName
+                             funcParams
+                             blockItems,
+                             accept toks'')
+             _ -> error $ "unexpected tokens in function: " ++ show toks'
+
+
+parseFuncName :: Token -> Token -> String
+parseFuncName (TokOp Multiply) (TokIdent name) = name
+parseFuncName (TokIdent name)  _               = name
+parseFuncName _                _               = error "No identifier supplied"
+
+
+parseParams :: Token -> Token -> [Token] -> ([Tree], [Token])
+parseParams (TokOp Multiply) (TokIdent name) toks = parseFunctionParams [] toks
+parseParams (TokIdent name) tok toks              = parseFunctionParams [] (tok:toks)
 
 
 parseFunctionParams :: [Tree] -> [Token] -> ([Tree], [Token])
