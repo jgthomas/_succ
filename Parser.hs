@@ -45,9 +45,6 @@ parseFunction :: [Token] -> (Tree, [Token])
 parseFunction (typ:id:toks) =
         case id of
              (TokIdent funcName) ->
-                     if lookAhead toks /= TokOpenParen
-                        then error $ errorMessage OpenParen
-                        else
                      let (funcParams, toks') = parseFunctionParams [] toks
                          in
                      case lookAhead toks' of
