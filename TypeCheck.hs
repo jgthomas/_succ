@@ -67,7 +67,6 @@ getType (BinaryNode l r op)           = getBinaryType l r op
 getType (UnaryNode tree op)           = getType tree
 getType (ConstantNode const)          = return IntVar
 getType (FuncCallNode name args)      = return IntVar
-getType (ExprStmtNode tree)           = getType tree
 getType (AssignmentNode name tree op) = getType tree
 getType (DereferenceNode name)        = return IntVar
 
