@@ -37,12 +37,12 @@ parseTopLevelItems itemList allToks@(a:toks) =
 parseTopLevelItem :: [Token] -> (Tree, [Token])
 parseTopLevelItem allToks@(a:b:c:toks) =
         case c of
-             TokOpenParen -> parseFunction . accept $ allToks
+             TokOpenParen -> parseFunction allToks
              _            -> parseDeclaration allToks
 
 
 parseFunction :: [Token] -> (Tree, [Token])
-parseFunction (id:toks) =
+parseFunction (typ:id:toks) =
         case id of
              (TokIdent funcName) ->
                      if lookAhead toks /= TokOpenParen
