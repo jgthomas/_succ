@@ -285,7 +285,7 @@ declareGlobal name typ toAssign = do
         currLabel <- SymTab.globalLabel name
         case currLabel of
              Just lab -> do
-                     TypeCheck.globalVarType name typ
+                     TypeCheck.globalDeclaration name typ
                      genAssignment toAssign
              Nothing  -> do
                      labnum <- SymTab.labelNum

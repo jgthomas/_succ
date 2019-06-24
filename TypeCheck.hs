@@ -1,7 +1,7 @@
 
 module TypeCheck (paramDeclaration,
                   argsMatchParams,
-                  globalVarType,
+                  globalDeclaration,
                   assignment) where
 
 import Evaluator   (Evaluator)
@@ -27,8 +27,8 @@ argsMatchParams name treeList = do
         checkTypes params args errorType
 
 
-globalVarType :: String -> Type -> Evaluator ()
-globalVarType name newTyp = do
+globalDeclaration :: String -> Type -> Evaluator ()
+globalDeclaration name newTyp = do
         oldTyp <- getType (VarNode name)
         let errorType = (VarType name oldTyp newTyp)
         checkTypes [oldTyp] [newTyp] errorType
