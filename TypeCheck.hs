@@ -68,7 +68,7 @@ getType (UnaryNode tree op)           = getType tree
 getType (ConstantNode const)          = return IntVar
 getType (FuncCallNode name args)      = return IntVar
 getType (AssignmentNode name tree op) = getType tree
-getType (DereferenceNode name)        = return IntVar
+getType (DereferenceNode name)        = dereferenceType name
 
 
 getVariableType :: String -> Evaluator Type
@@ -138,6 +138,16 @@ addressOfType name = do
 
 addType :: Type -> Evaluator Type
 addType IntVar = return IntPointer
+
+
+dereferenceType :: String -> Evaluator Type
+dereferenceType name = do
+        typ <- getType (VarNode name)
+        derefType typ
+
+
+derefType :: Type -> Evaluator Type
+derefType IntPointer = return IntVar
 
 
 data TypeError = NoType String
