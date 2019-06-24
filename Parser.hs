@@ -122,28 +122,7 @@ parseStatement allToks@(first:toks) =
              TokKeyword Break    -> parseBreak toks
              TokKeyword Continue -> parseContinue toks
              TokOpenBrace        -> parseCompoundStmt toks
-             TokOp Multiply      -> parsePointerIdentifier allToks
-             TokIdent id         -> parseIdentifier allToks
              _                   -> parseExprStatement allToks
-
-
-parseIdentifier :: [Token] -> (Tree, [Token])
-parseIdentifier allToks@(first:second:third:toks) =
-        case second of
-             (TokOp op)
-                | isAssignment op -> parseExprStatement allToks
-                | otherwise       -> parseExpression allToks
-             TokOpenParen         -> parseExprStatement allToks
-             _                    -> parseExpression allToks
-
-
-parsePointerIdentifier :: [Token] -> (Tree, [Token])
-parsePointerIdentifier allToks@(first:second:third:toks) =
-        case third of
-             (TokOp op)
-                | isAssignment op -> parseExprStatement allToks
-                | otherwise       -> parseExpression allToks
-             _                    -> parseExpression allToks
 
 
 {-
