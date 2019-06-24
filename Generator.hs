@@ -190,6 +190,7 @@ genASM (AssignmentNode varName value op) = do
                               return $ assign ++ varToAssign
 
 genASM (AssignDereferenceNode varName value op) = do
+        TypeCheck.assignment varName value
         assign <- buildAssignmentASM (DereferenceNode varName) value op
         offset <- SymTab.variableOffset varName
         argPos <- SymTab.parameterPosition varName
