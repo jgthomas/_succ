@@ -29,18 +29,14 @@ argsMatchParams name treeList = do
 
 globalVarType :: String -> Type -> Evaluator ()
 globalVarType name newTyp = do
-        oldTyp <- globalType name
-        case oldTyp of
-             Nothing     -> error $ typeError (NoType name)
-             Just oldTyp ->
-                     let errorType = (VarType name oldTyp newTyp)
-                         in
-                     checkTypes [oldTyp] [newTyp] errorType
+        oldTyp <- getType (VarNode name)
+        let errorType = (VarType name oldTyp newTyp)
+        checkTypes [oldTyp] [newTyp] errorType
 
 
 assignment :: String -> Tree -> Evaluator ()
 assignment name value = do
-        varType <- getVariableType name
+        varType <- getType (VarNode name)
         valType <- getType value
         if valType `elem` permitted varType
            then return ()
