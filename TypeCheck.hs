@@ -40,7 +40,7 @@ assignment name value = do
         valType <- getType value
         if valType `elem` permitted varType
            then return ()
-           else error $ typeError (AssignLoc name varType valType)
+           else error $ typeError (Assignment name varType valType)
 
 
 passedTypes :: String -> [Tree] -> Evaluator ([Type], [Type])
@@ -134,7 +134,7 @@ data TypeError = NoType String
                | ParamParam String [Type] [Type]
                | ArgParam String [Type] [Type]
                | VarType String Type Type
-               | AssignLoc String Type Type
+               | Assignment String Type Type
                deriving Eq
 
 
@@ -157,7 +157,7 @@ typeError (VarType name oldTyp newTyp) =
         ++ " as: " ++ show oldTyp
         ++ " new declaration as: " ++ show newTyp
 
-typeError (AssignLoc name varTyp valTyp) =
+typeError (Assignment name varTyp valTyp) =
         "cannot assign: " ++ show valTyp
         ++ " to variable: " ++ name
         ++ " of type: " ++ show varTyp
