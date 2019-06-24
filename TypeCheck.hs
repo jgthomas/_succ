@@ -61,7 +61,7 @@ getType :: Tree -> Evaluator Type
 getType (ArgNode tree)                = getType tree
 getType (ParamNode typ tree)          = return typ
 getType (VarNode name)                = getVariableType name
-getType (AddressOfNode name)          = return IntPointer
+getType (AddressOfNode name)          = addressOfType name
 getType (TernaryNode l m r)           = getTernaryType l m r
 getType (BinaryNode l r op)           = getBinaryType l r op
 getType (UnaryNode tree op)           = getType tree
@@ -128,6 +128,16 @@ permitted :: Type -> [Type]
 permitted IntVar     = [IntVar,IntPointer]
 permitted IntPointer = [IntVar,IntPointer]
 permitted typ        = error $ "unrecognised type: " ++ show typ
+
+
+addressOfType :: String -> Evaluator Type
+addressOfType name = do
+        typ <- getType (VarNode name)
+        addType typ
+
+
+addType :: Type -> Evaluator Type
+addType IntVar = return IntPointer
 
 
 data TypeError = NoType String
