@@ -132,6 +132,10 @@ addParams :: String -> Int -> GlobalScope -> GlobalScope
 addParams n p s = s { funcParams = M.insert n p $ funcParams s }
 
 
+addType :: String -> Type -> GlobalScope -> GlobalScope
+addType n t s = s { funcTypes = M.insert n t $ funcTypes s }
+
+
 varAsDefined :: String -> GlobalScope -> GlobalScope
 varAsDefined n s = s { definedVars = S.insert n $ definedVars s }
 
