@@ -51,6 +51,8 @@ assignment name value = do
            else error $ typeError (Assignment name varType valType)
 
 
+-- Internal
+
 passedTypes :: String -> [Tree] -> Evaluator ([Type], [Type])
 passedTypes name treeList = do
         currTypes <- allTypes name
