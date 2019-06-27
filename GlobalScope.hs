@@ -45,6 +45,10 @@ globalType :: String -> Evaluator (Maybe Type)
 globalType name = extract globType <$> lookUp name declaredVars
 
 
+declaredFuncType :: String -> Evaluator (Maybe Type)
+declaredFuncType name = lookUp name funcTypes
+
+
 currentSeqNumber :: Evaluator (Maybe Int)
 currentSeqNumber = do
         currFunc <- FrameStack.currentFunction
