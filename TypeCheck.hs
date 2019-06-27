@@ -1,5 +1,6 @@
 
 module TypeCheck (paramDeclaration,
+                  funcTypeDeclaration,
                   argsMatchParams,
                   globalDeclaration,
                   assignment) where
@@ -25,6 +26,13 @@ argsMatchParams name treeList = do
         (params, args) <- passedTypes name treeList
         let errorType = (ArgParam name params args)
         checkTypes params args errorType
+
+
+funcTypeDeclaration :: String -> Type -> Evaluator ()
+funcTypeDeclaration name newTyp = do
+        oldTyp <- getFuncType name
+        let errorType = (FuncType name oldTyp newTyp)
+        checkTypes [oldTyp] [newTyp] errorType
 
 
 globalDeclaration :: String -> Type -> Evaluator ()
@@ -130,6 +138,12 @@ permitted IntPointer = [IntVar,IntPointer]
 permitted typ        = error $ "unrecognised type: " ++ show typ
 
 
+getFuncType :: String -> Evaluator Type
+getFuncType name = do
+        oldTyp <- declaredFuncType name
+        extractType name oldTyp
+
+
 addressOfType :: String -> Evaluator Type
 addressOfType name = do
         typ <- getType (VarNode name)
@@ -155,6 +169,7 @@ data TypeError = NoType String
                | ArgParam String [Type] [Type]
                | VarType String Type Type
                | Assignment String Type Type
+               | FuncType String Type Type
                deriving Eq
 
 
@@ -181,3 +196,8 @@ typeError (Assignment name varTyp valTyp) =
         "cannot assign: " ++ show valTyp
         ++ " to variable: " ++ name
         ++ " of type: " ++ show varTyp
+
+typeError (FuncType name oldTyp newTyp) =
+        "previous declaration of " ++ name
+        ++ " has return value: " ++ show oldTyp
+        ++ " new declaration has return value: " ++ show newTyp

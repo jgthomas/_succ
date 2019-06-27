@@ -349,6 +349,7 @@ declareFunction typ funcName paramList = do
              Just count -> do
                      checkCountsMatch count funcName paramList
                      TypeCheck.paramDeclaration funcName paramList
+                     TypeCheck.funcTypeDeclaration funcName typ
                      SymTab.declareFunction typ funcName (length paramList)
                      defined <- SymTab.checkFuncDefined funcName
                      if not defined
