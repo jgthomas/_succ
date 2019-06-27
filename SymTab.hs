@@ -11,7 +11,7 @@ import qualified Data.Map as M
 import Evaluator   (Evaluator(Ev))
 import Types       (SymTab(Tab, label))
 import FrameStack  (newStack, currentScope)
-import GlobalScope hiding (globalType)
+import GlobalScope hiding (globalType, declaredFuncType)
 import FuncState   hiding (allTypes, variableType, parameterType)
 
 

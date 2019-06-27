@@ -9,7 +9,7 @@ import AST         (Tree(..))
 import Types       (Type(..))
 import Tokens      (Operator(..))
 import FrameStack  (currentScope)
-import GlobalScope (globalType)
+import GlobalScope (globalType, declaredFuncType)
 import FuncState   (allTypes, variableType, parameterType)
 
 
