@@ -20,7 +20,7 @@ genASM (ProgramNode topLevelItems) = do
         return $ concat prog ++ concat bss
 
 genASM (FunctionProtoNode typ name paramList) = do
-        declareFunction name paramList
+        declareFunction typ name paramList
         return ASM.noOutput
 
 genASM (FunctionNode typ name paramList statementList) = do
@@ -28,7 +28,7 @@ genASM (FunctionNode typ name paramList statementList) = do
         if defined
            then error $ "Function aleady defined: " ++ name
            else do
-                   declareFunction name paramList
+                   declareFunction typ name paramList
                    SymTab.initFunction name
                    statements <- mapM genASM statementList
                    SymTab.closeFunction
@@ -338,8 +338,8 @@ checkIfDefined name = do
 
 -- Functions / function calls
 
-declareFunction :: String -> [Tree] -> Evaluator ()
-declareFunction funcName paramList = do
+declareFunction :: Type -> String -> [Tree] -> Evaluator ()
+declareFunction typ funcName paramList = do
         checkIfVariable funcName
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
