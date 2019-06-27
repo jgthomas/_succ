@@ -344,12 +344,12 @@ declareFunction typ funcName paramList = do
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
              Nothing    -> do
-                     SymTab.declareFunction funcName (length paramList)
+                     SymTab.declareFunction typ funcName (length paramList)
                      processParameters funcName paramList
              Just count -> do
                      checkCountsMatch count funcName paramList
                      TypeCheck.paramDeclaration funcName paramList
-                     SymTab.declareFunction funcName (length paramList)
+                     SymTab.declareFunction typ funcName (length paramList)
                      defined <- SymTab.checkFuncDefined funcName
                      if not defined
                         then do

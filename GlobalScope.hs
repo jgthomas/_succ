@@ -59,12 +59,13 @@ checkFuncDefined :: String -> Evaluator Bool
 checkFuncDefined name = S.member name . definedFuncs <$> getGlobalScope
 
 
-declareFunction :: String -> Int -> Evaluator ()
-declareFunction funcName paramCount = do
+declareFunction :: Type -> String -> Int -> Evaluator ()
+declareFunction typ funcName paramCount = do
         gscope <- getGlobalScope
-        let gscope'  = addSymbol funcName gscope
-            gscope'' = addParams funcName paramCount gscope'
-        updateGlobalScope gscope''
+        let gscope'   = addSymbol funcName gscope
+            gscope''  = addParams funcName paramCount gscope'
+            gscope''' = addType funcName typ gscope''
+        updateGlobalScope gscope'''
 
 
 defineFunction :: String -> Evaluator ()
