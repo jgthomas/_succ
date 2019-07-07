@@ -300,6 +300,26 @@ derefStoreLocal offset =
         ++ move result (addressIn scratch)
 
 
+derefLoadGlobal :: String -> String
+derefLoadGlobal label =
+        move (fromInstructionPointer label) scratch
+        ++ move (valueFromAddressIn scratch) result
+
+
+derefStoreGlobal :: String -> String
+derefStoreGlobal label =
+        move (fromInstructionPointer label) scratch
+        ++ move result (addressIn scratch)
+
+
+varAddressLoadGlobal :: String -> String
+varAddressLoadGlobal label = loadAddOf (fromInstructionPointer label) result
+
+
+varAddressStoreGlobal :: String -> String
+varAddressStoreGlobal label = move result (fromInstructionPointer label)
+
+
 -- Addressing
 
 fromBasePointer :: Int -> String
