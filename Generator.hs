@@ -216,6 +216,7 @@ genASM (BreakNode) = do
              Nothing     -> error "Break statement outside loop"
 
 genASM (ReturnNode tree) = do
+        TypeCheck.funcReturn tree
         rtn <- genASM tree
         return $ rtn ++ ASM.returnStatement
 

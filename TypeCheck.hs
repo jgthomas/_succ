@@ -3,7 +3,8 @@ module TypeCheck (paramDeclaration,
                   funcTypeDeclaration,
                   argsMatchParams,
                   globalDeclaration,
-                  assignment) where
+                  assignment,
+                  funcReturn) where
 
 import Evaluator   (Evaluator)
 import AST         (Tree(..))
@@ -49,6 +50,15 @@ assignment name value = do
         if valType `elem` permitted varType
            then return ()
            else error $ typeError (Assignment name varType valType)
+
+
+funcReturn :: Tree -> Evaluator ()
+funcReturn retVal = do
+        currFuncName <- currentScope
+        currFuncType <- getFuncType currFuncName
+        retValType   <- getType retVal
+        let errorType = (FuncReturn currFuncName currFuncType retValType)
+        checkTypes [currFuncType] [retValType] errorType
 
 
 -- Internal
@@ -172,6 +182,7 @@ data TypeError = NoType String
                | VarType String Type Type
                | Assignment String Type Type
                | FuncType String Type Type
+               | FuncReturn String Type Type
                deriving Eq
 
 
@@ -203,3 +214,8 @@ typeError (FuncType name oldTyp newTyp) =
         "previous declaration of " ++ name
         ++ " has return value: " ++ show oldTyp
         ++ " new declaration has return value: " ++ show newTyp
+
+typeError (FuncReturn name decTyp retTyp) =
+        "attempting to return: " ++ show retTyp
+        ++ " from function " ++ name
+        ++ " which has type: " ++ show decTyp
