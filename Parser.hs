@@ -45,7 +45,7 @@ parseFunction :: [Token] -> (Tree, [Token])
 parseFunction allToks@(typ:ast:id:toks) =
         let funcType             = setType typ ast
             funcName             = parseFuncName ast id
-            (funcParams, toks')  = parseParams ast id toks
+            (funcParams, toks')  = parseFuncParams ast id toks
             (blockItems, toks'') = parseFuncBlockItems [] toks'
             in
         (FunctionNode funcType funcName funcParams blockItems, toks'')
@@ -57,13 +57,13 @@ parseFuncName (TokIdent name)  _               = name
 parseFuncName _                _               = error "No identifier supplied"
 
 
-parseParams :: Token -> Token -> [Token] -> ([Tree], [Token])
-parseParams (TokOp Multiply) (TokIdent name) toks = parseFunctionParams [] toks
-parseParams (TokIdent name) tok toks              = parseFunctionParams [] (tok:toks)
+parseFuncParams :: Token -> Token -> [Token] -> ([Tree], [Token])
+parseFuncParams (TokOp Multiply) (TokIdent name) toks = parseParams [] toks
+parseFuncParams (TokIdent name) tok toks              = parseParams [] (tok:toks)
 
 
-parseFunctionParams :: [Tree] -> [Token] -> ([Tree], [Token])
-parseFunctionParams paramList allToks@(first:second:toks)
+parseParams :: [Tree] -> [Token] -> ([Tree], [Token])
+parseParams paramList allToks@(first:second:toks)
         | first == TokCloseParen                       = (paramList, second:toks)
         | first /= TokOpenParen && first /= TokComma   = error "Missing comma between parameters"
         | first == TokComma && second == TokCloseParen = error "Expected parameter type"
@@ -73,7 +73,7 @@ parseFunctionParams paramList allToks@(first:second:toks)
                               | validType typ ->
                                      let (paramTree, toks') = parseParam . accept $ allToks
                                          in
-                                     parseFunctionParams (paramList ++ [paramTree]) toks'
+                                     parseParams (paramList ++ [paramTree]) toks'
                               | otherwise -> error "Invalid parameter type"
                            _ -> error "Invalid parameter keyword"
 
