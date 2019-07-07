@@ -260,9 +260,9 @@ genASM (VarNode varName) = do
 
 genASM (AddressOfNode varName) = do
         offset <- SymTab.variableOffset varName
-        case offset of
-             Nothing  -> error $ "variable not declared: " ++ varName
-             Just off -> return . ASM.varAddressLoad $ off
+        if offset == Nothing
+           then error $ "trying to get address of undeclared variable: " ++ varName
+           else return $ loadAddressOf offset
 
 genASM (DereferenceNode varName) = do
         offset <- SymTab.variableOffset varName
@@ -447,6 +447,10 @@ storeAtDereferenced _ (Just pos) = ASM.derefStoreParam pos
 loadDereferenced :: Maybe Int -> Maybe Int -> String
 loadDereferenced (Just off) _ = ASM.derefLoadLocal off
 loadDereferenced _ (Just pos) = ASM.derefLoadParam pos
+
+
+loadAddressOf :: Maybe Int -> String
+loadAddressOf (Just off) = ASM.varAddressLoad off
 
 
 assignToVariable :: Maybe Int -> Maybe String -> Evaluator String
