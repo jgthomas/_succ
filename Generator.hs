@@ -192,12 +192,13 @@ genASM (AssignmentNode varName value op) = do
 
 genASM (AssignDereferenceNode varName value op) = do
         TypeCheck.assignment varName value
-        assign <- buildAssignmentASM (DereferenceNode varName) value op
-        offset <- SymTab.variableOffset varName
-        argPos <- SymTab.parameterPosition varName
+        assign  <- buildAssignmentASM (DereferenceNode varName) value op
+        offset  <- SymTab.variableOffset varName
+        argPos  <- SymTab.parameterPosition varName
+        globLab <- SymTab.globalLabel varName
         if offset == Nothing && argPos == Nothing
            then error $ "variable not declared: " ++ varName
-           else return $ assign ++ storeAtDereferenced offset argPos
+           else return $ assign ++ storeAtDereferenced offset argPos globLab
 
 genASM (ExprStmtNode expression) = do
         exprsn <- genASM expression
@@ -259,17 +260,19 @@ genASM (VarNode varName) = do
         return $ getVariableASM offset argPos label
 
 genASM (AddressOfNode varName) = do
-        offset <- SymTab.variableOffset varName
+        offset  <- SymTab.variableOffset varName
+        globLab <- SymTab.globalLabel varName
         if offset == Nothing
            then error $ "trying to get address of undeclared variable: " ++ varName
-           else return $ loadAddressOf offset
+           else return $ loadAddressOf offset globLab
 
 genASM (DereferenceNode varName) = do
-        offset <- SymTab.variableOffset varName
-        argPos <- SymTab.parameterPosition varName
+        offset  <- SymTab.variableOffset varName
+        argPos  <- SymTab.parameterPosition varName
+        globLab <- SymTab.globalLabel varName
         if offset == Nothing && argPos == Nothing
            then error $ "trying to dereference undeclared variable: " ++ varName
-           else return $ loadDereferenced offset argPos
+           else return $ loadDereferenced offset argPos globLab
 
 genASM (NullExprNode) = return ASM.noOutput
 
@@ -439,18 +442,21 @@ getVariableASM _ _ (Just lab) = ASM.loadGlobal lab
 getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
 
 
-storeAtDereferenced :: Maybe Int -> Maybe Int -> String
-storeAtDereferenced (Just off) _ = ASM.derefStoreLocal off
-storeAtDereferenced _ (Just pos) = ASM.derefStoreParam pos
+storeAtDereferenced :: Maybe Int -> Maybe Int -> Maybe String -> String
+storeAtDereferenced (Just off) _ _ = ASM.derefStoreLocal off
+storeAtDereferenced _ (Just pos) _ = ASM.derefStoreParam pos
+storeAtDereferenced _ _ (Just lab) = ASM.derefStoreGlobal lab
 
 
-loadDereferenced :: Maybe Int -> Maybe Int -> String
-loadDereferenced (Just off) _ = ASM.derefLoadLocal off
-loadDereferenced _ (Just pos) = ASM.derefLoadParam pos
+loadDereferenced :: Maybe Int -> Maybe Int -> Maybe String -> String
+loadDereferenced (Just off) _ _ = ASM.derefLoadLocal off
+loadDereferenced _ (Just pos) _ = ASM.derefLoadParam pos
+loadDereferenced _ _ (Just lab) = ASM.derefLoadGlobal lab
 
 
-loadAddressOf :: Maybe Int -> String
-loadAddressOf (Just off) = ASM.varAddressLoad off
+loadAddressOf :: Maybe Int -> Maybe String -> String
+loadAddressOf (Just off) _ = ASM.varAddressLoad off
+loadAddressOf _ (Just lab) = ASM.varAddressLoadGlobal lab
 
 
 assignToVariable :: Maybe Int -> Maybe String -> Evaluator String
