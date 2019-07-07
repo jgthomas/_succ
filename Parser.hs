@@ -35,10 +35,10 @@ parseTopLevelItems itemList allToks@(a:toks) =
 
 
 parseTopLevelItem :: [Token] -> (Tree, [Token])
-parseTopLevelItem allToks@(a:b:c:toks) =
-        case c of
-             TokOpenParen -> parseFunction allToks
-             _            -> parseDeclaration allToks
+parseTopLevelItem allToks@(a:b:c:d:toks) =
+        if isFunction a b c d
+           then parseFunction allToks
+           else parseDeclaration allToks
 
 
 parseFunction :: [Token] -> (Tree, [Token])
@@ -519,6 +519,12 @@ validType kwd = kwd `elem` [Int]
 isAssignment :: Operator -> Bool
 isAssignment op = op `elem` [Assign,PlusAssign,MinusAssign,
                              MultiplyAssign,DivideAssign,ModuloAssign]
+
+
+isFunction :: Token -> Token -> Token -> Token -> Bool
+isFunction (TokKeyword Int) (TokOp Multiply) (TokIdent id) TokOpenParen = True
+isFunction (TokKeyword Int) (TokIdent id)    TokOpenParen  _            = True
+isFunction _                _                _             _            = False
 
 
 setType :: Token -> Token -> Type
