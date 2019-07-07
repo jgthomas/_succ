@@ -111,6 +111,13 @@ parseParamValue allToks@(ast:toks) =
              (TokIdent a)     -> parseExpression allToks
 
 
+parseFuncBlockItems :: [Tree] -> [Token] -> ([Tree], [Token])
+parseFuncBlockItems stmts toks =
+        case lookAhead toks of
+             TokSemiColon -> (stmts, toks)
+             _            -> parseBlock stmts toks
+
+
 parseBlock :: [Tree] -> [Token] -> ([Tree], [Token])
 parseBlock stmts toks =
         case lookAhead toks of
