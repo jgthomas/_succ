@@ -7,8 +7,7 @@ import Types  (Type)
 
 
 data Tree = ProgramNode [Tree]
-          | FunctionNode Type String [Tree] [Tree]
-          | FunctionProtoNode Type String [Tree]
+          | FunctionNode Type String [Tree] (Maybe [Tree])
           | DeclarationNode String Type (Maybe Tree)
           | PointerNode String Type (Maybe Tree)
           | CompoundStmtNode [Tree]               -- statements

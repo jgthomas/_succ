@@ -43,29 +43,12 @@ parseTopLevelItem allToks@(a:b:c:toks) =
 
 parseFunction :: [Token] -> (Tree, [Token])
 parseFunction allToks@(typ:ast:id:toks) =
-        let funcType            = setType typ ast
-            funcName            = parseFuncName ast id
-            (funcParams, toks') = parseParams ast id toks
+        let funcType             = setType typ ast
+            funcName             = parseFuncName ast id
+            (funcParams, toks')  = parseParams ast id toks
+            (blockItems, toks'') = parseFuncBlockItems [] toks'
             in
-        case lookAhead toks' of
-             TokSemiColon ->
-                     (FunctionProtoNode
-                     funcType
-                     funcName
-                     funcParams,
-                     accept toks')
-             TokOpenBrace ->
-                     let (blockItems, toks'') = parseBlock [] . accept $ toks'
-                         in
-                     if lookAhead toks'' /= TokCloseBrace
-                        then error $ errorMessage CloseBrace
-                        else (FunctionNode
-                             funcType
-                             funcName
-                             funcParams
-                             blockItems,
-                             accept toks'')
-             _ -> error $ "unexpected tokens in function: " ++ show toks'
+        (FunctionNode funcType funcName funcParams blockItems, toks'')
 
 
 parseFuncName :: Token -> Token -> String
@@ -111,11 +94,17 @@ parseParamValue allToks@(ast:toks) =
              (TokIdent a)     -> parseExpression allToks
 
 
-parseFuncBlockItems :: [Tree] -> [Token] -> ([Tree], [Token])
+parseFuncBlockItems :: [Tree] -> [Token] -> (Maybe [Tree], [Token])
 parseFuncBlockItems stmts toks =
         case lookAhead toks of
-             TokSemiColon -> (stmts, toks)
-             _            -> parseBlock stmts toks
+             TokSemiColon -> (Nothing, accept toks)
+             TokOpenBrace ->
+                     let (stmntTrees, toks') = parseBlock stmts . accept $ toks
+                         in
+                     if lookAhead toks' /= TokCloseBrace
+                        then error $ errorMessage CloseBrace
+                        else (Just stmntTrees, accept toks')
+             _            -> error $ "unexpected tokens in function: " ++ show toks
 
 
 parseBlock :: [Tree] -> [Token] -> ([Tree], [Token])

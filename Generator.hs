@@ -19,27 +19,28 @@ genASM (ProgramNode topLevelItems) = do
         let bss = ASM.uninitializedGlobal <$> undef
         return $ concat prog ++ concat bss
 
-genASM (FunctionProtoNode typ name paramList) = do
-        declareFunction typ name paramList
-        return ASM.noOutput
-
 genASM (FunctionNode typ name paramList statementList) = do
-        defined <- SymTab.checkFuncDefined name
-        if defined
-           then error $ "Function aleady defined: " ++ name
-           else do
-                   declareFunction typ name paramList
-                   SymTab.initFunction name
-                   statements <- mapM genASM statementList
-                   SymTab.closeFunction
-                   SymTab.defineFunction name
-                   if hasReturn statementList || name /= "main"
-                      then return $ ASM.functionName name
-                                    ++ concat statements
-                      else return $ ASM.functionName name
-                                    ++ concat statements
-                                    ++ ASM.loadValue 0
-                                    ++ ASM.returnStatement
+        case statementList of
+             Nothing -> do
+                     declareFunction typ name paramList
+                     return ASM.noOutput
+             Just statementList -> do
+                     defined <- SymTab.checkFuncDefined name
+                     if defined
+                        then error $ "Function aleady defined: " ++ name
+                        else do
+                                declareFunction typ name paramList
+                                SymTab.initFunction name
+                                statements <- mapM genASM statementList
+                                SymTab.closeFunction
+                                SymTab.defineFunction name
+                                if hasReturn statementList || name /= "main"
+                                   then return $ ASM.functionName name
+                                                 ++ concat statements
+                                   else return $ ASM.functionName name
+                                                 ++ concat statements
+                                                 ++ ASM.loadValue 0
+                                                 ++ ASM.returnStatement
 
 genASM (ParamNode typ param) = do
        case param of
