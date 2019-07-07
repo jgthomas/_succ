@@ -28,6 +28,10 @@ module ASM (functionName,
             derefStoreLocal,
             derefLoadParam,
             derefStoreParam,
+            derefLoadGlobal,
+            derefStoreGlobal,
+            varAddressLoadGlobal,
+            varAddressStoreGlobal,
             noOutput) where
 
 
