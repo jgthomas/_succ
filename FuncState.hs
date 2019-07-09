@@ -125,13 +125,17 @@ parameterPosition paramName = do
         if currFuncName == "global"
            then return Nothing
            else do
-                   extract paramNum . M.lookup paramName . parameters <$> getFunctionState currFuncName
+                   extract paramNum
+                       . M.lookup paramName
+                       . parameters <$> getFunctionState currFuncName
 
 
 parameterType :: String -> Evaluator (Maybe Type)
 parameterType paramName = do
         currFuncName <- FrameStack.currentFunction
-        extract paramType . M.lookup paramName . parameters <$> getFunctionState currFuncName
+        extract paramType
+            . M.lookup paramName
+            . parameters <$> getFunctionState currFuncName
 
 
 allTypes :: String -> Evaluator [Type]
