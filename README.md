@@ -69,7 +69,14 @@ C goes in, x86-64 assembly code comes out
 * Initialized in *.data*
 * Uninitialized in *.bss*
 
-## in progress
+**Pointers**
+* Declared and defined locally or globally
+* Pointing to local or global variables
+* Passing as arguments
+* Pass without assignment using '&'
 
-* Remaning operators
-* Pointers
+**Rudimentary Type Checking**
+* int vs. int*
+* Check sides of assignments match
+* Compare parameters to arguments
+* Check function declaration against to return values
