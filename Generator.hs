@@ -17,7 +17,7 @@ genASM (ProgramNode topLevelItems) = do
         prog  <- mapM genASM topLevelItems
         undef <- SymTab.getUndefined
         let bss = ASM.uninitializedGlobal <$> undef
-        return $ concat prog ++ concat bss
+        return $ concat prog ++ concat bss ++ initGlobalPointers
 
 genASM (FunctionNode typ name paramList statementList) = do
         case statementList of
@@ -344,6 +344,10 @@ globalVarASM lab const =
         if read const == 0
            then ASM.uninitializedGlobal $ lab
            else ASM.initializedGlobal lab $ const
+
+
+initGlobalPointers :: String
+initGlobalPointers = "init:\n" ++ "jmp init_done\n"
 
 
 -- Functions / function calls

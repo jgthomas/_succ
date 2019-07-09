@@ -45,6 +45,7 @@ functionName :: String -> String
 functionName funcName =
         declareGlobl funcName
         ++ globlLabel funcName
+        ++ runInit funcName
         ++ saveBasePointer
         ++ saveResisters allScratch
 
@@ -350,8 +351,8 @@ indirectAddressing s = "(" ++ s ++ ")"
 literalValue :: Int -> String
 literalValue n = "$" ++ show n
 
-init :: String -> String
-init name = if name == "main"
+runInit :: String -> String
+runInit name = if name == "main"
                then "jmp init\n" ++ "init_done:\n"
                else noOutput
 
