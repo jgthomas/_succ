@@ -155,7 +155,7 @@ genASM (PointerNode varName typ assign) = do
                      value   <- genASM a
                      offset  <- SymTab.variableOffset varName
                      globLab <- SymTab.globalLabel varName
-                     if offset == Nothing
+                     if offset == Nothing && globLab == Nothing
                         then error $ "variable not declared: " ++ varName
                         else return $ pointerASM ++ value ++ storeAddressOf offset globLab
 
@@ -328,7 +328,7 @@ defineGlobal name valNode = do
                      value <- genASM valNode
                      case valNode of
                           (ConstantNode n)  -> return $ globalVarASM lab value
-                          (AddressOfNode a) -> return value
+                          (AddressOfNode a) -> return $ ASM.uninitializedGlobal lab ++ value
 
 
 checkIfDefined :: String -> Evaluator ()
