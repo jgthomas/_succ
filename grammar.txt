@@ -30,7 +30,13 @@
 <relational-exp> ::= <additive-exp> { ("<" | ">" | "<=" | ">=") <additive-exp> }
 <additive-exp> ::= <term> { ("+" | "-") <term> }
 <term> ::= <factor> { ("*" | "/" | "%") <factor> }
-<factor> ::= <int> | <id> | <unary-op> <factor> | "(" <exp> ")" | <function-call>
+
+<factor> ::= <int>
+           | <id>
+           | <unary-op> <factor>
+           | "(" <exp> ")"
+           | <function-call>
+           | "&" <id>
 
 <function-call> ::= <id> "(" [ <argument-list> ] ")"
 <argument-list> := <argument> { "," <argument> }
@@ -40,4 +46,4 @@
 
 <assign-op> ::= "=" | "+=" | "-=" | "*=" | "/=" | "%="
 
-<type> ::= <int>
+<type> ::= <int> | <int*>
