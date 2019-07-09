@@ -15,10 +15,9 @@ genASM :: Tree -> Evaluator String
 
 genASM (ProgramNode topLevelItems) = do
         prog   <- mapM genASM topLevelItems
-        undef  <- SymTab.getUndefined
+        bss    <- ASM.allUninitialized <$> SymTab.getUndefined
         toInit <- ASM.outputInit . concat <$> SymTab.getAllForInit
-        let bss = ASM.uninitializedGlobal <$> undef
-        return $ concat prog ++ concat bss ++ toInit
+        return $ concat prog ++ bss ++ toInit
 
 genASM (FunctionNode typ name paramList statementList) = do
         case statementList of

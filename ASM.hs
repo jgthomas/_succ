@@ -33,6 +33,7 @@ module ASM (functionName,
             varAddressLoadGlobal,
             varAddressStoreGlobal,
             outputInit,
+            allUninitialized,
             noOutput) where
 
 
@@ -256,6 +257,10 @@ uninitializedGlobal label =
         ++ align
         ++ globlLabel label
         ++ section TEXT
+
+
+allUninitialized :: [String] -> String
+allUninitialized vars = concatMap uninitializedGlobal vars
 
 
 {-
