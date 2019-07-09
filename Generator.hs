@@ -152,11 +152,12 @@ genASM (PointerNode varName typ assign) = do
         case assign of
              Nothing -> return pointerASM
              Just a  -> do
-                     value  <- genASM a
-                     offset <- SymTab.variableOffset varName
+                     value   <- genASM a
+                     offset  <- SymTab.variableOffset varName
+                     globLab <- SymTab.globalLabel varName
                      if offset == Nothing
                         then error $ "variable not declared: " ++ varName
-                        else return $ pointerASM ++ value ++ storeAddressOf offset
+                        else return $ pointerASM ++ value ++ storeAddressOf offset globLab
 
 genASM (DeclarationNode varName typ value) = do
         currScope <- SymTab.currentScope
@@ -463,8 +464,9 @@ loadAddressOf (Just off) _ = ASM.varAddressLoad off
 loadAddressOf _ (Just lab) = ASM.varAddressLoadGlobal lab
 
 
-storeAddressOf :: Maybe Int -> String
-storeAddressOf (Just off) = ASM.varAddressStore off
+storeAddressOf :: Maybe Int -> Maybe String -> String
+storeAddressOf (Just off) _ = ASM.varAddressStore off
+storeAddressOf _ (Just lab) = ASM.varAddressStoreGlobal lab
 
 
 assignToVariable :: Maybe Int -> Maybe String -> Evaluator String
