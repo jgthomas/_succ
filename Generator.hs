@@ -16,7 +16,7 @@ genASM :: Tree -> Evaluator String
 genASM (ProgramNode topLevelItems) = do
         prog   <- mapM genASM topLevelItems
         undef  <- SymTab.getUndefined
-        toInit <- initGlobalPointers
+        toInit <- initGlobalCode
         let bss = ASM.uninitializedGlobal <$> undef
         return $ concat prog ++ concat bss ++ toInit
 
@@ -349,10 +349,8 @@ globalVarASM lab const =
            else ASM.initializedGlobal lab $ const
 
 
-initGlobalPointers :: Evaluator String
-initGlobalPointers = do
-        toInit <- SymTab.getAllForInit
-        return $ "init:\n" ++ concat toInit ++ "jmp init_done\n"
+initGlobalCode :: Evaluator String
+initGlobalCode = ASM.outputInit . concat <$> SymTab.getAllForInit
 
 
 -- Functions / function calls
