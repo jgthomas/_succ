@@ -79,4 +79,4 @@ C goes in, x86-64 assembly code comes out
 * int vs. int*
 * Check sides of assignments match
 * Compare parameters to arguments
-* Check function declaration against to return values
+* Check function declaration against return values
