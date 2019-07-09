@@ -12,6 +12,8 @@ module GlobalScope (newGlobalScope,
                     checkVarDefined,
                     checkFuncDefined,
                     getUndefined,
+                    storeForInit,
+                    getAllForInit,
                     defineGlobal) where
 
 
@@ -103,6 +105,17 @@ getUndefined = do
             . M.filterWithKey (\k _ -> k `elem` undefined)
             . declaredVars
             <$> getGlobalScope
+
+
+storeForInit :: String -> Evaluator ()
+storeForInit code = do
+        gscope <- getGlobalScope
+        let gscope' = gscope { varsToinit = code : varsToinit gscope }
+        updateGlobalScope gscope'
+
+
+getAllForInit :: Evaluator [String]
+getAllForInit = varsToinit <$> getGlobalScope
 
 
 {- Internal -}
