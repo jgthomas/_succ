@@ -1,7 +1,6 @@
 
 module Main where
 
-
 import System.Environment (getArgs)
 import System.FilePath    (dropExtension)
 import System.Process     (system)
