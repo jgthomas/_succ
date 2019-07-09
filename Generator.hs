@@ -14,10 +14,10 @@ import qualified  TypeCheck
 genASM :: Tree -> Evaluator String
 
 genASM (ProgramNode topLevelItems) = do
-        prog   <- mapM genASM topLevelItems
+        text   <- concat <$> mapM genASM topLevelItems
         bss    <- ASM.allUninitialized <$> SymTab.getUndefined
         toInit <- ASM.outputInit . concat <$> SymTab.getAllForInit
-        return $ concat prog ++ bss ++ toInit
+        return $ text ++ bss ++ toInit
 
 genASM (FunctionNode typ name paramList statementList) = do
         case statementList of
