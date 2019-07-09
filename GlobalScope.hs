@@ -27,7 +27,7 @@ import qualified FrameStack (currentFunction)
 
 
 newGlobalScope :: GlobalScope
-newGlobalScope = Gscope 0 M.empty M.empty M.empty M.empty S.empty S.empty
+newGlobalScope = Gscope 0 M.empty M.empty M.empty M.empty S.empty S.empty []
 
 
 decParamCount :: String -> Evaluator (Maybe Int)
