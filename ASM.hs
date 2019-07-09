@@ -32,6 +32,7 @@ module ASM (functionName,
             derefStoreGlobal,
             varAddressLoadGlobal,
             varAddressStoreGlobal,
+            outputInit,
             noOutput) where
 
 
@@ -350,6 +351,9 @@ indirectAddressing s = "(" ++ s ++ ")"
 
 literalValue :: Int -> String
 literalValue n = "$" ++ show n
+
+outputInit :: String -> String
+outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
 
 runInit :: String -> String
 runInit name = if name == "main"
