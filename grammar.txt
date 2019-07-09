@@ -1,13 +1,12 @@
 
-<program> ::= { <function> | <function-prototype> | <declaration> }
+<program> ::= { <function> | <declaration> }
 
 <function> ::= <type> <id> "(" [ <parameter-list> ] ")" "{" { <block-item> } "}"
-<function-prototype> ::= <type> <id> "(" [ <parameter-list> ] ")" ";"
 <parameter-list> ::= <parameter> { "," <parameter> }
 <parameter> := <type> <id>
 
-<block-item> ::= <declaration> | <statement>
 <declaration> ::= <type> <id> [ "=" <exp> ] ";"
+<block-item> ::= <declaration> | <statement>
 <statement> ::= "return" <exp> ";"
               | "if" "(" <exp> ")" <statement> [ "else" <statement> ]
               | "for" "(" <exp-opt-semicolon> <exp-opt-semicolon> <exp-opt> ")" <statement>
