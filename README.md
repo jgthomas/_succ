@@ -61,7 +61,7 @@ C goes in, x86-64 assembly code comes out
 * Function calls
 * Function declarations
 * Function definitions
-* Passing parameters using x86_64 calling convention
+* Passing parameters using x86-64 calling convention
 
 **Global variables**
 * Declaration
