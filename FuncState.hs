@@ -122,7 +122,10 @@ addParameter paramName typ = do
 parameterPosition :: String -> Evaluator (Maybe Int)
 parameterPosition paramName = do
         currFuncName <- FrameStack.currentFunction
-        extract paramNum . M.lookup paramName . parameters <$> getFunctionState currFuncName
+        if currFuncName == "global"
+           then return Nothing
+           else do
+                   extract paramNum . M.lookup paramName . parameters <$> getFunctionState currFuncName
 
 
 parameterType :: String -> Evaluator (Maybe Type)
@@ -158,8 +161,11 @@ getType varName = getAttr varName locType
 getAttr :: String -> (LocalVar -> a) -> Evaluator (Maybe a)
 getAttr varName f = do
         currFuncName <- FrameStack.currentFunction
-        scopeLevel   <- findScope currFuncName
-        extract f <$> find currFuncName scopeLevel varName
+        if currFuncName == "global"
+           then return Nothing
+           else do
+                   scopeLevel <- findScope currFuncName
+                   extract f <$> find currFuncName scopeLevel varName
 
 
 find :: String -> Int -> String -> Evaluator (Maybe LocalVar)
