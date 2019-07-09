@@ -14,10 +14,11 @@ import qualified  TypeCheck
 genASM :: Tree -> Evaluator String
 
 genASM (ProgramNode topLevelItems) = do
-        prog  <- mapM genASM topLevelItems
-        undef <- SymTab.getUndefined
+        prog   <- mapM genASM topLevelItems
+        undef  <- SymTab.getUndefined
+        toInit <- initGlobalPointers
         let bss = ASM.uninitializedGlobal <$> undef
-        return $ concat prog ++ concat bss ++ initGlobalPointers
+        return $ concat prog ++ concat bss ++ toInit
 
 genASM (FunctionNode typ name paramList statementList) = do
         case statementList of
@@ -328,7 +329,9 @@ defineGlobal name valNode = do
                      value <- genASM valNode
                      case valNode of
                           (ConstantNode n)  -> return $ globalVarASM lab value
-                          (AddressOfNode a) -> return $ ASM.uninitializedGlobal lab ++ value
+                          (AddressOfNode a) -> do
+                                  SymTab.storeForInit $ value ++ ASM.varAddressStoreGlobal lab
+                                  return $ ASM.uninitializedGlobal lab
 
 
 checkIfDefined :: String -> Evaluator ()
@@ -346,8 +349,10 @@ globalVarASM lab const =
            else ASM.initializedGlobal lab $ const
 
 
-initGlobalPointers :: String
-initGlobalPointers = "init:\n" ++ "jmp init_done\n"
+initGlobalPointers :: Evaluator String
+initGlobalPointers = do
+        toInit <- SymTab.getAllForInit
+        return $ "init:\n" ++ concat toInit ++ "jmp init_done\n"
 
 
 -- Functions / function calls
@@ -470,7 +475,7 @@ loadAddressOf _ (Just lab) = ASM.varAddressLoadGlobal lab
 
 storeAddressOf :: Maybe Int -> Maybe String -> String
 storeAddressOf (Just off) _ = ASM.varAddressStore off
-storeAddressOf _ (Just lab) = ASM.varAddressStoreGlobal lab
+storeAddressOf _ (Just lab) = ASM.noOutput
 
 
 assignToVariable :: Maybe Int -> Maybe String -> Evaluator String
