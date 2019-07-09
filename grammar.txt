@@ -21,7 +21,7 @@
 <exp-opt> ::= <exp> | ""
 <exp-opt-semicolon> ::= <exp> ";" | ";"
 
-<exp> ::= <id> "=" <exp> | <conditional-exp>
+<exp> ::= <id> [ "*" ] "=" <exp> | <conditional-exp>
 <conditional-exp> ::= <logical-or-exp> [ "?" <exp> ":" <conditional-exp> ]
 <logical-or-exp> ::= <logical-and-exp> { "||" <logical-and-exp> }
 <logical-and-exp> ::= <equality-exp> { "&&" <equality-exp> }
