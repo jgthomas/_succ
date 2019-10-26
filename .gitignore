@@ -1,5 +1,6 @@
 *.c
 *.s
+*.out
 dist
 dist-*
 cabal-dev
