@@ -1,2 +1,10 @@
+
+module Main where
+
+
+import LexerSpec
+
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = do
+        lexerTest
