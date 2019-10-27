@@ -12,7 +12,7 @@ C goes in, x86-64 assembly code comes out
 
 ## acknowledgements 
 
-[Nora Sandler](https://norasandler.com/2017/11/29/Write-a-Compiler.html), who broke down compilers in a practical way, and provided an invaluable [test suite](https://github.com/nlsandler/write_a_c_compiler).
+[Nora Sandler](https://norasandler.com/2017/11/29/Write-a-Compiler.html), who broke down compilers in a practical way, and provided an invaluable [test suite](https://github.com/jgthomas/write_a_c_compiler).
 
 [Bartosz Milewski](https://www.schoolofhaskell.com/user/bartosz/basics-of-haskell/4-symbolic-calculator-recursion), who gave me a glimpse into how this might be done in Haskell.
 
