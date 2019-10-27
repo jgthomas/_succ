@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/jgthomas/_succ.svg?branch=master)](https://travis-ci.com/jgthomas/succ)
+[![Build Status](https://travis-ci.com/jgthomas/succ.svg?branch=master)](https://travis-ci.com/jgthomas/succ)
 
 # succ
 
