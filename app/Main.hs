@@ -25,7 +25,7 @@ main = do
         handle   <- openFile infileName ReadMode
         contents <- hGetContents handle
 
-        -- debugging
+        -- uncomment to debug
         --print contents
         --print $ tokenize contents
         --print $ parse $ tokenize contents
@@ -37,7 +37,8 @@ main = do
             Ev act = genASM parsed
             (asm, symTab') = act symTab
             in do
-                    print symTab'
+                    -- uncomment to debug
+                    --print symTab'
                     when (length asm > 0) $
                        writeFile outfileName asm
 
