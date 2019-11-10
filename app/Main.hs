@@ -11,11 +11,13 @@ import System.IO          (openFile,
                            writeFile,
                            hClose)
 
-import Lexer     (tokenize)
-import Parser    (parse)
-import Generator (genASM)
-import Evaluator (Evaluator(Ev))
-import SymTab    (newSymTab)
+--import Lexer     (tokenize)
+--import Parser    (parse)
+--import Generator (genASM)
+--import Evaluator (Evaluator(Ev))
+--import SymTab    (newSymTab)
+
+import NewLexer  (tokenize)
 
 
 main :: IO()
@@ -26,23 +28,24 @@ main = do
         contents <- hGetContents handle
 
         -- uncomment to debug
-        --print contents
-        --print $ tokenize contents
+        print contents
+        let tokens = tokenize contents
+        print tokens
         --print $ parse $ tokenize contents
 
-        let outfileName = dropExtension infileName ++ ".s"
-            parsed      = parse $ tokenize contents
+        --let outfileName = dropExtension infileName ++ ".s"
+        --    parsed      = parse $ tokenize contents
 
-        let symTab = newSymTab
-            Ev act = genASM parsed
-            (asm, symTab') = act symTab
-            in do
-                    -- uncomment to debug
-                    --print symTab'
-                    when (length asm > 0) $
-                       writeFile outfileName asm
+        --let symTab = newSymTab
+        --    Ev act = genASM parsed
+        --    (asm, symTab') = act symTab
+        --    in do
+        --            -- uncomment to debug
+        --            --print symTab'
+        --            when (length asm > 0) $
+        --               writeFile outfileName asm
 
-        system $ "gcc -g " ++ outfileName
-                  ++ " -o " ++ dropExtension outfileName
-        system $ "rm " ++ outfileName
-        hClose handle
+        --system $ "gcc -g " ++ outfileName
+        --          ++ " -o " ++ dropExtension outfileName
+        --system $ "rm " ++ outfileName
+        --hClose handle
