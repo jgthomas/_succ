@@ -24,14 +24,14 @@ runLexer input = runExceptT $ lexInput input
 lexInput :: [Char] -> ExceptT CompilerError LexerState [Token]
 lexInput [] = do
         lexOut <- get
-        return lexOut
+        return . reverse $ lexOut
 lexInput input@(c:cs) = do
         lexOut <- get
         let (tok, input') = getToken input
         case tok of
              TokUnrecognised -> throwE (LexerError (BadToken [c]))
              TokSpace        -> put lexOut
-             _               -> put (lexOut ++ [tok])
+             _               -> put (tok:lexOut)
         lexInput input'
 
 
