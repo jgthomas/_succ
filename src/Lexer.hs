@@ -2,69 +2,98 @@
 module Lexer (tokenize) where
 
 
+import Control.Monad.State
+import Control.Monad.Trans.Except (runExceptT, throwE)
 import Data.Char (isDigit, isAlpha, isSpace)
 
 import Tokens (Operator(..), Keyword(..), Token(..))
+import Error  (CompilerError(LexerError), LexerError(..), CompilerM)
 
 
-tokenize :: String -> [Token]
-tokenize [] = []
-tokenize (c:cs)
-    | c == '('           = TokOpenParen              : tokenize cs
-    | c == ')'           = TokCloseParen             : tokenize cs
-    | c == '{'           = TokOpenBrace              : tokenize cs
-    | c == '}'           = TokCloseBrace             : tokenize cs
-    | c == ';'           = TokSemiColon              : tokenize cs
-    | c == ':'           = TokColon                  : tokenize cs
-    | c == '?'           = TokQuestMark              : tokenize cs
-    | c == ','           = TokComma                  : tokenize cs
+type LexerState = State [Token]
+
+
+tokenize :: [Char] -> Either CompilerError [Token]
+tokenize input = evalState (runExceptT $ lexer input) []
+
+
+lexer :: [Char] -> CompilerM LexerState [Token]
+lexer []    = throwE (LexerError EmptyInput)
+lexer input = lexInput input
+
+
+lexInput :: [Char] -> CompilerM LexerState [Token]
+lexInput [] = do
+        lexOut <- get
+        return . reverse $ lexOut
+lexInput input@(c:cs) = do
+        lexOut <- get
+        let (tok, input') = getToken input
+        case tok of
+             TokUnrecognised -> throwE (LexerError (BadToken [c]))
+             TokNull         -> throwE (LexerError EmptyInput)
+             TokSpace        -> put lexOut
+             _               -> put (tok:lexOut)
+        lexInput input'
+
+
+getToken :: [Char] -> (Token, [Char])
+getToken [] = (TokNull, [])
+getToken (c:cs)
+    | c == '('           = (TokOpenParen, cs)
+    | c == ')'           = (TokCloseParen, cs)
+    | c == '{'           = (TokOpenBrace, cs)
+    | c == '}'           = (TokCloseBrace, cs)
+    | c == ';'           = (TokSemiColon, cs)
+    | c == ':'           = (TokColon, cs)
+    | c == '?'           = (TokQuestMark,  cs)
+    | c == ','           = (TokComma, cs)
     | isTwoCharOp c cs   = twoCharOperator c cs
-    | c `elem` opSymbols = TokOp (operator c)        : tokenize cs
+    | c `elem` opSymbols = (TokOp (operator c), cs)
     | identifierStart c  = identifier c cs
     | isDigit c          = number c cs
-    | isSpace c          = tokenize cs
-    | otherwise          = error $ "Cannot tokenize " ++ [c]
+    | isSpace c          = (TokSpace, cs)
+    | otherwise          = (TokUnrecognised, cs)
 
 
-identifier :: Char -> String -> [Token]
+identifier :: Char -> [Char] -> (Token, [Char])
 identifier c cs =
     let (str, cs') = span isValidInIdentifier cs
         in
-    case c : str of
-         "int"      -> TokKeyword Int       : tokenize cs'
-         "return"   -> TokKeyword Return    : tokenize cs'
-         "if"       -> TokKeyword If        : tokenize cs'
-         "else"     -> TokKeyword Else      : tokenize cs'
-         "for"      -> TokKeyword For       : tokenize cs'
-         "while"    -> TokKeyword While     : tokenize cs'
-         "do"       -> TokKeyword Do        : tokenize cs'
-         "break"    -> TokKeyword Break     : tokenize cs'
-         "continue" -> TokKeyword Continue  : tokenize cs'
-         _          -> TokIdent (c:str)     : tokenize cs'
+    case c:str of
+         "int"      -> (TokKeyword Int, cs')
+         "return"   -> (TokKeyword Return, cs')
+         "if"       -> (TokKeyword If, cs')
+         "else"     -> (TokKeyword Else, cs')
+         "for"      -> (TokKeyword For, cs')
+         "while"    -> (TokKeyword While, cs')
+         "do"       -> (TokKeyword Do, cs')
+         "break"    -> (TokKeyword Break, cs')
+         "continue" -> (TokKeyword Continue, cs')
+         _          -> (TokIdent (c:str), cs')
 
 
-number :: Char -> String -> [Token]
+number :: Char -> [Char] -> (Token, [Char])
 number c cs =
     let (digs, cs') = span isDigit cs
         in
-    TokConstInt (read (c:digs)) : tokenize cs'
+    (TokConstInt (read (c:digs)), cs')
 
 
-twoCharOperator :: Char -> String -> [Token]
+twoCharOperator :: Char -> String -> (Token, [Char])
 twoCharOperator c (n:cs) =
         case c:[n] of
-             "||" -> TokOp LogicalOR          : tokenize cs
-             "&&" -> TokOp LogicalAND         : tokenize cs
-             ">=" -> TokOp GreaterThanOrEqual : tokenize cs
-             "<=" -> TokOp LessThanOrEqual    : tokenize cs
-             "==" -> TokOp Equal              : tokenize cs
-             "!=" -> TokOp NotEqual           : tokenize cs
-             "+=" -> TokOp PlusAssign         : tokenize cs
-             "-=" -> TokOp MinusAssign        : tokenize cs
-             "*=" -> TokOp MultiplyAssign     : tokenize cs
-             "/=" -> TokOp DivideAssign       : tokenize cs
-             "%=" -> TokOp ModuloAssign       : tokenize cs
-             _    -> error "Unrecognised two character operator"
+             "||" -> (TokOp LogicalOR, cs)
+             "&&" -> (TokOp LogicalAND, cs)
+             ">=" -> (TokOp GreaterThanOrEqual, cs)
+             "<=" -> (TokOp LessThanOrEqual, cs)
+             "==" -> (TokOp Equal, cs)
+             "!=" -> (TokOp NotEqual, cs)
+             "+=" -> (TokOp PlusAssign, cs)
+             "-=" -> (TokOp MinusAssign, cs)
+             "*=" -> (TokOp MultiplyAssign, cs)
+             "/=" -> (TokOp DivideAssign, cs)
+             "%=" -> (TokOp ModuloAssign, cs)
 
 
 isTwoCharOp :: Char -> String -> Bool

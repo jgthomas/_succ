@@ -12,15 +12,13 @@ import System.IO          (openFile,
                            writeFile,
                            hClose)
 
---import Lexer     (tokenize)
+import Lexer     (tokenize)
 import Parser    (parse)
 import Generator (genASM)
 import Evaluator (Evaluator(Ev))
 import SymTab    (newSymTab)
 import Tokens    (Token)
 import AST       (Tree)
-
-import NewLexer  (tokenize)
 
 
 main :: IO()
