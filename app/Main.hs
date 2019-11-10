@@ -29,8 +29,11 @@ main = do
 
         -- uncomment to debug
         print contents
-        let tokens = tokenize contents
-        print tokens
+        let lexed = tokenize contents
+        case lexed of
+             (Left err)   -> print err
+             (Right toks) -> print toks
+
         --print $ parse $ tokenize contents
 
         --let outfileName = dropExtension infileName ++ ".s"
