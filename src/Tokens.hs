@@ -54,4 +54,7 @@ data Token = TokOpenParen
            | TokColon
            | TokQuestMark
            | TokComma
+           | TokSpace
+           | TokUnrecognised
+           | TokNull
            deriving (Show, Eq)
