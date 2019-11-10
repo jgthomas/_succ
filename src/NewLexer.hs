@@ -18,7 +18,12 @@ tokenize input = evalState (runLexer input) []
 
 
 runLexer :: [Char] -> LexerState (Either CompilerError [Token])
-runLexer input = runExceptT $ lexInput input
+runLexer input = runExceptT $ lexer input
+
+
+lexer :: [Char] -> ExceptT CompilerError LexerState [Token]
+lexer []    = throwE (LexerError EmptyInput)
+lexer input = lexInput input
 
 
 lexInput :: [Char] -> ExceptT CompilerError LexerState [Token]
@@ -36,7 +41,6 @@ lexInput input@(c:cs) = do
 
 
 getToken :: [Char] -> (Token, [Char])
-getToken [] = (TokUnrecognised, [])
 getToken (c:cs)
     | c == '('          = (TokOpenParen, cs)
     | c == ')'          = (TokCloseParen, cs)
