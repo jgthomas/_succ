@@ -43,7 +43,7 @@ main = do
         hClose handle
 
 
-lexString :: [Char] -> IO [Token]
+lexString :: String -> IO [Token]
 lexString s = do
         let lexed = tokenize s
         case lexed of
