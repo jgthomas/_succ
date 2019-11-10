@@ -1,7 +1,10 @@
 
 module Error (CompilerError(..),
-              LexerError(..)) where
+              LexerError(..),
+              CompilerM) where
 
+
+import Control.Monad.Trans.Except
 
 
 data CompilerError = LexerError LexerError
@@ -11,3 +14,6 @@ data CompilerError = LexerError LexerError
 data LexerError = BadToken String
                 | EmptyInput
                 deriving Show
+
+
+type CompilerM m = ExceptT CompilerError m
