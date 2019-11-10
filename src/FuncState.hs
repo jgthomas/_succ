@@ -23,6 +23,7 @@ module FuncState (initScope,
 import Data.Maybe            (fromMaybe)
 import Data.Function         (on)
 import Data.List             (sortBy)
+import Control.Monad         (unless)
 import qualified Data.Map as M
 
 import Evaluator             (Evaluator(Ev))
@@ -40,14 +41,11 @@ initFunction :: String -> Evaluator ()
 initFunction name = do
         FrameStack.pushFunctionName name
         check <- checkFunctionState name
-        if not check
-           then newFuncState name
-           else return ()
+        unless check $ newFuncState name
 
 
 closeFunction :: Evaluator ()
-closeFunction = do
-        FrameStack.popFunctionName
+closeFunction = FrameStack.popFunctionName
 
 
 initScope :: Evaluator ()
@@ -124,10 +122,9 @@ parameterPosition paramName = do
         currFuncName <- FrameStack.currentFunction
         if currFuncName == "global"
            then return Nothing
-           else do
-                   extract paramNum
-                       . M.lookup paramName
-                       . parameters <$> getFunctionState currFuncName
+           else extract paramNum
+                    . M.lookup paramName
+                    . parameters <$> getFunctionState currFuncName
 
 
 parameterType :: String -> Evaluator (Maybe Type)
@@ -141,7 +138,7 @@ parameterType paramName = do
 allTypes :: String -> Evaluator [Type]
 allTypes funcName = do
         paramList <- M.elems . parameters <$> getFunctionState funcName
-        return $ snd <$> (sortBy (compare `on` fst) $ paramData <$> paramList)
+        return $ snd <$> sortBy (compare `on` fst) (paramData <$> paramList)
 
 
 parameterDeclared :: String -> Evaluator Bool
