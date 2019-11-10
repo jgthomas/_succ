@@ -40,15 +40,16 @@ lexInput input@(c:cs) = do
 getToken :: [Char] -> (Token, [Char])
 getToken [] = (TokNull, [])
 getToken (c:cs)
-    | c == '('          = (TokOpenParen, cs)
-    | c == ')'          = (TokCloseParen, cs)
-    | c == '{'          = (TokOpenBrace, cs)
-    | c == '}'          = (TokCloseBrace, cs)
-    | c == ';'          = (TokSemiColon, cs)
-    | identifierStart c = identifier c cs
-    | isDigit c         = number c cs
-    | isSpace c         = (TokSpace, cs)
-    | otherwise         = (TokUnrecognised, cs)
+    | c == '('           = (TokOpenParen, cs)
+    | c == ')'           = (TokCloseParen, cs)
+    | c == '{'           = (TokOpenBrace, cs)
+    | c == '}'           = (TokCloseBrace, cs)
+    | c == ';'           = (TokSemiColon, cs)
+    | c `elem` opSymbols = (TokOp (operator c), cs)
+    | identifierStart c  = identifier c cs
+    | isDigit c          = number c cs
+    | isSpace c          = (TokSpace, cs)
+    | otherwise          = (TokUnrecognised, cs)
 
 
 identifier :: Char -> [Char] -> (Token, [Char])
@@ -66,6 +67,24 @@ number c cs =
     let (digs, cs') = span isDigit cs
         in
     (TokConstInt (read (c:digs)), cs')
+
+
+operator :: Char -> Operator
+operator c | c == '+' = Plus
+           | c == '-' = Minus
+           | c == '*' = Multiply
+           | c == '%' = Modulo
+           | c == '/' = Divide
+           | c == '~' = BitwiseCompl
+           | c == '!' = LogicNegation
+           | c == '>' = GreaterThan
+           | c == '<' = LessThan
+           | c == '=' = Assign
+           | c == '&' = Ampersand
+
+
+opSymbols :: String
+opSymbols = "+-*/~!|&<>=%"
 
 
 identifierStart :: Char -> Bool
