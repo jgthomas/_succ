@@ -3,11 +3,11 @@ module NewLexer (tokenize) where
 
 
 import Control.Monad.State
-import Control.Monad.Trans.Except
+import Control.Monad.Trans.Except (runExceptT, throwE)
 import Data.Char (isDigit, isAlpha, isSpace)
 
 import Tokens (Operator(..), Keyword(..), Token(..))
-import Error  (CompilerError(LexerError), LexerError(..))
+import Error  (CompilerError(LexerError), LexerError(..), CompilerM)
 
 
 type LexerState = State [Token]
@@ -21,12 +21,12 @@ runLexer :: [Char] -> LexerState (Either CompilerError [Token])
 runLexer input = runExceptT $ lexer input
 
 
-lexer :: [Char] -> ExceptT CompilerError LexerState [Token]
+lexer :: [Char] -> CompilerM LexerState [Token]
 lexer []    = throwE (LexerError EmptyInput)
 lexer input = lexInput input
 
 
-lexInput :: [Char] -> ExceptT CompilerError LexerState [Token]
+lexInput :: [Char] -> CompilerM LexerState [Token]
 lexInput [] = do
         lexOut <- get
         return . reverse $ lexOut
