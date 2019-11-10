@@ -7,7 +7,7 @@ import Control.Monad.Trans.Except
 import Data.Char (isDigit, isAlpha, isSpace)
 
 import Tokens (Operator(..), Keyword(..), Token(..))
-import Error  (CompilerError(..), LexerError(..))
+import Error  (CompilerError(LexerError), LexerError(..))
 
 
 type LexerOutput = [Token]
