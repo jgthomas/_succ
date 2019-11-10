@@ -45,6 +45,10 @@ getToken (c:cs)
     | c == '{'           = (TokOpenBrace, cs)
     | c == '}'           = (TokCloseBrace, cs)
     | c == ';'           = (TokSemiColon, cs)
+    | c == ':'           = (TokColon, cs)
+    | c == '?'           = (TokQuestMark,  cs)
+    | c == ','           = (TokComma, cs)
+    | isTwoCharOp c cs   = twoCharOperator c cs
     | c `elem` opSymbols = (TokOp (operator c), cs)
     | identifierStart c  = identifier c cs
     | isDigit c          = number c cs
@@ -59,6 +63,13 @@ identifier c cs =
     case c:str of
          "int"      -> (TokKeyword Int, cs')
          "return"   -> (TokKeyword Return, cs')
+         "if"       -> (TokKeyword If, cs')
+         "else"     -> (TokKeyword Else, cs')
+         "for"      -> (TokKeyword For, cs')
+         "while"    -> (TokKeyword While, cs')
+         "do"       -> (TokKeyword Do, cs')
+         "break"    -> (TokKeyword Break, cs')
+         "continue" -> (TokKeyword Continue, cs')
          _          -> (TokIdent (c:str), cs')
 
 
@@ -67,6 +78,28 @@ number c cs =
     let (digs, cs') = span isDigit cs
         in
     (TokConstInt (read (c:digs)), cs')
+
+
+twoCharOperator :: Char -> String -> (Token, [Char])
+twoCharOperator c (n:cs) =
+        case c:[n] of
+             "||" -> (TokOp LogicalOR, cs)
+             "&&" -> (TokOp LogicalAND, cs)
+             ">=" -> (TokOp GreaterThanOrEqual, cs)
+             "<=" -> (TokOp LessThanOrEqual, cs)
+             "==" -> (TokOp Equal, cs)
+             "!=" -> (TokOp NotEqual, cs)
+             "+=" -> (TokOp PlusAssign, cs)
+             "-=" -> (TokOp MinusAssign, cs)
+             "*=" -> (TokOp MultiplyAssign, cs)
+             "/=" -> (TokOp DivideAssign, cs)
+             "%=" -> (TokOp ModuloAssign, cs)
+
+
+isTwoCharOp :: Char -> String -> Bool
+isTwoCharOp c [] = False
+isTwoCharOp c cs = elem c opSymbols
+                   && elem (head cs) secondOpSymbols
 
 
 operator :: Char -> Operator
@@ -85,6 +118,10 @@ operator c | c == '+' = Plus
 
 opSymbols :: String
 opSymbols = "+-*/~!|&<>=%"
+
+
+secondOpSymbols :: String
+secondOpSymbols = "=|&"
 
 
 identifierStart :: Char -> Bool
