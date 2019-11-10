@@ -13,16 +13,16 @@ import Error  (CompilerError(LexerError), LexerError(..), CompilerM)
 type LexerState = State [Token]
 
 
-tokenize :: [Char] -> Either CompilerError [Token]
+tokenize :: String -> Either CompilerError [Token]
 tokenize input = evalState (runExceptT $ lexer input) []
 
 
-lexer :: [Char] -> CompilerM LexerState [Token]
+lexer :: String -> CompilerM LexerState [Token]
 lexer []    = throwE (LexerError EmptyInput)
 lexer input = lexInput input
 
 
-lexInput :: [Char] -> CompilerM LexerState [Token]
+lexInput :: String -> CompilerM LexerState [Token]
 lexInput [] = do
         lexOut <- get
         return . reverse $ lexOut
@@ -37,7 +37,7 @@ lexInput input@(c:cs) = do
         lexInput input'
 
 
-getToken :: [Char] -> (Token, [Char])
+getToken :: String -> (Token, String)
 getToken [] = (TokNull, [])
 getToken (c:cs)
     | c == '('           = (TokOpenParen, cs)
@@ -56,7 +56,7 @@ getToken (c:cs)
     | otherwise          = (TokUnrecognised, cs)
 
 
-identifier :: Char -> [Char] -> (Token, [Char])
+identifier :: Char -> String -> (Token, String)
 identifier c cs =
     let (str, cs') = span isValidInIdentifier cs
         in
@@ -73,14 +73,14 @@ identifier c cs =
          _          -> (TokIdent (c:str), cs')
 
 
-number :: Char -> [Char] -> (Token, [Char])
+number :: Char -> String -> (Token, String)
 number c cs =
     let (digs, cs') = span isDigit cs
         in
     (TokConstInt (read (c:digs)), cs')
 
 
-twoCharOperator :: Char -> String -> (Token, [Char])
+twoCharOperator :: Char -> String -> (Token, String)
 twoCharOperator c (n:cs) =
         case c:[n] of
              "||" -> (TokOp LogicalOR, cs)
