@@ -38,14 +38,10 @@ main = do
 
         let outfileName = dropExtension infileName ++ ".s"
 
-        let symTab = newSymTab
-            Ev act = genASM parsed
-            (asm, symTab') = act symTab
-            in do
-                    -- uncomment to debug
-                    --print symTab'
-                    when (length asm > 0) $
-                       writeFile outfileName asm
+        asm <- generateASM parsed
+
+        when (length asm > 0) $
+           writeFile outfileName asm
 
         system $ "gcc -g " ++ outfileName
                   ++ " -o " ++ dropExtension outfileName
@@ -65,3 +61,12 @@ lexString s = do
 
 parseTokens :: [Token] -> IO Tree
 parseTokens toks = return $ parse toks
+
+
+generateASM :: Tree -> IO String
+generateASM ast = do
+        let symTab = newSymTab
+            Ev act = genASM ast
+            (asm, symTab') = act symTab
+        --print symTab' -- uncomment to debug
+        return asm
