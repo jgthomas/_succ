@@ -30,15 +30,11 @@ main = do
         handle   <- openFile infileName ReadMode
         contents <- hGetContents handle
 
-        print contents
         lexed  <- lexString contents
-        print lexed
         parsed <- parseTokens lexed
-        print parsed
+        asm    <- generateASM parsed
 
         let outfileName = dropExtension infileName ++ ".s"
-
-        asm <- generateASM parsed
 
         when (length asm > 0) $
            writeFile outfileName asm
