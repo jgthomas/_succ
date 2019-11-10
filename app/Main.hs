@@ -30,9 +30,7 @@ main = do
         -- uncomment to debug
         print contents
         let lexed = tokenize contents
-        case lexed of
-             (Left err)   -> print err
-             (Right toks) -> print toks
+        print lexed
 
         --print $ parse $ tokenize contents
 
