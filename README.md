@@ -1,6 +1,4 @@
-[![Build Status](https://travis-ci.com/jgthomas/succ.svg?branch=master)](https://travis-ci.com/jgthomas/succ)
-
-# succ
+# succ [![Build Status](https://travis-ci.com/jgthomas/succ.svg?branch=master)](https://travis-ci.com/jgthomas/succ)
 
 **S**uper **U**seless **C** **C**ompiler
 
