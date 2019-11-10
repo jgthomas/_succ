@@ -8,6 +8,7 @@ import Control.Monad.Trans.Except
 
 
 data CompilerError = LexerError LexerError
+                   | ImpossibleError
                    deriving Show
 
 
