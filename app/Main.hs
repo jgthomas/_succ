@@ -4,6 +4,7 @@ module Main where
 import System.Environment (getArgs)
 import System.FilePath    (dropExtension)
 import System.Process     (system)
+import System.Exit        (exitFailure)
 import Control.Monad      (when)
 import System.IO          (openFile,
                            IOMode(ReadMode),
@@ -12,10 +13,12 @@ import System.IO          (openFile,
                            hClose)
 
 --import Lexer     (tokenize)
---import Parser    (parse)
---import Generator (genASM)
---import Evaluator (Evaluator(Ev))
---import SymTab    (newSymTab)
+import Parser    (parse)
+import Generator (genASM)
+import Evaluator (Evaluator(Ev))
+import SymTab    (newSymTab)
+import Tokens    (Token)
+import AST       (Tree)
 
 import NewLexer  (tokenize)
 
@@ -27,26 +30,38 @@ main = do
         handle   <- openFile infileName ReadMode
         contents <- hGetContents handle
 
-        -- uncomment to debug
         print contents
-        let lexed = tokenize contents
+        lexed  <- lexString contents
         print lexed
+        parsed <- parseTokens lexed
+        print parsed
 
-        --print $ parse $ tokenize contents
+        let outfileName = dropExtension infileName ++ ".s"
 
-        --let outfileName = dropExtension infileName ++ ".s"
-        --    parsed      = parse $ tokenize contents
+        let symTab = newSymTab
+            Ev act = genASM parsed
+            (asm, symTab') = act symTab
+            in do
+                    -- uncomment to debug
+                    --print symTab'
+                    when (length asm > 0) $
+                       writeFile outfileName asm
 
-        --let symTab = newSymTab
-        --    Ev act = genASM parsed
-        --    (asm, symTab') = act symTab
-        --    in do
-        --            -- uncomment to debug
-        --            --print symTab'
-        --            when (length asm > 0) $
-        --               writeFile outfileName asm
+        system $ "gcc -g " ++ outfileName
+                  ++ " -o " ++ dropExtension outfileName
+        system $ "rm " ++ outfileName
+        hClose handle
 
-        --system $ "gcc -g " ++ outfileName
-        --          ++ " -o " ++ dropExtension outfileName
-        --system $ "rm " ++ outfileName
-        --hClose handle
+
+lexString :: [Char] -> IO [Token]
+lexString s = do
+        let lexed = tokenize s
+        case lexed of
+             (Left err)   -> do
+                     print err
+                     exitFailure
+             (Right toks) -> return toks
+
+
+parseTokens :: [Token] -> IO Tree
+parseTokens toks = return $ parse toks
