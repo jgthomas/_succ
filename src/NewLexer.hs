@@ -10,9 +10,7 @@ import Tokens (Operator(..), Keyword(..), Token(..))
 import Error  (CompilerError(LexerError), LexerError(..))
 
 
-type LexerOutput = [Token]
-type LexerState = State LexerOutput
-type LexerM m = ExceptT CompilerError m
+type LexerState = State [Token]
 
 
 startState :: [Token]
@@ -20,10 +18,14 @@ startState = []
 
 
 tokenize :: [Char] -> Either CompilerError [Token]
-tokenize input = evalState (runExceptT $ (lexInput input)) startState
+tokenize input = evalState (runLexer input) startState
 
 
-lexInput :: [Char] -> LexerM LexerState LexerOutput
+runLexer :: [Char] -> LexerState (Either CompilerError [Token])
+runLexer input = runExceptT $ lexInput input
+
+
+lexInput :: [Char] -> ExceptT CompilerError LexerState [Token]
 lexInput [] = do
         lexOut <- get
         return lexOut
