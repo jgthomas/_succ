@@ -13,12 +13,8 @@ import Error  (CompilerError(LexerError), LexerError(..))
 type LexerState = State [Token]
 
 
-startState :: [Token]
-startState = []
-
-
 tokenize :: [Char] -> Either CompilerError [Token]
-tokenize input = evalState (runLexer input) startState
+tokenize input = evalState (runLexer input) []
 
 
 runLexer :: [Char] -> LexerState (Either CompilerError [Token])
