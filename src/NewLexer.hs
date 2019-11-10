@@ -14,11 +14,7 @@ type LexerState = State [Token]
 
 
 tokenize :: [Char] -> Either CompilerError [Token]
-tokenize input = evalState (runLexer input) []
-
-
-runLexer :: [Char] -> LexerState (Either CompilerError [Token])
-runLexer input = runExceptT $ lexer input
+tokenize input = evalState (runExceptT $ lexer input) []
 
 
 lexer :: [Char] -> CompilerM LexerState [Token]
