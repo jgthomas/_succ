@@ -35,12 +35,14 @@ lexInput input@(c:cs) = do
         let (tok, input') = getToken input
         case tok of
              TokUnrecognised -> throwE (LexerError (BadToken [c]))
+             TokNull         -> throwE (LexerError EmptyInput)
              TokSpace        -> put lexOut
              _               -> put (tok:lexOut)
         lexInput input'
 
 
 getToken :: [Char] -> (Token, [Char])
+getToken [] = (TokNull, [])
 getToken (c:cs)
     | c == '('          = (TokOpenParen, cs)
     | c == ')'          = (TokCloseParen, cs)
