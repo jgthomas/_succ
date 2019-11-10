@@ -9,4 +9,5 @@ data CompilerError = LexerError LexerError
 
 
 data LexerError = BadToken String
+                | EmptyInput
                 deriving Show
