@@ -9,9 +9,9 @@
 # Warnings currently triggered by your code
 - ignore: {name: "Eta reduce"}
   #- ignore: {name: "Use concatMap"}
-- ignore: {name: "Use tuple-section"}
+  #- ignore: {name: "Use tuple-section"}
   #- ignore: {name: "Use when"}
-- ignore: {name: "Redundant do"}
+  #- ignore: {name: "Redundant do"}
   #- ignore: {name: "Move brackets to avoid $"}
   #- ignore: {name: "Redundant return"}
   #- ignore: {name: "Use isNothing"}
@@ -19,8 +19,8 @@
   #- ignore: {name: "Redundant bracket"}
   #- ignore: {name: "Redundant $"}
   #- ignore: {name: "Use mapM_"}
-- ignore: {name: "Use null"}
-- ignore: {name: "Use =="}
+  #- ignore: {name: "Use null"}
+  #- ignore: {name: "Use =="}
 
 
 # Specify additional command line arguments
