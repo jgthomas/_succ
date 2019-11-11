@@ -223,7 +223,7 @@ selectRegister callConvSeq
 
 
 saveResisters :: [String] -> String
-saveResisters regs = concatMap push $ regs
+saveResisters regs = concatMap push regs
 
 
 restoreRegisters :: [String] -> String
