@@ -52,14 +52,14 @@ getToken (c:cs)
 
 separator :: Char -> String -> (Token, String)
 separator c cs
-    | c == '('           = (TokOpenParen, cs)
-    | c == ')'           = (TokCloseParen, cs)
-    | c == '{'           = (TokOpenBrace, cs)
-    | c == '}'           = (TokCloseBrace, cs)
-    | c == ';'           = (TokSemiColon, cs)
-    | c == ':'           = (TokColon, cs)
-    | c == '?'           = (TokQuestMark,  cs)
-    | c == ','           = (TokComma, cs)
+    | c == '(' = (TokOpenParen, cs)
+    | c == ')' = (TokCloseParen, cs)
+    | c == '{' = (TokOpenBrace, cs)
+    | c == '}' = (TokCloseBrace, cs)
+    | c == ';' = (TokSemiColon, cs)
+    | c == ':' = (TokColon, cs)
+    | c == '?' = (TokQuestMark,  cs)
+    | c == ',' = (TokComma, cs)
 
 
 
