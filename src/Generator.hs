@@ -1,6 +1,8 @@
 
 module Generator (genASM) where
 
+import Data.Maybe (isNothing)
+
 import AST        (Tree(..))
 import Evaluator  (Evaluator)
 import Tokens     (Operator(..))
@@ -153,7 +155,7 @@ genASM (PointerNode varName typ assign) = do
                      value   <- genASM a
                      offset  <- SymTab.variableOffset varName
                      globLab <- SymTab.globalLabel varName
-                     if offset == Nothing && globLab == Nothing
+                     if isNothing offset && isNothing globLab
                         then error $ "variable not declared: " ++ varName
                         else return $ pointerASM ++ value ++ storeAddressOf offset globLab
 
@@ -180,7 +182,7 @@ genASM (AssignmentNode varName value op) = do
                    offset  <- SymTab.variableOffset varName
                    globLab <- SymTab.globalLabel varName
                    assign  <- buildAssignmentASM (VarNode varName) value op
-                   if offset == Nothing && globLab == Nothing
+                   if isNothing offset && isNothing globLab
                       then error $ "Undefined variable: " ++ varName
                       else do
                               varToAssign <- assignToVariable offset globLab
@@ -192,7 +194,7 @@ genASM (AssignDereferenceNode varName value op) = do
         offset  <- SymTab.variableOffset varName
         argPos  <- SymTab.parameterPosition varName
         globLab <- SymTab.globalLabel varName
-        if offset == Nothing && argPos == Nothing && globLab == Nothing
+        if isNothing offset && isNothing argPos && isNothing globLab
            then error $ "variable not declared: " ++ varName
            else return $ assign ++ storeAtDereferenced offset argPos globLab
 
@@ -258,7 +260,7 @@ genASM (VarNode varName) = do
 genASM (AddressOfNode varName) = do
         offset  <- SymTab.variableOffset varName
         globLab <- SymTab.globalLabel varName
-        if offset == Nothing && globLab == Nothing
+        if isNothing offset && isNothing globLab
            then error $ "trying to get address of undeclared variable: " ++ varName
            else return $ loadAddressOf offset globLab
 
@@ -266,7 +268,7 @@ genASM (DereferenceNode varName) = do
         offset  <- SymTab.variableOffset varName
         argPos  <- SymTab.parameterPosition varName
         globLab <- SymTab.globalLabel varName
-        if offset == Nothing && argPos == Nothing && globLab == Nothing
+        if isNothing offset && isNothing argPos && isNothing globLab
            then error $ "trying to dereference undeclared variable: " ++ varName
            else return $ loadDereferenced offset argPos globLab
 
