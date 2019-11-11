@@ -40,6 +40,18 @@ lexInput input@(c:cs) = do
 getToken :: String -> (Token, String)
 getToken [] = (TokNull, [])
 getToken (c:cs)
+    | c `elem` separators = separator c cs
+    | isTwoCharOp c cs    = twoCharOperator c cs
+    | c `elem` opSymbols  = (TokOp (operator c), cs)
+    | identifierStart c   = identifier c cs
+    | isDigit c           = number c cs
+    | isSpace c           = (TokSpace, cs)
+    | otherwise           = (TokUnrecognised, cs)
+
+
+
+separator :: Char -> String -> (Token, String)
+separator c cs
     | c == '('           = (TokOpenParen, cs)
     | c == ')'           = (TokCloseParen, cs)
     | c == '{'           = (TokOpenBrace, cs)
@@ -48,12 +60,7 @@ getToken (c:cs)
     | c == ':'           = (TokColon, cs)
     | c == '?'           = (TokQuestMark,  cs)
     | c == ','           = (TokComma, cs)
-    | isTwoCharOp c cs   = twoCharOperator c cs
-    | c `elem` opSymbols = (TokOp (operator c), cs)
-    | identifierStart c  = identifier c cs
-    | isDigit c          = number c cs
-    | isSpace c          = (TokSpace, cs)
-    | otherwise          = (TokUnrecognised, cs)
+
 
 
 identifier :: Char -> String -> (Token, String)
@@ -114,6 +121,10 @@ operator c | c == '+' = Plus
            | c == '<' = LessThan
            | c == '=' = Assign
            | c == '&' = Ampersand
+
+
+separators :: String
+separators = "(){};:,?"
 
 
 opSymbols :: String
