@@ -1,7 +1,8 @@
 
 module Generator (genASM) where
 
-import Data.Maybe (isNothing)
+import Data.Maybe    (isNothing)
+import Control.Monad (when)
 
 import AST        (Tree(..))
 import Evaluator  (Evaluator)
@@ -334,9 +335,8 @@ defineGlobal name valNode = do
 checkIfDefined :: String -> Evaluator ()
 checkIfDefined name = do
         defined <- SymTab.checkVarDefined name
-        if defined
-           then error $ "global variable already defined: " ++ name
-           else return ()
+        when defined $
+           error $ "global variable already defined: " ++ name
 
 
 globalVarASM :: String -> String -> String
@@ -362,11 +362,9 @@ declareFunction typ funcName paramList = do
                      TypeCheck.funcTypeDeclaration funcName typ
                      SymTab.declareFunction typ funcName (length paramList)
                      defined <- SymTab.checkFuncDefined funcName
-                     if not defined
-                        then do
-                                SymTab.delFuncState funcName
-                                processParameters funcName paramList
-                        else return ()
+                     when (not defined) $
+                        do SymTab.delFuncState funcName
+                           processParameters funcName paramList
 
 
 checkIfVariable :: String -> Evaluator ()
