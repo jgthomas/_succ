@@ -18,28 +18,28 @@ import FuncState   (allTypes, variableType, parameterType)
 paramDeclaration :: String -> [Tree] -> Evaluator ()
 paramDeclaration name treeList = do
         (oldParams, newParams) <- passedTypes name treeList
-        let errorType = (ParamParam name oldParams newParams)
+        let errorType = ParamParam name oldParams newParams
         checkTypes oldParams newParams errorType
 
 
 argsMatchParams :: String -> [Tree] -> Evaluator ()
 argsMatchParams name treeList = do
         (params, args) <- passedTypes name treeList
-        let errorType = (ArgParam name params args)
+        let errorType = ArgParam name params args
         checkTypes params args errorType
 
 
 funcTypeDeclaration :: String -> Type -> Evaluator ()
 funcTypeDeclaration name newTyp = do
         oldTyp <- getFuncType name
-        let errorType = (FuncType name oldTyp newTyp)
+        let errorType = FuncType name oldTyp newTyp
         checkTypes [oldTyp] [newTyp] errorType
 
 
 globalDeclaration :: String -> Type -> Evaluator ()
 globalDeclaration name newTyp = do
         oldTyp <- getType (VarNode name)
-        let errorType = (VarType name oldTyp newTyp)
+        let errorType = VarType name oldTyp newTyp
         checkTypes [oldTyp] [newTyp] errorType
 
 
@@ -57,7 +57,7 @@ funcReturn retVal = do
         currFuncName <- currentScope
         currFuncType <- getFuncType currFuncName
         retValType   <- getType retVal
-        let errorType = (FuncReturn currFuncName currFuncType retValType)
+        let errorType = FuncReturn currFuncName currFuncType retValType
         checkTypes [currFuncType] [retValType] errorType
 
 
@@ -110,9 +110,9 @@ checkAllVariableTypes name = do
 
 
 varType :: Maybe Type -> Maybe Type -> Maybe Type -> Maybe Type
-varType (Just typL) _ _         = (Just typL)
-varType _ (Just typP) _         = (Just typP)
-varType _ _ (Just typG)         = (Just typG)
+varType (Just typL) _ _         = Just typL
+varType _ (Just typP) _         = Just typP
+varType _ _ (Just typG)         = Just typG
 varType Nothing Nothing Nothing = Nothing
 
 
