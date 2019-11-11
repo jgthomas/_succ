@@ -198,9 +198,7 @@ genASM (AssignDereferenceNode varName value op) = do
            then error $ "variable not declared: " ++ varName
            else return $ assign ++ storeAtDereferenced offset argPos globLab
 
-genASM (ExprStmtNode expression) = do
-        exprsn <- genASM expression
-        return exprsn
+genASM (ExprStmtNode expression) = genASM expression
 
 genASM (ContinueNode) = do
         continueLabel <- SymTab.getContinue
