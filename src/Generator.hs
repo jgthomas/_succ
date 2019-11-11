@@ -389,7 +389,7 @@ checkArguments (Just n) name argList = checkCountsMatch n name argList
 processParameters :: String -> [Tree] -> Evaluator ()
 processParameters name params = do
         SymTab.initFunction name
-        mapM genASM params
+        mapM_ genASM params
         SymTab.closeFunction
 
 
