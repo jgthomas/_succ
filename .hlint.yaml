@@ -11,7 +11,7 @@
   #- ignore: {name: "Use concatMap"}
 - ignore: {name: "Use tuple-section"}
   #- ignore: {name: "Use when"}
-  #- ignore: {name: "Redundant do"}
+- ignore: {name: "Redundant do"}
   #- ignore: {name: "Move brackets to avoid $"}
   #- ignore: {name: "Redundant return"}
   #- ignore: {name: "Use isNothing"}
