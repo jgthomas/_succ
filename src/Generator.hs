@@ -342,8 +342,8 @@ checkIfDefined name = do
 globalVarASM :: String -> String -> String
 globalVarASM lab const =
         if read const == 0
-           then ASM.uninitializedGlobal $ lab
-           else ASM.initializedGlobal lab $ const
+           then ASM.uninitializedGlobal lab
+           else ASM.initializedGlobal lab const
 
 
 -- Functions / function calls
