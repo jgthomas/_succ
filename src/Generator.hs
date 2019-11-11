@@ -201,13 +201,13 @@ genASM (AssignDereferenceNode varName value op) = do
 
 genASM (ExprStmtNode expression) = genASM expression
 
-genASM (ContinueNode) = do
+genASM ContinueNode = do
         continueLabel <- SymTab.getContinue
         case continueLabel of
              Just target -> return $ ASM.emitJump JMP target
              Nothing     -> error "Continue statement outside loop"
 
-genASM (BreakNode) = do
+genASM BreakNode = do
         breakLabel <- SymTab.getBreak
         case breakLabel of
              Just target -> return $ ASM.emitJump JMP target
@@ -271,7 +271,7 @@ genASM (DereferenceNode varName) = do
            then error $ "trying to dereference undeclared variable: " ++ varName
            else return $ loadDereferenced offset argPos globLab
 
-genASM (NullExprNode) = return ASM.noOutput
+genASM NullExprNode = return ASM.noOutput
 
 genASM (ConstantNode n) = do
         currScope <- SymTab.currentScope
