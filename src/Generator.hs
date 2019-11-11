@@ -64,9 +64,7 @@ genASM (FuncCallNode name argList) = do
                             ++ ASM.restoreCallerRegisters
            else error $ "calling function before declaration " ++ name
 
-genASM (ArgNode arg) = do
-        argAsm <- genASM arg
-        return argAsm
+genASM (ArgNode arg) = genASM arg
 
 genASM (CompoundStmtNode blockItems) = do
         SymTab.initScope
