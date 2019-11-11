@@ -2,7 +2,7 @@
 module Generator (genASM) where
 
 import Data.Maybe    (isNothing)
-import Control.Monad (when)
+import Control.Monad (when, unless)
 
 import AST        (Tree(..))
 import Evaluator  (Evaluator)
@@ -362,7 +362,7 @@ declareFunction typ funcName paramList = do
                      TypeCheck.funcTypeDeclaration funcName typ
                      SymTab.declareFunction typ funcName (length paramList)
                      defined <- SymTab.checkFuncDefined funcName
-                     when (not defined) $
+                     unless defined $
                         do SymTab.delFuncState funcName
                            processParameters funcName paramList
 
@@ -377,9 +377,8 @@ checkIfVariable name = do
 
 checkCountsMatch :: Int -> String -> [Tree] -> Evaluator ()
 checkCountsMatch count name paramList =
-        if count /= length paramList
-           then error $ "mismatch in parameter/argument counts for: " ++ name
-           else return ()
+        when (count /= length paramList) $
+           error $ "mismatch in parameter/argument counts for: " ++ name
 
 
 checkArguments :: Maybe Int -> String -> [Tree] -> Evaluator ()
@@ -479,6 +478,5 @@ checkIfUsedInScope :: String -> Evaluator ()
 checkIfUsedInScope name = do
         localDec <- SymTab.checkVariable name
         paramDec <- SymTab.parameterDeclared name
-        if localDec || paramDec
-           then error $ "already declared in scope: '" ++ name
-           else return ()
+        when (localDec || paramDec) $
+           error $ "already declared in scope: '" ++ name
