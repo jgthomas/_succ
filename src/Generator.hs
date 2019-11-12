@@ -45,7 +45,7 @@ genASM (FunctionNode typ name paramList statementList) =
                                                  ++ ASM.loadValue 0
                                                  ++ ASM.returnStatement
 
-genASM (ParamNode typ param) = do
+genASM (ParamNode typ param) =
        case param of
             VarNode name -> do
                     SymTab.addParameter name typ
@@ -297,7 +297,7 @@ checkIfFunction name = do
 
 
 genAssignment :: Maybe Tree -> Evaluator String
-genAssignment toAssign = do
+genAssignment toAssign =
         case toAssign of
              Nothing     -> return ASM.noOutput
              Just assign -> genASM assign
@@ -386,15 +386,15 @@ processParameters name params = do
 
 hasReturn :: [Tree] -> Bool
 hasReturn items
-        | length items == 0 = False
-        | otherwise = case last items of
-                           ReturnNode val -> True
-                           _              -> False
+        | null items = False
+        | otherwise  = case last items of
+                            ReturnNode val -> True
+                            _              -> False
 
 
 processArgs :: [Tree] -> Int -> [String] -> Evaluator String
-processArgs argList argPos argASM = do
-        if length argList == 0
+processArgs argList argPos argASM =
+        if null argList
            then return $ concat argASM
            else do
                    asm <- processArg argPos $ head argList
@@ -469,8 +469,7 @@ assignToVariable :: Maybe Int -> Maybe String -> Evaluator String
 assignToVariable (Just off) _ = do
         adjustment <- SymTab.stackPointerValue
         return $ ASM.varOnStack off ++ ASM.adjustStackPointer adjustment
-assignToVariable _ (Just lab) = do
-        return $ ASM.storeGlobal lab
+assignToVariable _ (Just lab) = return $ ASM.storeGlobal lab
 
 
 checkIfUsedInScope :: String -> Evaluator ()
