@@ -22,7 +22,7 @@ genASM (ProgramNode topLevelItems) = do
         toInit <- ASM.outputInit . concat <$> SymTab.getAllForInit
         return $ text ++ bss ++ toInit
 
-genASM (FunctionNode typ name paramList statementList) = do
+genASM (FunctionNode typ name paramList statementList) =
         case statementList of
              Nothing -> do
                      declareFunction typ name paramList
