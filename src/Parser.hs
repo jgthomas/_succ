@@ -513,7 +513,7 @@ accept (t:ts) = ts
 
 
 validType :: Keyword -> Bool
-validType kwd = kwd `elem` [Int]
+validType kwd = kwd == Int
 
 
 isAssignment :: Operator -> Bool
