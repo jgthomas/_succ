@@ -52,7 +52,7 @@ functionName funcName =
         ++ globlLabel funcName
         ++ runInit funcName
         ++ saveBasePointer
-        ++ saveResisters allScratch
+        ++ saveRegisters allScratch
 
 
 returnStatement :: String
@@ -225,8 +225,8 @@ selectRegister callConvSeq
         | callConvSeq == 5 = regArg6
 
 
-saveResisters :: [Register] -> String
-saveResisters regs = concatMap push regs
+saveRegisters :: [Register] -> String
+saveRegisters regs = concatMap push regs
 
 
 restoreRegisters :: [Register] -> String
@@ -234,7 +234,7 @@ restoreRegisters regs = concatMap pop . reverse $ regs
 
 
 saveCallerRegisters :: String
-saveCallerRegisters = saveResisters params
+saveCallerRegisters = saveRegisters params
 
 
 restoreCallerRegisters :: String
