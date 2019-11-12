@@ -5,7 +5,7 @@ import System.Environment (getArgs)
 import System.FilePath    (dropExtension)
 import System.Process     (system)
 import System.Exit        (exitFailure)
-import Control.Monad      (when)
+import Control.DeepSeq    (deepseq)
 import System.IO          (openFile,
                            IOMode(ReadMode),
                            hGetContents,
@@ -34,8 +34,7 @@ main = do
 
         let outfileName = dropExtension infileName ++ ".s"
 
-        when (length asm > 0) $
-           writeFile outfileName asm
+        asm `deepseq` writeFile outfileName asm
 
         system $ "gcc -g " ++ outfileName
                   ++ " -o " ++ dropExtension outfileName
