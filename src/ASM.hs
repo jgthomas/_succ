@@ -41,6 +41,9 @@ import Tokens     (Operator(..))
 import ASM_Tokens (Jump(..), Section(..), Set(..))
 
 
+type Register = String
+
+
 -- Functions
 
 functionName :: String -> String
@@ -458,21 +461,44 @@ emitLabel n = "_label_" ++ show n ++ ":\n"
 
 -- Registers
 
+result :: Register
 result  = "%rax"
+
+scratch :: Register
 scratch = "%r12"
 
+basePointer :: Register
 basePointer  = "%rbp"
+
+instrPointer :: Register
 instrPointer = "%rip"
+
+stackPointer :: Register
 stackPointer = "%rsp"
 
+regArg1 :: Register
 regArg1 = "%rdi"
+
+regArg2 :: Register
 regArg2 = "%rsi"
+
+regArg3 :: Register
 regArg3 = "%rdx"
+
+regArg4 :: Register
 regArg4 = "%rcx"
+
+regArg5 :: Register
 regArg5 = "%r8"
+
+regArg6 :: Register
 regArg6 = "%r9"
 
+regModResult :: Register
 regModResult = "%rdx"
 
+allScratch :: [Register]
 allScratch = [scratch]
+
+params :: [Register]
 params = [regArg1,regArg2,regArg3,regArg4,regArg5,regArg6]
