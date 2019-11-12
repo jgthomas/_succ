@@ -25,6 +25,7 @@ dependencies:
 - process
 - transformers
 - mtl
+- deepseq
 
 library:
   source-dirs: src
