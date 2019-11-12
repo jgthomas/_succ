@@ -207,15 +207,15 @@ makeFunctionCall :: String -> String
 makeFunctionCall funcName = call funcName
 
 
-putInRegister :: String -> String
+putInRegister :: Register -> String
 putInRegister reg = move result reg
 
 
-getFromRegister :: String -> String
+getFromRegister :: Register -> String
 getFromRegister reg = move reg result
 
 
-selectRegister :: Int -> String
+selectRegister :: Int -> Register
 selectRegister callConvSeq
         | callConvSeq == 0 = regArg1
         | callConvSeq == 1 = regArg2
@@ -225,11 +225,11 @@ selectRegister callConvSeq
         | callConvSeq == 5 = regArg6
 
 
-saveResisters :: [String] -> String
+saveResisters :: [Register] -> String
 saveResisters regs = concatMap push regs
 
 
-restoreRegisters :: [String] -> String
+restoreRegisters :: [Register] -> String
 restoreRegisters regs = concatMap pop . reverse $ regs
 
 
