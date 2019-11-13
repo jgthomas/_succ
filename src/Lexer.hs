@@ -53,9 +53,11 @@ separator c cs = do
                        ':' -> TokColon
                        '?' -> TokQuestMark
                        ',' -> TokComma
-            in do
-                    put (tok:lexOut)
-                    lexInput cs
+                       _   -> TokUnrecognised
+        case tok of
+             TokUnrecognised -> throwE (LexerError (BadToken [c]))
+             _               -> do put (tok:lexOut)
+                                   lexInput cs
 
 
 identifier :: Char -> String -> CompilerM LexerState [Token]
@@ -73,9 +75,8 @@ identifier c cs = do
                        "break"    -> TokKeyword Break
                        "continue" -> TokKeyword Continue
                        _          -> TokIdent (c:str)
-            in do
-                    put (tok:lexOut)
-                    lexInput cs'
+        put (tok:lexOut)
+        lexInput cs'
 
 
 number :: Char -> String -> CompilerM LexerState [Token]
