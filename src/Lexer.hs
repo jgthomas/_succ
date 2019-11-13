@@ -26,101 +26,113 @@ lexInput :: String -> CompilerM LexerState [Token]
 lexInput [] = do
         lexOut <- get
         return . reverse $ lexOut
-lexInput input@(c:cs) = do
+lexInput input = getTokens input
+
+
+getTokens :: String -> CompilerM LexerState [Token]
+getTokens (c:cs) =
+        case c of
+             c | c `elem` separators -> separator c cs
+               | isTwoCharOp c cs    -> twoCharOperator c cs
+               | c `elem` opSymbols  -> operator (c:cs)
+               | identifierStart c   -> identifier c cs
+               | isDigit c           -> number c cs
+               | isSpace c           -> lexInput cs
+               | otherwise           -> throwE (LexerError (BadToken [c]))
+
+
+separator :: Char -> String -> CompilerM LexerState [Token]
+separator c cs = do
         lexOut <- get
-        let (tok, input') = getToken input
-        case tok of
-             TokUnrecognised -> throwE (LexerError (BadToken [c]))
-             TokNull         -> throwE (LexerError EmptyInput)
-             TokSpace        -> put lexOut
-             _               -> put (tok:lexOut)
-        lexInput input'
+        let tok = case c of
+                       '(' -> TokOpenParen
+                       ')' -> TokCloseParen
+                       '{' -> TokOpenBrace
+                       '}' -> TokCloseBrace
+                       ';' -> TokSemiColon
+                       ':' -> TokColon
+                       '?' -> TokQuestMark
+                       ',' -> TokComma
+            in do
+                    put (tok:lexOut)
+                    lexInput cs
 
 
-getToken :: String -> (Token, String)
-getToken [] = (TokNull, [])
-getToken (c:cs)
-    | c `elem` separators = separator c cs
-    | isTwoCharOp c cs    = twoCharOperator c cs
-    | c `elem` opSymbols  = (TokOp (operator c), cs)
-    | identifierStart c   = identifier c cs
-    | isDigit c           = number c cs
-    | isSpace c           = (TokSpace, cs)
-    | otherwise           = (TokUnrecognised, cs)
+identifier :: Char -> String -> CompilerM LexerState [Token]
+identifier c cs = do
+        lexOut <- get
+        let (str, cs') = span isValidInIdentifier cs
+            tok = case c:str of
+                       "int"      -> TokKeyword Int
+                       "return"   -> TokKeyword Return
+                       "if"       -> TokKeyword If
+                       "else"     -> TokKeyword Else
+                       "for"      -> TokKeyword For
+                       "while"    -> TokKeyword While
+                       "do"       -> TokKeyword Do
+                       "break"    -> TokKeyword Break
+                       "continue" -> TokKeyword Continue
+                       _          -> TokIdent (c:str)
+            in do
+                    put (tok:lexOut)
+                    lexInput cs'
 
 
-
-separator :: Char -> String -> (Token, String)
-separator c cs
-    | c == '(' = (TokOpenParen, cs)
-    | c == ')' = (TokCloseParen, cs)
-    | c == '{' = (TokOpenBrace, cs)
-    | c == '}' = (TokCloseBrace, cs)
-    | c == ';' = (TokSemiColon, cs)
-    | c == ':' = (TokColon, cs)
-    | c == '?' = (TokQuestMark,  cs)
-    | c == ',' = (TokComma, cs)
+number :: Char -> String -> CompilerM LexerState [Token]
+number c cs = do
+        lexOut <- get
+        let (digs, cs') = span isDigit cs
+            tok         = (TokConstInt (read (c:digs)))
+            in do
+                    put (tok:lexOut)
+                    lexInput cs'
 
 
-
-identifier :: Char -> String -> (Token, String)
-identifier c cs =
-    let (str, cs') = span isValidInIdentifier cs
-        in
-    case c:str of
-         "int"      -> (TokKeyword Int, cs')
-         "return"   -> (TokKeyword Return, cs')
-         "if"       -> (TokKeyword If, cs')
-         "else"     -> (TokKeyword Else, cs')
-         "for"      -> (TokKeyword For, cs')
-         "while"    -> (TokKeyword While, cs')
-         "do"       -> (TokKeyword Do, cs')
-         "break"    -> (TokKeyword Break, cs')
-         "continue" -> (TokKeyword Continue, cs')
-         _          -> (TokIdent (c:str), cs')
-
-
-number :: Char -> String -> (Token, String)
-number c cs =
-    let (digs, cs') = span isDigit cs
-        in
-    (TokConstInt (read (c:digs)), cs')
+twoCharOperator :: Char -> String -> CompilerM LexerState [Token]
+twoCharOperator c (n:cs) = do
+        lexOut <- get
+        let tok = case c:[n] of
+                       "||" -> TokOp LogicalOR
+                       "&&" -> TokOp LogicalAND
+                       ">=" -> TokOp GreaterThanOrEqual
+                       "<=" -> TokOp LessThanOrEqual
+                       "==" -> TokOp Equal
+                       "!=" -> TokOp NotEqual
+                       "+=" -> TokOp PlusAssign
+                       "-=" -> TokOp MinusAssign
+                       "*=" -> TokOp MultiplyAssign
+                       "/=" -> TokOp DivideAssign
+                       "%=" -> TokOp ModuloAssign
+                       --_    -> throwE (LexerError (BadToken c:[n]))
+            in do
+                    put (tok:lexOut)
+                    lexInput cs
 
 
-twoCharOperator :: Char -> String -> (Token, String)
-twoCharOperator c (n:cs) =
-        case c:[n] of
-             "||" -> (TokOp LogicalOR, cs)
-             "&&" -> (TokOp LogicalAND, cs)
-             ">=" -> (TokOp GreaterThanOrEqual, cs)
-             "<=" -> (TokOp LessThanOrEqual, cs)
-             "==" -> (TokOp Equal, cs)
-             "!=" -> (TokOp NotEqual, cs)
-             "+=" -> (TokOp PlusAssign, cs)
-             "-=" -> (TokOp MinusAssign, cs)
-             "*=" -> (TokOp MultiplyAssign, cs)
-             "/=" -> (TokOp DivideAssign, cs)
-             "%=" -> (TokOp ModuloAssign, cs)
+operator :: String -> CompilerM LexerState [Token]
+operator (c:cs) = do
+        lexOut <- get
+        let tok | c == '+' = TokOp Plus
+                | c == '-' = TokOp Minus
+                | c == '*' = TokOp Multiply
+                | c == '%' = TokOp Modulo
+                | c == '/' = TokOp Divide
+                | c == '~' = TokOp BitwiseCompl
+                | c == '!' = TokOp LogicNegation
+                | c == '>' = TokOp GreaterThan
+                | c == '<' = TokOp LessThan
+                | c == '=' = TokOp Assign
+                | c == '&' = TokOp Ampersand
+                -- | otherwise = throwE (LexerError (BadToken [c]))
+            in do
+                    put (tok:lexOut)
+                    lexInput cs
 
 
 isTwoCharOp :: Char -> String -> Bool
 isTwoCharOp c [] = False
 isTwoCharOp c cs = elem c opSymbols
                    && elem (head cs) secondOpSymbols
-
-
-operator :: Char -> Operator
-operator c | c == '+' = Plus
-           | c == '-' = Minus
-           | c == '*' = Multiply
-           | c == '%' = Modulo
-           | c == '/' = Divide
-           | c == '~' = BitwiseCompl
-           | c == '!' = LogicNegation
-           | c == '>' = GreaterThan
-           | c == '<' = LessThan
-           | c == '=' = Assign
-           | c == '&' = Ampersand
 
 
 separators :: String
