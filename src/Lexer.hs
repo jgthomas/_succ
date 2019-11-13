@@ -103,30 +103,34 @@ twoCharOperator c (n:cs) = do
                        "*=" -> TokOp MultiplyAssign
                        "/=" -> TokOp DivideAssign
                        "%=" -> TokOp ModuloAssign
-                       --_    -> throwE (LexerError (BadToken c:[n]))
-            in do
-                    put (tok:lexOut)
-                    lexInput cs
+                       _    -> TokUnrecognised
+            in case tok of
+                    TokUnrecognised -> throwE (LexerError (BadToken (c:[n])))
+                    _               -> do
+                            put (tok:lexOut)
+                            lexInput cs
 
 
 operator :: String -> CompilerM LexerState [Token]
 operator (c:cs) = do
         lexOut <- get
-        let tok | c == '+' = TokOp Plus
-                | c == '-' = TokOp Minus
-                | c == '*' = TokOp Multiply
-                | c == '%' = TokOp Modulo
-                | c == '/' = TokOp Divide
-                | c == '~' = TokOp BitwiseCompl
-                | c == '!' = TokOp LogicNegation
-                | c == '>' = TokOp GreaterThan
-                | c == '<' = TokOp LessThan
-                | c == '=' = TokOp Assign
-                | c == '&' = TokOp Ampersand
-                -- | otherwise = throwE (LexerError (BadToken [c]))
-            in do
-                    put (tok:lexOut)
-                    lexInput cs
+        let tok | c == '+'  = TokOp Plus
+                | c == '-'  = TokOp Minus
+                | c == '*'  = TokOp Multiply
+                | c == '%'  = TokOp Modulo
+                | c == '/'  = TokOp Divide
+                | c == '~'  = TokOp BitwiseCompl
+                | c == '!'  = TokOp LogicNegation
+                | c == '>'  = TokOp GreaterThan
+                | c == '<'  = TokOp LessThan
+                | c == '='  = TokOp Assign
+                | c == '&'  = TokOp Ampersand
+                | otherwise = TokUnrecognised
+            in case tok of
+                    TokUnrecognised -> throwE (LexerError (BadToken [c]))
+                    _               -> do
+                            put (tok:lexOut)
+                            lexInput cs
 
 
 isTwoCharOp :: Char -> String -> Bool
