@@ -42,7 +42,7 @@ lexInput input@(c:cs) =
 
 
 separator :: String -> CompilerM LexerState [Token]
-separator [] = lexInput []
+separator [] = throwE ImpossibleError
 separator (c:cs) =
         let tok | c == '('  = TokOpenParen
                 | c == ')'  = TokCloseParen
@@ -58,7 +58,7 @@ separator (c:cs) =
 
 
 identifier :: String -> CompilerM LexerState [Token]
-identifier [] = lexInput []
+identifier [] = throwE ImpossibleError
 identifier (c:cs) =
         let (str, cs') = span isValidInIdentifier cs
             tok = case c:str of
@@ -77,7 +77,7 @@ identifier (c:cs) =
 
 
 number :: String -> CompilerM LexerState [Token]
-number [] = lexInput []
+number [] = throwE ImpossibleError
 number (c:cs) =
         let (digs, cs') = span isDigit cs
             tok         = (TokConstInt (read (c:digs)))
@@ -86,7 +86,7 @@ number (c:cs) =
 
 
 twoCharOperator :: String -> CompilerM LexerState [Token]
-twoCharOperator [] = lexInput []
+twoCharOperator []  = throwE ImpossibleError
 twoCharOperator [_] = throwE ImpossibleError
 twoCharOperator (c:n:cs) =
         let tok = case c:[n] of
@@ -107,7 +107,7 @@ twoCharOperator (c:n:cs) =
 
 
 operator :: String -> CompilerM LexerState [Token]
-operator [] = lexInput []
+operator [] = throwE ImpossibleError
 operator (c:cs) =
         let tok | c == '+'  = TokOp Plus
                 | c == '-'  = TokOp Minus
