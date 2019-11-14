@@ -7,8 +7,12 @@ import Control.Monad.State
 import Control.Monad.Trans.Except (runExceptT, throwE)
 import Data.Char (isDigit, isAlpha, isSpace)
 
-import Tokens (Operator(..), Keyword(..), Token(..))
-import Error  (CompilerError(LexerError), LexerError(..), CompilerM)
+import Tokens (Operator(..),
+               Keyword(..),
+               Token(..))
+import Error  (CompilerError(LexerError, ImpossibleError),
+               LexerError(..),
+               CompilerM)
 
 
 type LexerState = State [Token]
@@ -28,7 +32,7 @@ lexInput [] = do
         lexOut <- get
         return . reverse $ lexOut
 lexInput input@(c:cs) =
-        if | isSeparator c     -> separator c cs
+        if | isSeparator c     -> separator input
            | isTwoCharOp c cs  -> twoCharOperator c cs
            | isOpSymbol c      -> operator (c:cs)
            | identifierStart c -> identifier c cs
@@ -37,23 +41,19 @@ lexInput input@(c:cs) =
            | otherwise         -> throwE (LexerError (BadToken [c]))
 
 
-separator :: Char -> String -> CompilerM LexerState [Token]
-separator c cs = do
-        lexOut <- get
-        let tok = case c of
-                       '(' -> TokOpenParen
-                       ')' -> TokCloseParen
-                       '{' -> TokOpenBrace
-                       '}' -> TokCloseBrace
-                       ';' -> TokSemiColon
-                       ':' -> TokColon
-                       '?' -> TokQuestMark
-                       ',' -> TokComma
-                       _   -> TokUnrecognised
-        case tok of
-             TokUnrecognised -> throwE (LexerError (BadToken [c]))
-             _               -> do put (tok:lexOut)
-                                   lexInput cs
+separator :: String -> CompilerM LexerState [Token]
+separator (c:cs) =
+        let tok | c == '('   = TokOpenParen
+                | c == ')'   = TokCloseParen
+                | c == '{'   = TokOpenBrace
+                | c == '}'   = TokCloseBrace
+                | c == ';'   = TokSemiColon
+                | c == ':'   = TokColon
+                | c == '?'   = TokQuestMark
+                | c == ','   = TokComma
+                | otherwise  = TokWut
+            in
+        updateLexerState tok cs
 
 
 identifier :: Char -> String -> CompilerM LexerState [Token]
@@ -130,6 +130,14 @@ operator (c:cs) = do
                             lexInput cs
 
 
+updateLexerState :: Token -> String -> CompilerM LexerState [Token]
+updateLexerState tok input = do
+        lexOut <- get
+        case tok of
+             TokWut -> throwE ImpossibleError
+             _      -> do
+                     put (tok:lexOut)
+                     lexInput input
 
 
 isSeparator :: Char -> Bool
