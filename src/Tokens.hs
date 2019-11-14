@@ -57,4 +57,5 @@ data Token = TokOpenParen
            | TokSpace
            | TokUnrecognised
            | TokNull
+           | TokWut
            deriving (Show, Eq)
