@@ -32,13 +32,13 @@ lexInput input = getTokens input
 getTokens :: String -> CompilerM LexerState [Token]
 getTokens (c:cs) =
         case c of
-             c | c `elem` separators -> separator c cs
-               | isTwoCharOp c cs    -> twoCharOperator c cs
-               | c `elem` opSymbols  -> operator (c:cs)
-               | identifierStart c   -> identifier c cs
-               | isDigit c           -> number c cs
-               | isSpace c           -> lexInput cs
-               | otherwise           -> throwE (LexerError (BadToken [c]))
+             c | isSeparator c     -> separator c cs
+               | isTwoCharOp c cs  -> twoCharOperator c cs
+               | isOpSymbol c      -> operator (c:cs)
+               | identifierStart c -> identifier c cs
+               | isDigit c         -> number c cs
+               | isSpace c         -> lexInput cs
+               | otherwise         -> throwE (LexerError (BadToken [c]))
 
 
 separator :: Char -> String -> CompilerM LexerState [Token]
@@ -134,18 +134,35 @@ operator (c:cs) = do
                             lexInput cs
 
 
+
+
+isSeparator :: Char -> Bool
+isSeparator c = c `elem` separators
+
+
+isOpSymbol :: Char -> Bool
+isOpSymbol c = c `elem` opSymbols
+
+
+isSecondOpSymbol :: Char -> Bool
+isSecondOpSymbol c = c `elem` secondOpSymbols
+
+
 isTwoCharOp :: Char -> String -> Bool
 isTwoCharOp c [] = False
-isTwoCharOp c cs = elem c opSymbols
-                   && elem (head cs) secondOpSymbols
+isTwoCharOp c (x:cs) = isOpSymbol c && isSecondOpSymbol x
 
 
-separators :: String
-separators = "(){};:,?"
+isValidInIdentifier :: Char -> Bool
+isValidInIdentifier c = identifierStart c || isDigit c
 
 
 opSymbols :: String
 opSymbols = "+-*/~!|&<>=%"
+
+
+separators :: String
+separators = "(){};:,?"
 
 
 secondOpSymbols :: String
@@ -154,7 +171,3 @@ secondOpSymbols = "=|&"
 
 identifierStart :: Char -> Bool
 identifierStart c = isAlpha c || c == '_'
-
-
-isValidInIdentifier :: Char -> Bool
-isValidInIdentifier c = identifierStart c || isDigit c
