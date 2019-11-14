@@ -1,3 +1,4 @@
+{-# LANGUAGE MultiWayIf #-}
 
 module Lexer (tokenize) where
 
@@ -26,19 +27,14 @@ lexInput :: String -> CompilerM LexerState [Token]
 lexInput [] = do
         lexOut <- get
         return . reverse $ lexOut
-lexInput input = getTokens input
-
-
-getTokens :: String -> CompilerM LexerState [Token]
-getTokens (c:cs) =
-        case c of
-             c | isSeparator c     -> separator c cs
-               | isTwoCharOp c cs  -> twoCharOperator c cs
-               | isOpSymbol c      -> operator (c:cs)
-               | identifierStart c -> identifier c cs
-               | isDigit c         -> number c cs
-               | isSpace c         -> lexInput cs
-               | otherwise         -> throwE (LexerError (BadToken [c]))
+lexInput input@(c:cs) =
+        if | isSeparator c     -> separator c cs
+           | isTwoCharOp c cs  -> twoCharOperator c cs
+           | isOpSymbol c      -> operator (c:cs)
+           | identifierStart c -> identifier c cs
+           | isDigit c         -> number c cs
+           | isSpace c         -> lexInput cs
+           | otherwise         -> throwE (LexerError (BadToken [c]))
 
 
 separator :: Char -> String -> CompilerM LexerState [Token]
