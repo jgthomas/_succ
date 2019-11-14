@@ -36,7 +36,7 @@ lexInput input@(c:cs) =
            | isTwoCharOp c cs  -> twoCharOperator c cs
            | isOpSymbol c      -> operator (c:cs)
            | identifierStart c -> identifier input
-           | isDigit c         -> number c cs
+           | isDigit c         -> number input
            | isSpace c         -> lexInput cs
            | otherwise         -> throwE (LexerError (BadToken [c]))
 
@@ -74,14 +74,12 @@ identifier (c:cs) =
         updateLexerState tok cs'
 
 
-number :: Char -> String -> CompilerM LexerState [Token]
-number c cs = do
-        lexOut <- get
+number :: String -> CompilerM LexerState [Token]
+number (c:cs) =
         let (digs, cs') = span isDigit cs
             tok         = (TokConstInt (read (c:digs)))
-            in do
-                    put (tok:lexOut)
-                    lexInput cs'
+            in
+        updateLexerState tok cs'
 
 
 twoCharOperator :: Char -> String -> CompilerM LexerState [Token]
