@@ -42,6 +42,7 @@ lexInput input@(c:cs) =
 
 
 separator :: String -> CompilerM LexerState [Token]
+separator [] = lexInput []
 separator (c:cs) =
         let tok | c == '('   = TokOpenParen
                 | c == ')'   = TokCloseParen
@@ -57,6 +58,7 @@ separator (c:cs) =
 
 
 identifier :: String -> CompilerM LexerState [Token]
+identifier [] = lexInput []
 identifier (c:cs) =
         let (str, cs') = span isValidInIdentifier cs
             tok = case c:str of
@@ -75,6 +77,7 @@ identifier (c:cs) =
 
 
 number :: String -> CompilerM LexerState [Token]
+number [] = lexInput []
 number (c:cs) =
         let (digs, cs') = span isDigit cs
             tok         = (TokConstInt (read (c:digs)))
@@ -83,6 +86,8 @@ number (c:cs) =
 
 
 twoCharOperator :: String -> CompilerM LexerState [Token]
+twoCharOperator [] = lexInput []
+twoCharOperator [c] = throwE (LexerError (BadToken [c]))
 twoCharOperator (c:n:cs) =
         let tok = case c:[n] of
                        "||" -> TokOp LogicalOR
@@ -102,6 +107,7 @@ twoCharOperator (c:n:cs) =
 
 
 operator :: String -> CompilerM LexerState [Token]
+operator [] = lexInput []
 operator (c:cs) =
         let tok | c == '+'  = TokOp Plus
                 | c == '-'  = TokOp Minus
@@ -114,7 +120,7 @@ operator (c:cs) =
                 | c == '<'  = TokOp LessThan
                 | c == '='  = TokOp Assign
                 | c == '&'  = TokOp Ampersand
-                | otherwise = TokUnrecognised
+                | otherwise = TokWut
             in
         updateLexerState tok cs
 
@@ -142,8 +148,8 @@ isSecondOpSymbol c = c `elem` secondOpSymbols
 
 
 isTwoCharOp :: Char -> String -> Bool
-isTwoCharOp c [] = False
-isTwoCharOp c (x:cs) = isOpSymbol c && isSecondOpSymbol x
+isTwoCharOp _ [] = False
+isTwoCharOp c (x:_) = isOpSymbol c && isSecondOpSymbol x
 
 
 isValidInIdentifier :: Char -> Bool
