@@ -35,7 +35,7 @@ lexInput input@(c:cs) =
         if | isSeparator c     -> separator input
            | isTwoCharOp c cs  -> twoCharOperator c cs
            | isOpSymbol c      -> operator (c:cs)
-           | identifierStart c -> identifier c cs
+           | identifierStart c -> identifier input
            | isDigit c         -> number c cs
            | isSpace c         -> lexInput cs
            | otherwise         -> throwE (LexerError (BadToken [c]))
@@ -56,9 +56,8 @@ separator (c:cs) =
         updateLexerState tok cs
 
 
-identifier :: Char -> String -> CompilerM LexerState [Token]
-identifier c cs = do
-        lexOut <- get
+identifier :: String -> CompilerM LexerState [Token]
+identifier (c:cs) =
         let (str, cs') = span isValidInIdentifier cs
             tok = case c:str of
                        "int"      -> TokKeyword Int
@@ -71,8 +70,8 @@ identifier c cs = do
                        "break"    -> TokKeyword Break
                        "continue" -> TokKeyword Continue
                        _          -> TokIdent (c:str)
-        put (tok:lexOut)
-        lexInput cs'
+            in
+        updateLexerState tok cs'
 
 
 number :: Char -> String -> CompilerM LexerState [Token]
