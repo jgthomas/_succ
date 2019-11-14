@@ -34,7 +34,7 @@ lexInput [] = do
 lexInput input@(c:cs) =
         if | isSeparator c     -> separator input
            | isTwoCharOp c cs  -> twoCharOperator input
-           | isOpSymbol c      -> operator (c:cs)
+           | isOpSymbol c      -> operator input
            | identifierStart c -> identifier input
            | isDigit c         -> number input
            | isSpace c         -> lexInput cs
@@ -102,8 +102,7 @@ twoCharOperator (c:n:cs) =
 
 
 operator :: String -> CompilerM LexerState [Token]
-operator (c:cs) = do
-        lexOut <- get
+operator (c:cs) =
         let tok | c == '+'  = TokOp Plus
                 | c == '-'  = TokOp Minus
                 | c == '*'  = TokOp Multiply
@@ -116,11 +115,8 @@ operator (c:cs) = do
                 | c == '='  = TokOp Assign
                 | c == '&'  = TokOp Ampersand
                 | otherwise = TokUnrecognised
-            in case tok of
-                    TokUnrecognised -> throwE (LexerError (BadToken [c]))
-                    _               -> do
-                            put (tok:lexOut)
-                            lexInput cs
+            in
+        updateLexerState tok cs
 
 
 updateLexerState :: Token -> String -> CompilerM LexerState [Token]
