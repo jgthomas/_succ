@@ -33,7 +33,7 @@ lexInput [] = do
         return . reverse $ lexOut
 lexInput input@(c:cs) =
         if | isSeparator c     -> separator input
-           | isTwoCharOp c cs  -> twoCharOperator c cs
+           | isTwoCharOp c cs  -> twoCharOperator input
            | isOpSymbol c      -> operator (c:cs)
            | identifierStart c -> identifier input
            | isDigit c         -> number input
@@ -82,9 +82,8 @@ number (c:cs) =
         updateLexerState tok cs'
 
 
-twoCharOperator :: Char -> String -> CompilerM LexerState [Token]
-twoCharOperator c (n:cs) = do
-        lexOut <- get
+twoCharOperator :: String -> CompilerM LexerState [Token]
+twoCharOperator (c:n:cs) =
         let tok = case c:[n] of
                        "||" -> TokOp LogicalOR
                        "&&" -> TokOp LogicalAND
@@ -97,12 +96,9 @@ twoCharOperator c (n:cs) = do
                        "*=" -> TokOp MultiplyAssign
                        "/=" -> TokOp DivideAssign
                        "%=" -> TokOp ModuloAssign
-                       _    -> TokUnrecognised
-            in case tok of
-                    TokUnrecognised -> throwE (LexerError (BadToken (c:[n])))
-                    _               -> do
-                            put (tok:lexOut)
-                            lexInput cs
+                       _    -> TokWut
+            in
+        updateLexerState tok cs
 
 
 operator :: String -> CompilerM LexerState [Token]
