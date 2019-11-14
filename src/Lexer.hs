@@ -87,7 +87,7 @@ number (c:cs) =
 
 twoCharOperator :: String -> CompilerM LexerState [Token]
 twoCharOperator [] = lexInput []
-twoCharOperator [c] = throwE (LexerError (BadToken [c]))
+twoCharOperator [_] = throwE ImpossibleError
 twoCharOperator (c:n:cs) =
         let tok = case c:[n] of
                        "||" -> TokOp LogicalOR
