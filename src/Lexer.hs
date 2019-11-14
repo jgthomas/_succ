@@ -44,15 +44,15 @@ lexInput input@(c:cs) =
 separator :: String -> CompilerM LexerState [Token]
 separator [] = lexInput []
 separator (c:cs) =
-        let tok | c == '('   = TokOpenParen
-                | c == ')'   = TokCloseParen
-                | c == '{'   = TokOpenBrace
-                | c == '}'   = TokCloseBrace
-                | c == ';'   = TokSemiColon
-                | c == ':'   = TokColon
-                | c == '?'   = TokQuestMark
-                | c == ','   = TokComma
-                | otherwise  = TokWut
+        let tok | c == '('  = TokOpenParen
+                | c == ')'  = TokCloseParen
+                | c == '{'  = TokOpenBrace
+                | c == '}'  = TokCloseBrace
+                | c == ';'  = TokSemiColon
+                | c == ':'  = TokColon
+                | c == '?'  = TokQuestMark
+                | c == ','  = TokComma
+                | otherwise = TokWut
             in
         updateLexerState tok cs
 
