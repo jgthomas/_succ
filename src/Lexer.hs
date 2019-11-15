@@ -70,7 +70,7 @@ identifier (c:cs) =
                 | kwd == "do"       = TokKeyword Do
                 | kwd == "break"    = TokKeyword Break
                 | kwd == "continue" = TokKeyword Continue
-                | otherwise  = TokIdent (c:str)
+                | otherwise         = TokIdent (c:str)
                 where kwd = c:str
             in
         updateLexerState tok cs'
