@@ -61,17 +61,17 @@ identifier :: String -> CompilerM LexerState [Token]
 identifier [] = throwE ImpossibleError
 identifier (c:cs) =
         let (str, cs') = span isValidInIdentifier cs
-            tok = case c:str of
-                       "int"      -> TokKeyword Int
-                       "return"   -> TokKeyword Return
-                       "if"       -> TokKeyword If
-                       "else"     -> TokKeyword Else
-                       "for"      -> TokKeyword For
-                       "while"    -> TokKeyword While
-                       "do"       -> TokKeyword Do
-                       "break"    -> TokKeyword Break
-                       "continue" -> TokKeyword Continue
-                       _          -> TokIdent (c:str)
+            tok | kwd == "int"      = TokKeyword Int
+                | kwd == "return"   = TokKeyword Return
+                | kwd == "if"       = TokKeyword If
+                | kwd == "else"     = TokKeyword Else
+                | kwd == "for"      = TokKeyword For
+                | kwd == "while"    = TokKeyword While
+                | kwd == "do"       = TokKeyword Do
+                | kwd == "break"    = TokKeyword Break
+                | kwd == "continue" = TokKeyword Continue
+                | otherwise  = TokIdent (c:str)
+                    where kwd = c:str
             in
         updateLexerState tok cs'
 
