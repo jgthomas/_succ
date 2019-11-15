@@ -71,7 +71,7 @@ identifier (c:cs) =
                 | kwd == "break"    = TokKeyword Break
                 | kwd == "continue" = TokKeyword Continue
                 | otherwise  = TokIdent (c:str)
-                    where kwd = c:str
+                where kwd = c:str
             in
         updateLexerState tok cs'
 
@@ -89,19 +89,19 @@ twoCharOperator :: String -> CompilerM LexerState [Token]
 twoCharOperator []  = throwE ImpossibleError
 twoCharOperator [_] = throwE ImpossibleError
 twoCharOperator (c:n:cs) =
-        let tok = case c:[n] of
-                       "||" -> TokOp LogicalOR
-                       "&&" -> TokOp LogicalAND
-                       ">=" -> TokOp GreaterThanOrEqual
-                       "<=" -> TokOp LessThanOrEqual
-                       "==" -> TokOp Equal
-                       "!=" -> TokOp NotEqual
-                       "+=" -> TokOp PlusAssign
-                       "-=" -> TokOp MinusAssign
-                       "*=" -> TokOp MultiplyAssign
-                       "/=" -> TokOp DivideAssign
-                       "%=" -> TokOp ModuloAssign
-                       _    -> TokWut
+        let tok | op == "||" = TokOp LogicalOR
+                | op == "&&" = TokOp LogicalAND
+                | op == ">=" = TokOp GreaterThanOrEqual
+                | op == "<=" = TokOp LessThanOrEqual
+                | op == "==" = TokOp Equal
+                | op == "!=" = TokOp NotEqual
+                | op == "+=" = TokOp PlusAssign
+                | op == "-=" = TokOp MinusAssign
+                | op == "*=" = TokOp MultiplyAssign
+                | op == "/=" = TokOp DivideAssign
+                | op == "%=" = TokOp ModuloAssign
+                | otherwise  = TokWut
+                where op = c:[n]
             in
         updateLexerState tok cs
 
