@@ -12,22 +12,19 @@ import Tokens    (Operator(..),
                   Token(..))
 import Error     (CompilerError(LexerError, ImpossibleError),
                   LexerError(..))
-import SuccState (CompilerM)
+import SuccState (CompilerM, LexerState, LexerOut)
 
 
-type LexerState = State [Token]
-
-
-tokenize :: String -> Either CompilerError [Token]
+tokenize :: String -> Either CompilerError LexerOut
 tokenize input = evalState (runExceptT $ lexer input) []
 
 
-lexer :: String -> CompilerM LexerState [Token]
+lexer :: String -> CompilerM LexerState LexerOut
 lexer []    = throwE (LexerError EmptyInput)
 lexer input = lexInput input
 
 
-lexInput :: String -> CompilerM LexerState [Token]
+lexInput :: String -> CompilerM LexerState LexerOut
 lexInput [] = do
         lexOut <- get
         return . reverse $ lexOut
@@ -41,7 +38,7 @@ lexInput input@(c:cs) =
            | otherwise         -> throwE (LexerError (BadToken [c]))
 
 
-separator :: String -> CompilerM LexerState [Token]
+separator :: String -> CompilerM LexerState LexerOut
 separator [] = throwE ImpossibleError
 separator (c:cs) =
         let tok | c == '('  = TokOpenParen
@@ -57,7 +54,7 @@ separator (c:cs) =
         updateLexerState tok cs
 
 
-identifier :: String -> CompilerM LexerState [Token]
+identifier :: String -> CompilerM LexerState LexerOut
 identifier [] = throwE ImpossibleError
 identifier (c:cs) =
         let (str, cs') = span isValidInIdentifier cs
@@ -76,7 +73,7 @@ identifier (c:cs) =
         updateLexerState tok cs'
 
 
-number :: String -> CompilerM LexerState [Token]
+number :: String -> CompilerM LexerState LexerOut
 number [] = throwE ImpossibleError
 number (c:cs) =
         let (digs, cs') = span isDigit cs
@@ -85,7 +82,7 @@ number (c:cs) =
         updateLexerState tok cs'
 
 
-twoCharOperator :: String -> CompilerM LexerState [Token]
+twoCharOperator :: String -> CompilerM LexerState LexerOut
 twoCharOperator []  = throwE ImpossibleError
 twoCharOperator [_] = throwE ImpossibleError
 twoCharOperator (c:n:cs) =
@@ -106,7 +103,7 @@ twoCharOperator (c:n:cs) =
         updateLexerState tok cs
 
 
-operator :: String -> CompilerM LexerState [Token]
+operator :: String -> CompilerM LexerState LexerOut
 operator [] = throwE ImpossibleError
 operator (c:cs) =
         let tok | c == '+'  = TokOp Plus
@@ -125,7 +122,7 @@ operator (c:cs) =
         updateLexerState tok cs
 
 
-updateLexerState :: Token -> String -> CompilerM LexerState [Token]
+updateLexerState :: Token -> String -> CompilerM LexerState LexerOut
 updateLexerState tok input = do
         lexOut <- get
         case tok of
