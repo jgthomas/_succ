@@ -12,7 +12,11 @@ import Tokens    (Operator(..),
                   Token(..))
 import Error     (CompilerError(LexerError, ImpossibleError),
                   LexerError(..))
-import SuccState (CompilerM, LexerState, LexerOut)
+import SuccState (CompilerM)
+
+
+type LexerOut = [Token]
+type LexerState = State LexerOut
 
 
 tokenize :: String -> Either CompilerError LexerOut
