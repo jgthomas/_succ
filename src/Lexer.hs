@@ -7,12 +7,12 @@ import Control.Monad.State
 import Control.Monad.Trans.Except (runExceptT, throwE)
 import Data.Char (isDigit, isAlpha, isSpace)
 
-import Tokens (Operator(..),
-               Keyword(..),
-               Token(..))
-import Error  (CompilerError(LexerError, ImpossibleError),
-               LexerError(..))
-import Types  (CompilerM)
+import Tokens    (Operator(..),
+                  Keyword(..),
+                  Token(..))
+import Error     (CompilerError(LexerError, ImpossibleError),
+                  LexerError(..))
+import SuccState (CompilerM)
 
 
 type LexerState = State [Token]

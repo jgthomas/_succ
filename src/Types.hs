@@ -4,9 +4,6 @@ module Types where
 
 import qualified Data.Map as M
 import qualified Data.Set as S
-import Control.Monad.Trans.Except (ExceptT)
-
-import Error (CompilerError)
 
 
 data SymTab = Tab { label       :: Int
@@ -57,6 +54,3 @@ data GlobalVar = GloVar { globLabel :: String
 data ParamVar = ParVar { paramNum  :: Int
                        , paramType :: Type }
               deriving (Show)
-
-
-type CompilerM m = ExceptT CompilerError m
