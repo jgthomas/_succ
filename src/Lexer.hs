@@ -11,8 +11,8 @@ import Tokens (Operator(..),
                Keyword(..),
                Token(..))
 import Error  (CompilerError(LexerError, ImpossibleError),
-               LexerError(..),
-               CompilerM)
+               LexerError(..))
+import Types  (CompilerM)
 
 
 type LexerState = State [Token]
