@@ -78,7 +78,7 @@ number :: String -> CompilerM [Token] [Token]
 number [] = throwError ImpossibleError
 number (c:cs) =
         let (digs, cs') = span isDigit cs
-            tok         = (TokConstInt (read (c:digs)))
+            tok         = TokConstInt (read (c:digs))
             in
         updateLexerState tok cs'
 
