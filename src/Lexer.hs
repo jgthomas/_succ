@@ -10,7 +10,7 @@ import Tokens    (Operator(..),
                   Token(..))
 import Error     (CompilerError(LexerError, ImpossibleError),
                   LexerError(..))
-import SuccState (CompilerM(unCM),
+import SuccState (CompilerM,
                   getState,
                   putState,
                   throwError,

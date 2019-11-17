@@ -1,7 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module SuccState
-        (CompilerM(unCM),
+        (CompilerM,
          getState,
          putState,
          throwError,
