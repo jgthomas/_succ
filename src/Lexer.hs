@@ -3,9 +3,7 @@
 module Lexer (tokenize) where
 
 
-import Data.Char                  (isDigit, isAlpha, isSpace)
-import Control.Monad.State        (evalState)
-import Control.Monad.Trans.Except (runExceptT)
+import Data.Char (isDigit, isAlpha, isSpace)
 
 import Tokens    (Operator(..),
                   Keyword(..),
