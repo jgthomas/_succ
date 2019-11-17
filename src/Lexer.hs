@@ -3,34 +3,31 @@
 module Lexer (tokenize) where
 
 
-import Control.Monad.State
-import Control.Monad.Trans.Except (runExceptT, throwE)
-import Data.Char (isDigit, isAlpha, isSpace)
+import Data.Char                  (isDigit, isAlpha, isSpace)
+import Control.Monad.State        (evalState)
+import Control.Monad.Trans.Except (runExceptT)
 
 import Tokens    (Operator(..),
                   Keyword(..),
                   Token(..))
 import Error     (CompilerError(LexerError, ImpossibleError),
                   LexerError(..))
-import SuccState (CompilerM)
+import SuccState (CompilerM(unCM), getState, putState, throwError)
 
 
-type LexerOut = [Token]
-type LexerState = State LexerOut
+
+tokenize :: String -> Either CompilerError [Token]
+tokenize input = evalState (runExceptT . unCM $ lexer input) []
 
 
-tokenize :: String -> Either CompilerError LexerOut
-tokenize input = evalState (runExceptT $ lexer input) []
-
-
-lexer :: String -> CompilerM LexerState LexerOut
-lexer []    = throwE (LexerError EmptyInput)
+lexer :: String -> CompilerM [Token] [Token]
+lexer []    = throwError (LexerError EmptyInput)
 lexer input = lexInput input
 
 
-lexInput :: String -> CompilerM LexerState LexerOut
+lexInput :: String -> CompilerM [Token] [Token]
 lexInput [] = do
-        lexOut <- get
+        lexOut <- getState
         return . reverse $ lexOut
 lexInput input@(c:cs) =
         if | isSeparator c     -> separator input
@@ -39,11 +36,11 @@ lexInput input@(c:cs) =
            | identifierStart c -> identifier input
            | isDigit c         -> number input
            | isSpace c         -> lexInput cs
-           | otherwise         -> throwE (LexerError (BadToken [c]))
+           | otherwise         -> throwError (LexerError (BadToken [c]))
 
 
-separator :: String -> CompilerM LexerState LexerOut
-separator [] = throwE ImpossibleError
+separator :: String -> CompilerM [Token] [Token]
+separator [] = throwError ImpossibleError
 separator (c:cs) =
         let tok | c == '('  = TokOpenParen
                 | c == ')'  = TokCloseParen
@@ -58,8 +55,8 @@ separator (c:cs) =
         updateLexerState tok cs
 
 
-identifier :: String -> CompilerM LexerState LexerOut
-identifier [] = throwE ImpossibleError
+identifier :: String -> CompilerM [Token] [Token]
+identifier [] = throwError ImpossibleError
 identifier (c:cs) =
         let (str, cs') = span isValidInIdentifier cs
             tok | kwd == "int"      = TokKeyword Int
@@ -77,8 +74,8 @@ identifier (c:cs) =
         updateLexerState tok cs'
 
 
-number :: String -> CompilerM LexerState LexerOut
-number [] = throwE ImpossibleError
+number :: String -> CompilerM [Token] [Token]
+number [] = throwError ImpossibleError
 number (c:cs) =
         let (digs, cs') = span isDigit cs
             tok         = (TokConstInt (read (c:digs)))
@@ -86,9 +83,9 @@ number (c:cs) =
         updateLexerState tok cs'
 
 
-twoCharOperator :: String -> CompilerM LexerState LexerOut
-twoCharOperator []  = throwE ImpossibleError
-twoCharOperator [_] = throwE ImpossibleError
+twoCharOperator :: String -> CompilerM [Token] [Token]
+twoCharOperator []  = throwError ImpossibleError
+twoCharOperator [_] = throwError ImpossibleError
 twoCharOperator (c:n:cs) =
         let tok | op == "||" = TokOp LogicalOR
                 | op == "&&" = TokOp LogicalAND
@@ -107,8 +104,8 @@ twoCharOperator (c:n:cs) =
         updateLexerState tok cs
 
 
-operator :: String -> CompilerM LexerState LexerOut
-operator [] = throwE ImpossibleError
+operator :: String -> CompilerM [Token] [Token]
+operator [] = throwError ImpossibleError
 operator (c:cs) =
         let tok | c == '+'  = TokOp Plus
                 | c == '-'  = TokOp Minus
@@ -126,13 +123,13 @@ operator (c:cs) =
         updateLexerState tok cs
 
 
-updateLexerState :: Token -> String -> CompilerM LexerState LexerOut
+updateLexerState :: Token -> String -> CompilerM [Token] [Token]
 updateLexerState tok input = do
-        lexOut <- get
+        lexOut <- getState
         case tok of
-             TokWut -> throwE ImpossibleError
+             TokWut -> throwError ImpossibleError
              _      -> do
-                     put (tok:lexOut)
+                     putState (tok:lexOut)
                      lexInput input
 
 
