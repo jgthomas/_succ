@@ -15,7 +15,6 @@ import Error     (CompilerError(LexerError, ImpossibleError),
 import SuccState (CompilerM(unCM), getState, putState, throwError)
 
 
-
 tokenize :: String -> Either CompilerError [Token]
 tokenize input = evalState (runExceptT . unCM $ lexer input) []
 
