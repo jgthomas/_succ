@@ -35,13 +35,13 @@ lexInput [] = do
         lexOut <- getState
         return . reverse $ lexOut
 lexInput input@(c:cs) =
-        if | isSeparator c     -> separator input
-           | isTwoCharOp c cs  -> twoCharOperator input
-           | isOpSymbol c      -> operator input
-           | identifierStart c -> identifier input
-           | isDigit c         -> number input
-           | isSpace c         -> lexInput cs
-           | otherwise         -> throwError (LexerError (BadToken [c]))
+        if | isSeparator c    -> separator input
+           | isTwoCharOp c cs -> twoCharOperator input
+           | isOpSymbol c     -> operator input
+           | identStart c     -> identifier input
+           | isDigit c        -> number input
+           | isSpace c        -> lexInput cs
+           | otherwise        -> throwError (LexerError (BadToken [c]))
 
 
 separator :: String -> CompilerM [Token] [Token]
@@ -156,7 +156,7 @@ isTwoCharOp c (x:_) = isOpSymbol c && isSecondOpSymbol x
 
 
 isValidInIdentifier :: Char -> Bool
-isValidInIdentifier c = identifierStart c || isDigit c
+isValidInIdentifier c = identStart c || isDigit c
 
 
 opSymbols :: String
@@ -171,5 +171,5 @@ secondOpSymbols :: String
 secondOpSymbols = "=|&"
 
 
-identifierStart :: Char -> Bool
-identifierStart c = isAlpha c || c == '_'
+identStart :: Char -> Bool
+identStart c = isAlpha c || c == '_'
