@@ -4,7 +4,8 @@ module SuccState
         (CompilerM(unCM),
          getState,
          putState,
-         throwError
+         throwError,
+         runCompilerM
         ) where
 
 
@@ -29,3 +30,7 @@ putState s = CM $ lift $ put s
 
 throwError :: CompilerError -> CompilerM s a
 throwError e = CM $ throwE e
+
+
+runCompilerM :: (t -> CompilerM s a) -> t -> s -> Either CompilerError a
+runCompilerM f i s = evalState (runExceptT . unCM $ f i) s
