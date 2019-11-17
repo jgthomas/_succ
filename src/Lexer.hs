@@ -19,8 +19,12 @@ import SuccState (CompilerM(unCM),
                   runCompilerM)
 
 
+startState :: [Token]
+startState = []
+
+
 tokenize :: String -> Either CompilerError [Token]
-tokenize input = runCompilerM lexer input []
+tokenize input = runCompilerM lexer input startState
 
 
 lexer :: String -> CompilerM [Token] [Token]
