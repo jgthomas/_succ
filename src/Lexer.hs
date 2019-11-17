@@ -12,7 +12,10 @@ import Tokens    (Operator(..),
                   Token(..))
 import Error     (CompilerError(LexerError, ImpossibleError),
                   LexerError(..))
-import SuccState (CompilerM(unCM), getState, putState, throwError)
+import SuccState (CompilerM(unCM),
+                  getState,
+                  putState,
+                  throwError)
 
 
 tokenize :: String -> Either CompilerError [Token]
