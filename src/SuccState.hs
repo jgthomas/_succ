@@ -16,7 +16,7 @@ import Error (CompilerError)
 
 newtype CompilerM s a = CM {
         unCM :: ExceptT CompilerError (State s) a
-} deriving ( Functor, Applicative, Monad)
+} deriving (Functor, Applicative, Monad)
 
 
 getState :: CompilerM a a
