@@ -33,4 +33,4 @@ throwError e = CM $ throwE e
 
 
 runCompilerM :: (t -> CompilerM s a) -> t -> s -> Either CompilerError a
-runCompilerM f i s = evalState (runExceptT . unCM $ f i) s
+runCompilerM f t s = evalState (runExceptT . unCM $ f t) s
