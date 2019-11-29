@@ -5,9 +5,9 @@ module Error (CompilerError(..),
 
 data CompilerError = LexerError LexerError
                    | ImpossibleError
-                   deriving Show
+                   deriving (Show, Eq)
 
 
 data LexerError = BadToken String
                 | EmptyInput
-                deriving Show
+                deriving (Show, Eq)
