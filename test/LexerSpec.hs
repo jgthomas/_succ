@@ -26,7 +26,7 @@ lexerTest = hspec $ do
                   fromRight [] (tokenize "+=+=") `shouldBe` [TokOp PlusAssign,TokOp PlusAssign]
 
                 it "should throw error for unrecognised character" $
-                  fromLeft ImpossibleError (tokenize "$") `shouldBe` LexerError (BadToken "$")
+                  fromLeft ImpossibleError (tokenize "$") `shouldBe` LexerError (BadInput "$")
 
                 it "should throw error for empty input" $
                   fromLeft ImpossibleError (tokenize "") `shouldBe` LexerError EmptyInput

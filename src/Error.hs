@@ -8,6 +8,6 @@ data CompilerError = LexerError LexerError
                    deriving (Show, Eq)
 
 
-data LexerError = BadToken String
+data LexerError = BadInput String
                 | EmptyInput
                 deriving (Show, Eq)

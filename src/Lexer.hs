@@ -41,7 +41,7 @@ lexInput input@(c:cs) =
            | identStart c     -> identifier input
            | isDigit c        -> number input
            | isSpace c        -> lexInput cs
-           | otherwise        -> throwError (LexerError (BadToken [c]))
+           | otherwise        -> throwError (LexerError (BadInput [c]))
 
 
 separator :: String -> CompilerM [Token] [Token]
