@@ -48,7 +48,7 @@ parseTopLevelItems toks = do
 
 parseTopLevelItem :: [Token] -> CompilerM Tree Tree
 parseTopLevelItem []   = throwError ImpossibleError
-parseTopLevelItem toks = do parseDeclaration toks
+parseTopLevelItem toks = parseDeclaration toks
 
 
 parseDeclaration :: [Token] -> CompilerM Tree Tree
