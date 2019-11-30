@@ -6,14 +6,18 @@ import AST       (Tree(..))
 import Types     (Type(..))
 import Tokens    (Operator(..),
                   Keyword(..),
-                  Token(..))
-import Error     (CompilerError(ParserError, ImpossibleError),
-                  ParserError(..))
+                  Token(..)
+                 )
+import Error     (CompilerError(ParserError, SyntaxError, ImpossibleError),
+                  ParserError(..),
+                  SyntaxError(..)
+                 )
 import SuccState (CompilerM,
                   getState,
                   putState,
                   throwError,
-                  runCompilerM)
+                  runCompilerM
+                 )
 
 
 startState :: Tree
@@ -44,7 +48,15 @@ parseTopLevelItems toks = do
 
 parseTopLevelItem :: [Token] -> CompilerM Tree Tree
 parseTopLevelItem []   = throwError ImpossibleError
-parseTopLevelItem toks = do updateParserState (VarNode "yes") []
+parseTopLevelItem toks = do parseDeclaration toks
+
+
+parseDeclaration :: [Token] -> CompilerM Tree Tree
+parseDeclaration [] = throwError ImpossibleError
+parseDeclaration toks@(typ:id:rest) =
+        case id of
+             (TokIdent varName) -> updateParserState (VarNode varName) []
+             _                  -> throwError $ SyntaxError (InvalidIdentifier id)
 
 
 updateParserState :: Tree -> [Token] -> CompilerM Tree Tree
@@ -60,12 +72,7 @@ getTreeList (ProgramNode treeList) = return treeList
 getTreeList _                      = throwError ImpossibleError
 
 
---parseDeclaration :: [Token] -> CompilerM Tree Tree
---parseDeclaration []   = throwError ImpossibleError
---parseDeclaration toks@(typ:id:rest) = do
---
---
---isFunction :: Token -> Token -> Token -> Token -> Bool
---isFunction (TokKeyword Int) (TokOp Multiply) (TokIdent id) TokOpenParen = True
---isFunction (TokKeyword Int) (TokIdent id)    TokOpenParen  _            = True
---isFunction _                _                _             _            = False
+isFunction :: Token -> Token -> Token -> Token -> Bool
+isFunction (TokKeyword Int) (TokOp Multiply) (TokIdent id) TokOpenParen = True
+isFunction (TokKeyword Int) (TokIdent id)    TokOpenParen  _            = True
+isFunction _                _                _             _            = False

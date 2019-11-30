@@ -14,10 +14,15 @@ import Error
 parserTest :: IO ()
 parserTest = hspec $ do
         describe "Parse tokens to AST" $ do
-                it "Should parse tokens" $
-                  fromRight (ProgramNode []) (parse [TokSemiColon])
+                it "Should parse valid variable declaration" $
+                  fromRight (ProgramNode []) (parse [TokKeyword Int, TokIdent "a", TokSemiColon])
                   `shouldBe`
-                  (ProgramNode [VarNode "yes"])
+                  (ProgramNode [VarNode "a"])
+
+                it "Should throw error on invalid variable identifier" $
+                  fromLeft ImpossibleError (parse [TokKeyword Int, TokOpenBrace, TokSemiColon])
+                  `shouldBe`
+                  (SyntaxError (InvalidIdentifier TokOpenBrace))
 
                 it "Should throw error on empty input" $
                   fromLeft ImpossibleError (parse [])

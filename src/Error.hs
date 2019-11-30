@@ -2,12 +2,19 @@
 module Error
         (CompilerError(..),
          LexerError(..),
-         ParserError(..)
+         ParserError(..),
+         SyntaxError(..)
         ) where
 
 
+import Tokens (Operator(..),
+               Keyword(..),
+               Token(..)
+              )
+
 data CompilerError = LexerError LexerError
                    | ParserError ParserError
+                   | SyntaxError SyntaxError
                    | ImpossibleError
                    deriving (Show, Eq)
 
@@ -20,4 +27,8 @@ data LexerError = BadInput String
 data ParserError = ParseError String
                  | MissingToken String
                  | NoTokens
+                 deriving (Show, Eq)
+
+
+data SyntaxError = InvalidIdentifier Token
                  deriving (Show, Eq)
