@@ -25,7 +25,6 @@ data LexerError = BadInput String
 
 
 data ParserError = ParseError String
-                 | MissingToken String
                  | NoTokens
                  deriving (Show, Eq)
 
