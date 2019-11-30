@@ -17,7 +17,7 @@ parserTest = hspec $ do
                 it "Should parse tokens" $
                   fromRight (ProgramNode []) (parse [TokSemiColon])
                   `shouldBe`
-                  (ProgramNode [VarNode "second", VarNode "first"])
+                  (ProgramNode [VarNode "yes"])
 
                 it "Should throw error on empty input" $
                   fromLeft ImpossibleError (parse [])

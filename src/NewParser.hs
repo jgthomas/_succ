@@ -43,7 +43,29 @@ parseTopLevelItems toks = do
 
 
 parseTopLevelItem :: [Token] -> CompilerM Tree Tree
-parseTopLevelItem []   = parseTopLevelItems []
-parseTopLevelItem toks = do
-        putState $ ProgramNode [VarNode "first", VarNode "second"]
-        parseTopLevelItems []
+parseTopLevelItem []   = throwError ImpossibleError
+parseTopLevelItem toks = do updateParserState (VarNode "yes") []
+
+
+updateParserState :: Tree -> [Token] -> CompilerM Tree Tree
+updateParserState tree toks = do
+        ast      <- getState
+        treeList <- getTreeList ast
+        putState $ ProgramNode (tree:treeList)
+        parseTopLevelItems toks
+
+
+getTreeList :: Tree -> CompilerM Tree [Tree]
+getTreeList (ProgramNode treeList) = return treeList
+getTreeList _                      = throwError ImpossibleError
+
+
+--parseDeclaration :: [Token] -> CompilerM Tree Tree
+--parseDeclaration []   = throwError ImpossibleError
+--parseDeclaration toks@(typ:id:rest) = do
+--
+--
+--isFunction :: Token -> Token -> Token -> Token -> Bool
+--isFunction (TokKeyword Int) (TokOp Multiply) (TokIdent id) TokOpenParen = True
+--isFunction (TokKeyword Int) (TokIdent id)    TokOpenParen  _            = True
+--isFunction _                _                _             _            = False
