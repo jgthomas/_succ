@@ -65,6 +65,14 @@ parseDeclaration toks@(typ:id:rest) =
              _                  -> throwError $ SyntaxError (InvalidIdentifier id)
 
 
+parseOptAssign :: [Token] -> CompilerM Tree ([Token], Maybe Tree)
+parseOptAssign toks = parseOptionalAssign toks
+
+
+parseOptionalAssign :: [Token] -> CompilerM Tree ([Token], Maybe Tree)
+parseOptionalAssign = undefined
+
+
 updateParserState :: Tree -> [Token] -> CompilerM Tree Tree
 updateParserState tree toks = do
         ast      <- getState
@@ -90,3 +98,8 @@ isFuncStart :: Token -> Token -> Token -> Token -> Bool
 isFuncStart (TokKeyword Int) (TokOp Multiply) (TokIdent id) TokOpenParen = True
 isFuncStart (TokKeyword Int) (TokIdent id)    TokOpenParen  _            = True
 isFuncStart _                _                _             _            = False
+
+
+isAssignment :: Operator -> Bool
+isAssignment op = op `elem` [Assign,PlusAssign,MinusAssign,
+                             MultiplyAssign,DivideAssign,ModuloAssign]
