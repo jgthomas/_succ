@@ -16,8 +16,11 @@ import SuccState (CompilerM,
                   getState,
                   putState,
                   throwError,
-                  runCompilerM
+                  runSuccState
                  )
+
+
+type ParserState = CompilerM Tree
 
 
 startState :: Tree
@@ -25,15 +28,15 @@ startState = ProgramNode []
 
 
 parse :: [Token] -> Either CompilerError Tree
-parse toks = runCompilerM parseTokens toks startState
+parse toks = runSuccState parseTokens toks startState
 
 
-parseTokens :: [Token] -> CompilerM Tree Tree
+parseTokens :: [Token] -> ParserState Tree
 parseTokens []   = throwError (ParserError NoTokens)
 parseTokens toks = parseTopLevelItems toks
 
 
-parseTopLevelItems :: [Token] -> CompilerM Tree Tree
+parseTopLevelItems :: [Token] -> ParserState Tree
 parseTopLevelItems [] = do
         ast <- getState
         case ast of
@@ -46,18 +49,18 @@ parseTopLevelItems toks = do
              _                 -> throwError ImpossibleError
 
 
-parseTopLevelItem :: [Token] -> CompilerM Tree Tree
+parseTopLevelItem :: [Token] -> ParserState Tree
 parseTopLevelItem [] = throwError ImpossibleError
 parseTopLevelItem toks
         | isFunction toks = parseFunction toks
         | otherwise       = parseDeclaration toks
 
 
-parseFunction :: [Token] -> CompilerM Tree Tree
+parseFunction :: [Token] -> ParserState Tree
 parseFunction = undefined
 
 
-parseDeclaration :: [Token] -> CompilerM Tree Tree
+parseDeclaration :: [Token] -> ParserState Tree
 parseDeclaration [] = throwError ImpossibleError
 parseDeclaration toks@(typ:id:rest) =
         case id of
@@ -65,15 +68,15 @@ parseDeclaration toks@(typ:id:rest) =
              _                  -> throwError $ SyntaxError (InvalidIdentifier id)
 
 
-parseOptAssign :: [Token] -> CompilerM Tree ([Token], Maybe Tree)
+parseOptAssign :: [Token] -> ParserState ([Token], Maybe Tree)
 parseOptAssign toks = parseOptionalAssign toks
 
 
-parseOptionalAssign :: [Token] -> CompilerM Tree ([Token], Maybe Tree)
+parseOptionalAssign :: [Token] -> ParserState ([Token], Maybe Tree)
 parseOptionalAssign = undefined
 
 
-updateParserState :: Tree -> [Token] -> CompilerM Tree Tree
+updateParserState :: Tree -> [Token] -> ParserState Tree
 updateParserState tree toks = do
         ast      <- getState
         treeList <- getTreeList ast
@@ -81,7 +84,7 @@ updateParserState tree toks = do
         parseTopLevelItems toks
 
 
-getTreeList :: Tree -> CompilerM Tree [Tree]
+getTreeList :: Tree -> ParserState [Tree]
 getTreeList (ProgramNode treeList) = return treeList
 getTreeList _                      = throwError ImpossibleError
 

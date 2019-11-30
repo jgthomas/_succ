@@ -5,7 +5,7 @@ module SuccState
          getState,
          putState,
          throwError,
-         runCompilerM
+         runSuccState
         ) where
 
 
@@ -32,5 +32,5 @@ throwError :: CompilerError -> CompilerM s a
 throwError e = CM $ throwE e
 
 
-runCompilerM :: (t -> CompilerM s a) -> t -> s -> Either CompilerError a
-runCompilerM f t s = evalState (runExceptT . unCM $ f t) s
+runSuccState :: (t -> CompilerM s a) -> t -> s -> Either CompilerError a
+runSuccState f t s = evalState (runExceptT . unCM $ f t) s

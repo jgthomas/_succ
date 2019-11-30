@@ -14,7 +14,7 @@ import SuccState (CompilerM,
                   getState,
                   putState,
                   throwError,
-                  runCompilerM)
+                  runSuccState)
 
 
 startState :: [Token]
@@ -22,7 +22,7 @@ startState = []
 
 
 tokenize :: String -> Either CompilerError [Token]
-tokenize input = runCompilerM lexer input startState
+tokenize input = runSuccState lexer input startState
 
 
 lexer :: String -> CompilerM [Token] [Token]
