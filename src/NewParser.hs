@@ -47,8 +47,14 @@ parseTopLevelItems toks = do
 
 
 parseTopLevelItem :: [Token] -> CompilerM Tree Tree
-parseTopLevelItem []   = throwError ImpossibleError
-parseTopLevelItem toks = parseDeclaration toks
+parseTopLevelItem [] = throwError ImpossibleError
+parseTopLevelItem toks
+        | isFunction toks = parseFunction toks
+        | otherwise       = parseDeclaration toks
+
+
+parseFunction :: [Token] -> CompilerM Tree Tree
+parseFunction = undefined
 
 
 parseDeclaration :: [Token] -> CompilerM Tree Tree
@@ -72,7 +78,15 @@ getTreeList (ProgramNode treeList) = return treeList
 getTreeList _                      = throwError ImpossibleError
 
 
-isFunction :: Token -> Token -> Token -> Token -> Bool
-isFunction (TokKeyword Int) (TokOp Multiply) (TokIdent id) TokOpenParen = True
-isFunction (TokKeyword Int) (TokIdent id)    TokOpenParen  _            = True
-isFunction _                _                _             _            = False
+isFunction :: [Token] -> Bool
+isFunction []                  = False
+isFunction [_]                 = False
+isFunction [_, _]              = False
+isFunction [_, _, _]           = False
+isFunction toks@(a:b:c:d:rest) = isFuncStart a b c d
+
+
+isFuncStart :: Token -> Token -> Token -> Token -> Bool
+isFuncStart (TokKeyword Int) (TokOp Multiply) (TokIdent id) TokOpenParen = True
+isFuncStart (TokKeyword Int) (TokIdent id)    TokOpenParen  _            = True
+isFuncStart _                _                _             _            = False
