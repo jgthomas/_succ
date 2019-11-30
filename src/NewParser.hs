@@ -12,7 +12,7 @@ import Error     (CompilerError(ParserError, SyntaxError, ImpossibleError),
                   ParserError(..),
                   SyntaxError(..)
                  )
-import SuccState (CompilerM,
+import SuccState (SuccStateM,
                   getState,
                   putState,
                   throwError,
@@ -20,7 +20,7 @@ import SuccState (CompilerM,
                  )
 
 
-type ParserState = CompilerM Tree
+type ParserState = SuccStateM Tree
 
 
 startState :: Tree
