@@ -60,7 +60,69 @@ parseTopLevelItem toks
 
 
 parseFunction :: [Token] -> ParserState (Tree, [Token])
-parseFunction = undefined
+parseFunction toks@(a:b:c:rest) = do
+        typ             <- setType a b
+        name            <- parseFuncName b c
+        (params, toks') <- parseFuncParams b c rest
+        (items, toks'') <- parseFuncBlockItems [] toks'
+        return (FunctionNode typ name params items, toks'')
+
+
+parseFuncName :: Token -> Token -> ParserState String
+parseFuncName (TokOp Multiply) (TokIdent name) = return name
+parseFuncName (TokIdent name)  _               = return name
+parseFuncName _                _               = throwError $ SyntaxError MissingIdentifier
+
+
+parseFuncParams :: Token -> Token -> [Token] -> ParserState ([Tree], [Token])
+parseFuncParams (TokOp Multiply) (TokIdent name) toks = parseParams [] toks
+parseFuncParams (TokIdent name) tok toks              = parseParams [] (tok:toks)
+
+
+parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseParams paramList toks@(a:b:rest)
+        | a == TokCloseParen                  = return (reverse paramList, b:rest)
+        | a /= TokOpenParen && a /= TokComma  = throwError $ SyntaxError (MissingToken TokComma)
+        | a == TokComma && b == TokCloseParen = throwError $ ParserError (ParseError "Expected param type")
+        | otherwise = case b of
+                           TokCloseParen  -> return (paramList, rest)
+                           TokKeyword typ -> do
+                                   typ            <- setType a b
+                                   toks'          <- verifyAndConsume a toks
+                                   (tree, toks'') <- parseParam toks'
+                                   parseParams (tree:paramList) toks''
+                           _ -> throwError $ SyntaxError (UnexpectedToken b)
+
+
+parseParam :: [Token] -> ParserState (Tree, [Token])
+parseParam toks@(a:b:rest) = do
+        toks'          <- verifyAndConsume a toks
+        (tree, toks'') <- parseParamValue toks'
+        typ            <- setType a b
+        case tree of
+             VarNode id -> return (ParamNode typ tree, toks'')
+             _          -> throwError $ ParserError (ParseError "Invalid parameter")
+
+
+parseFuncBlockItems :: [Tree] -> [Token] -> ParserState (Maybe [Tree], [Token])
+parseFuncBlockItems stmts toks@(a:rest) = do
+        case a of
+             TokSemiColon -> return (Nothing, rest)
+             TokOpenBrace -> do
+                     (tree, toks') <- parseBlock stmts rest
+                     toks''        <- verifyAndConsume TokCloseBrace toks'
+                     return (Just tree, toks'')
+
+
+parseBlock :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseBlock = undefined
+
+
+parseParamValue :: [Token] -> ParserState (Tree, [Token])
+parseParamValue toks@(a:rest) =
+        case a of
+             TokOp Multiply -> parseExpression rest
+             TokIdent a     -> parseExpression toks
 
 
 parseDeclaration :: [Token] -> ParserState (Tree, [Token])
