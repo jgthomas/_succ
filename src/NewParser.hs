@@ -1,4 +1,3 @@
-
 module NewParser (parse) where
 
 
@@ -81,19 +80,36 @@ parseFuncParams (TokOp Multiply) (TokIdent name) toks = parseParams [] toks
 parseFuncParams (TokIdent name) tok toks              = parseParams [] (tok:toks)
 
 
+--parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+--parseParams paramList toks@(a:b:rest)
+--        | a == TokCloseParen                  = return (reverse paramList, b:rest)
+--        | a /= TokOpenParen && a /= TokComma  = throwError $ SyntaxError (MissingToken TokComma)
+--        | a == TokComma && b == TokCloseParen = throwError $ ParserError (ParseError "Expected param type")
+--        | otherwise = case b of
+--                           TokCloseParen  -> return (reverse paramList, rest)
+--                           TokKeyword typ -> do
+--                                   typ            <- setType a b
+--                                   toks'          <- verifyAndConsume a toks
+--                                   (tree, toks'') <- parseParam toks'
+--                                   parseParams (tree:paramList) toks''
+--                           _ -> throwError $ SyntaxError (UnexpectedToken b)
+
+
 parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseParams paramList toks@(a:b:rest)
-        | a == TokCloseParen                  = return (reverse paramList, b:rest)
-        | a /= TokOpenParen && a /= TokComma  = throwError $ SyntaxError (MissingToken TokComma)
-        | a == TokComma && b == TokCloseParen = throwError $ ParserError (ParseError "Expected param type")
-        | otherwise = case b of
-                           TokCloseParen  -> return (reverse paramList, rest)
-                           TokKeyword typ -> do
-                                   typ            <- setType a b
-                                   toks'          <- verifyAndConsume a toks
-                                   (tree, toks'') <- parseParam toks'
-                                   parseParams (tree:paramList) toks''
-                           _ -> throwError $ SyntaxError (UnexpectedToken b)
+parseParams paramList (TokOpenParen:TokCloseParen:rest)  = return (reverse paramList, rest)
+parseParams paramList (TokCloseParen:rest)               = return (reverse paramList, rest)
+parseParams paramList (TokComma:TokCloseParen:rest)      = throwError ImpossibleError
+parseParams paramList (TokOpenParen:TokKeyword typ:rest) = parseParams2 paramList (TokKeyword typ:rest)
+parseParams paramList (TokComma:TokKeyword typ:rest)     = parseParams2 paramList (TokKeyword typ:rest)
+
+
+parseParams2 :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseParams2 paramList toks@(TokKeyword typ:rest) =
+        if validType typ
+           then do
+                   (tree, toks') <- parseParam toks
+                   parseParams (tree:paramList) toks'
+           else throwError ImpossibleError
 
 
 parseParam :: [Token] -> ParserState (Tree, [Token])
