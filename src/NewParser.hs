@@ -231,21 +231,26 @@ parseDoWhileStatement toks = do
 
 parseWhileStatement :: [Token] -> ParserState (Tree, [Token])
 parseWhileStatement toks = do
-        toks'             <- verifyAndConsume TokOpenParen toks
-        (test, toks'')    <- parseExpression toks'
-        toks'''           <- verifyAndConsume TokCloseParen toks''
-        (stmts, toks'''') <- parseStatement toks'''
-        return (WhileNode test stmts, toks'''')
+        (test, toks')   <- parseConditionalParen toks
+        (stmts, toks'') <- parseStatement toks'
+        return (WhileNode test stmts, toks'')
 
 
 parseIfStatement :: [Token] -> ParserState (Tree, [Token])
 parseIfStatement toks = do
-        toks'                 <- verifyAndConsume TokOpenParen toks
-        (test, toks'')        <- parseExpression toks'
-        toks'''               <- verifyAndConsume TokCloseParen toks''
-        (stmts, toks'''')     <- parseStatement toks'''
-        (possElse, toks''''') <- parseOptionalElse toks''''
-        return (IfNode test stmts possElse, toks''''')
+        (test, toks')       <- parseConditionalParen toks
+        (stmts, toks'')     <- parseStatement toks'
+        (possElse, toks''') <- parseOptionalElse toks''
+        return (IfNode test stmts possElse, toks''')
+
+
+
+parseConditionalParen :: [Token] -> ParserState (Tree, [Token])
+parseConditionalParen toks = do
+        toks'             <- verifyAndConsume TokOpenParen toks
+        (test, toks'')    <- parseExpression toks'
+        toks'''           <- verifyAndConsume TokCloseParen toks''
+        return (test, toks''')
 
 
 parseOptionalElse :: [Token] -> ParserState (Maybe Tree, [Token])
@@ -282,7 +287,13 @@ parseDeclaration toks@(typ:id:rest) =
 
 
 parsePointerDec :: [Token] -> ParserState (Tree, [Token])
-parsePointerDec toks = undefined
+parsePointerDec toks@(a:b:c:rest) =
+        case c of
+             (TokIdent varName) -> do
+                     (tree, toks') <- parseOptAssign (c:rest)
+                     typ           <- setType a b
+                     return (PointerNode varName typ tree, toks')
+             _ -> throwError $ SyntaxError (InvalidIdentifier c)
 
 
 parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
@@ -388,15 +399,40 @@ parseFactor toks@(next:rest) =
 
 
 parseAddressOf :: [Token] -> ParserState (Tree, [Token])
-parseAddressOf toks = undefined
+parseAddressOf (TokIdent n:rest) = return (AddressOfNode n, rest)
+parseAddressOf (a:rest)          = throwError $ SyntaxError (InvalidIdentifier a)
 
 
 parseDereference :: [Token] -> ParserState (Tree, [Token])
-parseDereference toks = undefined
+parseDereference (TokIdent n:rest) = return (DereferenceNode n, rest)
+parseDereference (a:rest)          = throwError $ SyntaxError (InvalidIdentifier a)
 
 
 parseFunctionCall :: [Token] -> ParserState (Tree, [Token])
-parseFunctionCall toks@(id:paren:rest) = undefined
+parseFunctionCall (TokIdent id:TokOpenParen:rest) = do
+        (tree, toks') <- parseFunctionArgs [] (TokOpenParen:rest)
+        return (FuncCallNode id tree, toks')
+parseFunctionCall (TokIdent id:b:rest)  = throwError $ SyntaxError (MissingToken TokOpenParen)
+parseFunctionCall (a:TokOpenParen:rest) = throwError $ SyntaxError (InvalidIdentifier a)
+parseFunctionCall (a:b:rest)            = throwError $ SyntaxError (UnexpectedToken a)
+
+
+
+parseFunctionArgs :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseFunctionArgs argList (a:b:rest)
+        | a == TokCloseParen                  = return (reverse argList, b:rest)
+        | a /= TokOpenParen && a /= TokComma  = throwError $ SyntaxError (MissingToken TokComma)
+        | a == TokComma && b == TokCloseParen = throwError $ SyntaxError (UnexpectedToken b)
+        | otherwise = if b == TokCloseParen
+                         then return (reverse argList, rest)
+                         else do (tree, toks') <- parseArgument (b:rest)
+                                 parseFunctionArgs (tree:argList) toks'
+
+
+parseArgument :: [Token] -> ParserState (Tree, [Token])
+parseArgument toks = do
+        (tree, toks') <- parseExpression toks
+        return (ArgNode tree, toks')
 
 
 parseBinaryExp :: Tree
