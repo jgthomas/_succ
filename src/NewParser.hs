@@ -8,9 +8,10 @@ import Tokens    (Operator(..),
                   Keyword(..),
                   Token(..)
                  )
-import Error     (CompilerError(ParserError, SyntaxError, ImpossibleError),
+import Error     (CompilerError(..),
                   ParserError(..),
-                  SyntaxError(..)
+                  SyntaxError(..),
+                  TypeError(..)
                  )
 import SuccState (SuccStateM,
                   getState,
@@ -42,46 +43,49 @@ parseTopLevelItems [] = do
         case ast of
              ProgramNode items -> return $ ProgramNode (reverse items)
              _                 -> throwError ImpossibleError
-parseTopLevelItems toks = do
-        ast <- getState
-        case ast of
-             ProgramNode items -> parseTopLevelItem toks
-             _                 -> throwError ImpossibleError
+parseTopLevelItems toks@(a:rest) =
+        case a of
+             (TokKeyword typ)
+                | validType typ -> do
+                        (item, toks') <- parseTopLevelItem toks
+                        updateParserState item
+                        parseTopLevelItems toks'
+                | otherwise -> throwError $ TypeError (InvalidType a)
+             _ -> throwError $ TypeError (InvalidType a)
 
 
-parseTopLevelItem :: [Token] -> ParserState Tree
+parseTopLevelItem :: [Token] -> ParserState (Tree, [Token])
 parseTopLevelItem [] = throwError ImpossibleError
 parseTopLevelItem toks
         | isFunction toks = parseFunction toks
         | otherwise       = parseDeclaration toks
 
 
-parseFunction :: [Token] -> ParserState Tree
+parseFunction :: [Token] -> ParserState (Tree, [Token])
 parseFunction = undefined
 
 
-parseDeclaration :: [Token] -> ParserState Tree
+parseDeclaration :: [Token] -> ParserState (Tree, [Token])
 parseDeclaration [] = throwError ImpossibleError
 parseDeclaration toks@(typ:id:rest) =
         case id of
-             (TokIdent varName) -> updateParserState (VarNode varName) []
+             (TokIdent varName) -> return (VarNode varName, [])
              _                  -> throwError $ SyntaxError (InvalidIdentifier id)
 
 
-parseOptAssign :: [Token] -> ParserState ([Token], Maybe Tree)
+parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
 parseOptAssign toks = parseOptionalAssign toks
 
 
-parseOptionalAssign :: [Token] -> ParserState ([Token], Maybe Tree)
+parseOptionalAssign :: [Token] -> ParserState (Maybe Tree, [Token])
 parseOptionalAssign = undefined
 
 
-updateParserState :: Tree -> [Token] -> ParserState Tree
-updateParserState tree toks = do
+updateParserState :: Tree -> ParserState ()
+updateParserState tree = do
         ast      <- getState
         treeList <- getTreeList ast
         putState $ ProgramNode (tree:treeList)
-        parseTopLevelItems toks
 
 
 getTreeList :: Tree -> ParserState [Tree]
@@ -106,3 +110,7 @@ isFuncStart _                _                _             _            = False
 isAssignment :: Operator -> Bool
 isAssignment op = op `elem` [Assign,PlusAssign,MinusAssign,
                              MultiplyAssign,DivideAssign,ModuloAssign]
+
+
+validType :: Keyword -> Bool
+validType kwd = kwd == Int

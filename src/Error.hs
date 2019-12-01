@@ -1,9 +1,11 @@
 
 module Error
-        (CompilerError(..),
+        (
+         CompilerError(..),
          LexerError(..),
          ParserError(..),
-         SyntaxError(..)
+         SyntaxError(..),
+         TypeError(..)
         ) where
 
 
@@ -15,6 +17,7 @@ import Tokens (Operator(..),
 data CompilerError = LexerError LexerError
                    | ParserError ParserError
                    | SyntaxError SyntaxError
+                   | TypeError TypeError
                    | ImpossibleError
                    deriving (Show, Eq)
 
@@ -32,3 +35,9 @@ data ParserError = ParseError String
 data SyntaxError = InvalidIdentifier Token
                  | MissingToken Token
                  deriving (Show, Eq)
+
+
+data TypeError = InvalidType Token
+               | TypeMismatch Token Token
+               deriving (Show, Eq)
+

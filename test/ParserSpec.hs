@@ -28,3 +28,8 @@ parserTest = hspec $ do
                   fromLeft ImpossibleError (parse [])
                   `shouldBe`
                   ParserError NoTokens
+
+                it "Should throw error on invalid type" $
+                  fromLeft ImpossibleError (parse [TokKeyword Break, TokIdent "a", TokSemiColon])
+                  `shouldBe`
+                  (TypeError (InvalidType  (TokKeyword Break)))
