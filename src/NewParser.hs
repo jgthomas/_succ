@@ -74,11 +74,22 @@ parseDeclaration toks@(typ:id:rest) =
 
 
 parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
-parseOptAssign toks = parseOptionalAssign toks
+parseOptAssign toks = do
+        (tree, toks') <- parseOptionalAssign toks
+        toks''        <- verifyAndConsume TokSemiColon toks'
+        return (tree, toks'')
 
 
 parseOptionalAssign :: [Token] -> ParserState (Maybe Tree, [Token])
-parseOptionalAssign = undefined
+parseOptionalAssign toks@(id:equ:rest) =
+        if isAssignment equ
+           then do (tree, toks') <- parseExpression toks
+                   return (Just tree, toks')
+           else return (Nothing, equ:toks)
+
+
+parseExpression :: [Token] -> ParserState (Tree, [Token])
+parseExpression = undefined
 
 
 updateParserState :: Tree -> ParserState ()
@@ -107,9 +118,27 @@ isFuncStart (TokKeyword Int) (TokIdent id)    TokOpenParen  _            = True
 isFuncStart _                _                _             _            = False
 
 
-isAssignment :: Operator -> Bool
-isAssignment op = op `elem` [Assign,PlusAssign,MinusAssign,
-                             MultiplyAssign,DivideAssign,ModuloAssign]
+isAssignment :: Token -> Bool
+isAssignment (TokOp op) = op `elem` assignmentToks
+isAssignment _          = False
+
+
+assignmentToks :: [Operator]
+assignmentToks = [Assign,
+                  PlusAssign,
+                  MinusAssign,
+                  MultiplyAssign,
+                  DivideAssign,
+                  ModuloAssign
+                 ]
+
+
+verifyAndConsume :: Token -> [Token] -> ParserState [Token]
+verifyAndConsume t [] = throwError $ SyntaxError (MissingToken t)
+verifyAndConsume t (a:rest) =
+        if t == a
+           then return rest
+           else throwError $ SyntaxError (MissingToken t)
 
 
 validType :: Keyword -> Bool

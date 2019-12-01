@@ -34,6 +34,7 @@ data ParserError = ParseError String
 
 data SyntaxError = InvalidIdentifier Token
                  | MissingToken Token
+                 | UnexpectedToken Token
                  deriving (Show, Eq)
 
 
