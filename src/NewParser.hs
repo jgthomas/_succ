@@ -45,8 +45,10 @@ parseTopLevelItems toks@(a:rest) =
         case a of
              (TokKeyword typ)
                 | validType typ -> do
+                        ast           <- getState
+                        itemList      <- getTreeList ast
                         (item, toks') <- parseTopLevelItem toks
-                        updateParserState item
+                        putState $ ProgramNode (item:itemList)
                         parseTopLevelItems toks'
                 | otherwise -> throwError $ TypeError (InvalidType a)
              _ -> throwError $ TypeError (InvalidType a)
@@ -85,7 +87,7 @@ parseParams paramList toks@(a:b:rest)
         | a /= TokOpenParen && a /= TokComma  = throwError $ SyntaxError (MissingToken TokComma)
         | a == TokComma && b == TokCloseParen = throwError $ ParserError (ParseError "Expected param type")
         | otherwise = case b of
-                           TokCloseParen  -> return (paramList, rest)
+                           TokCloseParen  -> return (reverse paramList, rest)
                            TokKeyword typ -> do
                                    typ            <- setType a b
                                    toks'          <- verifyAndConsume a toks

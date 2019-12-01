@@ -39,3 +39,36 @@ parserTest = hspec $ do
                   fromLeft ImpossibleError (parse [TokKeyword Int, TokIdent "a", TokWut])
                   `shouldBe`
                   SyntaxError (MissingToken TokSemiColon)
+
+                it "Should correctly parse a simple function" $
+                  fromRight (ProgramNode []) (parse [TokKeyword Int,
+                                                     TokIdent "main",
+                                                     TokOpenParen,
+                                                     TokCloseParen,
+                                                     TokOpenBrace,
+                                                     TokKeyword Return,
+                                                     TokConstInt 2,
+                                                     TokSemiColon,
+                                                     TokCloseBrace])
+                  `shouldBe`
+                  (ProgramNode [FunctionNode IntVar "main" [] (Just [ReturnNode (ConstantNode 2)])])
+
+                it "Should parse valid variable assignment" $
+                  fromRight (ProgramNode []) (parse [TokKeyword Int,
+                                                     TokIdent "a",
+                                                     TokOp Assign,
+                                                     TokConstInt 10,
+                                                     TokSemiColon])
+                  `shouldBe`
+                  (ProgramNode [DeclarationNode "a" IntVar (Just (AssignmentNode "a" (ConstantNode 10) Assign))])
+
+                it "Should parse valid function declarations" $
+                  fromRight (ProgramNode []) (parse [TokKeyword Int,
+                                                     TokIdent "cat",
+                                                     TokOpenParen,
+                                                     TokKeyword Int,
+                                                     TokIdent "a",
+                                                     TokCloseParen,
+                                                     TokSemiColon])
+                  `shouldBe`
+                  (ProgramNode [FunctionNode IntVar "cat" [ParamNode IntVar (VarNode "a")] Nothing])
