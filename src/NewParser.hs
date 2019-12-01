@@ -317,9 +317,9 @@ parseExpression toks = do
         let next = lookAhead toks'
         if isAssignment next
            then do
-                   toks'' <- verifyAndConsume next toks'
+                   toks''             <- verifyAndConsume next toks'
                    (subTree, toks''') <- parseExpression toks''
-                   opVal <- opValue next
+                   opVal              <- opValue next
                    case tree of
                      (VarNode id) ->
                              return (AssignmentNode id subTree opVal, toks''')
@@ -415,7 +415,6 @@ parseFunctionCall (TokIdent id:TokOpenParen:rest) = do
 parseFunctionCall (TokIdent id:b:rest)  = throwError $ SyntaxError (MissingToken TokOpenParen)
 parseFunctionCall (a:TokOpenParen:rest) = throwError $ SyntaxError (InvalidIdentifier a)
 parseFunctionCall (a:b:rest)            = throwError $ SyntaxError (UnexpectedToken a)
-
 
 
 parseFunctionArgs :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
