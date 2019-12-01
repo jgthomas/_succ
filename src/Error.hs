@@ -36,6 +36,7 @@ data SyntaxError = InvalidIdentifier Token
                  | MissingToken Token
                  | UnexpectedToken Token
                  | MissingIdentifier
+                 | MissingKeyword Keyword
                  deriving (Show, Eq)
 
 

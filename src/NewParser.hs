@@ -104,8 +104,15 @@ parseParam toks@(a:b:rest) = do
              _          -> throwError $ ParserError (ParseError "Invalid parameter")
 
 
+parseParamValue :: [Token] -> ParserState (Tree, [Token])
+parseParamValue toks@(a:rest) =
+        case a of
+             TokOp Multiply -> parseExpression rest
+             TokIdent a     -> parseExpression toks
+
+
 parseFuncBlockItems :: [Tree] -> [Token] -> ParserState (Maybe [Tree], [Token])
-parseFuncBlockItems stmts toks@(a:rest) = do
+parseFuncBlockItems stmts toks@(a:rest) =
         case a of
              TokSemiColon -> return (Nothing, rest)
              TokOpenBrace -> do
@@ -115,14 +122,150 @@ parseFuncBlockItems stmts toks@(a:rest) = do
 
 
 parseBlock :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseBlock = undefined
+parseBlock stmts toks@(a:rest) =
+        if a == TokCloseBrace
+           then return (reverse stmts, toks)
+           else do
+                   (tree, toks') <- parseBlockItem toks
+                   parseBlock (tree:stmts) toks'
 
 
-parseParamValue :: [Token] -> ParserState (Tree, [Token])
-parseParamValue toks@(a:rest) =
+parseBlockItem :: [Token] -> ParserState (Tree, [Token])
+parseBlockItem toks@(a:rest) =
         case a of
-             TokOp Multiply -> parseExpression rest
-             TokIdent a     -> parseExpression toks
+             (TokKeyword kwd) | validType kwd -> parseDeclaration toks
+             _                                -> parseStatement toks
+
+
+parseStatement :: [Token] -> ParserState (Tree, [Token])
+parseStatement toks@(first:rest) =
+        case first of
+             TokKeyword Return   -> parseReturnStmt rest
+             TokKeyword If       -> parseIfStatement rest
+             TokKeyword While    -> parseWhileStatement rest
+             TokKeyword Do       -> parseDoWhileStatement rest
+             TokKeyword For      -> parseForLoop rest
+             TokKeyword Break    -> parseBreak rest
+             TokKeyword Continue -> parseContinue rest
+             TokOpenBrace        -> parseCompoundStmt rest
+             _                   -> parseExprStatement toks
+
+
+{-
+- Parses expressions where a semi-colon is required afterwards
+-
+- null expression:         ;
+- expression statements:   2 + 2;
+- elements of loops:       (i = 0; i < 10; i++)
+- assignments:             a = 10; *p = 10;
+- function calls:          dog(8);
+-
+-}
+parseExprStatement :: [Token] -> ParserState (Tree, [Token])
+parseExprStatement toks@(first:rest) =
+        if first == TokSemiColon
+           then parseNullStatement rest
+           else do
+                   (tree, toks') <- parseExpression toks
+                   toks''        <- verifyAndConsume TokSemiColon toks'
+                   return (ExprStmtNode tree, toks'')
+
+
+parseBreak :: [Token] -> ParserState (Tree, [Token])
+parseBreak toks = do
+        toks' <- verifyAndConsume TokSemiColon toks
+        return (BreakNode, toks')
+
+
+parseContinue :: [Token] -> ParserState (Tree, [Token])
+parseContinue toks = do
+        toks' <- verifyAndConsume TokSemiColon toks
+        return (ContinueNode, toks')
+
+
+parseCompoundStmt :: [Token] -> ParserState (Tree, [Token])
+parseCompoundStmt toks = do
+        (items, toks') <- parseBlock [] toks
+        toks''         <- verifyAndConsume TokCloseBrace toks'
+        return (CompoundStmtNode items, toks'')
+
+
+parseForLoop :: [Token] -> ParserState (Tree, [Token])
+parseForLoop toks = do
+        toks'              <- verifyAndConsume TokOpenParen toks
+        (init, toks'')     <- parseBlockItem toks'
+        (test, toks''')    <- parseExprStatement toks''
+        (change, toks'''') <- parseForLoopPostExp toks'''
+        if lookAhead toks'''' == TokSemiColon
+           then throwError $ SyntaxError (UnexpectedToken TokSemiColon)
+           else do
+                   toks'''''           <- verifyAndConsume TokCloseParen toks''''
+                   (stmts, toks'''''') <- parseStatement toks'''''
+                   if test == NullExprNode
+                      then return (ForLoopNode init (ConstantNode 1) change stmts, toks'''''')
+                      else return (ForLoopNode init test change stmts, toks'''''')
+
+
+parseForLoopPostExp :: [Token] -> ParserState (Tree, [Token])
+parseForLoopPostExp toks@(a:rest) =
+        case a of
+             TokSemiColon  -> throwError $ SyntaxError (UnexpectedToken TokSemiColon)
+             TokCloseParen -> nullExpr toks
+             _             -> parseExpression toks
+
+
+parseDoWhileStatement :: [Token] -> ParserState (Tree, [Token])
+parseDoWhileStatement toks = do
+        toks'           <- verifyAndConsume TokOpenBrace toks
+        (stmts, toks'') <- parseStatement toks
+        case toks'' of
+             (a:b:rest)
+                | a /= TokKeyword While -> throwError $ SyntaxError (MissingKeyword While)
+                | b /= TokOpenParen     -> throwError $ SyntaxError (MissingToken TokOpenParen)
+                | otherwise -> do
+                        (test, toks''') <- parseExpression rest
+                        toks''''        <- verifyAndConsume TokCloseParen toks'''
+                        toks'''''       <- verifyAndConsume TokSemiColon toks''''
+                        return (DoWhileNode stmts test, toks''''')
+
+
+parseWhileStatement :: [Token] -> ParserState (Tree, [Token])
+parseWhileStatement toks = do
+        toks'             <- verifyAndConsume TokOpenParen toks
+        (test, toks'')    <- parseExpression toks'
+        toks'''           <- verifyAndConsume TokCloseParen toks''
+        (stmts, toks'''') <- parseStatement toks'''
+        return (WhileNode test stmts, toks'''')
+
+
+parseIfStatement :: [Token] -> ParserState (Tree, [Token])
+parseIfStatement toks = do
+        toks'                 <- verifyAndConsume TokOpenParen toks
+        (test, toks'')        <- parseExpression toks'
+        toks'''               <- verifyAndConsume TokCloseParen toks''
+        (stmts, toks'''')     <- parseStatement toks'''
+        (possElse, toks''''') <- parseOptionalElse toks''''
+        return (IfNode test stmts possElse, toks''''')
+
+
+parseOptionalElse :: [Token] -> ParserState (Maybe Tree, [Token])
+parseOptionalElse toks@(a:rest) =
+        if a == TokKeyword Else
+           then do
+                   (tree, toks') <- parseStatement rest
+                   return (Just tree, toks')
+           else return (Nothing, toks)
+
+
+parseReturnStmt :: [Token] -> ParserState (Tree, [Token])
+parseReturnStmt toks = do
+        (tree, toks') <- parseExpression toks
+        toks''        <- verifyAndConsume TokSemiColon toks'
+        return (ReturnNode tree, toks'')
+
+
+parseNullStatement :: [Token] -> ParserState (Tree, [Token])
+parseNullStatement toks = return (NullExprNode, toks)
 
 
 parseDeclaration :: [Token] -> ParserState (Tree, [Token])
@@ -325,6 +468,10 @@ setType :: Token -> Token -> ParserState Type
 setType (TokKeyword Int) (TokOp Multiply) = return IntPointer
 setType (TokKeyword Int) _                = return IntVar
 setType a                b                = throwError $ TypeError (InvalidType a)
+
+
+nullExpr :: [Token] -> ParserState (Tree, [Token])
+nullExpr toks = return (NullExprNode, toks)
 
 
 opValue :: Token -> ParserState Operator
