@@ -2,12 +2,10 @@
 module NewParser (parse) where
 
 
+import Tokens (Operator(..), Keyword(..), Token(..))
+import qualified Tokens (unary)
 import AST       (Tree(..))
 import Types     (Type(..))
-import Tokens    (Operator(..),
-                  Keyword(..),
-                  Token(..)
-                 )
 import Error     (CompilerError(..),
                   ParserError(..),
                   SyntaxError(..),
@@ -85,11 +83,123 @@ parseOptionalAssign toks@(id:equ:rest) =
         if isAssignment equ
            then do (tree, toks') <- parseExpression toks
                    return (Just tree, toks')
-           else return (Nothing, equ:toks)
+           else return (Nothing, equ:rest)
 
 
 parseExpression :: [Token] -> ParserState (Tree, [Token])
-parseExpression = undefined
+parseExpression toks = do
+        (tree, toks') <- parseTernaryExp toks
+        let next = lookAhead toks'
+        if isAssignment next
+           then do
+                   toks'' <- verifyAndConsume next toks'
+                   (subTree, toks''') <- parseExpression toks''
+                   opVal <- opValue next
+                   case tree of
+                     (VarNode id) ->
+                             return (AssignmentNode id subTree opVal, toks''')
+                     (DereferenceNode id) ->
+                             return (AssignDereferenceNode id subTree opVal, toks''')
+                     _ -> throwError $ ParserError (ParseError "a")
+           else return (tree, toks')
+
+
+parseTernaryExp :: [Token] -> ParserState (Tree, [Token])
+parseTernaryExp toks = do
+        (cond, toks')      <- parseLogicalOrExp toks
+        toks''             <- verifyAndConsume TokQuestMark toks'
+        (expr1, toks''')   <- parseExpression toks''
+        toks''''           <- verifyAndConsume TokColon toks'''
+        (expr2, toks''''') <- parseTernaryExp toks''''
+        return (TernaryNode cond expr1 expr2, toks''''')
+
+
+parseLogicalOrExp :: [Token] -> ParserState (Tree, [Token])
+parseLogicalOrExp toks = do
+        (orTree, toks') <- parseLogicalAndExp toks
+        parseBinaryExp orTree toks' parseLogicalAndExp [LogicalOR]
+
+
+parseLogicalAndExp :: [Token] -> ParserState (Tree, [Token])
+parseLogicalAndExp toks = do
+        (andTree, toks') <- parseEqualityExp toks
+        parseBinaryExp andTree toks' parseEqualityExp [LogicalAND]
+
+
+parseEqualityExp :: [Token] -> ParserState (Tree, [Token])
+parseEqualityExp toks = do
+        (equTree, toks') <- parseRelationalExp toks
+        parseBinaryExp equTree toks' parseRelationalExp [Equal,NotEqual]
+
+
+parseRelationalExp :: [Token] -> ParserState (Tree, [Token])
+parseRelationalExp toks = do
+        (relaTree, toks') <- parseAdditiveExp toks
+        parseBinaryExp relaTree toks' parseAdditiveExp
+             [GreaterThan,LessThan,GreaterThanOrEqual,LessThanOrEqual]
+
+
+parseAdditiveExp :: [Token] -> ParserState (Tree, [Token])
+parseAdditiveExp toks = do
+        (termTree, toks') <- parseTerm toks
+        parseBinaryExp termTree toks' parseTerm [Plus,Minus]
+
+
+parseTerm :: [Token] -> ParserState (Tree, [Token])
+parseTerm toks = do
+        (facTree, toks') <- parseFactor toks
+        parseBinaryExp facTree toks' parseFactor [Multiply,Divide,Modulo]
+
+
+parseFactor :: [Token] -> ParserState (Tree, [Token])
+parseFactor toks@(next:rest) =
+        case next of
+             TokSemiColon    -> return (NullExprNode, rest)
+             (TokConstInt n) -> return (ConstantNode n, rest)
+             (TokIdent id)   ->
+                     if lookAhead toks == TokOpenParen
+                        then parseFunctionCall toks
+                        else return (VarNode id, rest)
+             (TokOp op)
+                | op == Ampersand -> parseAddressOf rest
+                | op == Multiply  -> parseDereference rest
+                | op `elem` Tokens.unary -> do
+                        (tree, toks') <- parseFactor rest
+                        return (UnaryNode tree op, toks')
+             TokOpenParen -> do
+                     (tree, toks') <- parseExpression rest
+                     toks''        <- verifyAndConsume TokCloseParen toks'
+                     return (tree, toks'')
+             _ -> throwError $ ParserError (ParseError (show toks))
+
+
+parseAddressOf :: [Token] -> ParserState (Tree, [Token])
+parseAddressOf toks = undefined
+
+
+parseDereference :: [Token] -> ParserState (Tree, [Token])
+parseDereference toks = undefined
+
+
+parseFunctionCall :: [Token] -> ParserState (Tree, [Token])
+parseFunctionCall toks@(id:paren:rest) = undefined
+
+
+
+parseBinaryExp :: Tree
+               -> [Token]
+               -> ([Token] -> ParserState (Tree, [Token]))
+               -> [Operator]
+               -> ParserState (Tree, [Token])
+parseBinaryExp tree toks f ops = do
+        let next = lookAhead toks
+        op <- opValue next
+        if op `elem` ops
+           then do
+                   toks'           <- verifyAndConsume next toks
+                   (ntree, toks'') <- f toks'
+                   parseBinaryExp (BinaryNode tree ntree op) toks'' f ops
+           else return (tree, toks)
 
 
 updateParserState :: Tree -> ParserState ()
@@ -141,5 +251,15 @@ verifyAndConsume t (a:rest) =
            else throwError $ SyntaxError (MissingToken t)
 
 
+opValue :: Token -> ParserState Operator
+opValue (TokOp v) = return v
+opValue t         = throwError $ SyntaxError (UnexpectedToken t)
+
+
 validType :: Keyword -> Bool
 validType kwd = kwd == Int
+
+
+lookAhead :: [Token] -> Token
+lookAhead [] = TokWut
+lookAhead (c:cs) = c

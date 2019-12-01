@@ -1,7 +1,10 @@
 
-module Tokens (Operator(..),
-               Keyword(..),
-               Token(..)) where
+module Tokens (
+        Operator(..),
+        Keyword(..),
+        Token(..),
+        unary
+        ) where
 
 
 data Operator = Plus
@@ -27,6 +30,10 @@ data Operator = Plus
               | ModuloAssign
               | Ampersand
               deriving (Show, Eq)
+
+
+unary :: [Operator]
+unary = [Minus,BitwiseCompl,LogicNegation]
 
 
 data Keyword = Int
