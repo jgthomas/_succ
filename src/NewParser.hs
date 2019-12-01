@@ -67,8 +67,17 @@ parseDeclaration :: [Token] -> ParserState (Tree, [Token])
 parseDeclaration [] = throwError ImpossibleError
 parseDeclaration toks@(typ:id:rest) =
         case id of
-             (TokIdent varName) -> return (VarNode varName, [])
-             _                  -> throwError $ SyntaxError (InvalidIdentifier id)
+             (TokOp Multiply)   -> parsePointerDec toks
+             (TokIdent varName) -> do
+                     varType        <- setType typ id
+                     toks'          <- verifyAndConsume typ toks
+                     (tree, toks'') <- parseOptAssign toks'
+                     return (DeclarationNode varName varType tree, toks'')
+             _ -> throwError $ SyntaxError (InvalidIdentifier id)
+
+
+parsePointerDec :: [Token] -> ParserState (Tree, [Token])
+parsePointerDec toks = undefined
 
 
 parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
@@ -185,7 +194,6 @@ parseFunctionCall :: [Token] -> ParserState (Tree, [Token])
 parseFunctionCall toks@(id:paren:rest) = undefined
 
 
-
 parseBinaryExp :: Tree
                -> [Token]
                -> ([Token] -> ParserState (Tree, [Token]))
@@ -249,6 +257,12 @@ verifyAndConsume t (a:rest) =
         if t == a
            then return rest
            else throwError $ SyntaxError (MissingToken t)
+
+
+setType :: Token -> Token -> ParserState Type
+setType (TokKeyword Int) (TokOp Multiply) = return IntPointer
+setType (TokKeyword Int) _                = return IntVar
+setType a                b                = throwError $ TypeError (InvalidType a)
 
 
 opValue :: Token -> ParserState Operator

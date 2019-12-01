@@ -9,6 +9,7 @@ import NewParser
 import Tokens
 import AST
 import Error
+import Types
 
 
 parserTest :: IO ()
@@ -17,7 +18,7 @@ parserTest = hspec $ do
                 it "Should parse valid variable declaration" $
                   fromRight (ProgramNode []) (parse [TokKeyword Int, TokIdent "a", TokSemiColon])
                   `shouldBe`
-                  (ProgramNode [VarNode "a"])
+                  (ProgramNode [DeclarationNode "a" IntVar Nothing])
 
                 it "Should throw error on invalid variable identifier" $
                   fromLeft ImpossibleError (parse [TokKeyword Int, TokOpenBrace, TokSemiColon])
