@@ -34,3 +34,8 @@ parserTest = hspec $ do
                   fromLeft ImpossibleError (parse [TokKeyword Break, TokIdent "a", TokSemiColon])
                   `shouldBe`
                   (TypeError (InvalidType  (TokKeyword Break)))
+
+                it "Should throw error if semicolon not final token" $
+                  fromLeft ImpossibleError (parse [TokKeyword Int, TokIdent "a", TokWut])
+                  `shouldBe`
+                  SyntaxError (MissingToken TokSemiColon)
