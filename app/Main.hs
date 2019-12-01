@@ -13,7 +13,8 @@ import System.IO          (openFile,
                            hClose)
 
 import Lexer     (tokenize)
-import Parser    (parse)
+--import Parser    (parse)
+import NewParser    (parse)
 import Generator (genASM)
 import Evaluator (Evaluator(Ev))
 import SymTab    (newSymTab)
@@ -29,7 +30,8 @@ main = do
         contents <- hGetContents handle
 
         lexed  <- lexString contents
-        parsed <- parseTokens lexed
+        --parsed <- parseTokens lexed
+        parsed <- newParseTokens lexed
         asm    <- generateASM parsed
 
         let outfileName = dropExtension infileName ++ ".s"
@@ -52,8 +54,18 @@ lexString s = do
              (Right toks) -> return toks
 
 
-parseTokens :: [Token] -> IO Tree
-parseTokens toks = return $ parse toks
+--parseTokens :: [Token] -> IO Tree
+--parseTokens toks = return $ parse toks
+
+
+newParseTokens :: [Token] -> IO Tree
+newParseTokens toks = do
+        let parsed = parse toks
+        case parsed of
+             (Left err) -> do
+                     print err
+                     exitFailure
+             (Right ast) -> return ast
 
 
 generateASM :: Tree -> IO String
