@@ -360,11 +360,14 @@ parseExpression toks = do
 parseTernaryExp :: [Token] -> ParserState (Tree, [Token])
 parseTernaryExp toks = do
         (cond, toks')      <- parseLogicalOrExp toks
-        toks''             <- verifyAndConsume TokQuestMark toks'
-        (expr1, toks''')   <- parseExpression toks''
-        toks''''           <- verifyAndConsume TokColon toks'''
-        (expr2, toks''''') <- parseTernaryExp toks''''
-        return (TernaryNode cond expr1 expr2, toks''''')
+        case lookAhead toks' of
+             TokQuestMark -> do
+                     toks''             <- verifyAndConsume TokQuestMark toks'
+                     (expr1, toks''')   <- parseExpression toks''
+                     toks''''           <- verifyAndConsume TokColon toks'''
+                     (expr2, toks''''') <- parseTernaryExp toks''''
+                     return (TernaryNode cond expr1 expr2, toks''''')
+             _ -> return (cond, toks')
 
 
 parseLogicalOrExp :: [Token] -> ParserState (Tree, [Token])
@@ -469,13 +472,12 @@ parseBinaryExp :: Tree
                -> ParserState (Tree, [Token])
 parseBinaryExp tree toks f ops = do
         let next = lookAhead toks
-        op <- opValue next
-        if op `elem` ops
-           then do
-                   toks'           <- verifyAndConsume next toks
-                   (ntree, toks'') <- f toks'
-                   parseBinaryExp (BinaryNode tree ntree op) toks'' f ops
-           else return (tree, toks)
+        case next of
+             TokOp op | op `elem` ops -> do
+                     toks'           <- verifyAndConsume next toks
+                     (ntree, toks'') <- f toks'
+                     parseBinaryExp (BinaryNode tree ntree op) toks'' f ops
+             _ -> return (tree, toks)
 
 
 updateParserState :: Tree -> ParserState ()
@@ -539,7 +541,7 @@ nullExpr toks = return (NullExprNode, toks)
 
 opValue :: Token -> ParserState Operator
 opValue (TokOp v) = return v
-opValue t         = throwError $ SyntaxError (UnexpectedToken t)
+opValue t         = error $ show t--throwError $ SyntaxError (UnexpectedToken t)
 
 
 validType :: Keyword -> Bool
