@@ -106,10 +106,8 @@ parseParam toks@(a:b:rest) = do
 
 
 parseParamValue :: [Token] -> ParserState (Tree, [Token])
-parseParamValue toks@(a:rest) =
-        case a of
-             TokOp Multiply -> parseExpression rest
-             TokIdent a     -> parseExpression toks
+parseParamValue toks@(TokOp Multiply:rest) = parseExpression rest
+parseParamValue toks@(TokIdent id:rest)    = parseExpression toks
 
 
 parseFuncBlockItems :: [Tree] -> [Token] -> ParserState (Maybe [Tree], [Token])
