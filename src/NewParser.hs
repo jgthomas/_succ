@@ -411,7 +411,7 @@ parseFactor toks@(next:rest) =
              TokSemiColon    -> return (NullExprNode, rest)
              (TokConstInt n) -> return (ConstantNode n, rest)
              (TokIdent id)   ->
-                     if lookAhead toks == TokOpenParen
+                     if lookAhead rest == TokOpenParen
                         then parseFunctionCall toks
                         else return (VarNode id, rest)
              (TokOp op)
