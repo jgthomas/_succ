@@ -190,13 +190,11 @@ parseStatement toks@(first:rest) =
 -
 -}
 parseExprStatement :: [Token] -> ParserState (Tree, [Token])
-parseExprStatement toks@(first:rest) =
-        if first == TokSemiColon
-           then parseNullStatement rest
-           else do
-                   (tree, toks') <- parseExpression toks
-                   toks''        <- verifyAndConsume TokSemiColon toks'
-                   return (ExprStmtNode tree, toks'')
+parseExprStatement (TokSemiColon:rest) = parseNullStatement rest
+parseExprStatement toks = do
+        (tree, toks') <- parseExpression toks
+        toks''        <- verifyAndConsume TokSemiColon toks'
+        return (ExprStmtNode tree, toks'')
 
 
 parseBreak :: [Token] -> ParserState (Tree, [Token])
