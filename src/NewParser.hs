@@ -50,18 +50,6 @@ parseTopLevelItems toks@(TokKeyword typ:rest) =
                    parseTopLevelItems toks'
            else throwError $ TypeError (InvalidType (TokKeyword typ))
 
---parseTopLevelItems toks@(a:rest) =
---        case a of
---             (TokKeyword typ)
---                | validType typ -> do
---                        ast           <- getState
---                        itemList      <- getTreeList ast
---                        (item, toks') <- parseTopLevelItem toks
---                        putState $ ProgramNode (item:itemList)
---                        parseTopLevelItems toks'
---                | otherwise -> throwError $ TypeError (InvalidType a)
---             _ -> throwError $ TypeError (InvalidType a)
-
 
 parseTopLevelItem :: [Token] -> ParserState (Tree, [Token])
 parseTopLevelItem [] = throwError ImpossibleError
@@ -88,21 +76,6 @@ parseFuncName _                _               = throwError $ SyntaxError Missin
 parseFuncParams :: Token -> Token -> [Token] -> ParserState ([Tree], [Token])
 parseFuncParams (TokOp Multiply) (TokIdent name) toks = parseParams [] toks
 parseFuncParams (TokIdent name) tok toks              = parseParams [] (tok:toks)
-
-
---parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
---parseParams paramList toks@(a:b:rest)
---        | a == TokCloseParen                  = return (reverse paramList, b:rest)
---        | a /= TokOpenParen && a /= TokComma  = throwError $ SyntaxError (MissingToken TokComma)
---        | a == TokComma && b == TokCloseParen = throwError $ ParserError (ParseError "Expected param type")
---        | otherwise = case b of
---                           TokCloseParen  -> return (reverse paramList, rest)
---                           TokKeyword typ -> do
---                                   typ            <- setType a b
---                                   toks'          <- verifyAndConsume a toks
---                                   (tree, toks'') <- parseParam toks'
---                                   parseParams (tree:paramList) toks''
---                           _ -> throwError $ SyntaxError (UnexpectedToken b)
 
 
 parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
@@ -539,7 +512,7 @@ nullExpr toks = return (NullExprNode, toks)
 
 opValue :: Token -> ParserState Operator
 opValue (TokOp v) = return v
-opValue t         = error $ show t--throwError $ SyntaxError (UnexpectedToken t)
+opValue t         = error $ show t
 
 
 validType :: Keyword -> Bool
