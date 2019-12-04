@@ -275,13 +275,11 @@ parseDeclaration toks@(typ:id:rest) =
 
 
 parsePointerDec :: [Token] -> ParserState (Tree, [Token])
-parsePointerDec toks@(a:b:c:rest) =
-        case c of
-             (TokIdent varName) -> do
-                     (tree, toks') <- parseOptAssign (c:rest)
-                     typ           <- setType a b
-                     return (PointerNode varName typ tree, toks')
-             _ -> throwError $ SyntaxError (InvalidIdentifier c)
+parsePointerDec toks@(a:b:TokIdent name:rest) = do
+        (tree, toks') <- parseOptAssign (TokIdent name:rest)
+        typ           <- setType a b
+        return (PointerNode name typ tree, toks')
+parsePointerDec (_:_:c:_) = throwError $ SyntaxError (InvalidIdentifier c)
 
 
 parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
