@@ -111,13 +111,11 @@ parseParamValue toks@(TokIdent id:rest)    = parseExpression toks
 
 
 parseFuncBlockItems :: [Tree] -> [Token] -> ParserState (Maybe [Tree], [Token])
-parseFuncBlockItems stmts toks@(a:rest) =
-        case a of
-             TokSemiColon -> return (Nothing, rest)
-             TokOpenBrace -> do
-                     (tree, toks') <- parseBlock stmts rest
-                     toks''        <- verifyAndConsume TokCloseBrace toks'
-                     return (Just tree, toks'')
+parseFuncBlockItems stmts (TokSemiColon:rest) = return (Nothing, rest)
+parseFuncBlockItems stmts (TokOpenBrace:rest) = do
+        (tree, toks') <- parseBlock stmts rest
+        toks''        <- verifyAndConsume TokCloseBrace toks'
+        return (Just tree, toks'')
 
 
 parseBlock :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
