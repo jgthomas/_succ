@@ -488,10 +488,9 @@ assignmentToks = [Assign,
 
 verifyAndConsume :: Token -> [Token] -> ParserState [Token]
 verifyAndConsume t [] = throwError $ SyntaxError (MissingToken t)
-verifyAndConsume t (a:rest) =
-        if t == a
-           then return rest
-           else throwError $ SyntaxError (MissingToken t)
+verifyAndConsume t (a:rest)
+        | t == a    = return rest
+        | otherwise = throwError $ SyntaxError (MissingToken t)
 
 
 setType :: Token -> Token -> ParserState Type
