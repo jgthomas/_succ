@@ -324,7 +324,7 @@ parseExpression toks = do
 
 parseTernaryExp :: [Token] -> ParserState (Tree, [Token])
 parseTernaryExp toks = do
-        (cond, toks')      <- parseLogicalOrExp toks
+        (cond, toks') <- parseLogicalOrExp toks
         case lookAhead toks' of
              TokQuestMark -> do
                      toks''             <- verifyAndConsume TokQuestMark toks'
