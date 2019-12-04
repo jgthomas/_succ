@@ -40,15 +40,14 @@ parseTopLevelItems [] = do
         case ast of
              ProgramNode items -> return $ ProgramNode (reverse items)
              _                 -> throwError ImpossibleError
-parseTopLevelItems toks@(TokKeyword typ:rest) =
-        if validType typ
-           then do
-                   ast           <- getState
-                   items         <- getTreeList ast
-                   (item, toks') <- parseTopLevelItem toks
-                   putState $ ProgramNode (item:items)
-                   parseTopLevelItems toks'
-           else throwError $ TypeError (InvalidType (TokKeyword typ))
+parseTopLevelItems toks@(TokKeyword typ:rest)
+        | validType typ = do
+                ast           <- getState
+                items         <- getTreeList ast
+                (item, toks') <- parseTopLevelItem toks
+                putState $ ProgramNode (item:items)
+                parseTopLevelItems toks'
+        | otherwise = throwError $ TypeError (InvalidType (TokKeyword typ))
 
 
 parseTopLevelItem :: [Token] -> ParserState (Tree, [Token])
