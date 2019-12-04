@@ -244,12 +244,10 @@ parseConditionalParen toks = do
 
 
 parseOptionalElse :: [Token] -> ParserState (Maybe Tree, [Token])
-parseOptionalElse toks@(a:rest) =
-        if a == TokKeyword Else
-           then do
-                   (tree, toks') <- parseStatement rest
-                   return (Just tree, toks')
-           else return (Nothing, toks)
+parseOptionalElse (TokKeyword Else:rest) = do
+        (tree, toks') <- parseStatement rest
+        return (Just tree, toks')
+parseOptionalElse toks = return (Nothing, toks)
 
 
 parseReturnStmt :: [Token] -> ParserState (Tree, [Token])
