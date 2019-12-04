@@ -119,12 +119,10 @@ parseFuncBlockItems stmts (TokOpenBrace:rest) = do
 
 
 parseBlock :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseBlock stmts toks@(a:rest) =
-        if a == TokCloseBrace
-           then return (reverse stmts, toks)
-           else do
-                   (tree, toks') <- parseBlockItem toks
-                   parseBlock (tree:stmts) toks'
+parseBlock stmts toks@(TokCloseBrace:_) = return (reverse stmts, toks)
+parseBlock stmts toks = do
+        (tree, toks') <- parseBlockItem toks
+        parseBlock (tree:stmts) toks'
 
 
 parseBlockItem :: [Token] -> ParserState (Tree, [Token])
