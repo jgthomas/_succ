@@ -288,11 +288,11 @@ parseOptAssign toks = do
 
 
 parseOptionalAssign :: [Token] -> ParserState (Maybe Tree, [Token])
-parseOptionalAssign toks@(id:equ:rest) =
-        if isAssignment equ
-           then do (tree, toks') <- parseExpression toks
-                   return (Just tree, toks')
-           else return (Nothing, equ:rest)
+parseOptionalAssign toks@(id:equ:rest)
+        | isAssignment equ = do
+                (tree, toks') <- parseExpression toks
+                return (Just tree, toks')
+        | otherwise = return (Nothing, equ:rest)
 
 
 parseExpression :: [Token] -> ParserState (Tree, [Token])
