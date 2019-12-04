@@ -200,11 +200,9 @@ parseForLoop toks = do
 
 
 parseForLoopPostExp :: [Token] -> ParserState (Tree, [Token])
-parseForLoopPostExp toks@(a:rest) =
-        case a of
-             TokSemiColon  -> throwError $ SyntaxError (UnexpectedToken TokSemiColon)
-             TokCloseParen -> nullExpr toks
-             _             -> parseExpression toks
+parseForLoopPostExp (TokSemiColon:_)       = throwError $ SyntaxError (UnexpectedToken TokSemiColon)
+parseForLoopPostExp toks@(TokCloseParen:_) = nullExpr toks
+parseForLoopPostExp toks                   = parseExpression toks
 
 
 parseDoWhileStatement :: [Token] -> ParserState (Tree, [Token])
