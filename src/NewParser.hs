@@ -263,15 +263,13 @@ parseNullStatement toks = return (NullExprNode, toks)
 
 parseDeclaration :: [Token] -> ParserState (Tree, [Token])
 parseDeclaration [] = throwError ImpossibleError
-parseDeclaration toks@(typ:id:rest) =
-        case id of
-             (TokOp Multiply)   -> parsePointerDec toks
-             (TokIdent varName) -> do
-                     varType        <- setType typ id
-                     toks'          <- verifyAndConsume typ toks
-                     (tree, toks'') <- parseOptAssign toks'
-                     return (DeclarationNode varName varType tree, toks'')
-             _ -> throwError $ SyntaxError (InvalidIdentifier id)
+parseDeclaration toks@(_:TokOp Multiply:_) = parsePointerDec toks
+parseDeclaration toks@(typ:TokIdent name:_) = do
+        varType        <- setType typ (TokIdent name)
+        toks'          <- verifyAndConsume typ toks
+        (tree, toks'') <- parseOptAssign toks'
+        return (DeclarationNode name varType tree, toks'')
+parseDeclaration (_:id:_) = throwError $ SyntaxError (InvalidIdentifier id)
 
 
 parsePointerDec :: [Token] -> ParserState (Tree, [Token])
