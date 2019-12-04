@@ -443,13 +443,6 @@ parseBinaryExp tree toks f ops = do
              _ -> return (tree, toks)
 
 
-updateParserState :: Tree -> ParserState ()
-updateParserState tree = do
-        ast      <- getState
-        treeList <- getTreeList ast
-        putState $ ProgramNode (tree:treeList)
-
-
 getTreeList :: Tree -> ParserState [Tree]
 getTreeList (ProgramNode treeList) = return treeList
 getTreeList _                      = throwError ImpossibleError
