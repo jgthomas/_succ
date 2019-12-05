@@ -137,7 +137,7 @@ parseStatement toks@(first:rest) =
              TokKeyword Return   -> parseReturnStmt rest
              TokKeyword If       -> parseIfStatement rest
              TokKeyword While    -> parseWhileStatement rest
-             TokKeyword Do       -> parseDoWhileStatement rest
+             TokKeyword Do       -> parseDoWhile rest
              TokKeyword For      -> parseForLoop rest
              TokKeyword Break    -> parseBreak rest
              TokKeyword Continue -> parseContinue rest
@@ -204,8 +204,8 @@ parseForLoopPostExp toks@(TokCloseParen:_) = nullExpr toks
 parseForLoopPostExp toks                   = parseExpression toks
 
 
-parseDoWhileStatement :: [Token] -> ParserState (Tree, [Token])
-parseDoWhileStatement toks@(TokOpenBrace:_) = do
+parseDoWhile :: [Token] -> ParserState (Tree, [Token])
+parseDoWhile toks@(TokOpenBrace:_) = do
         (stmts, toks') <- parseStatement toks
         case toks' of
              (TokKeyword While:TokOpenParen:rest) -> do
@@ -218,7 +218,7 @@ parseDoWhileStatement toks@(TokOpenBrace:_) = do
              (TokKeyword While:_:_) ->
                      throwError $ SyntaxError (MissingToken TokOpenParen)
              _ -> throwError $ ParserError (TokensError toks')
-parseDoWhileStatement _ = throwError $ SyntaxError (MissingToken TokOpenBrace)
+parseDoWhile _ = throwError $ SyntaxError (MissingToken TokOpenBrace)
 
 
 parseWhileStatement :: [Token] -> ParserState (Tree, [Token])
