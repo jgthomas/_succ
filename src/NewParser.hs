@@ -209,14 +209,15 @@ parseDoWhileStatement toks = do
         toks'           <- verifyAndConsume TokOpenBrace toks
         (stmts, toks'') <- parseStatement toks
         case toks'' of
-             (a:b:rest)
-                | a /= TokKeyword While -> throwError $ SyntaxError (MissingKeyword While)
-                | b /= TokOpenParen     -> throwError $ SyntaxError (MissingToken TokOpenParen)
-                | otherwise -> do
-                        (test, toks''') <- parseExpression rest
-                        toks''''        <- verifyAndConsume TokCloseParen toks'''
-                        toks'''''       <- verifyAndConsume TokSemiColon toks''''
-                        return (DoWhileNode stmts test, toks''''')
+             (TokKeyword While:TokOpenParen:rest) -> do
+                     (test, toks''') <- parseExpression rest
+                     toks''''        <- verifyAndConsume TokCloseParen toks'''
+                     toks'''''       <- verifyAndConsume TokSemiColon toks''''
+                     return (DoWhileNode stmts test, toks''''')
+             (_:TokOpenParen:_) ->
+                     throwError $ SyntaxError (MissingKeyword While)
+             (TokKeyword While:_:_) ->
+                     throwError $ SyntaxError (MissingToken TokOpenParen)
 
 
 parseWhileStatement :: [Token] -> ParserState (Tree, [Token])
