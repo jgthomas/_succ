@@ -205,15 +205,14 @@ parseForLoopPostExp toks                   = parseExpression toks
 
 
 parseDoWhileStatement :: [Token] -> ParserState (Tree, [Token])
-parseDoWhileStatement toks = do
-        toks'           <- verifyAndConsume TokOpenBrace toks
-        (stmts, toks'') <- parseStatement toks
-        case toks'' of
+parseDoWhileStatement toks@(TokOpenBrace:rest) = do
+        (stmts, toks') <- parseStatement toks
+        case toks' of
              (TokKeyword While:TokOpenParen:rest) -> do
-                     (test, toks''') <- parseExpression rest
-                     toks''''        <- verifyAndConsume TokCloseParen toks'''
-                     toks'''''       <- verifyAndConsume TokSemiColon toks''''
-                     return (DoWhileNode stmts test, toks''''')
+                     (test, toks'') <- parseExpression rest
+                     toks'''        <- verifyAndConsume TokCloseParen toks''
+                     toks''''       <- verifyAndConsume TokSemiColon toks'''
+                     return (DoWhileNode stmts test, toks'''')
              (_:TokOpenParen:_) ->
                      throwError $ SyntaxError (MissingKeyword While)
              (TokKeyword While:_:_) ->
