@@ -205,8 +205,7 @@ parseForLoopPostExp toks                   = parseExpression toks
 
 
 parseDoWhileStatement :: [Token] -> ParserState (Tree, [Token])
-parseDoWhileStatement [] = throwError ImpossibleError
-parseDoWhileStatement toks@(TokOpenBrace:rest) = do
+parseDoWhileStatement toks@(TokOpenBrace:_) = do
         (stmts, toks') <- parseStatement toks
         case toks' of
              (TokKeyword While:TokOpenParen:rest) -> do
@@ -219,7 +218,7 @@ parseDoWhileStatement toks@(TokOpenBrace:rest) = do
              (TokKeyword While:_:_) ->
                      throwError $ SyntaxError (MissingToken TokOpenParen)
              _ -> throwError $ ParserError (TokensError toks')
-parseDoWhileStatement toks = throwError $ ParserError (TokensError toks)
+parseDoWhileStatement _ = throwError $ SyntaxError (MissingToken TokOpenBrace)
 
 
 parseWhileStatement :: [Token] -> ParserState (Tree, [Token])
