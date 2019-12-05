@@ -13,6 +13,7 @@ import Tokens (Operator(..),
                Keyword(..),
                Token(..)
               )
+import AST    (Tree)
 
 data CompilerError = LexerError LexerError
                    | ParserError ParserError
@@ -28,6 +29,8 @@ data LexerError = BadInput String
 
 
 data ParserError = ParseError String
+                 | TreeError Tree
+                 | TokensError [Token]
                  | NoTokens
                  deriving (Show, Eq)
 
