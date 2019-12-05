@@ -184,18 +184,23 @@ parseCompoundStmt toks = do
 
 parseForLoop :: [Token] -> ParserState (Tree, [Token])
 parseForLoop toks = do
-        toks'              <- verifyAndConsume TokOpenParen toks
-        (init, toks'')     <- parseBlockItem toks'
-        (test, toks''')    <- parseExprStatement toks''
-        (change, toks'''') <- parseForLoopPostExp toks'''
-        if lookAhead toks'''' == TokSemiColon
+        toks'               <- verifyAndConsume TokOpenParen toks
+        (init, toks'')      <- parseBlockItem toks'
+        (test, toks''')     <- parseExprStatement toks''
+        (change, toks'''')  <- parsePostExp toks'''
+        toks'''''           <- verifyAndConsume TokCloseParen toks''''
+        (stmts, toks'''''') <- parseStatement toks'''''
+        if test == NullExprNode
+           then return (ForLoopNode init (ConstantNode 1) change stmts, toks'''''')
+           else return (ForLoopNode init test change stmts, toks'''''')
+
+
+parsePostExp :: [Token] -> ParserState (Tree, [Token])
+parsePostExp toks = do
+        (tree, toks') <- parseForLoopPostExp toks
+        if lookAhead toks' == TokSemiColon
            then throwError $ SyntaxError (UnexpectedToken TokSemiColon)
-           else do
-                   toks'''''           <- verifyAndConsume TokCloseParen toks''''
-                   (stmts, toks'''''') <- parseStatement toks'''''
-                   if test == NullExprNode
-                      then return (ForLoopNode init (ConstantNode 1) change stmts, toks'''''')
-                      else return (ForLoopNode init test change stmts, toks'''''')
+           else return (tree, toks')
 
 
 parseForLoopPostExp :: [Token] -> ParserState (Tree, [Token])
