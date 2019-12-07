@@ -289,11 +289,14 @@ parseOptAssign toks = do
 
 
 parseOptionalAssign :: [Token] -> ParserState (Maybe Tree, [Token])
-parseOptionalAssign toks@(id:equ:rest)
-        | isAssignment equ = do
+parseOptionalAssign toks@(_:TokOp op:rest)
+        | op `elem` assign = do
                 (tree, toks') <- parseExpression toks
                 return (Just tree, toks')
-        | otherwise = return (Nothing, equ:rest)
+        | otherwise = throwError $ SyntaxError (UnexpectedToken (TokOp op))
+parseOptionalAssign toks = do
+        toks' <- consumeTok toks
+        return (Nothing, toks')
 
 
 parseExpression :: [Token] -> ParserState (Tree, [Token])
@@ -459,21 +462,6 @@ getTreeList (ProgramNode treeList) = return treeList
 getTreeList _                      = throwError ImpossibleError
 
 
-isAssignment :: Token -> Bool
-isAssignment (TokOp op) = op `elem` assignmentToks
-isAssignment _          = False
-
-
-assignmentToks :: [Operator]
-assignmentToks = [Assign,
-                  PlusAssign,
-                  MinusAssign,
-                  MultiplyAssign,
-                  DivideAssign,
-                  ModuloAssign
-                 ]
-
-
 assign :: [Operator]
 assign = [Assign,
           PlusAssign,
@@ -505,7 +493,7 @@ nextTokIsNot t (a:_) = checkIsNotTok t a
 checkIsTok :: Token -> Token -> ParserState ()
 checkIsTok t a
         | t == a = return ()
-        | otherwise  = throwError $ SyntaxError (MissingToken t)
+        | otherwise = throwError $ SyntaxError (MissingToken t)
 
 
 checkIsNotTok :: Token -> Token -> ParserState ()
