@@ -483,12 +483,6 @@ consumeNToks n toks = do
         consumeNToks (n-1) toks'
 
 
-setType :: Token -> Token -> ParserState Type
-setType (TokKeyword Int) (TokOp Multiply) = return IntPointer
-setType (TokKeyword Int) _                = return IntVar
-setType a                b                = throwError $ TypeError (InvalidType a)
-
-
 parseType :: [Token] -> ParserState Type
 parseType (TokKeyword Int:TokOp Multiply:_) = return IntPointer
 parseType (TokKeyword Int:_)                = return IntVar
