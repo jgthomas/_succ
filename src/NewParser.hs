@@ -48,6 +48,7 @@ parseTopLevelItems toks@(TokKeyword typ:rest)
                 putState $ ProgramNode (item:items)
                 parseTopLevelItems toks'
         | otherwise = throwError $ TypeError (InvalidType (TokKeyword typ))
+parseTopLevelItems (a:_) = throwError $ TypeError (InvalidType a)
 
 
 parseTopLevelItem :: [Token] -> ParserState (Tree, [Token])
