@@ -97,12 +97,11 @@ parseParams paramList (TokComma:TokKeyword typ:rest)     = parseParams2 paramLis
 
 
 parseParams2 :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseParams2 paramList toks@(TokKeyword typ:rest) =
-        if validType typ
-           then do
-                   (tree, toks') <- parseParam toks
-                   parseParams (tree:paramList) toks'
-           else throwError $ TypeError (InvalidType (TokKeyword typ))
+parseParams2 paramList toks@(TokKeyword typ:rest)
+        | validType typ = do
+                (tree, toks') <- parseParam toks
+                parseParams (tree:paramList) toks'
+        | otherwise = throwError $ TypeError (InvalidType (TokKeyword typ))
 
 
 parseParam :: [Token] -> ParserState (Tree, [Token])
