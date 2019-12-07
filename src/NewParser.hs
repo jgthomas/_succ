@@ -115,7 +115,7 @@ parseParam toks = do
         (tree, toks'') <- parseParamValue toks'
         case tree of
              VarNode id -> return (ParamNode typ tree, toks'')
-             _          -> throwError $ ParserError (ParseError "Invalid parameter")
+             _ -> throwError $ ParserError (TreeError tree)
 
 
 parseParamValue :: [Token] -> ParserState (Tree, [Token])
