@@ -299,19 +299,23 @@ parseOptionalAssign toks@(id:equ:rest)
 parseExpression :: [Token] -> ParserState (Tree, [Token])
 parseExpression toks = do
         (tree, toks') <- parseTernaryExp toks
-        let next = lookAhead toks'
-        if isAssignment next
-           then do
-                   toks''             <- verifyAndConsume next toks'
-                   (subTree, toks''') <- parseExpression toks''
-                   opVal              <- opValue next
+        case toks' of
+             (TokOp op:_)
+                | op `elem` assign -> parseAssignExpression tree toks'
+                | otherwise ->
+                        throwError $ SyntaxError (UnexpectedToken (TokOp op))
+             _ -> return (tree, toks')
+
+
+parseAssignExpression :: Tree -> [Token] -> ParserState (Tree, [Token])
+parseAssignExpression tree (TokOp op:rest) = do
+                   (asgn, toks') <- parseExpression rest
                    case tree of
                      (VarNode id) ->
-                             return (AssignmentNode id subTree opVal, toks''')
+                             return (AssignmentNode id asgn op, toks')
                      (DereferenceNode id) ->
-                             return (AssignDereferenceNode id subTree opVal, toks''')
-                     _ -> throwError $ ParserError (ParseError "a")
-           else return (tree, toks')
+                             return (AssignDereferenceNode id asgn op, toks')
+                     _ -> throwError $ ParserError (TreeError tree)
 
 
 parseTernaryExp :: [Token] -> ParserState (Tree, [Token])
@@ -468,6 +472,16 @@ assignmentToks = [Assign,
                   DivideAssign,
                   ModuloAssign
                  ]
+
+
+assign :: [Operator]
+assign = [Assign,
+          PlusAssign,
+          MinusAssign,
+          MultiplyAssign,
+          DivideAssign,
+          ModuloAssign
+         ]
 
 
 verifyAndConsume :: Token -> [Token] -> ParserState [Token]
