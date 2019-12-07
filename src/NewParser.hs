@@ -71,21 +71,21 @@ parseDeclaration (_:id:_) = throwError $ SyntaxError (InvalidIdentifier id)
 parseFunction :: [Token] -> ParserState (Tree, [Token])
 parseFunction toks@(a:b:c:rest) = do
         typ             <- setType a b
-        name            <- parseFuncName b c
-        (params, toks') <- parseFuncParams b c rest
+        name            <- parseFuncName toks
+        (params, toks') <- parseFuncParams toks
         (items, toks'') <- parseFuncBlockItems [] toks'
         return (FunctionNode typ name params items, toks'')
 
 
-parseFuncName :: Token -> Token -> ParserState String
-parseFuncName _ (TokIdent name) = return name
-parseFuncName (TokIdent name) _ = return name
-parseFuncName _               _ = throwError $ SyntaxError MissingIdentifier
+parseFuncName :: [Token] -> ParserState String
+parseFuncName (_:TokIdent name:_)   = return name
+parseFuncName (_:_:TokIdent name:_) = return name
+parseFuncName toks = throwError $ SyntaxError MissingIdentifier
 
 
-parseFuncParams :: Token -> Token -> [Token] -> ParserState ([Tree], [Token])
-parseFuncParams (TokOp Multiply) (TokIdent name) toks = parseParams [] toks
-parseFuncParams (TokIdent name) tok toks              = parseParams [] (tok:toks)
+parseFuncParams :: [Token] -> ParserState ([Tree], [Token])
+parseFuncParams (_:TokOp Multiply:_:rest) = parseParams [] rest
+parseFuncParams (_:TokIdent name:rest)    = parseParams [] rest
 
 
 parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
