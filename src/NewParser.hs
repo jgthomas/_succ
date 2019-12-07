@@ -60,9 +60,9 @@ parseTopLevelItem toks                        = parseDeclaration toks
 parseDeclaration :: [Token] -> ParserState (Tree, [Token])
 parseDeclaration [] = throwError ImpossibleError
 parseDeclaration toks@(_:TokOp Multiply:_) = parsePointerDec toks
-parseDeclaration toks@(typ:TokIdent name:_) = do
-        varType        <- setType typ (TokIdent name)
-        toks'          <- verifyAndConsume typ toks
+parseDeclaration toks@(_:TokIdent name:_) = do
+        varType        <- parseType toks
+        toks'          <- consumeTok toks
         (tree, toks'') <- parseOptAssign toks'
         return (DeclarationNode name varType tree, toks'')
 parseDeclaration (_:id:_) = throwError $ SyntaxError (InvalidIdentifier id)
@@ -479,6 +479,12 @@ setType :: Token -> Token -> ParserState Type
 setType (TokKeyword Int) (TokOp Multiply) = return IntPointer
 setType (TokKeyword Int) _                = return IntVar
 setType a                b                = throwError $ TypeError (InvalidType a)
+
+
+parseType :: [Token] -> ParserState Type
+parseType (TokKeyword Int:TokOp Multiply:_) = return IntPointer
+parseType (TokKeyword Int:_)                = return IntVar
+parseType (a:_) = throwError $ TypeError (InvalidType a)
 
 
 nullExpr :: [Token] -> ParserState (Tree, [Token])
