@@ -106,8 +106,8 @@ parseParams2 paramList toks@(TokKeyword typ:_)
 
 
 parseParam :: [Token] -> ParserState (Tree, [Token])
-parseParam toks@(a:b:rest) = do
-        typ            <- setType a b
+parseParam toks = do
+        typ            <- parseType toks
         toks'          <- consumeTok toks
         (tree, toks'') <- parseParamValue toks'
         case tree of
