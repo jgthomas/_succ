@@ -91,10 +91,12 @@ parseFuncParams (_:TokIdent name:rest)    = parseParams [] rest
 parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
 parseParams ps (TokOpenParen:TokCloseParen:rest) = return (reverse ps, rest)
 parseParams ps (TokCloseParen:rest)              = return (reverse ps, rest)
-parseParams ps (TokComma:TokCloseParen:_)        =
+parseParams ps (TokComma:TokCloseParen:_) =
         throwError $ SyntaxError (UnexpectedToken TokComma)
-parseParams ps (TokOpenParen:rest)               = parseParams2 ps rest
-parseParams ps (TokComma:rest)                   = parseParams2 ps rest
+parseParams ps (TokOpenParen:rest) = parseParams2 ps rest
+parseParams ps (TokComma:rest)     = parseParams2 ps rest
+parseParams ps toks =
+        throwError $ SyntaxError (MissingToken TokComma)
 
 
 parseParams2 :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
