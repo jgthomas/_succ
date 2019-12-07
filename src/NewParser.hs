@@ -378,7 +378,7 @@ parseFactor toks@(next:rest) =
              (TokConstInt n) -> return (ConstantNode n, rest)
              (TokIdent id)   ->
                      if lookAhead rest == TokOpenParen
-                        then parseFunctionCall toks
+                        then parseFuncCall toks
                         else return (VarNode id, rest)
              (TokOp op)
                 | op == Ampersand -> parseAddressOf rest
@@ -403,13 +403,19 @@ parseDereference (TokIdent n:rest) = return (DereferenceNode n, rest)
 parseDereference (a:rest)          = throwError $ SyntaxError (InvalidIdentifier a)
 
 
-parseFunctionCall :: [Token] -> ParserState (Tree, [Token])
-parseFunctionCall (TokIdent id:TokOpenParen:rest) = do
-        (tree, toks') <- parseFunctionArgs [] (TokOpenParen:rest)
-        return (FuncCallNode id tree, toks')
-parseFunctionCall (TokIdent id:b:rest)  = throwError $ SyntaxError (MissingToken TokOpenParen)
-parseFunctionCall (a:TokOpenParen:rest) = throwError $ SyntaxError (InvalidIdentifier a)
-parseFunctionCall (a:b:rest)            = throwError $ SyntaxError (UnexpectedToken a)
+parseFuncCall :: [Token] -> ParserState (Tree, [Token])
+parseFuncCall toks@(TokIdent id:TokOpenParen:_) = do
+        toks'          <- consumeTok toks
+        (tree, toks'') <- parseFunctionArgs [] toks'
+        return (FuncCallNode id tree, toks'')
+parseFuncCall (TokIdent id:_:_) =
+        throwError $ SyntaxError (MissingToken TokOpenParen)
+parseFuncCall (a:TokOpenParen:_) =
+        throwError $ SyntaxError (InvalidIdentifier a)
+parseFuncCall (a:_:_) =
+        throwError $ SyntaxError (UnexpectedToken a)
+parseFuncCall toks =
+        throwError $ ParserError (TokensError toks)
 
 
 parseFunctionArgs :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
