@@ -409,7 +409,7 @@ parseDereference (a:rest)          = throwError $ SyntaxError (InvalidIdentifier
 parseFuncCall :: [Token] -> ParserState (Tree, [Token])
 parseFuncCall toks@(TokIdent id:TokOpenParen:_) = do
         toks'          <- consumeTok toks
-        (tree, toks'') <- parseFunctionArgs [] toks'
+        (tree, toks'') <- parseArgs [] toks'
         return (FuncCallNode id tree, toks'')
 parseFuncCall (TokIdent id:_:_) =
         throwError $ SyntaxError (MissingToken TokOpenParen)
@@ -421,21 +421,21 @@ parseFuncCall toks =
         throwError $ ParserError (TokensError toks)
 
 
-parseFunctionArgs :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseFunctionArgs argList (a:b:rest)
-        | a == TokCloseParen                  = return (reverse argList, b:rest)
-        | a /= TokOpenParen && a /= TokComma  = throwError $ SyntaxError (MissingToken TokComma)
-        | a == TokComma && b == TokCloseParen = throwError $ SyntaxError (UnexpectedToken b)
-        | otherwise = if b == TokCloseParen
-                         then return (reverse argList, rest)
-                         else do (tree, toks') <- parseArgument (b:rest)
-                                 parseFunctionArgs (tree:argList) toks'
+parseArgs :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseArgs as [] = throwError $ ParserError (TokensError [])
+parseArgs as (TokOpenParen:TokCloseParen:rest) = return (as, rest)
+parseArgs as (TokCloseParen:rest)              = return (reverse as, rest)
+parseArgs as (TokComma:TokCloseParen:_) =
+        throwError $ SyntaxError (UnexpectedToken TokComma)
+parseArgs as (TokOpenParen:rest) = parseArgs2 as rest
+parseArgs as (TokComma:rest)     = parseArgs2 as rest
+parseArgs as (a:_) = throwError $ SyntaxError (UnexpectedToken a)
 
 
-parseArgument :: [Token] -> ParserState (Tree, [Token])
-parseArgument toks = do
+parseArgs2 :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseArgs2 as toks = do
         (tree, toks') <- parseExpression toks
-        return (ArgNode tree, toks')
+        parseArgs (tree:as) toks'
 
 
 parseBinaryExp :: Tree
