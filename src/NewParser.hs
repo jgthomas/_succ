@@ -209,9 +209,8 @@ parseForLoop toks = do
 parsePostExp :: [Token] -> ParserState (Tree, [Token])
 parsePostExp toks = do
         (tree, toks') <- parseForLoopPostExp toks
-        if lookAhead toks' == TokSemiColon
-           then throwError $ SyntaxError (UnexpectedToken TokSemiColon)
-           else return (tree, toks')
+        verifyNotTok TokSemiColon toks'
+        return (tree, toks')
 
 
 parseForLoopPostExp :: [Token] -> ParserState (Tree, [Token])
@@ -472,14 +471,26 @@ verifyAndConsume t toks = do
 
 verifyTok :: Token -> [Token] -> ParserState ()
 verifyTok t []    = throwError $ SyntaxError (MissingToken t)
-verifyTok t [a]   = verify t a
-verifyTok t (a:_) = verify t a
+verifyTok t [a]   = checkIsTok t a
+verifyTok t (a:_) = checkIsTok t a
 
 
-verify :: Token -> Token -> ParserState ()
-verify t1 t2
-        | t1 == t2  = return ()
-        | otherwise = throwError $ SyntaxError (MissingToken t1)
+verifyNotTok :: Token -> [Token] -> ParserState ()
+verifyNotTok t []    = throwError $ ParserError (TokensError [])
+verifyNotTok t [a]   = checkIsNotTok t a
+verifyNotTok t (a:_) = checkIsNotTok t a
+
+
+checkIsTok :: Token -> Token -> ParserState ()
+checkIsTok t a
+        | t == a = return ()
+        | otherwise  = throwError $ SyntaxError (MissingToken t)
+
+
+checkIsNotTok :: Token -> Token -> ParserState ()
+checkIsNotTok t a
+        | t /= a    = return ()
+        | otherwise = throwError $ SyntaxError (UnexpectedToken a)
 
 
 consumeTok :: [Token] -> ParserState [Token]
