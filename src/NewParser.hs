@@ -442,14 +442,12 @@ parseBinaryExp :: Tree
                -> ([Token] -> ParserState (Tree, [Token]))
                -> [Operator]
                -> ParserState (Tree, [Token])
-parseBinaryExp tree toks f ops = do
-        let next = lookAhead toks
-        case next of
-             TokOp op | op `elem` ops -> do
-                     toks'           <- verifyAndConsume next toks
-                     (ntree, toks'') <- f toks'
-                     parseBinaryExp (BinaryNode tree ntree op) toks'' f ops
-             _ -> return (tree, toks)
+parseBinaryExp tree toks@(TokOp op:rest) f ops
+        | op `elem` ops = do
+                (ntree, toks'') <- f rest
+                parseBinaryExp (BinaryNode tree ntree op) toks'' f ops
+        | otherwise = return (tree, toks)
+parseBinaryExp tree toks _ _ = return (tree, toks)
 
 
 getTreeList :: Tree -> ParserState [Tree]
