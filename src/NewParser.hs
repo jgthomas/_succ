@@ -107,9 +107,9 @@ parseParams2 paramList toks@(TokKeyword typ:_)
 
 parseParam :: [Token] -> ParserState (Tree, [Token])
 parseParam toks@(a:b:rest) = do
-        toks'          <- verifyAndConsume a toks
-        (tree, toks'') <- parseParamValue toks'
         typ            <- setType a b
+        toks'          <- consumeTok toks
+        (tree, toks'') <- parseParamValue toks'
         case tree of
              VarNode id -> return (ParamNode typ tree, toks'')
              _          -> throwError $ ParserError (ParseError "Invalid parameter")
@@ -468,6 +468,11 @@ verifyAndConsume t [] = throwError $ SyntaxError (MissingToken t)
 verifyAndConsume t (a:rest)
         | t == a    = return rest
         | otherwise = throwError $ SyntaxError (MissingToken t)
+
+
+consumeTok :: [Token] -> ParserState [Token]
+consumeTok [] = throwError $ ParserError (TokensError [])
+consumeTok (tok:toks) = return toks
 
 
 setType :: Token -> Token -> ParserState Type
