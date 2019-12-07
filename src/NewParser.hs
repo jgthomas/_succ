@@ -465,10 +465,21 @@ assignmentToks = [Assign,
 
 
 verifyAndConsume :: Token -> [Token] -> ParserState [Token]
-verifyAndConsume t [] = throwError $ SyntaxError (MissingToken t)
-verifyAndConsume t (a:rest)
-        | t == a    = return rest
-        | otherwise = throwError $ SyntaxError (MissingToken t)
+verifyAndConsume t toks = do
+        verifyTok t toks
+        consumeTok toks
+
+
+verifyTok :: Token -> [Token] -> ParserState ()
+verifyTok t []    = throwError $ SyntaxError (MissingToken t)
+verifyTok t [a]   = verify t a
+verifyTok t (a:_) = verify t a
+
+
+verify :: Token -> Token -> ParserState ()
+verify t1 t2
+        | t1 == t2  = return ()
+        | otherwise = throwError $ SyntaxError (MissingToken t1)
 
 
 consumeTok :: [Token] -> ParserState [Token]
