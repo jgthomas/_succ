@@ -472,8 +472,9 @@ verifyAndConsume t (a:rest)
 
 
 consumeTok :: [Token] -> ParserState [Token]
-consumeTok [] = throwError $ ParserError (TokensError [])
-consumeTok (tok:toks) = return toks
+consumeTok []       = throwError $ ParserError (TokensError [])
+consumeTok [_]      = return []
+consumeTok (_:toks) = return toks
 
 
 consumeNToks :: Int -> [Token] -> ParserState [Token]
