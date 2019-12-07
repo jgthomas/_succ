@@ -89,6 +89,7 @@ parseFuncParams (_:TokIdent name:rest)    = parseParams [] rest
 
 
 parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseParams ps [] = throwError $ ParserError (TokensError [])
 parseParams ps (TokOpenParen:TokCloseParen:rest) = return (reverse ps, rest)
 parseParams ps (TokCloseParen:rest)              = return (reverse ps, rest)
 parseParams ps (TokComma:TokCloseParen:_) =
