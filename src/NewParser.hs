@@ -170,15 +170,13 @@ parseExprStatement toks = do
 
 
 parseBreak :: [Token] -> ParserState (Tree, [Token])
-parseBreak toks = do
-        toks' <- verifyAndConsume TokSemiColon toks
-        return (BreakNode, toks')
+parseBreak (TokSemiColon:rest) = return (BreakNode, rest)
+parseBreak toks = throwError $ SyntaxError (MissingToken TokSemiColon)
 
 
 parseContinue :: [Token] -> ParserState (Tree, [Token])
-parseContinue toks = do
-        toks' <- verifyAndConsume TokSemiColon toks
-        return (ContinueNode, toks')
+parseContinue (TokSemiColon:rest) = return (ContinueNode, rest)
+parseContinue toks = throwError $ SyntaxError (MissingToken TokSemiColon)
 
 
 parseCompoundStmt :: [Token] -> ParserState (Tree, [Token])
@@ -390,12 +388,12 @@ parseFactor toks@(next:rest) =
 
 parseAddressOf :: [Token] -> ParserState (Tree, [Token])
 parseAddressOf (TokIdent n:rest) = return (AddressOfNode n, rest)
-parseAddressOf (a:rest)          = throwError $ SyntaxError (InvalidIdentifier a)
+parseAddressOf (a:_) = throwError $ SyntaxError (InvalidIdentifier a)
 
 
 parseDereference :: [Token] -> ParserState (Tree, [Token])
 parseDereference (TokIdent n:rest) = return (DereferenceNode n, rest)
-parseDereference (a:rest)          = throwError $ SyntaxError (InvalidIdentifier a)
+parseDereference (a:_) = throwError $ SyntaxError (InvalidIdentifier a)
 
 
 parseFuncCall :: [Token] -> ParserState (Tree, [Token])
