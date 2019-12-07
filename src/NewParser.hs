@@ -280,10 +280,11 @@ parseNullStatement toks = return (NullExprNode, toks)
 
 
 parsePointerDec :: [Token] -> ParserState (Tree, [Token])
-parsePointerDec toks@(a:b:TokIdent name:rest) = do
-        (tree, toks') <- parseOptAssign (TokIdent name:rest)
-        typ           <- setType a b
-        return (PointerNode name typ tree, toks')
+parsePointerDec toks@(_:_:TokIdent name:_) = do
+        typ            <- parseType toks
+        toks'          <- consumeNToks 2 toks
+        (tree, toks'') <- parseOptAssign toks'
+        return (PointerNode name typ tree, toks'')
 parsePointerDec (_:_:c:_) = throwError $ SyntaxError (InvalidIdentifier c)
 
 
@@ -473,6 +474,13 @@ verifyAndConsume t (a:rest)
 consumeTok :: [Token] -> ParserState [Token]
 consumeTok [] = throwError $ ParserError (TokensError [])
 consumeTok (tok:toks) = return toks
+
+
+consumeNToks :: Int -> [Token] -> ParserState [Token]
+consumeNToks 0 toks = return toks
+consumeNToks n toks = do
+        toks' <- consumeTok toks
+        consumeNToks (n-1) toks'
 
 
 setType :: Token -> Token -> ParserState Type
