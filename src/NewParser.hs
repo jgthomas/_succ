@@ -89,22 +89,14 @@ parseFuncParams (_:TokIdent name:rest)    = parseParams [] rest
 
 
 parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseParams ps [] = throwError $ ParserError (TokensError [])
-parseParams ps (TokOpenParen:TokCloseParen:rest) = return (ps, rest)
-parseParams ps (TokCloseParen:rest)              = return (reverse ps, rest)
-parseParams ps (TokComma:TokCloseParen:_) =
-        throwError $ SyntaxError (UnexpectedToken TokComma)
-parseParams ps (TokOpenParen:rest) = parseParams2 ps rest
-parseParams ps (TokComma:rest)     = parseParams2 ps rest
-parseParams ps (a:_) =
-        throwError $ SyntaxError (UnexpectedToken a)
+parseParams prms toks = parsePassIn prms toks parseTheParams
 
 
-parseParams2 :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseParams2 paramList toks@(TokKeyword typ:_)
+parseTheParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseTheParams prms toks@(TokKeyword typ:_)
         | validType typ = do
                 (tree, toks') <- parseParam toks
-                parseParams (tree:paramList) toks'
+                parseParams (tree:prms) toks'
         | otherwise = throwError $ TypeError (InvalidType (TokKeyword typ))
 
 
@@ -422,20 +414,27 @@ parseFuncCall toks =
 
 
 parseArgs :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseArgs as [] = throwError $ ParserError (TokensError [])
-parseArgs as (TokOpenParen:TokCloseParen:rest) = return (as, rest)
-parseArgs as (TokCloseParen:rest)              = return (reverse as, rest)
-parseArgs as (TokComma:TokCloseParen:_) =
-        throwError $ SyntaxError (UnexpectedToken TokComma)
-parseArgs as (TokOpenParen:rest) = parseArgs2 as rest
-parseArgs as (TokComma:rest)     = parseArgs2 as rest
-parseArgs as (a:_) = throwError $ SyntaxError (UnexpectedToken a)
+parseArgs args toks = parsePassIn args toks parseTheArgs
 
 
-parseArgs2 :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseArgs2 as toks = do
+parseTheArgs :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseTheArgs as toks = do
         (tree, toks') <- parseExpression toks
         parseArgs (tree:as) toks'
+
+
+parsePassIn :: [Tree]
+            -> [Token]
+            -> ([Tree] -> [Token] -> ParserState ([Tree], [Token]))
+            -> ParserState ([Tree], [Token])
+parsePassIn xs [] _ = throwError $ ParserError (TokensError [])
+parsePassIn xs (TokOpenParen:TokCloseParen:rest) _ = return (xs, rest)
+parsePassIn xs (TokCloseParen:rest) _              = return (reverse xs, rest)
+parsePassIn xs (TokComma:TokCloseParen:_) _ =
+        throwError $ SyntaxError (UnexpectedToken TokComma)
+parsePassIn xs (TokOpenParen:rest) f = f xs rest
+parsePassIn xs (TokComma:rest) f     = f xs rest
+parsePassIn xs (a:_) _ = throwError $ SyntaxError (UnexpectedToken a)
 
 
 parseBinaryExp :: Tree
