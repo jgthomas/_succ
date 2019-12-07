@@ -442,6 +442,8 @@ parseBinaryExp :: Tree
                -> ([Token] -> ParserState (Tree, [Token]))
                -> [Operator]
                -> ParserState (Tree, [Token])
+parseBinaryExp _ [] _ _ = throwError $ ParserError (TokensError [])
+parseBinaryExp _ _ _ [] = throwError ImpossibleError
 parseBinaryExp tree toks@(TokOp op:rest) f ops
         | op `elem` ops = do
                 (ntree, toks'') <- f rest
