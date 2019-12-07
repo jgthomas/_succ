@@ -78,9 +78,9 @@ parseFunction toks@(a:b:c:rest) = do
 
 
 parseFuncName :: Token -> Token -> ParserState String
-parseFuncName (TokOp Multiply) (TokIdent name) = return name
-parseFuncName (TokIdent name)  _               = return name
-parseFuncName _                _               = throwError $ SyntaxError MissingIdentifier
+parseFuncName _ (TokIdent name) = return name
+parseFuncName (TokIdent name) _ = return name
+parseFuncName _               _ = throwError $ SyntaxError MissingIdentifier
 
 
 parseFuncParams :: Token -> Token -> [Token] -> ParserState ([Tree], [Token])
