@@ -136,10 +136,10 @@ parseBlock stmts toks = do
 
 
 parseBlockItem :: [Token] -> ParserState (Tree, [Token])
-parseBlockItem toks@(a:rest) =
-        case a of
-             (TokKeyword kwd) | validType kwd -> parseDeclaration toks
-             _                                -> parseStatement toks
+parseBlockItem toks@(TokKeyword kwd:_)
+        | validType kwd = parseDeclaration toks
+        | otherwise     = parseStatement toks
+parseBlockItem toks = parseStatement toks
 
 
 parseStatement :: [Token] -> ParserState (Tree, [Token])
