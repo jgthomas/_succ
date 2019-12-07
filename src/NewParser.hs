@@ -89,15 +89,16 @@ parseFuncParams (TokIdent name) tok toks              = parseParams [] (tok:toks
 
 
 parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseParams paramList (TokOpenParen:TokCloseParen:rest)  = return (reverse paramList, rest)
-parseParams paramList (TokCloseParen:rest)               = return (reverse paramList, rest)
-parseParams paramList (TokComma:TokCloseParen:rest)      = throwError $ SyntaxError (UnexpectedToken TokComma)
-parseParams paramList (TokOpenParen:TokKeyword typ:rest) = parseParams2 paramList (TokKeyword typ:rest)
-parseParams paramList (TokComma:TokKeyword typ:rest)     = parseParams2 paramList (TokKeyword typ:rest)
+parseParams ps (TokOpenParen:TokCloseParen:rest) = return (reverse ps, rest)
+parseParams ps (TokCloseParen:rest)              = return (reverse ps, rest)
+parseParams ps (TokComma:TokCloseParen:_)        =
+        throwError $ SyntaxError (UnexpectedToken TokComma)
+parseParams ps (TokOpenParen:rest)               = parseParams2 ps rest
+parseParams ps (TokComma:rest)                   = parseParams2 ps rest
 
 
 parseParams2 :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseParams2 paramList toks@(TokKeyword typ:rest)
+parseParams2 paramList toks@(TokKeyword typ:_)
         | validType typ = do
                 (tree, toks') <- parseParam toks
                 parseParams (tree:paramList) toks'
