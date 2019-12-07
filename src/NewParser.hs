@@ -69,8 +69,8 @@ parseDeclaration (_:id:_) = throwError $ SyntaxError (InvalidIdentifier id)
 
 
 parseFunction :: [Token] -> ParserState (Tree, [Token])
-parseFunction toks@(a:b:c:rest) = do
-        typ             <- setType a b
+parseFunction toks = do
+        typ             <- parseType toks
         name            <- parseFuncName toks
         (params, toks') <- parseFuncParams toks
         (items, toks'') <- parseFuncBlockItems [] toks'
