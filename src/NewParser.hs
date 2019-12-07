@@ -52,9 +52,20 @@ parseTopLevelItems toks@(TokKeyword typ:rest)
 
 parseTopLevelItem :: [Token] -> ParserState (Tree, [Token])
 parseTopLevelItem [] = throwError ImpossibleError
-parseTopLevelItem toks
-        | isFunction toks = parseFunction toks
-        | otherwise       = parseDeclaration toks
+parseTopLevelItem toks@(_:_:_:TokOpenParen:_) = parseFunction toks
+parseTopLevelItem toks@(_:_:TokOpenParen:_)   = parseFunction toks
+parseTopLevelItem toks                        = parseDeclaration toks
+
+
+parseDeclaration :: [Token] -> ParserState (Tree, [Token])
+parseDeclaration [] = throwError ImpossibleError
+parseDeclaration toks@(_:TokOp Multiply:_) = parsePointerDec toks
+parseDeclaration toks@(typ:TokIdent name:_) = do
+        varType        <- setType typ (TokIdent name)
+        toks'          <- verifyAndConsume typ toks
+        (tree, toks'') <- parseOptAssign toks'
+        return (DeclarationNode name varType tree, toks'')
+parseDeclaration (_:id:_) = throwError $ SyntaxError (InvalidIdentifier id)
 
 
 parseFunction :: [Token] -> ParserState (Tree, [Token])
@@ -268,17 +279,6 @@ parseNullStatement :: [Token] -> ParserState (Tree, [Token])
 parseNullStatement toks = return (NullExprNode, toks)
 
 
-parseDeclaration :: [Token] -> ParserState (Tree, [Token])
-parseDeclaration [] = throwError ImpossibleError
-parseDeclaration toks@(_:TokOp Multiply:_) = parsePointerDec toks
-parseDeclaration toks@(typ:TokIdent name:_) = do
-        varType        <- setType typ (TokIdent name)
-        toks'          <- verifyAndConsume typ toks
-        (tree, toks'') <- parseOptAssign toks'
-        return (DeclarationNode name varType tree, toks'')
-parseDeclaration (_:id:_) = throwError $ SyntaxError (InvalidIdentifier id)
-
-
 parsePointerDec :: [Token] -> ParserState (Tree, [Token])
 parsePointerDec toks@(a:b:TokIdent name:rest) = do
         (tree, toks') <- parseOptAssign (TokIdent name:rest)
@@ -446,20 +446,6 @@ parseBinaryExp tree toks f ops = do
 getTreeList :: Tree -> ParserState [Tree]
 getTreeList (ProgramNode treeList) = return treeList
 getTreeList _                      = throwError ImpossibleError
-
-
-isFunction :: [Token] -> Bool
-isFunction []                  = False
-isFunction [_]                 = False
-isFunction [_, _]              = False
-isFunction [_, _, _]           = False
-isFunction toks@(a:b:c:d:rest) = isFuncStart a b c d
-
-
-isFuncStart :: Token -> Token -> Token -> Token -> Bool
-isFuncStart (TokKeyword Int) (TokOp Multiply) (TokIdent id) TokOpenParen = True
-isFuncStart (TokKeyword Int) (TokIdent id)    TokOpenParen  _            = True
-isFuncStart _                _                _             _            = False
 
 
 isAssignment :: Token -> Bool
