@@ -525,11 +525,6 @@ nullExpr :: [Token] -> ParserState (Tree, [Token])
 nullExpr toks = return (NullExprNode, toks)
 
 
-opValue :: Token -> ParserState Operator
-opValue (TokOp v) = return v
-opValue t         = error $ show t
-
-
 validType :: Keyword -> Bool
 validType kwd = kwd == Int
 
