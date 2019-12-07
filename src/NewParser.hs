@@ -209,7 +209,7 @@ parseForLoop toks = do
 parsePostExp :: [Token] -> ParserState (Tree, [Token])
 parsePostExp toks = do
         (tree, toks') <- parseForLoopPostExp toks
-        verifyNotTok TokSemiColon toks'
+        nextTokIsNot TokSemiColon toks'
         return (tree, toks')
 
 
@@ -465,20 +465,20 @@ assignmentToks = [Assign,
 
 verifyAndConsume :: Token -> [Token] -> ParserState [Token]
 verifyAndConsume t toks = do
-        verifyTok t toks
+        nextTokIs t toks
         consumeTok toks
 
 
-verifyTok :: Token -> [Token] -> ParserState ()
-verifyTok t []    = throwError $ SyntaxError (MissingToken t)
-verifyTok t [a]   = checkIsTok t a
-verifyTok t (a:_) = checkIsTok t a
+nextTokIs :: Token -> [Token] -> ParserState ()
+nextTokIs t []    = throwError $ SyntaxError (MissingToken t)
+nextTokIs t [a]   = checkIsTok t a
+nextTokIs t (a:_) = checkIsTok t a
 
 
-verifyNotTok :: Token -> [Token] -> ParserState ()
-verifyNotTok t []    = throwError $ ParserError (TokensError [])
-verifyNotTok t [a]   = checkIsNotTok t a
-verifyNotTok t (a:_) = checkIsNotTok t a
+nextTokIsNot :: Token -> [Token] -> ParserState ()
+nextTokIsNot t []    = throwError $ ParserError (TokensError [])
+nextTokIsNot t [a]   = checkIsNotTok t a
+nextTokIsNot t (a:_) = checkIsNotTok t a
 
 
 checkIsTok :: Token -> Token -> ParserState ()
