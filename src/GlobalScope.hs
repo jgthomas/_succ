@@ -97,12 +97,12 @@ defineGlobal name = do
 getUndefined :: Evaluator [String]
 getUndefined = do
         gscope <- getGlobalScope
-        let definedSet  = definedVars gscope
-            declaredSet = M.keysSet $ declaredVars gscope
-            undefined   = S.difference declaredSet definedSet
+        let definedSet   = definedVars gscope
+            declaredSet  = M.keysSet $ declaredVars gscope
+            undefinedSet = S.difference declaredSet definedSet
         map globLabel
             . M.elems
-            . M.filterWithKey (\k _ -> k `elem` undefined)
+            . M.filterWithKey (\k _ -> k `elem` undefinedSet)
             . declaredVars
             <$> getGlobalScope
 
@@ -140,7 +140,7 @@ newGlobalVar label typ = GloVar label typ
 
 extract :: (GlobalVar -> a) -> Maybe GlobalVar -> Maybe a
 extract f (Just gv) = Just . f $ gv
-extract f Nothing   = Nothing
+extract _ Nothing   = Nothing
 
 
 addGlobal :: String -> GlobalVar -> GlobalScope -> GlobalScope
