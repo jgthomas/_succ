@@ -45,11 +45,11 @@ globalDeclaration name newTyp = do
 
 assignment :: String -> Tree -> Evaluator ()
 assignment name value = do
-        varType <- getType (VarNode name)
+        varTyp  <- getType (VarNode name)
         valType <- getType value
-        if valType `elem` permitted varType
+        if valType `elem` permitted varTyp
            then return ()
-           else error $ typeError (Assignment name varType valType)
+           else error $ typeError (Assignment name varTyp valType)
 
 
 funcReturn :: Tree -> Evaluator ()
@@ -78,17 +78,18 @@ checkTypes oldTypes newTypes errorType =
 
 
 getType :: Tree -> Evaluator Type
-getType (ArgNode tree)                = getType tree
-getType (ParamNode typ tree)          = return typ
-getType (VarNode name)                = getVariableType name
-getType (AddressOfNode name)          = addressOfType name
-getType (TernaryNode l m r)           = getTernaryType l m r
-getType (BinaryNode l r op)           = getBinaryType l r op
-getType (UnaryNode tree op)           = getType tree
-getType (ConstantNode const)          = return IntVar
-getType (FuncCallNode name args)      = getFuncType name
-getType (AssignmentNode name tree op) = getType tree
-getType (DereferenceNode name)        = dereferenceType name
+getType (ArgNode tree)            = getType tree
+getType (ParamNode typ _)         = return typ
+getType (VarNode name)            = getVariableType name
+getType (AddressOfNode name)      = addressOfType name
+getType (TernaryNode l m r)       = getTernaryType l m r
+getType (BinaryNode l r op)       = getBinaryType l r op
+getType (UnaryNode tree _)        = getType tree
+getType (ConstantNode _)          = return IntVar
+getType (FuncCallNode name _)     = getFuncType name
+getType (AssignmentNode _ tree _) = getType tree
+getType (DereferenceNode name)    = dereferenceType name
+getType _                         = undefined
 
 
 getVariableType :: String -> Evaluator Type
@@ -117,8 +118,8 @@ varType Nothing Nothing Nothing = Nothing
 
 
 extractType :: String -> Maybe Type -> Evaluator Type
-extractType name (Just typ) = return typ
-extractType name Nothing    = error $ typeError (NoType name)
+extractType _ (Just typ) = return typ
+extractType name Nothing = error $ typeError (NoType name)
 
 
 getBinaryType :: Tree -> Tree -> Operator -> Evaluator Type
@@ -130,6 +131,7 @@ getBinaryType left right op = do
 
 binType :: Type -> Type -> Operator -> Type
 binType IntVar IntVar _ = IntVar
+binType _ _ _ = undefined
 
 
 getTernaryType :: Tree -> Tree -> Tree -> Evaluator Type
@@ -142,6 +144,7 @@ getTernaryType left mid right = do
 
 ternaryType :: Type -> Type -> Type -> Type
 ternaryType IntVar IntVar IntVar = IntVar
+ternaryType _ _ _ = undefined
 
 
 permitted :: Type -> [Type]
@@ -164,6 +167,7 @@ addressOfType name = do
 
 addType :: Type -> Evaluator Type
 addType IntVar = return IntPointer
+addType _ = undefined
 
 
 dereferenceType :: String -> Evaluator Type
@@ -174,6 +178,7 @@ dereferenceType name = do
 
 derefType :: Type -> Evaluator Type
 derefType IntPointer = return IntVar
+derefType _ = undefined
 
 
 data TypeError = NoType String

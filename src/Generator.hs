@@ -1,4 +1,5 @@
 
+
 module Generator (genASM) where
 
 import Data.Maybe    (isNothing)
@@ -214,10 +215,10 @@ genASM (ReturnNode tree) = do
         rtn <- genASM tree
         return $ rtn ++ ASM.returnStatement
 
-genASM (TernaryNode cond pass fail) = do
+genASM (TernaryNode cond pass fails) = do
         testVal    <- genASM cond
         passAction <- genASM pass
-        failAction <- genASM fail
+        failAction <- genASM fails
         failLabel  <- SymTab.labelNum
         passLabel  <- SymTab.labelNum
         return $ testVal
@@ -278,7 +279,7 @@ declareGlobal name typ toAssign = do
         checkIfFunction name
         currLabel <- SymTab.globalLabel name
         case currLabel of
-             Just lab -> do
+             Just _ -> do
                      TypeCheck.globalDeclaration name typ
                      genAssignment toAssign
              Nothing  -> do
@@ -293,7 +294,7 @@ checkIfFunction name = do
         paramNum <- SymTab.decParamCount name
         case paramNum of
              Nothing -> return ()
-             Just n  -> error $ "already declared as function: " ++ name
+             Just _  -> error $ "already declared as function: " ++ name
 
 
 genAssignment :: Maybe Tree -> Evaluator String
@@ -317,10 +318,11 @@ defineGlobal name valNode = do
                      SymTab.defineGlobal name
                      value <- genASM valNode
                      case valNode of
-                          (ConstantNode n)  -> return $ globalVarASM lab value
-                          (AddressOfNode a) -> do
+                          (ConstantNode _)  -> return $ globalVarASM lab value
+                          (AddressOfNode _) -> do
                                   SymTab.storeForInit $ value ++ ASM.varAddressStoreGlobal lab
                                   return $ ASM.uninitializedGlobal lab
+                          _ -> undefined
 
 
 checkIfDefined :: String -> Evaluator ()
@@ -331,10 +333,10 @@ checkIfDefined name = do
 
 
 globalVarASM :: String -> String -> String
-globalVarASM lab const =
-        if read const == 0
+globalVarASM lab con =
+        if con == "0"
            then ASM.uninitializedGlobal lab
-           else ASM.initializedGlobal lab const
+           else ASM.initializedGlobal lab con
 
 
 -- Functions / function calls
@@ -363,7 +365,7 @@ checkIfVariable name = do
         label <- SymTab.globalLabel name
         case label of
              Nothing -> return ()
-             Just l  -> error $ "already defined as variable: " ++ name
+             Just _  -> error $ "already defined as variable: " ++ name
 
 
 checkCountsMatch :: Int -> String -> [Tree] -> Evaluator ()
@@ -373,7 +375,7 @@ checkCountsMatch count name paramList =
 
 
 checkArguments :: Maybe Int -> String -> [Tree] -> Evaluator ()
-checkArguments Nothing name argList  = error $ "called function not declared: " ++ name
+checkArguments Nothing name _        = error $ "called function not declared: " ++ name
 checkArguments (Just n) name argList = checkCountsMatch n name argList
 
 
@@ -388,8 +390,8 @@ hasReturn :: [Tree] -> Bool
 hasReturn items
         | null items = False
         | otherwise  = case last items of
-                            ReturnNode val -> True
-                            _              -> False
+                            ReturnNode _ -> True
+                            _            -> False
 
 
 processArgs :: [Tree] -> Int -> [String] -> Evaluator String
@@ -408,8 +410,9 @@ processArg argPos arg = do
 
 
 validSequence :: Maybe Int -> Maybe Int -> Bool
-validSequence Nothing (Just caller) = error "callee undefined"
-validSequence (Just callee) Nothing = error "caller undefined"
+validSequence Nothing (Just _) = error "callee undefined"
+validSequence (Just _) Nothing = error "caller undefined"
+validSequence Nothing Nothing  = error "callee and caller undefined"
 validSequence (Just callee) (Just caller)
         | callee <= caller = True
         | otherwise        = False
@@ -447,22 +450,26 @@ storeAtDereferenced :: Maybe Int -> Maybe Int -> Maybe String -> String
 storeAtDereferenced (Just off) _ _ = ASM.derefStoreLocal off
 storeAtDereferenced _ (Just pos) _ = ASM.derefStoreParam pos
 storeAtDereferenced _ _ (Just lab) = ASM.derefStoreGlobal lab
+storeAtDereferenced _ _ _ = error "variable unrecognised"
 
 
 loadDereferenced :: Maybe Int -> Maybe Int -> Maybe String -> String
 loadDereferenced (Just off) _ _ = ASM.derefLoadLocal off
 loadDereferenced _ (Just pos) _ = ASM.derefLoadParam pos
 loadDereferenced _ _ (Just lab) = ASM.derefLoadGlobal lab
+loadDereferenced _ _ _ = error "variable unrecognised"
 
 
 loadAddressOf :: Maybe Int -> Maybe String -> String
 loadAddressOf (Just off) _ = ASM.varAddressLoad off
 loadAddressOf _ (Just lab) = ASM.varAddressLoadGlobal lab
+loadAddressOf _ _ = error "address unrecognised"
 
 
 storeAddressOf :: Maybe Int -> Maybe String -> String
 storeAddressOf (Just off) _ = ASM.varAddressStore off
-storeAddressOf _ (Just lab) = ASM.noOutput
+storeAddressOf _ (Just _)   = ASM.noOutput
+storeAddressOf _ _ = error "address unrecognised"
 
 
 assignToVariable :: Maybe Int -> Maybe String -> Evaluator String
@@ -470,6 +477,7 @@ assignToVariable (Just off) _ = do
         adjustment <- SymTab.stackPointerValue
         return $ ASM.varOnStack off ++ ASM.adjustStackPointer adjustment
 assignToVariable _ (Just lab) = return $ ASM.storeGlobal lab
+assignToVariable _ _ = error "address unrecognised"
 
 
 checkIfUsedInScope :: String -> Evaluator ()

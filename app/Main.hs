@@ -36,9 +36,8 @@ main = do
 
         asm `deepseq` writeFile outfileName asm
 
-        system $ "gcc -g " ++ outfileName
-                  ++ " -o " ++ dropExtension outfileName
-        system $ "rm " ++ outfileName
+        _ <- system $ "gcc -g " ++ outfileName ++ " -o " ++ dropExtension outfileName
+        _ <- system $ "rm " ++ outfileName
         hClose handle
 
 
@@ -66,6 +65,6 @@ generateASM :: Tree -> IO String
 generateASM ast = do
         let symTab = newSymTab
             Ev act = genASM ast
-            (asm, symTab') = act symTab
+            (asm, _) = act symTab
         --print symTab' -- uncomment to debug
         return asm
