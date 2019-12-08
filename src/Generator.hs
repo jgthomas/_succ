@@ -42,12 +42,10 @@ genASM (FunctionNode typ name paramList (Just stmts)) = do
                          ++ ASM.returnStatement
 
 
-genASM (ParamNode typ param) =
-       case param of
-            VarNode name -> do
-                    SymTab.addParameter name typ
-                    return ASM.noOutput
-            _ -> error $ "Invalid parameter: " ++ show param
+genASM (ParamNode typ (VarNode name)) = do
+        SymTab.addParameter name typ
+        return ASM.noOutput
+genASM (ParamNode _ param) = error $ "Invalid parameter: " ++ show param
 
 genASM (FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name

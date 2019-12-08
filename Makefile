@@ -1,6 +1,8 @@
 
 .PHONY: test lint
 
+all: build test lint
+
 build:
 	stack build --pedantic
 
