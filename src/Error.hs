@@ -9,10 +9,8 @@ module Error
         ) where
 
 
-import Tokens (Operator,
-               Keyword,
-               Token
-              )
+import Tokens (Keyword,
+               Token)
 import AST    (Tree)
 
 data CompilerError = LexerError LexerError
