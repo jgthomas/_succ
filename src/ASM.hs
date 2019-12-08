@@ -434,9 +434,10 @@ signExtendRaxRdx = "cqto\n"
 emitJump :: Jump -> Int -> String
 emitJump j n =
         case j of
-             JMP  -> "jmp _label_" ++ show n ++ "\n"
-             JE   -> "je _label_" ++ show n ++ "\n"
-             JNE  -> "jne _label_" ++ show n ++ "\n"
+             JMP  -> "jmp _label_" ++ num ++ "\n"
+             JE   -> "je _label_" ++ num ++ "\n"
+             JNE  -> "jne _label_" ++ num ++ "\n"
+        where num = show n
 
 
 -- Directives
