@@ -72,15 +72,15 @@ restoreBasePointer = move basePointer stackPointer
 -- Local variables
 
 loadValue :: Int -> String
-loadValue n = move (literalValue n) result
+loadValue n = move (literalValue n) (reg RAX)
 
 
 varOnStack :: Int -> String
-varOnStack offset = move result (fromBasePointer offset)
+varOnStack offset = move (reg RAX) (fromBasePointer offset)
 
 
 varOffStack :: Int -> String
-varOffStack offset = move (fromBasePointer offset) result
+varOffStack offset = move (fromBasePointer offset) (reg RAX)
 
 
 adjustStackPointer :: Int -> String
@@ -93,10 +93,10 @@ adjustStackPointer offset =
 
 unary :: Operator -> String
 unary o
-   | o == Minus         = makeNegative result
-   | o == BitwiseCompl  = invertBits result
-   | o == LogicNegation = comp (literalValue 0) result
-                          ++ move (literalValue 0) result
+   | o == Minus         = makeNegative (reg RAX)
+   | o == BitwiseCompl  = invertBits (reg RAX)
+   | o == LogicNegation = comp (literalValue 0) (reg RAX)
+                          ++ move (literalValue 0) (reg RAX)
                           ++ setBitIf Equ
 
 
@@ -139,7 +139,7 @@ logicalAND load1 load2 nextLabel endLabel =
         ++ emitLabel nextLabel
         ++ load2
         ++ testResult
-        ++ move (literalValue 0) result
+        ++ move (literalValue 0) (reg RAX)
         ++ setBitIf NEqu
         ++ emitLabel endLabel
 
@@ -147,7 +147,7 @@ logicalAND load1 load2 nextLabel endLabel =
 computeAdd :: String -> String -> String
 computeAdd load1 load2 =
         loadValues load1 load2
-        ++ add scratch result
+        ++ add scratch (reg RAX)
 
 
 computeMod :: String -> String -> String
@@ -155,7 +155,7 @@ computeMod load1 load2 =
         push regArg3
         ++ loadValues load2 load1
         ++ idivq scratch
-        ++ move regModResult result
+        ++ move regModResult (reg RAX)
         ++ pop regArg3
 
 
@@ -170,19 +170,19 @@ computeDiv load1 load2 =
 computeMul :: String -> String -> String
 computeMul load1 load2 =
         loadValues load1 load2
-        ++ imul scratch result
+        ++ imul scratch (reg RAX)
 
 
 computeSub :: String -> String -> String
 computeSub load1 load2 =
         loadValues load2 load1
-        ++ sub scratch result
+        ++ sub scratch (reg RAX)
 
 
 loadValues :: String -> String -> String
 loadValues load1 load2 =
         load1
-        ++ push result
+        ++ push (reg RAX)
         ++ load2
         ++ pop scratch
 
@@ -190,12 +190,12 @@ loadValues load1 load2 =
 comparison :: String -> String -> String
 comparison load1 load2 =
         loadValues load1 load2
-        ++ comp result scratch
-        ++ move (literalValue 0) result
+        ++ comp (reg RAX) scratch
+        ++ move (literalValue 0) (reg RAX)
 
 
 testResult :: String
-testResult = comp (literalValue 0) result
+testResult = comp (literalValue 0) (reg RAX)
 
 
 -- Function calls and registers
@@ -205,11 +205,11 @@ makeFunctionCall funcName = call funcName
 
 
 putInRegister ::String -> String
-putInRegister reg = move result reg
+putInRegister r = move (reg RAX) r
 
 
 getFromRegister ::String -> String
-getFromRegister reg = move reg result
+getFromRegister r = move r (reg RAX)
 
 
 selectRegister :: Int ->String
@@ -271,64 +271,64 @@ allUninitialized vars = concatMap uninitializedGlobal vars
 -}
 loadGlobal :: String -> String
 loadGlobal label =
-        move (fromInstructionPointer label) result
+        move (fromInstructionPointer label) (reg RAX)
 
 
 storeGlobal :: String -> String
 storeGlobal label =
-        move result (fromInstructionPointer label)
+        move (reg RAX) (fromInstructionPointer label)
 
 
 -- Pointers
 
 derefLoadParam :: Int -> String
-derefLoadParam reg =
-        move (valueFromAddressIn . selectRegister $ reg) result
+derefLoadParam r =
+        move (valueFromAddressIn . selectRegister $ r) (reg RAX)
 
 
 derefStoreParam :: Int -> String
-derefStoreParam reg =
-        move result (addressIn . selectRegister $ reg)
+derefStoreParam r =
+        move (reg RAX) (addressIn . selectRegister $ r)
 
 
 varAddressLoad :: Int -> String
-varAddressLoad offset = loadAddOf (fromBasePointer offset) result
+varAddressLoad offset = loadAddOf (fromBasePointer offset) (reg RAX)
 
 
 varAddressStore :: Int -> String
-varAddressStore offset = move result (fromBasePointer offset)
+varAddressStore offset = move (reg RAX) (fromBasePointer offset)
 
 
 derefLoadLocal :: Int -> String
 derefLoadLocal offset =
         move (fromBasePointer offset) scratch
-        ++ move (valueFromAddressIn scratch) result
+        ++ move (valueFromAddressIn scratch) (reg RAX)
 
 
 derefStoreLocal :: Int -> String
 derefStoreLocal offset =
         move (fromBasePointer offset) scratch
-        ++ move result (addressIn scratch)
+        ++ move (reg RAX) (addressIn scratch)
 
 
 derefLoadGlobal :: String -> String
 derefLoadGlobal label =
         move (fromInstructionPointer label) scratch
-        ++ move (valueFromAddressIn scratch) result
+        ++ move (valueFromAddressIn scratch) (reg RAX)
 
 
 derefStoreGlobal :: String -> String
 derefStoreGlobal label =
         move (fromInstructionPointer label) scratch
-        ++ move result (addressIn scratch)
+        ++ move (reg RAX) (addressIn scratch)
 
 
 varAddressLoadGlobal :: String -> String
-varAddressLoadGlobal label = loadAddOf (fromInstructionPointer label) result
+varAddressLoadGlobal label = loadAddOf (fromInstructionPointer label) (reg RAX)
 
 
 varAddressStoreGlobal :: String -> String
-varAddressStoreGlobal label = move result (fromInstructionPointer label)
+varAddressStoreGlobal label = move (reg RAX) (fromInstructionPointer label)
 
 
 -- Addressing
