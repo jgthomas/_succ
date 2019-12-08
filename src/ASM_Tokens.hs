@@ -33,4 +33,5 @@ data Register = RAX
               | RCX
               | R8
               | R9
+              | R12
               deriving (Eq)

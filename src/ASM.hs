@@ -60,13 +60,13 @@ returnStatement =
 
 
 saveBasePointer :: String
-saveBasePointer = push basePointer
-                  ++ move stackPointer basePointer
+saveBasePointer = push (reg RBP)
+                  ++ move (reg RSP) (reg RBP)
 
 
 restoreBasePointer :: String
-restoreBasePointer = move basePointer stackPointer
-                     ++ pop basePointer
+restoreBasePointer = move (reg RBP) (reg RSP)
+                     ++ pop (reg RBP)
 
 
 -- Local variables
@@ -85,8 +85,8 @@ varOffStack offset = move (fromBasePointer offset) (reg RAX)
 
 adjustStackPointer :: Int -> String
 adjustStackPointer offset =
-        move basePointer stackPointer
-        ++ sub (literalValue offset) stackPointer
+        move (reg RBP) (reg RSP)
+        ++ sub (literalValue offset) (reg RSP)
 
 
 -- Operators
@@ -152,19 +152,19 @@ computeAdd load1 load2 =
 
 computeMod :: String -> String -> String
 computeMod load1 load2 =
-        push regArg3
+        push (reg RDX)
         ++ loadValues load2 load1
         ++ idivq scratch
         ++ move regModResult (reg RAX)
-        ++ pop regArg3
+        ++ pop (reg RDX)
 
 
 computeDiv :: String -> String -> String
 computeDiv load1 load2 =
-        push regArg3
+        push (reg RDX)
         ++ loadValues load2 load1
         ++ idivq scratch
-        ++ pop regArg3
+        ++ pop (reg RDX)
 
 
 computeMul :: String -> String -> String
@@ -204,11 +204,11 @@ makeFunctionCall :: String -> String
 makeFunctionCall funcName = call funcName
 
 
-putInRegister ::String -> String
+putInRegister :: String -> String
 putInRegister r = move (reg RAX) r
 
 
-getFromRegister ::String -> String
+getFromRegister :: String -> String
 getFromRegister r = move r (reg RAX)
 
 
@@ -222,12 +222,12 @@ selectRegister n
         | n == 5 = reg R9
 
 
-saveRegisters :: [String] -> String
-saveRegisters regs = concatMap push regs
+saveRegisters :: [Register] -> String
+saveRegisters r = concatMap push $ map reg r
 
 
-restoreRegisters :: [String] -> String
-restoreRegisters regs = concatMap pop . reverse $ regs
+restoreRegisters :: [Register] -> String
+restoreRegisters r = concatMap pop . reverse $ map reg r
 
 
 saveCallerRegisters :: String
@@ -334,10 +334,10 @@ varAddressStoreGlobal label = move (reg RAX) (fromInstructionPointer label)
 -- Addressing
 
 fromBasePointer :: Int -> String
-fromBasePointer n = relAddress (show n) basePointer
+fromBasePointer n = relAddress (show n) (reg RBP)
 
 fromInstructionPointer :: String -> String
-fromInstructionPointer lab = relAddress lab instrPointer
+fromInstructionPointer lab = relAddress lab (reg RIP)
 
 addressIn :: String -> String
 addressIn s = indirectAddressing s
@@ -470,45 +470,22 @@ reg r = case r of
              RCX -> "%rcx"
              R8  -> "%r8"
              R9  -> "%r9"
-
-result :: String
-result  = "%rax"
+             R12 -> "%r12"
 
 scratch :: String
-scratch = "%r12"
-
-basePointer :: String
-basePointer  = "%rbp"
-
-instrPointer :: String
-instrPointer = "%rip"
-
-stackPointer :: String
-stackPointer = "%rsp"
-
-regArg1 :: String
-regArg1 = "%rdi"
-
-regArg2 :: String
-regArg2 = "%rsi"
-
-regArg3 :: String
-regArg3 = "%rdx"
-
-regArg4 :: String
-regArg4 = "%rcx"
-
-regArg5 :: String
-regArg5 = "%r8"
-
-regArg6 :: String
-regArg6 = "%r9"
+scratch = reg R12
 
 regModResult :: String
-regModResult = "%rdx"
+regModResult = reg RDX
 
-allScratch :: [String]
-allScratch = [scratch]
+allScratch :: [Register]
+allScratch = [R12]
 
-params :: [String]
-params = [regArg1,regArg2,regArg3,regArg4,regArg5,regArg6]
+params :: [Register]
+params = [RDI,
+          RSI,
+          RDX,
+          RCX,
+          R8,
+          R9
+         ]
