@@ -28,7 +28,7 @@ parserTest = hspec $ do
                 it "Should throw error on empty input" $
                   fromLeft ImpossibleError (parse [])
                   `shouldBe`
-                  ParserError NoTokens
+                  ParserError (TokensError [])
 
                 it "Should throw error on invalid type" $
                   fromLeft ImpossibleError (parse [TokKeyword Break, TokIdent "a", TokSemiColon])

@@ -30,7 +30,7 @@ parse toks = runSuccState parseTokens toks startState
 
 
 parseTokens :: [Token] -> ParserState Tree
-parseTokens []   = throwError (ParserError NoTokens)
+parseTokens []   = throwError $ ParserError (TokensError [])
 parseTokens toks = parseTopLevelItems toks
 
 
@@ -528,7 +528,6 @@ nullExpr toks = return (NullExprNode, toks)
 
 validType :: Keyword -> Bool
 validType kwd = kwd == Int
-
 
 lookAhead :: [Token] -> Token
 lookAhead [] = TokWut

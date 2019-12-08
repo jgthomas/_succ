@@ -31,7 +31,6 @@ data LexerError = BadInput String
 data ParserError = ParseError String
                  | TreeError Tree
                  | TokensError [Token]
-                 | NoTokens
                  deriving (Show, Eq)
 
 
