@@ -285,9 +285,8 @@ declareGlobal name typ toAssign = do
 checkIfFunction :: String -> Evaluator ()
 checkIfFunction name = do
         paramNum <- SymTab.decParamCount name
-        case paramNum of
-             Nothing -> return ()
-             Just _  -> error $ "already declared as function: " ++ name
+        unless (isNothing paramNum) $
+            error $ "already declared as function: " ++ name
 
 
 genAssignment :: Maybe Tree -> Evaluator String
