@@ -55,8 +55,10 @@ initScope = do
         addNestedScope currFuncName newScopeLevel
 
 
-closeScope :: Evaluator Int
-closeScope = decrementScope
+closeScope :: Evaluator ()
+closeScope = do
+        _ <- decrementScope
+        return ()
 
 
 delFuncState :: String -> Evaluator ()
