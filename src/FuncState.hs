@@ -235,10 +235,6 @@ scopeLimit :: Int
 scopeLimit = -1
 
 
-baseScope :: Int
-baseScope = 0
-
-
 -- FuncState
 
 newFuncState :: String -> Evaluator ()
