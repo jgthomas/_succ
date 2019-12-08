@@ -27,22 +27,19 @@ genASM (FunctionNode typ name paramList Nothing) = do
         declareFunction typ name paramList
         return ASM.noOutput
 genASM (FunctionNode typ name paramList (Just stmts)) = do
-        defined <- SymTab.checkFuncDefined name
-        if defined
-           then error $ "Function aleady defined: " ++ name
-           else do
-                   declareFunction typ name paramList
-                   SymTab.initFunction name
-                   statements <- mapM genASM stmts
-                   SymTab.closeFunction
-                   SymTab.defineFunction name
-                   if hasReturn stmts || name /= "main"
-                      then return $ ASM.functionName name
-                                    ++ concat statements
-                      else return $ ASM.functionName name
-                                    ++ concat statements
-                                    ++ ASM.loadValue 0
-                                    ++ ASM.returnStatement
+        checkIfFuncDefined name
+        declareFunction typ name paramList
+        SymTab.initFunction name
+        statements <- mapM genASM stmts
+        SymTab.closeFunction
+        SymTab.defineFunction name
+        if hasReturn stmts || name /= "main"
+           then return $ ASM.functionName name
+                         ++ concat statements
+           else return $ ASM.functionName name
+                         ++ concat statements
+                         ++ ASM.loadValue 0
+                         ++ ASM.returnStatement
 
 
 genASM (ParamNode typ param) =
@@ -413,6 +410,13 @@ validSequence Nothing Nothing  = error "callee and caller undefined"
 validSequence (Just callee) (Just caller)
         | callee <= caller = True
         | otherwise        = False
+
+
+checkIfFuncDefined :: String -> Evaluator ()
+checkIfFuncDefined name = do
+        defined <- SymTab.checkFuncDefined name
+        when defined $
+           error $ "Function aleady defined: " ++ name
 
 
 -- Variables
