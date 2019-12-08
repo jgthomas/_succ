@@ -212,14 +212,14 @@ getFromRegister ::String -> String
 getFromRegister r = move r (reg RAX)
 
 
-selectRegister :: Int ->String
-selectRegister callConvSeq
-        | callConvSeq == 0 = regArg1
-        | callConvSeq == 1 = regArg2
-        | callConvSeq == 2 = regArg3
-        | callConvSeq == 3 = regArg4
-        | callConvSeq == 4 = regArg5
-        | callConvSeq == 5 = regArg6
+selectRegister :: Int -> String
+selectRegister n
+        | n == 0 = reg RDI
+        | n == 1 = reg RSI
+        | n == 2 = reg RDX
+        | n == 3 = reg RCX
+        | n == 4 = reg R8
+        | n == 5 = reg R9
 
 
 saveRegisters :: [String] -> String
@@ -471,40 +471,40 @@ reg r = case r of
              R8  -> "%r8"
              R9  -> "%r9"
 
-result ::String
+result :: String
 result  = "%rax"
 
-scratch ::String
+scratch :: String
 scratch = "%r12"
 
-basePointer ::String
+basePointer :: String
 basePointer  = "%rbp"
 
-instrPointer ::String
+instrPointer :: String
 instrPointer = "%rip"
 
-stackPointer ::String
+stackPointer :: String
 stackPointer = "%rsp"
 
-regArg1 ::String
+regArg1 :: String
 regArg1 = "%rdi"
 
-regArg2 ::String
+regArg2 :: String
 regArg2 = "%rsi"
 
-regArg3 ::String
+regArg3 :: String
 regArg3 = "%rdx"
 
-regArg4 ::String
+regArg4 :: String
 regArg4 = "%rcx"
 
-regArg5 ::String
+regArg5 :: String
 regArg5 = "%r8"
 
-regArg6 ::String
+regArg6 :: String
 regArg6 = "%r9"
 
-regModResult ::String
+regModResult :: String
 regModResult = "%rdx"
 
 allScratch :: [String]
