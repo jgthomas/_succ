@@ -36,10 +36,10 @@ main = do
 
         asm `deepseq` writeFile outfileName asm
 
-        let gcc = "gcc -g "
-            obj = " -o " ++ dropExtension outfileName
-            toMachineCode = gcc ++ outfileName ++ obj
-            deleteFile = "rm " ++ outfileName
+        let gccOpts = "gcc -g "
+            output  = " -o " ++ dropExtension outfileName
+            toMachineCode = gccOpts ++ outfileName ++ output
+            deleteFile    = "rm " ++ outfileName
 
         _ <- system toMachineCode
         _ <- system deleteFile
