@@ -143,16 +143,15 @@ genASM (IfNode test action possElse) = do
                               ++ ASM.emitLabel label
                               ++ elseAction ++ ASM.emitLabel nextLabel
 
-genASM (PointerNode varName typ assign) = do
+genASM (PointerNode varName typ Nothing) =
+        genASM (DeclarationNode varName typ Nothing)
+genASM (PointerNode varName typ (Just a)) = do
         pointerASM <- genASM (DeclarationNode varName typ Nothing)
-        case assign of
-             Nothing -> return pointerASM
-             Just a  -> do
-                     value   <- genASM a
-                     (offset, _, globLab) <- checkVariableExists varName
-                     if isNothing offset && isNothing globLab
-                        then error $ "variable not declared: " ++ varName
-                        else return $ pointerASM ++ value ++ storeAddressOf offset globLab
+        value      <- genASM a
+        (offset, _, globLab) <- checkVariableExists varName
+        if isNothing offset && isNothing globLab
+           then error $ "variable not declared: " ++ varName
+           else return $ pointerASM ++ value ++ storeAddressOf offset globLab
 
 genASM (DeclarationNode varName typ value) = do
         currScope <- SymTab.currentScope
