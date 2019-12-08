@@ -76,38 +76,38 @@ genASM (CompoundStmtNode blockItems) = do
         SymTab.closeScope
         return . concat $ blockLines
 
-genASM (ForLoopNode init test iter block) = do
+genASM (ForLoopNode ini test iter block) = do
         SymTab.initScope
         passLabel     <- SymTab.labelNum
         failLabel     <- SymTab.labelNum
         continueLabel <- SymTab.labelNum
         SymTab.setBreak failLabel
         SymTab.setContinue continueLabel
-        init <- genASM init
-        test <- genASM test
-        iter <- genASM iter
-        body <- genASM block
+        inits <- genASM ini
+        tests <- genASM test
+        iters <- genASM iter
+        body  <- genASM block
         SymTab.closeScope
-        return $ init
+        return $ inits
                  ++ ASM.emitLabel passLabel
-                 ++ test
+                 ++ tests
                  ++ ASM.testResult
                  ++ ASM.emitJump JE failLabel
                  ++ body
                  ++ ASM.emitLabel continueLabel
-                 ++ iter
+                 ++ iters
                  ++ ASM.emitJump JMP passLabel
                  ++ ASM.emitLabel failLabel
 
 genASM (WhileNode test whileBlock) = do
         loopLabel <- SymTab.labelNum
-        test      <- genASM test
+        tests     <- genASM test
         testLabel <- SymTab.labelNum
         body      <- genASM whileBlock
         SymTab.setContinue loopLabel
         SymTab.setBreak testLabel
         return $ ASM.emitLabel loopLabel
-                 ++ test
+                 ++ tests
                  ++ ASM.testResult
                  ++ ASM.emitJump JE testLabel
                  ++ body
@@ -118,14 +118,14 @@ genASM (DoWhileNode block test) = do
         loopLabel <- SymTab.labelNum
         contLabel <- SymTab.labelNum
         body      <- genASM block
-        test      <- genASM test
+        tests     <- genASM test
         testLabel <- SymTab.labelNum
         SymTab.setContinue contLabel
         SymTab.setBreak testLabel
         return $ ASM.emitLabel loopLabel
                  ++ body
                  ++ ASM.emitLabel contLabel
-                 ++ test
+                 ++ tests
                  ++ ASM.testResult
                  ++ ASM.emitJump JE testLabel
                  ++ ASM.emitJump JMP loopLabel
