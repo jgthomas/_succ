@@ -5,7 +5,7 @@ module ParserSpec (parserTest) where
 import Data.Either
 import Test.Hspec
 
-import NewParser
+import Parser
 import Tokens
 import AST
 import Error

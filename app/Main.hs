@@ -13,8 +13,7 @@ import System.IO          (openFile,
                            hClose)
 
 import Lexer     (tokenize)
---import Parser    (parse)
-import NewParser    (parse)
+import Parser    (parse)
 import Generator (genASM)
 import Evaluator (Evaluator(Ev))
 import SymTab    (newSymTab)
@@ -30,7 +29,6 @@ main = do
         contents <- hGetContents handle
 
         lexed  <- lexString contents
-        --parsed <- parseTokens lexed
         parsed <- newParseTokens lexed
         asm    <- generateASM parsed
 
@@ -52,10 +50,6 @@ lexString s = do
                      print err
                      exitFailure
              (Right toks) -> return toks
-
-
---parseTokens :: [Token] -> IO Tree
---parseTokens toks = return $ parse toks
 
 
 newParseTokens :: [Token] -> IO Tree
