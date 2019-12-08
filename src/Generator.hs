@@ -355,9 +355,8 @@ declareFunction typ funcName paramList = do
 checkIfVariable :: String -> Evaluator ()
 checkIfVariable name = do
         label <- SymTab.globalLabel name
-        case label of
-             Nothing -> return ()
-             Just _  -> error $ "already defined as variable: " ++ name
+        unless (isNothing label) $
+            error $ "already defined as variable: " ++ name
 
 
 checkCountsMatch :: Int -> String -> [Tree] -> Evaluator ()
@@ -367,8 +366,8 @@ checkCountsMatch count name paramList =
 
 
 checkArguments :: Maybe Int -> String -> [Tree] -> Evaluator ()
-checkArguments Nothing name _        = error $ "called function not declared: " ++ name
 checkArguments (Just n) name argList = checkCountsMatch n name argList
+checkArguments Nothing name _ = error $ "called function not declared: " ++ name
 
 
 processParameters :: String -> [Tree] -> Evaluator ()
