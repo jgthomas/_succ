@@ -223,7 +223,7 @@ selectRegister n
 
 
 saveRegisters :: [Register] -> String
-saveRegisters rs = concatMap push . map reg $ rs
+saveRegisters rs = concatMap (push . reg) rs
 
 
 restoreRegisters :: [Register] -> String
