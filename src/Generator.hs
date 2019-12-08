@@ -1,5 +1,4 @@
 
-
 module Generator (genASM) where
 
 import Data.Maybe    (isNothing)
