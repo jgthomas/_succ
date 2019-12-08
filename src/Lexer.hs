@@ -36,7 +36,7 @@ lexer input = lexInput input
 lexInput :: String -> LexerState [Token]
 lexInput [] = do
         lexOut <- getState
-        return . reverse $ lexOut
+        pure . reverse $ lexOut
 lexInput input@(c:cs) =
         if | isSeparator c    -> separator input
            | isTwoCharOp c cs -> twoCharOperator input
