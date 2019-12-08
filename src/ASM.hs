@@ -38,7 +38,7 @@ module ASM (functionName,
 
 
 import Tokens     (Operator(..))
-import ASM_Tokens (Jump(..), Section(..), Set(..))
+import ASM_Tokens (Jump(..), Section(..), Set(..), Register(..))
 
 
 -- Functions
@@ -120,12 +120,12 @@ logicalOR load1 load2 nextLabel endLabel =
         load1
         ++ testResult
         ++ emitJump JE nextLabel
-        ++ move (literalValue 1) result
+        ++ move (literalValue 1) (reg RAX)
         ++ emitJump JMP endLabel
         ++ emitLabel nextLabel
         ++ load2
         ++ testResult
-        ++ move (literalValue 0) result
+        ++ move (literalValue 0) (reg RAX)
         ++ setBitIf NEqu
         ++ emitLabel endLabel
 
@@ -457,6 +457,19 @@ emitLabel n = "_label_" ++ show n ++ ":\n"
 
 
 -- Registers
+
+reg :: Register -> String
+reg r = case r of
+             RAX -> "%rax"
+             RBP -> "%rbp"
+             RIP -> "%rip"
+             RSP -> "%rsp"
+             RDI -> "%rdi"
+             RSI -> "%rsi"
+             RDX -> "%rdx"
+             RCX -> "%rcx"
+             R8  -> "%r8"
+             R9  -> "%r9"
 
 result ::String
 result  = "%rax"

@@ -1,5 +1,5 @@
 
-module ASM_Tokens (Jump(..), Section(..), Set(..)) where
+module ASM_Tokens (Jump(..), Section(..), Set(..), Register(..)) where
 
 
 data Jump = JMP
@@ -21,3 +21,16 @@ data Set = Equ
          | LThan
          | LThanE
          deriving Eq
+
+
+data Register = RAX
+              | RBP
+              | RIP
+              | RSP
+              | RDI
+              | RSI
+              | RDX
+              | RCX
+              | R8
+              | R9
+              deriving (Eq)
