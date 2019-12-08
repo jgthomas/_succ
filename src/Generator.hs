@@ -1,4 +1,5 @@
 
+
 module Generator (genASM) where
 
 import Data.Maybe    (isNothing)
@@ -27,17 +28,17 @@ genASM (FunctionNode typ name paramList statementList) =
              Nothing -> do
                      declareFunction typ name paramList
                      return ASM.noOutput
-             Just statementList -> do
+             Just stmtList -> do
                      defined <- SymTab.checkFuncDefined name
                      if defined
                         then error $ "Function aleady defined: " ++ name
                         else do
                                 declareFunction typ name paramList
                                 SymTab.initFunction name
-                                statements <- mapM genASM statementList
+                                statements <- mapM genASM stmtList
                                 SymTab.closeFunction
                                 SymTab.defineFunction name
-                                if hasReturn statementList || name /= "main"
+                                if hasReturn stmtList || name /= "main"
                                    then return $ ASM.functionName name
                                                  ++ concat statements
                                    else return $ ASM.functionName name
