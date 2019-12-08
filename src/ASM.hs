@@ -1,4 +1,3 @@
-
 module ASM (functionName,
             returnStatement,
             loadValue,
@@ -98,6 +97,7 @@ unary o
    | o == LogicNegation = comp (literalValue 0) (reg RAX)
                           ++ move (literalValue 0) (reg RAX)
                           ++ setBitIf Equ
+   | otherwise = undefined
 
 
 binary :: String -> String -> Operator -> String
@@ -113,6 +113,7 @@ binary load1 load2 o
    | o == LessThan           = comparison load1 load2 ++ setBitIf LThan
    | o == GreaterThanOrEqual = comparison load1 load2 ++ setBitIf GThanE
    | o == LessThanOrEqual    = comparison load1 load2 ++ setBitIf LThanE
+   | otherwise = undefined
 
 
 logicalOR :: String -> String -> Int -> Int -> String
@@ -220,6 +221,7 @@ selectRegister n
         | n == 3 = reg RCX
         | n == 4 = reg R8
         | n == 5 = reg R9
+        | otherwise = undefined
 
 
 saveRegisters :: [Register] -> String
@@ -412,24 +414,25 @@ returnControl :: String
 returnControl = "ret\n"
 
 setBitIf :: Set -> String
-setBitIf set
-        | set == Equ    = "sete " ++ bit ++ "\n"
-        | set == NEqu   = "setne " ++ bit ++ "\n"
-        | set == GThan  = "setg " ++ bit ++ "\n"
-        | set == GThanE = "setge " ++ bit ++ "\n"
-        | set == LThan  = "setl " ++ bit ++ "\n"
-        | set == LThanE = "setle " ++ bit ++ "\n"
+setBitIf set =
+        case set of
+             Equ    -> "sete " ++ bit ++ "\n"
+             NEqu   -> "setne " ++ bit ++ "\n"
+             GThan  -> "setg " ++ bit ++ "\n"
+             GThanE -> "setge " ++ bit ++ "\n"
+             LThan  -> "setl " ++ bit ++ "\n"
+             LThanE -> "setle " ++ bit ++ "\n"
         where bit = "%al"
 
 signExtendRaxRdx :: String
 signExtendRaxRdx = "cqto\n"
 
 emitJump :: Jump -> Int -> String
-emitJump j n
-        | j == JMP  = "jmp _label_" ++ show n ++ "\n"
-        | j == JE   = "je _label_" ++ show n ++ "\n"
-        | j == JNE  = "jne _label_" ++ show n ++ "\n"
-        | otherwise = error "Unrecognised type of jump"
+emitJump j n =
+        case j of
+             JMP  -> "jmp _label_" ++ show n ++ "\n"
+             JE   -> "je _label_" ++ show n ++ "\n"
+             JNE  -> "jne _label_" ++ show n ++ "\n"
 
 
 -- Directives
@@ -441,10 +444,11 @@ globlLabel :: String -> String
 globlLabel name = name ++ ":\n"
 
 section :: Section -> String
-section sect
-        | sect == TEXT = ".text\n"
-        | sect == DATA = ".data\n"
-        | sect == BSS  = ".bss\n"
+section sect =
+        case sect of
+             TEXT -> ".text\n"
+             DATA -> ".data\n"
+             BSS  -> ".bss\n"
 
 align :: String
 align = ".align 4\n"
