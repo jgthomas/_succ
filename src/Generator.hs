@@ -333,10 +333,9 @@ checkIfDefined name = do
 
 
 globalVarASM :: String -> String -> String
-globalVarASM lab con =
-        if con == "0"
-           then ASM.uninitializedGlobal lab
-           else ASM.initializedGlobal lab con
+globalVarASM lab con
+        | con == "0" = ASM.uninitializedGlobal lab
+        | otherwise  = ASM.initializedGlobal lab con
 
 
 -- Functions / function calls
