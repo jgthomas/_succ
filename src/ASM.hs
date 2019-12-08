@@ -37,7 +37,10 @@ module ASM (functionName,
 
 
 import Tokens     (Operator(..))
-import ASM_Tokens (Jump(..), Section(..), Set(..), Register(..))
+import ASM_Tokens (Jump(..),
+                   Section(..),
+                   Set(..),
+                   Register(..))
 
 
 -- Functions
