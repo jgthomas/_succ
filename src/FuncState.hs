@@ -85,8 +85,8 @@ checkVariable varName = do
         scopeLevel   <- findScope currFuncName
         test         <- extract locOffset <$> getLocalVar currFuncName scopeLevel varName
         case test of
-             Just off -> return True
-             Nothing  -> return False
+             Just _  -> return True
+             Nothing -> return False
 
 
 variableOffset :: String -> Evaluator (Maybe Int)
@@ -145,8 +145,8 @@ parameterDeclared :: String -> Evaluator Bool
 parameterDeclared paramName = do
         pos <- parameterPosition paramName
         case pos of
-             Just pos -> return True
-             Nothing  -> return False
+             Just _  -> return True
+             Nothing -> return False
 
 
 -- store and lookup
@@ -260,7 +260,7 @@ addNestedScope name level = do
 checkFunctionState :: String -> Evaluator Bool
 checkFunctionState n = Ev $ \symTab ->
         case M.lookup n $ funcStates symTab of
-             Just st -> (True, symTab)
+             Just _  -> (True, symTab)
              Nothing -> (False, symTab)
 
 
@@ -318,7 +318,7 @@ addParam n t st =
 
 extract :: (b -> a) -> Maybe b -> Maybe a
 extract f (Just pv) = Just . f $ pv
-extract f Nothing   = Nothing
+extract _ Nothing   = Nothing
 
 
 paramData :: ParamVar -> (Int, Type)
