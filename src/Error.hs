@@ -9,9 +9,9 @@ module Error
         ) where
 
 
-import Tokens (Operator(..),
-               Keyword(..),
-               Token(..)
+import Tokens (Operator,
+               Keyword,
+               Token
               )
 import AST    (Tree)
 
