@@ -41,9 +41,6 @@ import Tokens     (Operator(..))
 import ASM_Tokens (Jump(..), Section(..), Set(..))
 
 
-type Register = String
-
-
 -- Functions
 
 functionName :: String -> String
@@ -207,15 +204,15 @@ makeFunctionCall :: String -> String
 makeFunctionCall funcName = call funcName
 
 
-putInRegister :: Register -> String
+putInRegister ::String -> String
 putInRegister reg = move result reg
 
 
-getFromRegister :: Register -> String
+getFromRegister ::String -> String
 getFromRegister reg = move reg result
 
 
-selectRegister :: Int -> Register
+selectRegister :: Int ->String
 selectRegister callConvSeq
         | callConvSeq == 0 = regArg1
         | callConvSeq == 1 = regArg2
@@ -225,11 +222,11 @@ selectRegister callConvSeq
         | callConvSeq == 5 = regArg6
 
 
-saveRegisters :: [Register] -> String
+saveRegisters :: [String] -> String
 saveRegisters regs = concatMap push regs
 
 
-restoreRegisters :: [Register] -> String
+restoreRegisters :: [String] -> String
 restoreRegisters regs = concatMap pop . reverse $ regs
 
 
@@ -461,44 +458,44 @@ emitLabel n = "_label_" ++ show n ++ ":\n"
 
 -- Registers
 
-result :: Register
+result ::String
 result  = "%rax"
 
-scratch :: Register
+scratch ::String
 scratch = "%r12"
 
-basePointer :: Register
+basePointer ::String
 basePointer  = "%rbp"
 
-instrPointer :: Register
+instrPointer ::String
 instrPointer = "%rip"
 
-stackPointer :: Register
+stackPointer ::String
 stackPointer = "%rsp"
 
-regArg1 :: Register
+regArg1 ::String
 regArg1 = "%rdi"
 
-regArg2 :: Register
+regArg2 ::String
 regArg2 = "%rsi"
 
-regArg3 :: Register
+regArg3 ::String
 regArg3 = "%rdx"
 
-regArg4 :: Register
+regArg4 ::String
 regArg4 = "%rcx"
 
-regArg5 :: Register
+regArg5 ::String
 regArg5 = "%r8"
 
-regArg6 :: Register
+regArg6 ::String
 regArg6 = "%r9"
 
-regModResult :: Register
+regModResult ::String
 regModResult = "%rdx"
 
-allScratch :: [Register]
+allScratch :: [String]
 allScratch = [scratch]
 
-params :: [Register]
+params :: [String]
 params = [regArg1,regArg2,regArg3,regArg4,regArg5,regArg6]
