@@ -395,12 +395,11 @@ hasReturn items
 
 
 processArgs :: [Tree] -> Int -> [String] -> Evaluator String
-processArgs argList argPos argASM =
-        if null argList
-           then return $ concat argASM
-           else do
-                   asm <- processArg argPos $ head argList
-                   processArgs (tail argList) (argPos+1) (argASM ++ [asm])
+processArgs argList argPos argASM
+        | null argList = return $ concat argASM
+        | otherwise    = do
+                asm <- processArg argPos $ head argList
+                processArgs (tail argList) (argPos+1) (argASM ++ [asm])
 
 
 processArg :: Int -> Tree -> Evaluator String
