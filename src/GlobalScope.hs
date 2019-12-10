@@ -1,6 +1,5 @@
 
-module GlobalScope (newGlobalScope,
-                    declareFunction,
+module GlobalScope (declareFunction,
                     defineFunction,
                     declareGlobal,
                     decParamCount,
@@ -25,11 +24,8 @@ import Types                (SymTab(globalScope),
                              GlobalScope(..),
                              GlobalVar(..),
                              Type)
+import qualified Types      (mkGloVar)
 import qualified FrameStack (currentFunction)
-
-
-newGlobalScope :: GlobalScope
-newGlobalScope = Gscope 0 M.empty M.empty M.empty M.empty S.empty S.empty []
 
 
 decParamCount :: String -> Evaluator (Maybe Int)
@@ -84,7 +80,7 @@ defineFunction name = do
 declareGlobal :: String -> Type -> String -> Evaluator ()
 declareGlobal name typ label = do
         gscope <- getGlobalScope
-        let globVar = newGlobalVar label typ
+        let globVar = Types.mkGloVar label typ
         updateGlobalScope $ addGlobal name globVar gscope
 
 
@@ -132,10 +128,6 @@ updateGlobalScope gscope = Ev $ \symTab ->
 
 lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> Evaluator (Maybe a)
 lookUp n f = M.lookup n . f <$> getGlobalScope
-
-
-newGlobalVar :: String -> Type -> GlobalVar
-newGlobalVar label typ = GloVar label typ
 
 
 extract :: (GlobalVar -> a) -> Maybe GlobalVar -> Maybe a
