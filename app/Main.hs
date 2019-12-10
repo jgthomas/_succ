@@ -16,7 +16,7 @@ import Lexer     (tokenize)
 import Parser    (parse)
 import Generator (genASM)
 import Evaluator (Evaluator(Ev))
-import SymTab    (newSymTab)
+import Types     (mkSymTab)
 import Tokens    (Token)
 import AST       (Tree)
 
@@ -68,7 +68,7 @@ newParseTokens toks = do
 
 generateASM :: Tree -> IO String
 generateASM ast = do
-        let symTab = newSymTab
+        let symTab = mkSymTab
             Ev act = genASM ast
             (asm, _) = act symTab
         --print symTab' -- uncomment to debug
