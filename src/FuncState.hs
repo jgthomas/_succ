@@ -32,6 +32,9 @@ import Types                 (SymTab(funcStates),
                               LocalVar(..),
                               ParamVar(..),
                               Type(Label))
+import qualified Types       (mkFS,
+                              mkLocVar,
+                              mkParVar)
 import qualified FrameStack  (currentFunction,
                               popFunctionName,
                               pushFunctionName)
@@ -188,14 +191,10 @@ store name value typ = do
         funcState    <- getFunctionState currFuncName
         let level      = currentScope funcState
             scope      = getScope level funcState
-            locVar     = newLocalVar value typ
+            locVar     = Types.mkLocVar value typ
             scope'     = M.insert name locVar scope
             funcState' = funcState { scopes = M.insert level scope' $ scopes funcState }
         setFunctionState currFuncName funcState'
-
-
-newLocalVar :: Int -> Type -> LocalVar
-newLocalVar n t = LocVar n t
 
 
 getLocalVar :: String -> Int -> String -> Evaluator (Maybe LocalVar)
@@ -241,11 +240,7 @@ scopeLimit = -1
 
 newFuncState :: String -> Evaluator ()
 newFuncState name = Ev $ \symTab ->
-        ((), symTab { funcStates = M.insert name makeFs $ funcStates symTab })
-
-
-makeFs :: FuncState
-makeFs = Fs 0 memOffsetSize 0 M.empty (M.singleton 0 M.empty)
+        ((), symTab { funcStates = M.insert name Types.mkFS $ funcStates symTab })
 
 
 addNestedScope :: String -> Int -> Evaluator ()
@@ -301,15 +296,11 @@ memOffsetSize = -8
 
 -- parameters
 
-newParamVar :: Int -> Type -> ParamVar
-newParamVar n t = ParVar n t
-
-
 addParam :: String -> Type -> FuncState -> FuncState
 addParam n t st =
         let pos = paramCount st
             st' = st { paramCount = succ pos }
-            parVar = newParamVar pos t
+            parVar = Types.mkParVar pos t
             in
         st' { parameters = M.insert n parVar $ parameters st' }
 
