@@ -11,15 +11,12 @@ import Error     (CompilerError(..),
                   SyntaxError(..),
                   TypeError(..)
                  )
-import SuccState (SuccStateM,
+import SuccState (ParserState,
                   getState,
                   putState,
                   throwError,
                   runSuccState
                  )
-
-
-type ParserState = SuccStateM Tree
 
 
 startState :: Tree
