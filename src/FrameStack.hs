@@ -1,7 +1,6 @@
 
 module FrameStack (currentFunction,
                    currentScope,
-                   newStack,
                    popFunctionName,
                    pushFunctionName) where
 
@@ -11,10 +10,6 @@ import Types (SymTab(frameStack), Stack(Stack))
 
 
 {- API -}
-
-newStack :: Stack a
-newStack = Stack []
-
 
 currentScope:: Evaluator String
 currentScope = currentFunction

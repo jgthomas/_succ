@@ -14,7 +14,7 @@ data SymTab = Tab { label       :: Int
 
 
 mkSymTab :: SymTab
-mkSymTab = Tab 0 mkStack mkGS M.empty
+mkSymTab = Tab 1 mkStack mkGS M.empty
 
 
 newtype Stack a = Stack [a] deriving Show
