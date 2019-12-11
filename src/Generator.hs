@@ -6,7 +6,6 @@ import Data.Maybe    (isNothing)
 import Control.Monad (when, unless)
 
 import AST        (Tree(..))
---import Evaluator  (Evaluator)
 import Tokens     (Operator(..))
 import ASM_Tokens (Jump(..))
 import Types      (Type(..), mkSymTab)

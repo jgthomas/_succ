@@ -26,7 +26,6 @@ import Data.List             (sortBy)
 import Control.Monad         (unless)
 import qualified Data.Map as M
 
---import Evaluator             (Evaluator(Ev))
 import Types                 (SymTab(funcStates),
                               FuncState(..),
                               LocalVar(..),
@@ -241,11 +240,6 @@ scopeLimit = -1
 
 -- FuncState
 
---newFuncState :: String -> Evaluator ()
---newFuncState name = Ev $ \symTab ->
---        ((), symTab { funcStates = M.insert name Types.mkFS $ funcStates symTab })
-
-
 newFuncState :: String -> GenState ()
 newFuncState name = do
         state <- getState
@@ -259,26 +253,12 @@ addNestedScope name level = do
         setFunctionState name fs'
 
 
---checkFunctionState :: String -> Evaluator Bool
---checkFunctionState n = Ev $ \symTab ->
---        case M.lookup n $ funcStates symTab of
---             Just _  -> (True, symTab)
---             Nothing -> (False, symTab)
-
-
 checkFunctionState :: String -> GenState Bool
 checkFunctionState name = do
         state <- getState
         case M.lookup name $ funcStates state of
              Just _  -> return True
              Nothing -> return False
-
-
---getFunctionState :: String -> Evaluator FuncState
---getFunctionState n = Ev $ \symTab ->
---        case M.lookup n $ funcStates symTab of
---             Just st -> (st, symTab)
---             Nothing -> error $ "No state defined for: " ++ n
 
 
 getFunctionState :: String -> GenState FuncState
@@ -289,20 +269,10 @@ getFunctionState name = do
              Nothing -> error $ "No state defined for: " ++ name
 
 
---setFunctionState :: String -> FuncState -> Evaluator ()
---setFunctionState n st = Ev $ \symTab ->
---        ((), symTab { funcStates = M.insert n st $ funcStates symTab })
-
-
 setFunctionState :: String -> FuncState -> GenState ()
 setFunctionState name st = do
         state <- getState
         putState $ state { funcStates = M.insert name st $ funcStates state }
-
-
---delFunctionState :: String -> Evaluator ()
---delFunctionState n = Ev $ \symTab ->
---        ((), symTab { funcStates = M.delete n . funcStates $ symTab })
 
 
 delFunctionState :: String -> GenState ()

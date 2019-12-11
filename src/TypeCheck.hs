@@ -6,7 +6,6 @@ module TypeCheck (paramDeclaration,
                   assignment,
                   funcReturn) where
 
---import Evaluator   (Evaluator)
 import AST         (Tree(..))
 import Types       (Type(..))
 import Tokens      (Operator(..))

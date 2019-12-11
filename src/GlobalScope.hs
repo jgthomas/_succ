@@ -19,7 +19,6 @@ module GlobalScope (declareFunction,
 import qualified Data.Map as M
 import qualified Data.Set as S
 
---import Evaluator            (Evaluator(Ev))
 import Types                (SymTab(globalScope),
                              GlobalScope(..),
                              GlobalVar(..),
@@ -119,20 +118,10 @@ getAllForInit = varsToinit <$> getGlobalScope
 
 {- Internal -}
 
---getGlobalScope :: Evaluator GlobalScope
---getGlobalScope = Ev $ \symTab ->
---        (globalScope symTab, symTab)
-
-
 getGlobalScope :: GenState GlobalScope
 getGlobalScope = do
         state <- getState
         return . globalScope $ state
-
-
---updateGlobalScope :: GlobalScope -> Evaluator ()
---updateGlobalScope gscope = Ev $ \symTab ->
---        ((), symTab { globalScope = gscope })
 
 
 updateGlobalScope :: GlobalScope -> GenState ()

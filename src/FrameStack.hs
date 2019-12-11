@@ -5,7 +5,6 @@ module FrameStack (currentFunction,
                    pushFunctionName) where
 
 
---import Evaluator (Evaluator(Ev))
 import Types (SymTab(frameStack), Stack(Stack))
 import SuccState (GenState, getState, putState)
 
@@ -24,26 +23,10 @@ currentFunction = do
              Just name -> return name
 
 
---popFunctionName :: Evaluator ()
---popFunctionName = Ev $ \symTab ->
---        let stack   = frameStack symTab
---            symTab' = symTab { frameStack = stackPop stack }
---            in
---        ((), symTab')
-
-
 popFunctionName :: GenState ()
 popFunctionName = do
         state <- getState
         putState $ state { frameStack = stackPop $ frameStack state }
-
-
---pushFunctionName :: String -> Evaluator ()
---pushFunctionName funcName = Ev $ \symTab ->
---        let stack   = frameStack symTab
---            symTab' = symTab { frameStack = stackPush funcName stack }
---            in
---        ((), symTab')
 
 
 pushFunctionName :: String -> GenState ()
@@ -53,10 +36,6 @@ pushFunctionName name = do
 
 
 {- Internal -}
-
---queryStack :: Evaluator (Maybe String)
---queryStack = Ev $ \symTab -> (stackPeek $ frameStack symTab, symTab)
-
 
 queryStack :: GenState (Maybe String)
 queryStack = do
