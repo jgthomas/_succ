@@ -5,17 +5,18 @@ module FrameStack (currentFunction,
                    pushFunctionName) where
 
 
-import Evaluator (Evaluator(Ev))
+--import Evaluator (Evaluator(Ev))
 import Types (SymTab(frameStack), Stack(Stack))
+import SuccState (GenState, getState, putState)
 
 
 {- API -}
 
-currentScope:: Evaluator String
+currentScope:: GenState String
 currentScope = currentFunction
 
 
-currentFunction :: Evaluator String
+currentFunction :: GenState String
 currentFunction = do
         currFuncName <- queryStack
         case currFuncName of
@@ -23,26 +24,44 @@ currentFunction = do
              Just name -> return name
 
 
-popFunctionName :: Evaluator ()
-popFunctionName = Ev $ \symTab ->
-        let stack   = frameStack symTab
-            symTab' = symTab { frameStack = stackPop stack }
-            in
-        ((), symTab')
+--popFunctionName :: Evaluator ()
+--popFunctionName = Ev $ \symTab ->
+--        let stack   = frameStack symTab
+--            symTab' = symTab { frameStack = stackPop stack }
+--            in
+--        ((), symTab')
 
 
-pushFunctionName :: String -> Evaluator ()
-pushFunctionName funcName = Ev $ \symTab ->
-        let stack   = frameStack symTab
-            symTab' = symTab { frameStack = stackPush funcName stack }
-            in
-        ((), symTab')
+popFunctionName :: GenState ()
+popFunctionName = do
+        state <- getState
+        putState $ state { frameStack = stackPop $ frameStack state }
+
+
+--pushFunctionName :: String -> Evaluator ()
+--pushFunctionName funcName = Ev $ \symTab ->
+--        let stack   = frameStack symTab
+--            symTab' = symTab { frameStack = stackPush funcName stack }
+--            in
+--        ((), symTab')
+
+
+pushFunctionName :: String -> GenState ()
+pushFunctionName name = do
+        state <- getState
+        putState $ state { frameStack = stackPush name $ frameStack state }
 
 
 {- Internal -}
 
-queryStack :: Evaluator (Maybe String)
-queryStack = Ev $ \symTab -> (stackPeek $ frameStack symTab, symTab)
+--queryStack :: Evaluator (Maybe String)
+--queryStack = Ev $ \symTab -> (stackPeek $ frameStack symTab, symTab)
+
+
+queryStack :: GenState (Maybe String)
+queryStack = do
+        state <- getState
+        return $ stackPeek . frameStack $ state
 
 
 stackPeek :: Stack a -> Maybe a

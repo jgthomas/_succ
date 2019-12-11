@@ -14,9 +14,9 @@ import System.IO          (openFile,
 
 import Lexer     (tokenize)
 import Parser    (parse)
-import Generator (genASM)
-import Evaluator (Evaluator(Ev))
-import Types     (mkSymTab)
+import Generator (generate)
+--import Evaluator (Evaluator(Ev))
+--import Types     (mkSymTab)
 import Tokens    (Token)
 import AST       (Tree)
 
@@ -68,8 +68,17 @@ newParseTokens toks = do
 
 generateASM :: Tree -> IO String
 generateASM ast = do
-        let symTab = mkSymTab
-            Ev act = genASM ast
-            (asm, _) = act symTab
-        --print symTab' -- uncomment to debug
-        return asm
+        let generated = generate ast
+        case generated of
+             (Left err) -> do
+                     print err
+                     exitFailure
+             (Right asm) -> return asm
+
+--generateASM :: Tree -> IO String
+--generateASM ast = do
+--        let symTab = mkSymTab
+--            Ev act = genASM ast
+--            (asm, _) = act symTab
+--        --print symTab' -- uncomment to debug
+--        return asm

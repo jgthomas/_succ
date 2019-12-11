@@ -19,50 +19,53 @@ module GlobalScope (declareFunction,
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import Evaluator            (Evaluator(Ev))
+--import Evaluator            (Evaluator(Ev))
 import Types                (SymTab(globalScope),
                              GlobalScope(..),
                              GlobalVar(..),
                              Type)
+import SuccState            (GenState,
+                             getState,
+                             putState)
 import qualified Types      (mkGloVar)
 import qualified FrameStack (currentFunction)
 
 
-decParamCount :: String -> Evaluator (Maybe Int)
+decParamCount :: String -> GenState (Maybe Int)
 decParamCount name = lookUp name funcParams
 
 
-decSeqNumber :: String -> Evaluator (Maybe Int)
+decSeqNumber :: String -> GenState (Maybe Int)
 decSeqNumber name = lookUp name funcDecSeq
 
 
-globalLabel :: String -> Evaluator (Maybe String)
+globalLabel :: String -> GenState (Maybe String)
 globalLabel name = extract globLabel <$> lookUp name declaredVars
 
 
-globalType :: String -> Evaluator (Maybe Type)
+globalType :: String -> GenState (Maybe Type)
 globalType name = extract globType <$> lookUp name declaredVars
 
 
-declaredFuncType :: String -> Evaluator (Maybe Type)
+declaredFuncType :: String -> GenState (Maybe Type)
 declaredFuncType name = lookUp name funcTypes
 
 
-currentSeqNumber :: Evaluator (Maybe Int)
+currentSeqNumber :: GenState (Maybe Int)
 currentSeqNumber = do
         currFunc <- FrameStack.currentFunction
         decSeqNumber currFunc
 
 
-checkVarDefined :: String -> Evaluator Bool
+checkVarDefined :: String -> GenState Bool
 checkVarDefined name = S.member name . definedVars <$> getGlobalScope
 
 
-checkFuncDefined :: String -> Evaluator Bool
+checkFuncDefined :: String -> GenState Bool
 checkFuncDefined name = S.member name . definedFuncs <$> getGlobalScope
 
 
-declareFunction :: Type -> String -> Int -> Evaluator ()
+declareFunction :: Type -> String -> Int -> GenState ()
 declareFunction typ funcName paramCount = do
         gscope <- getGlobalScope
         let gscope'   = addSymbol funcName gscope
@@ -71,26 +74,26 @@ declareFunction typ funcName paramCount = do
         updateGlobalScope gscope'''
 
 
-defineFunction :: String -> Evaluator ()
+defineFunction :: String -> GenState ()
 defineFunction name = do
         gscope <- getGlobalScope
         updateGlobalScope $ funcAsDefined name gscope
 
 
-declareGlobal :: String -> Type -> String -> Evaluator ()
+declareGlobal :: String -> Type -> String -> GenState ()
 declareGlobal name typ label = do
         gscope <- getGlobalScope
         let globVar = Types.mkGloVar label typ
         updateGlobalScope $ addGlobal name globVar gscope
 
 
-defineGlobal :: String -> Evaluator ()
+defineGlobal :: String -> GenState ()
 defineGlobal name = do
         gscope <- getGlobalScope
         updateGlobalScope $ varAsDefined name gscope
 
 
-getUndefined :: Evaluator [String]
+getUndefined :: GenState [String]
 getUndefined = do
         gscope <- getGlobalScope
         let definedSet   = definedVars gscope
@@ -103,30 +106,42 @@ getUndefined = do
             <$> getGlobalScope
 
 
-storeForInit :: String -> Evaluator ()
+storeForInit :: String -> GenState ()
 storeForInit code = do
         gscope <- getGlobalScope
         let gscope' = gscope { varsToinit = code : varsToinit gscope }
         updateGlobalScope gscope'
 
 
-getAllForInit :: Evaluator [String]
+getAllForInit :: GenState [String]
 getAllForInit = varsToinit <$> getGlobalScope
 
 
 {- Internal -}
 
-getGlobalScope :: Evaluator GlobalScope
-getGlobalScope = Ev $ \symTab ->
-        (globalScope symTab, symTab)
+--getGlobalScope :: Evaluator GlobalScope
+--getGlobalScope = Ev $ \symTab ->
+--        (globalScope symTab, symTab)
 
 
-updateGlobalScope :: GlobalScope -> Evaluator ()
-updateGlobalScope gscope = Ev $ \symTab ->
-        ((), symTab { globalScope = gscope })
+getGlobalScope :: GenState GlobalScope
+getGlobalScope = do
+        state <- getState
+        return . globalScope $ state
 
 
-lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> Evaluator (Maybe a)
+--updateGlobalScope :: GlobalScope -> Evaluator ()
+--updateGlobalScope gscope = Ev $ \symTab ->
+--        ((), symTab { globalScope = gscope })
+
+
+updateGlobalScope :: GlobalScope -> GenState ()
+updateGlobalScope gs = do
+        state  <- getState
+        putState $ state { globalScope = gs }
+
+
+lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> GenState (Maybe a)
 lookUp n f = M.lookup n . f <$> getGlobalScope
 
 

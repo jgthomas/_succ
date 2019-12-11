@@ -26,12 +26,15 @@ import Data.List             (sortBy)
 import Control.Monad         (unless)
 import qualified Data.Map as M
 
-import Evaluator             (Evaluator(Ev))
+--import Evaluator             (Evaluator(Ev))
 import Types                 (SymTab(funcStates),
                               FuncState(..),
                               LocalVar(..),
                               ParamVar(..),
                               Type(Label))
+import SuccState             (GenState,
+                              getState,
+                              putState)
 import qualified Types       (mkFS,
                               mkLocVar,
                               mkParVar)
@@ -40,51 +43,51 @@ import qualified FrameStack  (currentFunction,
                               pushFunctionName)
 
 
-initFunction :: String -> Evaluator ()
+initFunction :: String -> GenState ()
 initFunction name = do
         FrameStack.pushFunctionName name
         check <- checkFunctionState name
         unless check $ newFuncState name
 
 
-closeFunction :: Evaluator ()
+closeFunction :: GenState ()
 closeFunction = FrameStack.popFunctionName
 
 
-initScope :: Evaluator ()
+initScope :: GenState ()
 initScope = do
         currFuncName  <- FrameStack.currentFunction
         newScopeLevel <- incrementScope
         addNestedScope currFuncName newScopeLevel
 
 
-closeScope :: Evaluator ()
+closeScope :: GenState ()
 closeScope = do
         _ <- decrementScope
         return ()
 
 
-delFuncState :: String -> Evaluator ()
+delFuncState :: String -> GenState ()
 delFuncState name = delFunctionState name
 
 
-getBreak :: Evaluator (Maybe Int)
+getBreak :: GenState (Maybe Int)
 getBreak = getOffset "@Break"
 
 
-getContinue :: Evaluator (Maybe Int)
+getContinue :: GenState (Maybe Int)
 getContinue = getOffset "@Continue"
 
 
-setBreak :: Int -> Evaluator ()
+setBreak :: Int -> GenState ()
 setBreak labelNo = store "@Break" labelNo Label
 
 
-setContinue :: Int -> Evaluator ()
+setContinue :: Int -> GenState ()
 setContinue labelNo = store "@Continue" labelNo Label
 
 
-checkVariable :: String -> Evaluator Bool
+checkVariable :: String -> GenState Bool
 checkVariable varName = do
         currFuncName <- FrameStack.currentFunction
         scopeLevel   <- findScope currFuncName
@@ -94,15 +97,15 @@ checkVariable varName = do
              Nothing -> return False
 
 
-variableOffset :: String -> Evaluator (Maybe Int)
+variableOffset :: String -> GenState (Maybe Int)
 variableOffset name = getOffset name
 
 
-variableType :: String -> Evaluator (Maybe Type)
+variableType :: String -> GenState (Maybe Type)
 variableType name = getType name
 
 
-addVariable :: String -> Type -> Evaluator Int
+addVariable :: String -> Type -> GenState Int
 addVariable varName typ = do
         currOff <- currentOffset
         store varName currOff typ
@@ -110,11 +113,11 @@ addVariable varName typ = do
         return currOff
 
 
-stackPointerValue :: Evaluator Int
+stackPointerValue :: GenState Int
 stackPointerValue = negate <$> currentOffset
 
 
-addParameter :: String -> Type -> Evaluator ()
+addParameter :: String -> Type -> GenState ()
 addParameter paramName typ = do
         currFuncName <- FrameStack.currentFunction
         funcState    <- getFunctionState currFuncName
@@ -122,7 +125,7 @@ addParameter paramName typ = do
         setFunctionState currFuncName funcState'
 
 
-parameterPosition :: String -> Evaluator (Maybe Int)
+parameterPosition :: String -> GenState (Maybe Int)
 parameterPosition paramName = do
         currFuncName <- FrameStack.currentFunction
         if currFuncName == "global"
@@ -132,7 +135,7 @@ parameterPosition paramName = do
                     . parameters <$> getFunctionState currFuncName
 
 
-parameterType :: String -> Evaluator (Maybe Type)
+parameterType :: String -> GenState (Maybe Type)
 parameterType paramName = do
         currFuncName <- FrameStack.currentFunction
         extract paramType
@@ -140,13 +143,13 @@ parameterType paramName = do
             . parameters <$> getFunctionState currFuncName
 
 
-allTypes :: String -> Evaluator [Type]
+allTypes :: String -> GenState [Type]
 allTypes funcName = do
         paramList <- M.elems . parameters <$> getFunctionState funcName
         return $ snd <$> sortBy (compare `on` fst) (paramData <$> paramList)
 
 
-parameterDeclared :: String -> Evaluator Bool
+parameterDeclared :: String -> GenState Bool
 parameterDeclared paramName = do
         pos <- parameterPosition paramName
         case pos of
@@ -156,15 +159,15 @@ parameterDeclared paramName = do
 
 -- store and lookup
 
-getOffset :: String -> Evaluator (Maybe Int)
+getOffset :: String -> GenState (Maybe Int)
 getOffset varName = getAttr varName locOffset
 
 
-getType :: String -> Evaluator (Maybe Type)
+getType :: String -> GenState (Maybe Type)
 getType varName = getAttr varName locType
 
 
-getAttr :: String -> (LocalVar -> a) -> Evaluator (Maybe a)
+getAttr :: String -> (LocalVar -> a) -> GenState (Maybe a)
 getAttr varName f = do
         currFuncName <- FrameStack.currentFunction
         if currFuncName == "global"
@@ -174,7 +177,7 @@ getAttr varName f = do
                    extract f <$> find currFuncName scopeLevel varName
 
 
-find :: String -> Int -> String -> Evaluator (Maybe LocalVar)
+find :: String -> Int -> String -> GenState (Maybe LocalVar)
 find funcName scope name =
         if scope == scopeLimit
            then return Nothing
@@ -185,7 +188,7 @@ find funcName scope name =
                         Just lv  -> return (Just lv)
 
 
-store :: String -> Int -> Type -> Evaluator ()
+store :: String -> Int -> Type -> GenState ()
 store name value typ = do
         currFuncName <- FrameStack.currentFunction
         funcState    <- getFunctionState currFuncName
@@ -197,7 +200,7 @@ store name value typ = do
         setFunctionState currFuncName funcState'
 
 
-getLocalVar :: String -> Int -> String -> Evaluator (Maybe LocalVar)
+getLocalVar :: String -> Int -> String -> GenState (Maybe LocalVar)
 getLocalVar funcName lev var =
         M.lookup var . getScope lev <$> getFunctionState funcName
 
@@ -210,19 +213,19 @@ getScope scope fs = fromMaybe
 
 -- scope
 
-incrementScope :: Evaluator Int
+incrementScope :: GenState Int
 incrementScope = stepScope succ
 
 
-decrementScope :: Evaluator Int
+decrementScope :: GenState Int
 decrementScope = stepScope pred
 
 
-findScope :: String -> Evaluator Int
+findScope :: String -> GenState Int
 findScope name = currentScope <$> getFunctionState name
 
 
-stepScope :: (Int -> Int) -> Evaluator Int
+stepScope :: (Int -> Int) -> GenState Int
 stepScope f = do
         currFuncName <- FrameStack.currentFunction
         funcState    <- getFunctionState currFuncName
@@ -238,51 +241,85 @@ scopeLimit = -1
 
 -- FuncState
 
-newFuncState :: String -> Evaluator ()
-newFuncState name = Ev $ \symTab ->
-        ((), symTab { funcStates = M.insert name Types.mkFS $ funcStates symTab })
+--newFuncState :: String -> Evaluator ()
+--newFuncState name = Ev $ \symTab ->
+--        ((), symTab { funcStates = M.insert name Types.mkFS $ funcStates symTab })
 
 
-addNestedScope :: String -> Int -> Evaluator ()
+newFuncState :: String -> GenState ()
+newFuncState name = do
+        state <- getState
+        putState $ state { funcStates = M.insert name Types.mkFS $ funcStates state }
+
+
+addNestedScope :: String -> Int -> GenState ()
 addNestedScope name level = do
         fs <- getFunctionState name
         let fs' = fs { scopes = M.insert level M.empty $ scopes fs }
         setFunctionState name fs'
 
 
-checkFunctionState :: String -> Evaluator Bool
-checkFunctionState n = Ev $ \symTab ->
-        case M.lookup n $ funcStates symTab of
-             Just _  -> (True, symTab)
-             Nothing -> (False, symTab)
+--checkFunctionState :: String -> Evaluator Bool
+--checkFunctionState n = Ev $ \symTab ->
+--        case M.lookup n $ funcStates symTab of
+--             Just _  -> (True, symTab)
+--             Nothing -> (False, symTab)
 
 
-getFunctionState :: String -> Evaluator FuncState
-getFunctionState n = Ev $ \symTab ->
-        case M.lookup n $ funcStates symTab of
-             Just st -> (st, symTab)
-             Nothing -> error $ "No state defined for: " ++ n
+checkFunctionState :: String -> GenState Bool
+checkFunctionState name = do
+        state <- getState
+        case M.lookup name $ funcStates state of
+             Just _  -> return True
+             Nothing -> return False
 
 
-setFunctionState :: String -> FuncState -> Evaluator ()
-setFunctionState n st = Ev $ \symTab ->
-        ((), symTab { funcStates = M.insert n st $ funcStates symTab })
+--getFunctionState :: String -> Evaluator FuncState
+--getFunctionState n = Ev $ \symTab ->
+--        case M.lookup n $ funcStates symTab of
+--             Just st -> (st, symTab)
+--             Nothing -> error $ "No state defined for: " ++ n
 
 
-delFunctionState :: String -> Evaluator ()
-delFunctionState n = Ev $ \symTab ->
-        ((), symTab { funcStates = M.delete n . funcStates $ symTab })
+getFunctionState :: String -> GenState FuncState
+getFunctionState name = do
+        state <- getState
+        case M.lookup name $ funcStates state of
+             Just st -> return st
+             Nothing -> error $ "No state defined for: " ++ name
+
+
+--setFunctionState :: String -> FuncState -> Evaluator ()
+--setFunctionState n st = Ev $ \symTab ->
+--        ((), symTab { funcStates = M.insert n st $ funcStates symTab })
+
+
+setFunctionState :: String -> FuncState -> GenState ()
+setFunctionState name st = do
+        state <- getState
+        putState $ state { funcStates = M.insert name st $ funcStates state }
+
+
+--delFunctionState :: String -> Evaluator ()
+--delFunctionState n = Ev $ \symTab ->
+--        ((), symTab { funcStates = M.delete n . funcStates $ symTab })
+
+
+delFunctionState :: String -> GenState ()
+delFunctionState name = do
+        state <- getState
+        putState $ state { funcStates = M.delete name . funcStates $ state }
 
 
 -- offset
 
-currentOffset :: Evaluator Int
+currentOffset :: GenState Int
 currentOffset = do
         currFuncName <- FrameStack.currentFunction
         funcOffset <$> getFunctionState currFuncName
 
 
-incrementOffset :: Evaluator ()
+incrementOffset :: GenState ()
 incrementOffset = do
         currFuncName <- FrameStack.currentFunction
         funcState    <- getFunctionState currFuncName

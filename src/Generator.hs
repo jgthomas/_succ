@@ -1,21 +1,28 @@
 
 
-module Generator (genASM) where
+module Generator (generate) where
 
 import Data.Maybe    (isNothing)
 import Control.Monad (when, unless)
 
 import AST        (Tree(..))
-import Evaluator  (Evaluator)
+--import Evaluator  (Evaluator)
 import Tokens     (Operator(..))
 import ASM_Tokens (Jump(..))
-import Types      (Type(..))
+import Types      (Type(..), mkSymTab)
+import Error      (CompilerError)
+import SuccState  (GenState,
+                   runSuccState)
 import qualified  SymTab
 import qualified  ASM
 import qualified  TypeCheck
 
 
-genASM :: Tree -> Evaluator String
+generate :: Tree -> Either CompilerError String
+generate ast = runSuccState genASM ast mkSymTab
+
+
+genASM :: Tree -> GenState String
 
 genASM (ProgramNode topLevelItems) = do
         text   <- concat <$> mapM genASM topLevelItems
@@ -267,7 +274,7 @@ genASM (ConstantNode n) = do
 
 -- Global variables
 
-declareGlobal :: String -> Type -> Maybe Tree -> Evaluator String
+declareGlobal :: String -> Type -> Maybe Tree -> GenState String
 declareGlobal name typ toAssign = do
         checkIfFunction name
         currLabel <- SymTab.globalLabel name
@@ -282,14 +289,14 @@ declareGlobal name typ toAssign = do
                      genAssignment toAssign
 
 
-checkIfFunction :: String -> Evaluator ()
+checkIfFunction :: String -> GenState ()
 checkIfFunction name = do
         paramNum <- SymTab.decParamCount name
         unless (isNothing paramNum) $
             error $ "already declared as function: " ++ name
 
 
-genAssignment :: Maybe Tree -> Evaluator String
+genAssignment :: Maybe Tree -> GenState String
 genAssignment toAssign =
         case toAssign of
              Nothing     -> return ASM.noOutput
@@ -300,7 +307,7 @@ mkGlobLabel :: String -> Int -> String
 mkGlobLabel name labnum = "_" ++ name ++ show labnum
 
 
-defineGlobal :: String -> Tree -> Evaluator String
+defineGlobal :: String -> Tree -> GenState String
 defineGlobal name valNode = do
         checkIfDefined name
         label <- SymTab.globalLabel name
@@ -317,7 +324,7 @@ defineGlobal name valNode = do
                           _ -> undefined
 
 
-checkIfDefined :: String -> Evaluator ()
+checkIfDefined :: String -> GenState ()
 checkIfDefined name = do
         defined <- SymTab.checkVarDefined name
         when defined $
@@ -332,7 +339,7 @@ globalVarASM lab con
 
 -- Functions / function calls
 
-declareFunction :: Type -> String -> [Tree] -> Evaluator ()
+declareFunction :: Type -> String -> [Tree] -> GenState ()
 declareFunction typ funcName paramList = do
         checkIfVariable funcName
         prevParamCount <- SymTab.decParamCount funcName
@@ -351,25 +358,25 @@ declareFunction typ funcName paramList = do
                            processParameters funcName paramList
 
 
-checkIfVariable :: String -> Evaluator ()
+checkIfVariable :: String -> GenState ()
 checkIfVariable name = do
         label <- SymTab.globalLabel name
         unless (isNothing label) $
             error $ "already defined as variable: " ++ name
 
 
-checkCountsMatch :: Int -> String -> [Tree] -> Evaluator ()
+checkCountsMatch :: Int -> String -> [Tree] -> GenState ()
 checkCountsMatch count name paramList =
         when (count /= length paramList) $
            error $ "mismatch in parameter/argument counts for: " ++ name
 
 
-checkArguments :: Maybe Int -> String -> [Tree] -> Evaluator ()
+checkArguments :: Maybe Int -> String -> [Tree] -> GenState ()
 checkArguments (Just n) name argList = checkCountsMatch n name argList
 checkArguments Nothing name _ = error $ "called function not declared: " ++ name
 
 
-processParameters :: String -> [Tree] -> Evaluator ()
+processParameters :: String -> [Tree] -> GenState ()
 processParameters name params = do
         SymTab.initFunction name
         mapM_ genASM params
@@ -384,7 +391,7 @@ hasReturn items
                             _            -> False
 
 
-processArgs :: [Tree] -> Int -> [String] -> Evaluator String
+processArgs :: [Tree] -> Int -> [String] -> GenState String
 processArgs argList argPos argASM
         | null argList = return $ concat argASM
         | otherwise    = do
@@ -392,7 +399,7 @@ processArgs argList argPos argASM
                 processArgs (tail argList) (argPos+1) (argASM ++ [asm])
 
 
-processArg :: Int -> Tree -> Evaluator String
+processArg :: Int -> Tree -> GenState String
 processArg argPos arg = do
         argASM <- genASM arg
         return $ argASM ++ (ASM.putInRegister . ASM.selectRegister $ argPos)
@@ -407,7 +414,7 @@ validSequence (Just callee) (Just caller)
         | otherwise        = False
 
 
-checkIfFuncDefined :: String -> Evaluator ()
+checkIfFuncDefined :: String -> GenState ()
 checkIfFuncDefined name = do
         defined <- SymTab.checkFuncDefined name
         when defined $
@@ -416,7 +423,7 @@ checkIfFuncDefined name = do
 
 -- Variables
 
-checkVariableExists :: String -> Evaluator (Maybe Int, Maybe Int, Maybe String)
+checkVariableExists :: String -> GenState (Maybe Int, Maybe Int, Maybe String)
 checkVariableExists varName = do
         offset  <- SymTab.variableOffset varName
         argPos  <- SymTab.parameterPosition varName
@@ -424,7 +431,7 @@ checkVariableExists varName = do
         return (offset, argPos, globLab)
 
 
-buildAssignmentASM :: Tree -> Tree -> Operator -> Evaluator String
+buildAssignmentASM :: Tree -> Tree -> Operator -> GenState String
 buildAssignmentASM varTree valueTree op
         | op == Assign         = genASM valueTree
         | op == PlusAssign     = genASM (BinaryNode varTree valueTree Plus)
@@ -468,7 +475,7 @@ storeAddressOf _ (Just _)   = ASM.noOutput
 storeAddressOf _ _ = error "address unrecognised"
 
 
-assignToVariable :: Maybe Int -> Maybe String -> Evaluator String
+assignToVariable :: Maybe Int -> Maybe String -> GenState String
 assignToVariable (Just off) _ = do
         adjustment <- SymTab.stackPointerValue
         return $ ASM.varOnStack off ++ ASM.adjustStackPointer adjustment
@@ -476,7 +483,7 @@ assignToVariable _ (Just lab) = return $ ASM.storeGlobal lab
 assignToVariable _ _ = error "address unrecognised"
 
 
-checkIfUsedInScope :: String -> Evaluator ()
+checkIfUsedInScope :: String -> GenState ()
 checkIfUsedInScope name = do
         localDec <- SymTab.checkVariable name
         paramDec <- SymTab.parameterDeclared name

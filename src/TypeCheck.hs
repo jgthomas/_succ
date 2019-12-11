@@ -6,44 +6,45 @@ module TypeCheck (paramDeclaration,
                   assignment,
                   funcReturn) where
 
-import Evaluator   (Evaluator)
+--import Evaluator   (Evaluator)
 import AST         (Tree(..))
 import Types       (Type(..))
 import Tokens      (Operator(..))
 import FrameStack  (currentScope)
 import GlobalScope (globalType, declaredFuncType)
 import FuncState   (allTypes, variableType, parameterType)
+import SuccState   (GenState)
 
 
-paramDeclaration :: String -> [Tree] -> Evaluator ()
+paramDeclaration :: String -> [Tree] -> GenState ()
 paramDeclaration name treeList = do
         (oldParams, newParams) <- passedTypes name treeList
         let errorType = ParamParam name oldParams newParams
         checkTypes oldParams newParams errorType
 
 
-argsMatchParams :: String -> [Tree] -> Evaluator ()
+argsMatchParams :: String -> [Tree] -> GenState ()
 argsMatchParams name treeList = do
         (params, args) <- passedTypes name treeList
         let errorType = ArgParam name params args
         checkTypes params args errorType
 
 
-funcTypeDeclaration :: String -> Type -> Evaluator ()
+funcTypeDeclaration :: String -> Type -> GenState ()
 funcTypeDeclaration name newTyp = do
         oldTyp <- getFuncType name
         let errorType = FuncType name oldTyp newTyp
         checkTypes [oldTyp] [newTyp] errorType
 
 
-globalDeclaration :: String -> Type -> Evaluator ()
+globalDeclaration :: String -> Type -> GenState ()
 globalDeclaration name newTyp = do
         oldTyp <- getType (VarNode name)
         let errorType = VarType name oldTyp newTyp
         checkTypes [oldTyp] [newTyp] errorType
 
 
-assignment :: String -> Tree -> Evaluator ()
+assignment :: String -> Tree -> GenState ()
 assignment name value = do
         varTyp  <- getType (VarNode name)
         valType <- getType value
@@ -52,7 +53,7 @@ assignment name value = do
            else error $ typeError (Assignment name varTyp valType)
 
 
-funcReturn :: Tree -> Evaluator ()
+funcReturn :: Tree -> GenState ()
 funcReturn retVal = do
         currFuncName <- currentScope
         currFuncType <- getFuncType currFuncName
@@ -63,21 +64,21 @@ funcReturn retVal = do
 
 -- Internal
 
-passedTypes :: String -> [Tree] -> Evaluator ([Type], [Type])
+passedTypes :: String -> [Tree] -> GenState ([Type], [Type])
 passedTypes name treeList = do
         currTypes <- allTypes name
         newTypes  <- mapM getType treeList
         return (currTypes, newTypes)
 
 
-checkTypes :: [Type] -> [Type] -> TypeError -> Evaluator ()
+checkTypes :: [Type] -> [Type] -> TypeError -> GenState ()
 checkTypes oldTypes newTypes errorType =
         if oldTypes == newTypes
            then return ()
            else error $ typeError errorType
 
 
-getType :: Tree -> Evaluator Type
+getType :: Tree -> GenState Type
 getType (ArgNode tree)            = getType tree
 getType (ParamNode typ _)         = return typ
 getType (VarNode name)            = getVariableType name
@@ -92,7 +93,7 @@ getType (DereferenceNode name)    = dereferenceType name
 getType _                         = undefined
 
 
-getVariableType :: String -> Evaluator Type
+getVariableType :: String -> GenState Type
 getVariableType name = do
         currScope <- currentScope
         if currScope == "global"
@@ -102,7 +103,7 @@ getVariableType name = do
            else checkAllVariableTypes name
 
 
-checkAllVariableTypes :: String -> Evaluator Type
+checkAllVariableTypes :: String -> GenState Type
 checkAllVariableTypes name = do
         typL <- variableType name
         typP <- parameterType name
@@ -117,12 +118,12 @@ varType _ _ (Just typG)         = Just typG
 varType Nothing Nothing Nothing = Nothing
 
 
-extractType :: String -> Maybe Type -> Evaluator Type
+extractType :: String -> Maybe Type -> GenState Type
 extractType _ (Just typ) = return typ
 extractType name Nothing = error $ typeError (NoType name)
 
 
-getBinaryType :: Tree -> Tree -> Operator -> Evaluator Type
+getBinaryType :: Tree -> Tree -> Operator -> GenState Type
 getBinaryType left right op = do
         leftType  <- getType left
         rightType <- getType right
@@ -134,7 +135,7 @@ binType IntVar IntVar _ = IntVar
 binType _ _ _ = undefined
 
 
-getTernaryType :: Tree -> Tree -> Tree -> Evaluator Type
+getTernaryType :: Tree -> Tree -> Tree -> GenState Type
 getTernaryType left mid right = do
         leftType  <- getType left
         midType   <- getType mid
@@ -153,30 +154,30 @@ permitted IntPointer = [IntVar,IntPointer]
 permitted typ        = error $ "unrecognised type: " ++ show typ
 
 
-getFuncType :: String -> Evaluator Type
+getFuncType :: String -> GenState Type
 getFuncType name = do
         oldTyp <- declaredFuncType name
         extractType name oldTyp
 
 
-addressOfType :: String -> Evaluator Type
+addressOfType :: String -> GenState Type
 addressOfType name = do
         typ <- getType (VarNode name)
         addType typ
 
 
-addType :: Type -> Evaluator Type
+addType :: Type -> GenState Type
 addType IntVar = return IntPointer
 addType _ = undefined
 
 
-dereferenceType :: String -> Evaluator Type
+dereferenceType :: String -> GenState Type
 dereferenceType name = do
         typ <- getType (VarNode name)
         derefType typ
 
 
-derefType :: Type -> Evaluator Type
+derefType :: Type -> GenState Type
 derefType IntPointer = return IntVar
 derefType _ = undefined
 
