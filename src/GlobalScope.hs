@@ -22,9 +22,6 @@ import qualified Data.Set as S
 import Types                (GlobalScope(..),
                              GlobalVar(..),
                              Type)
---import SuccState            (GenState,
---                             getState,
---                             putState)
 import GenState (GenState)
 import qualified GenState as GenS (getGlobalScope, updateGlobalScope)
 import qualified Types      (mkGloVar)
@@ -118,18 +115,6 @@ getAllForInit = varsToinit <$> GenS.getGlobalScope
 
 
 {- Internal -}
-
---getGlobalScope :: GenState GlobalScope
---getGlobalScope = do
---        state <- getState
---        return . globalScope $ state
---
---
---updateGlobalScope :: GlobalScope -> GenState ()
---updateGlobalScope gs = do
---        state <- getState
---        putState $ state { globalScope = gs }
-
 
 lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> GenState (Maybe a)
 lookUp n f = M.lookup n . f <$> GenS.getGlobalScope

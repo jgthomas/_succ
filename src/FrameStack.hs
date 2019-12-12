@@ -7,9 +7,8 @@ module FrameStack
         where
 
 
-import Types (Stack(Stack))
---import SuccState (GenState, getState, putState)
-import GenState (GenState)
+import Types                      (Stack(Stack))
+import GenState                   (GenState)
 import qualified GenState as GenS (getFrameStack, putFrameStack)
 
 
@@ -31,26 +30,18 @@ popFunctionName :: GenState ()
 popFunctionName = do
         stack <- GenS.getFrameStack
         GenS.putFrameStack $ stackPop stack
-        --state <- getState
-        --putState $ state { frameStack = stackPop $ frameStack state }
 
 
 pushFunctionName :: String -> GenState ()
 pushFunctionName name = do
         stack <- GenS.getFrameStack
         GenS.putFrameStack $ stackPush name stack
-        --state <- getState
-        --putState $ state { frameStack = stackPush name $ frameStack state }
 
 
 {- Internal -}
 
 queryStack :: GenState (Maybe String)
-queryStack = do
-        stack <- GenS.getFrameStack
-        return $ stackPeek stack
-        --state <- getState
-        --return $ stackPeek . frameStack $ state
+queryStack = stackPeek <$> GenS.getFrameStack
 
 
 stackPeek :: Stack a -> Maybe a

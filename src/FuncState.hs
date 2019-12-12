@@ -30,9 +30,6 @@ import Types                 (FuncState(..),
                               LocalVar(..),
                               ParamVar(..),
                               Type(Label))
---import SuccState             (GenState,
---                              getState,
---                              putState)
 import GenState (GenState)
 import qualified GenState as GenS (getFuncStates, putFuncStates)
 import qualified Types       (mkFS,
@@ -245,8 +242,6 @@ newFuncState :: String -> GenState ()
 newFuncState name = do
         fstates <- GenS.getFuncStates
         GenS.putFuncStates $ M.insert name Types.mkFS fstates
-        --state <- getState
-        --putState $ state { funcStates = M.insert name Types.mkFS $ funcStates state }
 
 
 addNestedScope :: String -> Int -> GenState ()
@@ -262,10 +257,6 @@ checkFunctionState name = do
         case M.lookup name fstates of
              Just _  -> return True
              Nothing -> return False
-        --state <- getState
-        --case M.lookup name $ funcStates state of
-        --     Just _  -> return True
-        --     Nothing -> return False
 
 
 getFunctionState :: String -> GenState FuncState
@@ -274,26 +265,18 @@ getFunctionState name = do
         case M.lookup name fstates of
              Just st -> return st
              Nothing -> error $ "No state defined for: " ++ name
-        --state <- getState
-        --case M.lookup name $ funcStates state of
-        --     Just st -> return st
-        --     Nothing -> error $ "No state defined for: " ++ name
 
 
 setFunctionState :: String -> FuncState -> GenState ()
 setFunctionState name st = do
         fstates <- GenS.getFuncStates
-        GenS.putFuncStates $ M.insert name st  fstates
-        --state <- getState
-        --putState $ state { funcStates = M.insert name st $ funcStates state }
+        GenS.putFuncStates $ M.insert name st fstates
 
 
 delFunctionState :: String -> GenState ()
 delFunctionState name = do
         fstates <- GenS.getFuncStates
         GenS.putFuncStates $ M.delete name fstates
-        --state <- getState
-        --putState $ state { funcStates = M.delete name . funcStates $ state }
 
 
 -- offset
