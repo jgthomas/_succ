@@ -1,21 +1,21 @@
 
-module SymTab (currentScope,
-               labelNum,
-               module GlobalScope,
-               module FuncState) where
+module SymTab
+        (currentScope,
+         labelNum,
+         module GlobalScope,
+         module FuncState
+        ) where
 
 
-import Types       (SymTab(label))
-import FrameStack  (currentScope)
+import FrameStack         (currentScope)
+import GenState           (GenState)
+import qualified GenState (getLabel, putLabel)
 import GlobalScope hiding (globalType, declaredFuncType)
 import FuncState   hiding (allTypes, variableType, parameterType)
-import SuccState   (getState, putState)
-import GenState    (GenState)
 
 
 labelNum :: GenState Int
 labelNum = do
-        state <- getState
-        putState $ state { label = succ . label $ state }
-        return $ label state
-
+        label <- GenState.getLabel
+        GenState.putLabel . succ $ label
+        return label
