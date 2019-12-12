@@ -9,7 +9,8 @@ import Types       (SymTab(label))
 import FrameStack  (currentScope)
 import GlobalScope hiding (globalType, declaredFuncType)
 import FuncState   hiding (allTypes, variableType, parameterType)
-import SuccState   (GenState, getState, putState)
+import SuccState   (getState, putState)
+import GenState    (GenState)
 
 
 labelNum :: GenState Int

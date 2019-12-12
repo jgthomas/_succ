@@ -3,7 +3,6 @@
 module SuccState
         (LexerState,
          ParserState,
-         GenState,
          SuccStateM,
          getState,
          putState,
@@ -18,7 +17,6 @@ import Control.Monad.Trans.Except
 import Error  (CompilerError)
 import Tokens (Token)
 import AST    (Tree)
-import Types  (SymTab)
 
 
 newtype SuccStateM s a = CM {
@@ -28,7 +26,6 @@ newtype SuccStateM s a = CM {
 
 type LexerState = SuccStateM [Token]
 type ParserState = SuccStateM Tree
-type GenState = SuccStateM SymTab
 
 
 getState :: SuccStateM a a

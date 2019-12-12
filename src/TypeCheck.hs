@@ -12,7 +12,7 @@ import Tokens      (Operator(..))
 import FrameStack  (currentScope)
 import GlobalScope (globalType, declaredFuncType)
 import FuncState   (allTypes, variableType, parameterType)
-import SuccState   (GenState)
+import GenState    (GenState)
 
 
 paramDeclaration :: String -> [Tree] -> GenState ()
