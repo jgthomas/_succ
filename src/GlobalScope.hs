@@ -19,11 +19,9 @@ module GlobalScope (declareFunction,
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import Types                (GlobalScope(..),
-                             GlobalVar(..),
-                             Type)
-import GenState (GenState)
-import qualified GenState as GenS (getGlobalScope, updateGlobalScope)
+import Types                (GlobalScope(..), GlobalVar(..), Type)
+import GenState             (GenState)
+import qualified GenState   (getGlobalScope, updateGlobalScope)
 import qualified Types      (mkGloVar)
 import qualified FrameStack (currentFunction)
 
@@ -55,44 +53,44 @@ currentSeqNumber = do
 
 
 checkVarDefined :: String -> GenState Bool
-checkVarDefined name = S.member name . definedVars <$> GenS.getGlobalScope
+checkVarDefined name = S.member name . definedVars <$> GenState.getGlobalScope
 
 
 checkFuncDefined :: String -> GenState Bool
-checkFuncDefined name = S.member name . definedFuncs <$> GenS.getGlobalScope
+checkFuncDefined name = S.member name . definedFuncs <$> GenState.getGlobalScope
 
 
 declareFunction :: Type -> String -> Int -> GenState ()
 declareFunction typ funcName paramCount = do
-        gscope <- GenS.getGlobalScope
+        gscope <- GenState.getGlobalScope
         let gscope'   = addSymbol funcName gscope
             gscope''  = addParams funcName paramCount gscope'
             gscope''' = addType funcName typ gscope''
-        GenS.updateGlobalScope gscope'''
+        GenState.updateGlobalScope gscope'''
 
 
 defineFunction :: String -> GenState ()
 defineFunction name = do
-        gscope <- GenS.getGlobalScope
-        GenS.updateGlobalScope $ funcAsDefined name gscope
+        gscope <- GenState.getGlobalScope
+        GenState.updateGlobalScope $ funcAsDefined name gscope
 
 
 declareGlobal :: String -> Type -> String -> GenState ()
 declareGlobal name typ label = do
-        gscope <- GenS.getGlobalScope
+        gscope <- GenState.getGlobalScope
         let globVar = Types.mkGloVar label typ
-        GenS.updateGlobalScope $ addGlobal name globVar gscope
+        GenState.updateGlobalScope $ addGlobal name globVar gscope
 
 
 defineGlobal :: String -> GenState ()
 defineGlobal name = do
-        gscope <- GenS.getGlobalScope
-        GenS.updateGlobalScope $ varAsDefined name gscope
+        gscope <- GenState.getGlobalScope
+        GenState.updateGlobalScope $ varAsDefined name gscope
 
 
 getUndefined :: GenState [String]
 getUndefined = do
-        gscope <- GenS.getGlobalScope
+        gscope <- GenState.getGlobalScope
         let definedSet   = definedVars gscope
             declaredSet  = M.keysSet $ declaredVars gscope
             undefinedSet = S.difference declaredSet definedSet
@@ -100,24 +98,24 @@ getUndefined = do
             . M.elems
             . M.filterWithKey (\k _ -> k `elem` undefinedSet)
             . declaredVars
-            <$> GenS.getGlobalScope
+            <$> GenState.getGlobalScope
 
 
 storeForInit :: String -> GenState ()
 storeForInit code = do
-        gscope <- GenS.getGlobalScope
+        gscope <- GenState.getGlobalScope
         let gscope' = gscope { varsToinit = code : varsToinit gscope }
-        GenS.updateGlobalScope gscope'
+        GenState.updateGlobalScope gscope'
 
 
 getAllForInit :: GenState [String]
-getAllForInit = varsToinit <$> GenS.getGlobalScope
+getAllForInit = varsToinit <$> GenState.getGlobalScope
 
 
 {- Internal -}
 
 lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> GenState (Maybe a)
-lookUp n f = M.lookup n . f <$> GenS.getGlobalScope
+lookUp n f = M.lookup n . f <$> GenState.getGlobalScope
 
 
 extract :: (GlobalVar -> a) -> Maybe GlobalVar -> Maybe a
