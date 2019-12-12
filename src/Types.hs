@@ -22,25 +22,27 @@ mkStack :: Stack a
 mkStack = Stack []
 
 
-data GlobalScope = Gscope { seqNum       :: Int
-                          , funcDecSeq   :: M.Map String Int
-                          , funcParams   :: M.Map String Int
-                          , funcTypes    :: M.Map String Type
-                          , declaredVars :: M.Map String GlobalVar
-                          , definedVars  :: S.Set String
-                          , definedFuncs :: S.Set String
-                          , varsToinit   :: [String] }
+data GlobalScope = Gscope
+                 { seqNum       :: Int
+                 , funcDecSeq   :: M.Map String Int
+                 , funcParams   :: M.Map String Int
+                 , funcTypes    :: M.Map String Type
+                 , declaredVars :: M.Map String GlobalVar
+                 , definedVars  :: S.Set String
+                 , definedFuncs :: S.Set String
+                 , varsToinit   :: [String] }
                  deriving (Show)
 
 mkGS :: GlobalScope
 mkGS = Gscope 0 M.empty M.empty M.empty M.empty S.empty S.empty []
 
 
-data FuncState = Fs { paramCount   :: Int
-                    , funcOffset   :: Int
-                    , currentScope :: Int
-                    , parameters   :: M.Map String ParamVar
-                    , scopes       :: M.Map Int (M.Map String LocalVar) }
+data FuncState = Fs
+               { paramCount   :: Int
+               , funcOffset   :: Int
+               , currentScope :: Int
+               , parameters   :: M.Map String ParamVar
+               , scopes       :: M.Map Int (M.Map String LocalVar) }
                deriving (Show)
 
 mkFS :: FuncState
