@@ -4,6 +4,7 @@ module SuccState
         (LexerState,
          ParserState,
          GenState,
+         SuccStateM,
          getState,
          putState,
          throwError,

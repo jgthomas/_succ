@@ -10,8 +10,8 @@ import Tokens     (Operator(..))
 import ASM_Tokens (Jump(..))
 import Types      (Type(..), mkSymTab)
 import Error      (CompilerError)
-import SuccState  (GenState,
-                   runSuccState)
+import SuccState  (runSuccState)
+import GenState   (GenState)
 import qualified  SymTab
 import qualified  ASM
 import qualified  TypeCheck

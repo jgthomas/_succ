@@ -26,14 +26,15 @@ import Data.List             (sortBy)
 import Control.Monad         (unless)
 import qualified Data.Map as M
 
-import Types                 (SymTab(funcStates),
-                              FuncState(..),
+import Types                 (FuncState(..),
                               LocalVar(..),
                               ParamVar(..),
                               Type(Label))
-import SuccState             (GenState,
-                              getState,
-                              putState)
+--import SuccState             (GenState,
+--                              getState,
+--                              putState)
+import GenState (GenState)
+import qualified GenState as GenS (getFuncStates, putFuncStates)
 import qualified Types       (mkFS,
                               mkLocVar,
                               mkParVar)
@@ -242,8 +243,10 @@ scopeLimit = -1
 
 newFuncState :: String -> GenState ()
 newFuncState name = do
-        state <- getState
-        putState $ state { funcStates = M.insert name Types.mkFS $ funcStates state }
+        fstates <- GenS.getFuncStates
+        GenS.putFuncStates $ M.insert name Types.mkFS fstates
+        --state <- getState
+        --putState $ state { funcStates = M.insert name Types.mkFS $ funcStates state }
 
 
 addNestedScope :: String -> Int -> GenState ()
@@ -255,30 +258,42 @@ addNestedScope name level = do
 
 checkFunctionState :: String -> GenState Bool
 checkFunctionState name = do
-        state <- getState
-        case M.lookup name $ funcStates state of
+        fstates <- GenS.getFuncStates
+        case M.lookup name fstates of
              Just _  -> return True
              Nothing -> return False
+        --state <- getState
+        --case M.lookup name $ funcStates state of
+        --     Just _  -> return True
+        --     Nothing -> return False
 
 
 getFunctionState :: String -> GenState FuncState
 getFunctionState name = do
-        state <- getState
-        case M.lookup name $ funcStates state of
+        fstates <- GenS.getFuncStates
+        case M.lookup name fstates of
              Just st -> return st
              Nothing -> error $ "No state defined for: " ++ name
+        --state <- getState
+        --case M.lookup name $ funcStates state of
+        --     Just st -> return st
+        --     Nothing -> error $ "No state defined for: " ++ name
 
 
 setFunctionState :: String -> FuncState -> GenState ()
 setFunctionState name st = do
-        state <- getState
-        putState $ state { funcStates = M.insert name st $ funcStates state }
+        fstates <- GenS.getFuncStates
+        GenS.putFuncStates $ M.insert name st  fstates
+        --state <- getState
+        --putState $ state { funcStates = M.insert name st $ funcStates state }
 
 
 delFunctionState :: String -> GenState ()
 delFunctionState name = do
-        state <- getState
-        putState $ state { funcStates = M.delete name . funcStates $ state }
+        fstates <- GenS.getFuncStates
+        GenS.putFuncStates $ M.delete name fstates
+        --state <- getState
+        --putState $ state { funcStates = M.delete name . funcStates $ state }
 
 
 -- offset
