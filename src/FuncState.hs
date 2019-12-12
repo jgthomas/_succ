@@ -1,23 +1,25 @@
 
-module FuncState (initScope,
-                  closeScope,
-                  initFunction,
-                  closeFunction,
-                  getBreak,
-                  setBreak,
-                  getContinue,
-                  setContinue,
-                  checkVariable,
-                  variableOffset,
-                  variableType,
-                  addParameter,
-                  parameterPosition,
-                  parameterType,
-                  parameterDeclared,
-                  addVariable,
-                  delFuncState,
-                  allTypes,
-                  stackPointerValue) where
+module FuncState
+        (initScope,
+         closeScope,
+         initFunction,
+         closeFunction,
+         getBreak,
+         setBreak,
+         getContinue,
+         setContinue,
+         checkVariable,
+         variableOffset,
+         variableType,
+         addParameter,
+         parameterPosition,
+         parameterType,
+         parameterDeclared,
+         addVariable,
+         delFuncState,
+         allTypes,
+         stackPointerValue
+        ) where
 
 
 import Data.Maybe            (fromMaybe)
@@ -26,12 +28,12 @@ import Data.List             (sortBy)
 import Control.Monad         (unless)
 import qualified Data.Map as M
 
+import GenState              (GenState)
+import qualified GenState    (getFuncStates, putFuncStates)
 import Types                 (FuncState(..),
                               LocalVar(..),
                               ParamVar(..),
                               Type(Label))
-import GenState (GenState)
-import qualified GenState as GenS (getFuncStates, putFuncStates)
 import qualified Types       (mkFS,
                               mkLocVar,
                               mkParVar)
@@ -240,8 +242,8 @@ scopeLimit = -1
 
 newFuncState :: String -> GenState ()
 newFuncState name = do
-        fstates <- GenS.getFuncStates
-        GenS.putFuncStates $ M.insert name Types.mkFS fstates
+        fstates <- GenState.getFuncStates
+        GenState.putFuncStates $ M.insert name Types.mkFS fstates
 
 
 addNestedScope :: String -> Int -> GenState ()
@@ -253,7 +255,7 @@ addNestedScope name level = do
 
 checkFunctionState :: String -> GenState Bool
 checkFunctionState name = do
-        fstates <- GenS.getFuncStates
+        fstates <- GenState.getFuncStates
         case M.lookup name fstates of
              Just _  -> return True
              Nothing -> return False
@@ -261,7 +263,7 @@ checkFunctionState name = do
 
 getFunctionState :: String -> GenState FuncState
 getFunctionState name = do
-        fstates <- GenS.getFuncStates
+        fstates <- GenState.getFuncStates
         case M.lookup name fstates of
              Just st -> return st
              Nothing -> error $ "No state defined for: " ++ name
@@ -269,14 +271,14 @@ getFunctionState name = do
 
 setFunctionState :: String -> FuncState -> GenState ()
 setFunctionState name st = do
-        fstates <- GenS.getFuncStates
-        GenS.putFuncStates $ M.insert name st fstates
+        fstates <- GenState.getFuncStates
+        GenState.putFuncStates $ M.insert name st fstates
 
 
 delFunctionState :: String -> GenState ()
 delFunctionState name = do
-        fstates <- GenS.getFuncStates
-        GenS.putFuncStates $ M.delete name fstates
+        fstates <- GenState.getFuncStates
+        GenState.putFuncStates $ M.delete name fstates
 
 
 -- offset
