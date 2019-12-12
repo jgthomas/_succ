@@ -1,19 +1,21 @@
 
-module GlobalScope (declareFunction,
-                    defineFunction,
-                    declareGlobal,
-                    decParamCount,
-                    decSeqNumber,
-                    currentSeqNumber,
-                    globalLabel,
-                    globalType,
-                    declaredFuncType,
-                    checkVarDefined,
-                    checkFuncDefined,
-                    getUndefined,
-                    storeForInit,
-                    getAllForInit,
-                    defineGlobal) where
+module GlobalScope
+        (declareFunction,
+         defineFunction,
+         declareGlobal,
+         decParamCount,
+         decSeqNumber,
+         currentSeqNumber,
+         globalLabel,
+         globalType,
+         declaredFuncType,
+         checkVarDefined,
+         checkFuncDefined,
+         getUndefined,
+         storeForInit,
+         getAllForInit,
+         defineGlobal
+        ) where
 
 
 import qualified Data.Map as M

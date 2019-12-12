@@ -1,20 +1,20 @@
 
-
 module Generator (generate) where
+
 
 import Data.Maybe    (isNothing)
 import Control.Monad (when, unless)
 
-import AST        (Tree(..))
-import Tokens     (Operator(..))
-import ASM_Tokens (Jump(..))
-import Types      (Type(..), mkSymTab)
-import Error      (CompilerError)
-import SuccState  (runSuccState)
-import GenState   (GenState)
-import qualified  SymTab
-import qualified  ASM
-import qualified  TypeCheck
+import AST           (Tree(..))
+import Tokens        (Operator(..))
+import ASM_Tokens    (Jump(..))
+import Types         (Type(..), mkSymTab)
+import Error         (CompilerError)
+import SuccState     (runSuccState)
+import GenState      (GenState)
+import qualified     SymTab
+import qualified     ASM
+import qualified     TypeCheck
 
 
 generate :: Tree -> Either CompilerError String

@@ -1,17 +1,10 @@
 
-module Error
-        (
-         CompilerError(..),
-         LexerError(..),
-         ParserError(..),
-         SyntaxError(..),
-         TypeError(..)
-        ) where
+module Error where
 
 
-import Tokens (Keyword,
-               Token)
+import Tokens (Keyword, Token)
 import AST    (Tree)
+
 
 data CompilerError = LexerError LexerError
                    | ParserError ParserError

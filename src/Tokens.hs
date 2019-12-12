@@ -1,10 +1,5 @@
 
-module Tokens (
-        Operator(..),
-        Keyword(..),
-        Token(..),
-        unary
-        ) where
+module Tokens where
 
 
 data Operator = Plus

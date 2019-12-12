@@ -12,13 +12,11 @@ data SymTab = Tab { label       :: Int
                   , funcStates  :: M.Map String FuncState }
             deriving (Show)
 
-
 mkSymTab :: SymTab
 mkSymTab = Tab 1 mkStack mkGS M.empty
 
 
 newtype Stack a = Stack [a] deriving Show
-
 
 mkStack :: Stack a
 mkStack = Stack []
@@ -34,7 +32,6 @@ data GlobalScope = Gscope { seqNum       :: Int
                           , varsToinit   :: [String] }
                  deriving (Show)
 
-
 mkGS :: GlobalScope
 mkGS = Gscope 0 M.empty M.empty M.empty M.empty S.empty S.empty []
 
@@ -46,7 +43,6 @@ data FuncState = Fs { paramCount   :: Int
                     , scopes       :: M.Map Int (M.Map String LocalVar) }
                deriving (Show)
 
-
 mkFS :: FuncState
 mkFS = Fs 0 (-8) 0 M.empty (M.singleton 0 M.empty)
 
@@ -54,7 +50,6 @@ mkFS = Fs 0 (-8) 0 M.empty (M.singleton 0 M.empty)
 data LocalVar = LocVar { locOffset :: Int
                        , locType   :: Type }
               deriving (Show)
-
 
 mkLocVar :: Int -> Type -> LocalVar
 mkLocVar n t = LocVar n t
@@ -64,7 +59,6 @@ data GlobalVar = GloVar { globLabel :: String
                         , globType  :: Type }
                deriving (Show)
 
-
 mkGloVar :: String -> Type -> GlobalVar
 mkGloVar l t = GloVar l t
 
@@ -72,7 +66,6 @@ mkGloVar l t = GloVar l t
 data ParamVar = ParVar { paramNum  :: Int
                        , paramType :: Type }
               deriving (Show)
-
 
 mkParVar :: Int -> Type -> ParamVar
 mkParVar n t = ParVar n t

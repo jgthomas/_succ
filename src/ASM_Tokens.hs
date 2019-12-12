@@ -1,5 +1,10 @@
 
-module ASM_Tokens (Jump(..), Section(..), Set(..), Register(..)) where
+module ASM_Tokens
+        (Jump(..),
+         Section(..),
+         Set(..),
+         Register(..)
+        ) where
 
 
 data Jump = JMP
