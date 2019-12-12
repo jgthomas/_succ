@@ -10,12 +10,14 @@ import Tokens    (Operator(..),
                   Token(..))
 import Error     (CompilerError(LexerError, ImpossibleError),
                   LexerError(..))
-import SuccState (LexerState,
+import SuccState (SuccStateM,
                   getState,
                   putState,
                   throwError,
                   runSuccState)
 
+
+type LexerState = SuccStateM [Token]
 
 startState :: [Token]
 startState = []

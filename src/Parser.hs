@@ -2,22 +2,22 @@
 module Parser (parse) where
 
 
-import Tokens (Operator(..), Keyword(..), Token(..))
+import Tokens           (Operator(..), Keyword(..), Token(..))
 import qualified Tokens (unary)
-import AST       (Tree(..))
-import Types     (Type(..))
-import Error     (CompilerError(..),
-                  ParserError(..),
-                  SyntaxError(..),
-                  TypeError(..)
-                 )
-import SuccState (ParserState,
-                  getState,
-                  putState,
-                  throwError,
-                  runSuccState
-                 )
+import AST              (Tree(..))
+import Types            (Type(..))
+import Error            (CompilerError(..),
+                         ParserError(..),
+                         SyntaxError(..),
+                         TypeError(..))
+import SuccState        (SuccStateM,
+                         getState,
+                         putState,
+                         throwError,
+                         runSuccState)
 
+
+type ParserState = SuccStateM Tree
 
 startState :: Tree
 startState = ProgramNode []

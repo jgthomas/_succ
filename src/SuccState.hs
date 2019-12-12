@@ -1,9 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module SuccState
-        (LexerState,
-         ParserState,
-         SuccStateM,
+        (SuccStateM,
          getState,
          putState,
          throwError,
@@ -14,18 +12,12 @@ module SuccState
 import Control.Monad.State
 import Control.Monad.Trans.Except
 
-import Error  (CompilerError)
-import Tokens (Token)
-import AST    (Tree)
+import Error (CompilerError)
 
 
 newtype SuccStateM s a = CM {
         unCM :: ExceptT CompilerError (State s) a
 } deriving (Functor, Applicative, Monad)
-
-
-type LexerState = SuccStateM [Token]
-type ParserState = SuccStateM Tree
 
 
 getState :: SuccStateM a a
