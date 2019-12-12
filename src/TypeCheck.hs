@@ -1,10 +1,13 @@
 
-module TypeCheck (paramDeclaration,
-                  funcTypeDeclaration,
-                  argsMatchParams,
-                  globalDeclaration,
-                  assignment,
-                  funcReturn) where
+module TypeCheck
+        (paramDeclaration,
+         funcTypeDeclaration,
+         argsMatchParams,
+         globalDeclaration,
+         assignment,
+         funcReturn
+        ) where
+
 
 import AST         (Tree(..))
 import Types       (Type(..))
