@@ -33,7 +33,7 @@ genASM node@(FunctionNode _ _ _ Nothing) = do
         declareFunction node
         return ASM.noOutput
 genASM node@(FunctionNode _ name _ (Just stmts)) = do
-        checkIfFuncDefined name
+        checkIfFuncDefined node
         declareFunction node
         SymTab.initFunction name
         statements <- mapM genASM stmts
@@ -424,11 +424,12 @@ validSequence (Just callee) (Just caller)
         | otherwise        = False
 
 
-checkIfFuncDefined :: String -> GenState ()
-checkIfFuncDefined name = do
+checkIfFuncDefined :: Tree -> GenState ()
+checkIfFuncDefined node@(FunctionNode _ name _ _) = do
         defined <- SymTab.checkFuncDefined name
         when defined $
-           error $ "Function aleady defined: " ++ name
+           throwError $ SyntaxError (DoubleDefined node)
+checkIfFuncDefined tree = throwError $ SyntaxError (Unexpected tree)
 
 
 -- Variables
