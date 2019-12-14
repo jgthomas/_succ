@@ -36,6 +36,7 @@ data SyntaxError = InvalidIdentifier Token
                  | DoubleDefined Tree
                  | Unrecognised Tree
                  | Unexpected Tree
+                 | MisMatch Int Tree
                  deriving (Show, Eq)
 
 

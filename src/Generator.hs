@@ -8,7 +8,6 @@ import Control.Monad (when, unless)
 import AST           (Tree(..))
 import Tokens        (Operator(..))
 import ASM_Tokens    (Jump(..))
-import VarTypes      (Type)
 import Error         (CompilerError(..), SyntaxError(..))
 import GenState      (GenState)
 import Types         (mkSymTab)
@@ -30,12 +29,12 @@ genASM (ProgramNode topLevelItems) = do
         toInit <- ASM.outputInit . concat <$> SymTab.getAllForInit
         return $ text ++ bss ++ toInit
 
-genASM (FunctionNode typ name paramList Nothing) = do
-        declareFunction typ name paramList
+genASM node@(FunctionNode _ _ _ Nothing) = do
+        declareFunction node
         return ASM.noOutput
-genASM (FunctionNode typ name paramList (Just stmts)) = do
+genASM node@(FunctionNode _ name _ (Just stmts)) = do
         checkIfFuncDefined name
-        declareFunction typ name paramList
+        declareFunction node
         SymTab.initFunction name
         statements <- mapM genASM stmts
         SymTab.closeFunction
@@ -56,7 +55,7 @@ genASM node@(ParamNode _ _) = throwError $ SyntaxError (Unexpected node)
 
 genASM node@(FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
-        checkArguments paramCount name argList
+        checkArguments paramCount node
         TypeCheck.argsMatchParams name argList
         callee <- SymTab.decSeqNumber name
         caller <- SymTab.currentSeqNumber
@@ -343,16 +342,16 @@ globalVarASM lab con
 
 -- Functions / function calls
 
-declareFunction :: Type -> String -> [Tree] -> GenState ()
-declareFunction typ funcName paramList = do
-        checkIfVariable funcName
+declareFunction :: Tree -> GenState ()
+declareFunction node@(FunctionNode typ funcName paramList _) = do
+        checkIfVariable node
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
              Nothing    -> do
                      SymTab.declareFunction typ funcName (length paramList)
                      processParameters funcName paramList
              Just count -> do
-                     checkCountsMatch count funcName paramList
+                     checkCountsMatch count node
                      TypeCheck.paramDeclaration funcName paramList
                      TypeCheck.funcTypeDeclaration funcName typ
                      SymTab.declareFunction typ funcName (length paramList)
@@ -360,24 +359,31 @@ declareFunction typ funcName paramList = do
                      unless defined $
                         do SymTab.delFuncState funcName
                            processParameters funcName paramList
+declareFunction tree = throwError $ SyntaxError (Unexpected tree)
 
 
-checkIfVariable :: String -> GenState ()
-checkIfVariable name = do
+checkIfVariable :: Tree -> GenState ()
+checkIfVariable node@(FunctionNode _ name _ _) = do
         label <- SymTab.globalLabel name
         unless (isNothing label) $
-            error $ "already defined as variable: " ++ name
+            throwError $ SyntaxError (DoubleDefined node)
+checkIfVariable tree = throwError $ SyntaxError (Unexpected tree)
 
 
-checkCountsMatch :: Int -> String -> [Tree] -> GenState ()
-checkCountsMatch count name paramList =
+checkCountsMatch :: Int -> Tree -> GenState ()
+checkCountsMatch count node@(FunctionNode _ _ paramList _) =
         when (count /= length paramList) $
-           error $ "mismatch in parameter/argument counts for: " ++ name
+           throwError $ SyntaxError (MisMatch count node)
+checkCountsMatch count node@(FuncCallNode _ argList) =
+        when (count /= length argList) $
+           throwError $ SyntaxError (MisMatch count node)
+checkCountsMatch _ tree = throwError $ SyntaxError (Unexpected tree)
 
 
-checkArguments :: Maybe Int -> String -> [Tree] -> GenState ()
-checkArguments (Just n) name argList = checkCountsMatch n name argList
-checkArguments Nothing name _ = error $ "called function not declared: " ++ name
+checkArguments :: Maybe Int -> Tree -> GenState ()
+checkArguments (Just n) node@(FuncCallNode _ _) = checkCountsMatch n node
+checkArguments (Just _) tree = throwError $ SyntaxError (Unexpected tree)
+checkArguments Nothing tree  = throwError $ SyntaxError (Undeclared tree)
 
 
 processParameters :: String -> [Tree] -> GenState ()
