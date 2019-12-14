@@ -453,7 +453,7 @@ buildAssignmentASM varTree valueTree op
         | op == MultiplyAssign = genASM (BinaryNode varTree valueTree Multiply)
         | op == DivideAssign   = genASM (BinaryNode varTree valueTree Divide)
         | op == ModuloAssign   = genASM (BinaryNode varTree valueTree Modulo)
-        | otherwise            = error $ "unrecognised assignment operator: " ++ show op
+        | otherwise            = throwError $ SyntaxError (UnexpectedOp op)
 
 
 getVariableASM :: Maybe Int -> Maybe Int -> Maybe String -> String
