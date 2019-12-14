@@ -16,11 +16,13 @@ generatorTest :: IO ()
 generatorTest = hspec $ do
         describe "Build output string from AST" $ do
                 it "Should make asm for valid AST" $
-                  fromRight "FAIL" (generate (ProgramNode
-                                              [FunctionNode IntVar "main" []
-                                               (Just [ReturnNode (ConstantNode 2)])
-                                              ]
-                                             ))
+                  fromRight "FAIL" (generate
+                                    (ProgramNode
+                                     [FunctionNode IntVar "main" []
+                                      (Just [ReturnNode (ConstantNode 2)])
+                                     ]
+                                    )
+                                   )
                   `shouldBe`
                   unlines [".globl main",
                            "main:",
