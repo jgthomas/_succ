@@ -185,11 +185,13 @@ genASM node@(AssignmentNode varName value op) = do
 
 genASM node@(AssignDereferenceNode varName value op) = do
         TypeCheck.assignment varName value
-        assign  <- buildAssignmentASM (DereferenceNode varName) value op
+        assign <- buildAssignmentASM (DereferenceNode varName) value op
         (offset, argPos, globLab) <- checkVariableExists varName
-        if isNothing offset && isNothing argPos && isNothing globLab
-           then throwError $ SyntaxError (Undeclared node)
-           else return $ assign ++ storeAtDereferenced offset argPos globLab
+        case (offset, argPos, globLab) of
+             (Just off, _, _) -> pure $ assign ++ ASM.derefStoreLocal off
+             (_, Just pos, _) -> pure $ assign ++ ASM.derefStoreParam pos
+             (_, _, Just lab) -> pure $ assign ++ ASM.derefStoreGlobal lab
+             _ -> throwError $ SyntaxError (Unrecognised node)
 
 genASM (ExprStmtNode expression) = genASM expression
 
@@ -461,13 +463,6 @@ buildAssignmentASM varTree valueTree op
         | op == DivideAssign   = genASM (BinaryNode varTree valueTree Divide)
         | op == ModuloAssign   = genASM (BinaryNode varTree valueTree Modulo)
         | otherwise            = throwError $ SyntaxError (UnexpectedOp op)
-
-
-storeAtDereferenced :: Maybe Int -> Maybe Int -> Maybe String -> String
-storeAtDereferenced (Just off) _ _ = ASM.derefStoreLocal off
-storeAtDereferenced _ (Just pos) _ = ASM.derefStoreParam pos
-storeAtDereferenced _ _ (Just lab) = ASM.derefStoreGlobal lab
-storeAtDereferenced _ _ _ = error "variable unrecognised"
 
 
 storeAddressOf :: Maybe Int -> Maybe String -> String
