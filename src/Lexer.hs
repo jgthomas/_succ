@@ -1,4 +1,4 @@
-{-
+{-|
 Module       : Lexer
 Description  : Tokenizes an input string
 
@@ -28,7 +28,6 @@ type LexerState = SuccStateM [Token]
 
 startState :: [Token]
 startState = []
-
 
 
 -- | Converts a string representing a C program to a list of tokens

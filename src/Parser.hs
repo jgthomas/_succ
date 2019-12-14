@@ -1,4 +1,10 @@
+{-|
+Module       : Parser
+Description  : Produces an abstract syntax tree
 
+Converts a list of tokens into an abstract syntax tree
+representing the C program.
+-}
 module Parser (parse) where
 
 
@@ -23,6 +29,7 @@ startState :: Tree
 startState = ProgramNode []
 
 
+-- | Converts a list of tokens into an AST
 parse :: [Token] -> Either CompilerError Tree
 parse toks = runSuccState parseTokens toks startState
 
