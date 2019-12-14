@@ -183,7 +183,7 @@ genASM node@(AssignmentNode varName value op) = do
                                 adj <- SymTab.stackPointerValue
                                 pure $ assign ++ ASM.varOnStack off ++ ASM.adjustStackPointer adj
                         (_, Just lab) -> pure $ assign ++ ASM.storeGlobal lab
-                        _ -> throwError $ SyntaxError (Undefined node)
+                        _ -> throwError $ SyntaxError (Undeclared node)
 
 genASM node@(AssignDereferenceNode varName value op) = do
         TypeCheck.assignment varName value
@@ -193,7 +193,7 @@ genASM node@(AssignDereferenceNode varName value op) = do
              (Just off, _, _) -> pure $ assign ++ ASM.derefStoreLocal off
              (_, Just pos, _) -> pure $ assign ++ ASM.derefStoreParam pos
              (_, _, Just lab) -> pure $ assign ++ ASM.derefStoreGlobal lab
-             _ -> throwError $ SyntaxError (Unrecognised node)
+             _ -> throwError $ SyntaxError (Undeclared node)
 
 genASM (ExprStmtNode expression) = genASM expression
 
