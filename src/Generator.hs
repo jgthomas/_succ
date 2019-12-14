@@ -151,9 +151,10 @@ genASM node@(PointerNode varName typ (Just a)) = do
         pointerASM <- genASM (DeclarationNode varName typ Nothing)
         value      <- genASM a
         (offset, _, globLab) <- checkVariableExists varName
-        if isNothing offset && isNothing globLab
-           then throwError $ SyntaxError (Undeclared node)
-           else return $ pointerASM ++ value ++ storeAddressOf offset globLab
+        case (offset, globLab) of
+             (Just off, _) -> pure $ pointerASM ++ value ++ ASM.varAddressStore off
+             (_, Just _)   -> pure $ pointerASM ++ value
+             _ -> throwError $ SyntaxError (Unrecognised node)
 
 genASM node@(DeclarationNode varName typ value) = do
         currScope <- SymTab.currentScope
@@ -463,12 +464,6 @@ buildAssignmentASM varTree valueTree op
         | op == DivideAssign   = genASM (BinaryNode varTree valueTree Divide)
         | op == ModuloAssign   = genASM (BinaryNode varTree valueTree Modulo)
         | otherwise            = throwError $ SyntaxError (UnexpectedOp op)
-
-
-storeAddressOf :: Maybe Int -> Maybe String -> String
-storeAddressOf (Just off) _ = ASM.varAddressStore off
-storeAddressOf _ (Just _)   = ASM.noOutput
-storeAddressOf _ _ = error "address unrecognised"
 
 
 assignToVariable :: Maybe Int -> Maybe String -> GenState String
