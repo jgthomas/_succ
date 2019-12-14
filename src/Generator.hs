@@ -160,10 +160,10 @@ genASM node@(PointerNode varName typ (Just a)) = do
            then throwError $ SyntaxError (Undeclared node)
            else return $ pointerASM ++ value ++ storeAddressOf offset globLab
 
-genASM (DeclarationNode varName typ value) = do
+genASM node@(DeclarationNode varName typ value) = do
         currScope <- SymTab.currentScope
         if currScope == "global"
-           then declareGlobal varName typ value
+           then declareGlobal node
            else do
                    checkIfUsedInScope varName
                    offset <- SymTab.addVariable varName typ
@@ -274,9 +274,9 @@ genASM (ConstantNode n) = do
 
 -- Global variables
 
-declareGlobal :: String -> Type -> Maybe Tree -> GenState String
-declareGlobal name typ toAssign = do
-        checkIfFunction name
+declareGlobal :: Tree -> GenState String
+declareGlobal node@(DeclarationNode name typ toAssign) = do
+        checkIfFunction node
         currLabel <- SymTab.globalLabel name
         case currLabel of
              Just _ -> do
@@ -287,13 +287,15 @@ declareGlobal name typ toAssign = do
                      let globLab = mkGlobLabel name labnum
                      SymTab.declareGlobal name typ globLab
                      genAssignment toAssign
+declareGlobal tree = throwError $ SyntaxError (Unexpected tree)
 
 
-checkIfFunction :: String -> GenState ()
-checkIfFunction name = do
+checkIfFunction :: Tree -> GenState ()
+checkIfFunction node@(DeclarationNode name _ _) = do
         paramNum <- SymTab.decParamCount name
         unless (isNothing paramNum) $
-            error $ "already declared as function: " ++ name
+            throwError $ SyntaxError (DoubleDeclared node)
+checkIfFunction tree = throwError $ SyntaxError (Unexpected tree)
 
 
 genAssignment :: Maybe Tree -> GenState String
