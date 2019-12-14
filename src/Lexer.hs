@@ -1,3 +1,10 @@
+{-
+Module       : Lexer
+Description  : Tokenizes an input string
+
+Processes a string representing a program written in C into
+a list of tokens.
+-}
 {-# LANGUAGE MultiWayIf #-}
 
 module Lexer (tokenize) where
@@ -23,6 +30,8 @@ startState :: [Token]
 startState = []
 
 
+
+-- | Converts a string representing a C program to a list of tokens
 tokenize :: String -> Either CompilerError [Token]
 tokenize input = runSuccState lexer input startState
 
