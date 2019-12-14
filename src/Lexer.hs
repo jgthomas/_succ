@@ -30,7 +30,7 @@ startState :: [Token]
 startState = []
 
 
--- | Converts a string representing a C program to a list of tokens
+-- | Convert a string representing a C program to a list of tokens
 tokenize :: String -> Either CompilerError [Token]
 tokenize input = runSuccState lexer input startState
 

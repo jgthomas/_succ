@@ -29,7 +29,7 @@ startState :: Tree
 startState = ProgramNode []
 
 
--- | Converts a list of tokens into an AST
+-- | Convert a list of tokens into an AST
 parse :: [Token] -> Either CompilerError Tree
 parse toks = runSuccState parseTokens toks startState
 
