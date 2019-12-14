@@ -178,7 +178,7 @@ genASM node@(AssignmentNode varName value op) = do
         TypeCheck.assignment varName value
         currScope <- SymTab.currentScope
         if currScope == "global"
-           then defineGlobal varName value
+           then defineGlobal node
            else do
                    (offset, _, globLab) <- checkVariableExists varName
                    assign  <- buildAssignmentASM (VarNode varName) value op
@@ -309,12 +309,12 @@ mkGlobLabel :: String -> Int -> String
 mkGlobLabel name labnum = "_" ++ name ++ show labnum
 
 
-defineGlobal :: String -> Tree -> GenState String
-defineGlobal name valNode = do
-        checkIfDefined name
+defineGlobal :: Tree -> GenState String
+defineGlobal node@(AssignmentNode name valNode _) = do
+        checkIfDefined node
         label <- SymTab.globalLabel name
         case label of
-             Nothing  -> error $ "variable not declared: " ++ name
+             Nothing  -> throwError $ SyntaxError (Undeclared node)
              Just lab -> do
                      SymTab.defineGlobal name
                      value <- genASM valNode
@@ -324,13 +324,15 @@ defineGlobal name valNode = do
                                   SymTab.storeForInit $ value ++ ASM.varAddressStoreGlobal lab
                                   return $ ASM.uninitializedGlobal lab
                           _ -> undefined
+defineGlobal tree = throwError $ SyntaxError (Unexpected tree)
 
 
-checkIfDefined :: String -> GenState ()
-checkIfDefined name = do
+checkIfDefined :: Tree -> GenState ()
+checkIfDefined node@(AssignmentNode name _ _) = do
         defined <- SymTab.checkVarDefined name
         when defined $
-           error $ "global variable already defined: " ++ name
+           throwError $ SyntaxError (DoubleDefined node)
+checkIfDefined tree = throwError $ SyntaxError (Unexpected tree)
 
 
 globalVarASM :: String -> String -> String
