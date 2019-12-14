@@ -8,11 +8,11 @@ import Control.Monad (when, unless)
 import AST           (Tree(..))
 import Tokens        (Operator(..))
 import ASM_Tokens    (Jump(..))
-import Types         (mkSymTab)
 import VarTypes      (Type)
 import Error         (CompilerError)
-import SuccState     (runSuccState)
 import GenState      (GenState)
+import Types         (mkSymTab)
+import SuccState     (runSuccState)
 import qualified     SymTab
 import qualified     ASM
 import qualified     TypeCheck
