@@ -42,7 +42,7 @@ data SyntaxError = InvalidIdentifier Token
                  deriving (Show, Eq)
 
 
-data TypeError = InvalidType Token
+data TypeError = InvalidType Token | Type
                | TypeMismatch Token Token
                deriving (Show, Eq)
 
