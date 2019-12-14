@@ -176,13 +176,14 @@ genASM node@(AssignmentNode varName value op) = do
         if currScope == "global"
            then defineGlobal node
            else do
-                   (offset, _, globLab) <- checkVariableExists varName
                    assign  <- buildAssignmentASM (VarNode varName) value op
-                   if isNothing offset && isNothing globLab
-                      then throwError $ SyntaxError (Undefined node)
-                      else do
-                              varToAssign <- assignToVariable offset globLab
-                              return $ assign ++ varToAssign
+                   (offset, _, globLab) <- checkVariableExists varName
+                   case (offset, globLab) of
+                        (Just off, _) -> do
+                                adj <- SymTab.stackPointerValue
+                                pure $ assign ++ ASM.varOnStack off ++ ASM.adjustStackPointer adj
+                        (_, Just lab) -> pure $ assign ++ ASM.storeGlobal lab
+                        _ -> throwError $ SyntaxError (Undefined node)
 
 genASM node@(AssignDereferenceNode varName value op) = do
         TypeCheck.assignment varName value
@@ -464,14 +465,6 @@ buildAssignmentASM varTree valueTree op
         | op == DivideAssign   = genASM (BinaryNode varTree valueTree Divide)
         | op == ModuloAssign   = genASM (BinaryNode varTree valueTree Modulo)
         | otherwise            = throwError $ SyntaxError (UnexpectedOp op)
-
-
-assignToVariable :: Maybe Int -> Maybe String -> GenState String
-assignToVariable (Just off) _ = do
-        adjustment <- SymTab.stackPointerValue
-        return $ ASM.varOnStack off ++ ASM.adjustStackPointer adjustment
-assignToVariable _ (Just lab) = return $ ASM.storeGlobal lab
-assignToVariable _ _ = error "address unrecognised"
 
 
 checkIfUsedInScope :: String -> GenState ()
