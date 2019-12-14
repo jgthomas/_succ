@@ -259,9 +259,11 @@ genASM node@(AddressOfNode varName) = do
 
 genASM node@(DereferenceNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
-        if isNothing offset && isNothing argPos && isNothing globLab
-           then throwError $ SyntaxError (Undeclared node)
-           else return $ loadDereferenced offset argPos globLab
+        case (offset, argPos, globLab) of
+             (Just off, _, _) -> pure . ASM.derefLoadLocal $ off
+             (_, Just pos, _) -> pure . ASM.derefLoadParam $ pos
+             (_, _, Just lab) -> pure . ASM.derefLoadGlobal $ lab
+             _ -> throwError $ SyntaxError (Unrecognised node)
 
 genASM NullExprNode = return ASM.noOutput
 
@@ -466,13 +468,6 @@ storeAtDereferenced (Just off) _ _ = ASM.derefStoreLocal off
 storeAtDereferenced _ (Just pos) _ = ASM.derefStoreParam pos
 storeAtDereferenced _ _ (Just lab) = ASM.derefStoreGlobal lab
 storeAtDereferenced _ _ _ = error "variable unrecognised"
-
-
-loadDereferenced :: Maybe Int -> Maybe Int -> Maybe String -> String
-loadDereferenced (Just off) _ _ = ASM.derefLoadLocal off
-loadDereferenced _ (Just pos) _ = ASM.derefLoadParam pos
-loadDereferenced _ _ (Just lab) = ASM.derefLoadGlobal lab
-loadDereferenced _ _ _ = error "variable unrecognised"
 
 
 storeAddressOf :: Maybe Int -> Maybe String -> String
