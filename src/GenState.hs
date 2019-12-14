@@ -22,8 +22,8 @@ getGlobalScope = do
         return . globalScope $ state
 
 
-updateGlobalScope :: GlobalScope -> GenState ()
-updateGlobalScope gs = do
+putGlobalScope :: GlobalScope -> GenState ()
+putGlobalScope gs = do
         state <- getState
         putState $ state { globalScope = gs }
 

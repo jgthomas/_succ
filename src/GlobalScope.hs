@@ -24,7 +24,7 @@ import qualified Data.Set as S
 import Types                (GlobalScope(..), GlobalVar(..))
 import VarTypes             (Type)
 import GenState             (GenState)
-import qualified GenState   (getGlobalScope, updateGlobalScope)
+import qualified GenState   (getGlobalScope, putGlobalScope)
 import qualified Types      (mkGloVar)
 import qualified FrameStack (currentFunction)
 
@@ -69,26 +69,26 @@ declareFunction typ funcName paramCount = do
         let gscope'   = addSymbol funcName gscope
             gscope''  = addParams funcName paramCount gscope'
             gscope''' = addType funcName typ gscope''
-        GenState.updateGlobalScope gscope'''
+        GenState.putGlobalScope gscope'''
 
 
 defineFunction :: String -> GenState ()
 defineFunction name = do
         gscope <- GenState.getGlobalScope
-        GenState.updateGlobalScope $ funcAsDefined name gscope
+        GenState.putGlobalScope $ funcAsDefined name gscope
 
 
 declareGlobal :: String -> Type -> String -> GenState ()
 declareGlobal name typ label = do
         gscope <- GenState.getGlobalScope
         let globVar = Types.mkGloVar label typ
-        GenState.updateGlobalScope $ addGlobal name globVar gscope
+        GenState.putGlobalScope $ addGlobal name globVar gscope
 
 
 defineGlobal :: String -> GenState ()
 defineGlobal name = do
         gscope <- GenState.getGlobalScope
-        GenState.updateGlobalScope $ varAsDefined name gscope
+        GenState.putGlobalScope $ varAsDefined name gscope
 
 
 getUndefined :: GenState [String]
@@ -108,7 +108,7 @@ storeForInit :: String -> GenState ()
 storeForInit code = do
         gscope <- GenState.getGlobalScope
         let gscope' = gscope { varsToinit = code : varsToinit gscope }
-        GenState.updateGlobalScope gscope'
+        GenState.putGlobalScope gscope'
 
 
 getAllForInit :: GenState [String]
