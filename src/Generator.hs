@@ -161,7 +161,7 @@ genASM node@(DeclarationNode varName typ value) = do
         if currScope == "global"
            then declareGlobal node
            else do
-                   checkIfUsedInScope varName
+                   checkIfUsedInScope node
                    offset <- SymTab.addVariable varName typ
                    adjust <- SymTab.stackPointerValue
                    case value of
@@ -467,9 +467,10 @@ buildAssignmentASM varTree valueTree op
         | otherwise            = throwError $ SyntaxError (UnexpectedOp op)
 
 
-checkIfUsedInScope :: String -> GenState ()
-checkIfUsedInScope name = do
+checkIfUsedInScope :: Tree -> GenState ()
+checkIfUsedInScope node@(DeclarationNode name _ _) = do
         localDec <- SymTab.checkVariable name
         paramDec <- SymTab.parameterDeclared name
         when (localDec || paramDec) $
-           error $ "already declared in scope: '" ++ name
+           throwError $ SyntaxError (DoubleDeclared node)
+checkIfUsedInScope tree = throwError $ SyntaxError (Unexpected tree)
