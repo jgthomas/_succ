@@ -10,7 +10,7 @@ module TypeCheck
 
 
 import AST         (Tree(..))
-import Types       (Type(..))
+import VarTypes    (Type(..))
 import Tokens      (Operator(..))
 import FrameStack  (currentScope)
 import GlobalScope (globalType, declaredFuncType)

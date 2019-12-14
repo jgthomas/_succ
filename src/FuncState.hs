@@ -32,8 +32,8 @@ import GenState              (GenState)
 import qualified GenState    (getFuncStates, putFuncStates)
 import Types                 (FuncState(..),
                               LocalVar(..),
-                              ParamVar(..),
-                              Type(Label))
+                              ParamVar(..))
+import VarTypes              (Type(Label))
 import qualified Types       (mkFS,
                               mkLocVar,
                               mkParVar)

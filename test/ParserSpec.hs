@@ -9,7 +9,7 @@ import Parser
 import Tokens
 import AST
 import Error
-import Types
+import VarTypes
 
 
 parserTest :: IO ()

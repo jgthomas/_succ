@@ -11,7 +11,7 @@ module Parser (parse) where
 import Tokens           (Operator(..), Keyword(..), Token(..))
 import qualified Tokens (unary)
 import AST              (Tree(..))
-import Types            (Type(..))
+import VarTypes         (Type(..))
 import Error            (CompilerError(..),
                          ParserError(..),
                          SyntaxError(..),

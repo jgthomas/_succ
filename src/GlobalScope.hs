@@ -21,7 +21,8 @@ module GlobalScope
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import Types                (GlobalScope(..), GlobalVar(..), Type)
+import Types                (GlobalScope(..), GlobalVar(..))
+import VarTypes             (Type)
 import GenState             (GenState)
 import qualified GenState   (getGlobalScope, updateGlobalScope)
 import qualified Types      (mkGloVar)

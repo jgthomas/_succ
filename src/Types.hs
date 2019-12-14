@@ -5,6 +5,8 @@ module Types where
 import qualified Data.Map as M
 import qualified Data.Set as S
 
+import VarTypes (Type(..))
+
 
 data SymTab = Tab { label       :: Int
                   , frameStack  :: Stack String
@@ -71,9 +73,3 @@ data ParamVar = ParVar { paramNum  :: Int
 
 mkParVar :: Int -> Type -> ParamVar
 mkParVar n t = ParVar n t
-
-
-data Type = IntVar
-          | IntPointer
-          | Label
-          deriving (Show, Eq)
