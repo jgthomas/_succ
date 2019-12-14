@@ -9,10 +9,10 @@ import AST           (Tree(..))
 import Tokens        (Operator(..))
 import ASM_Tokens    (Jump(..))
 import VarTypes      (Type)
-import Error         (CompilerError)
+import Error         (CompilerError(..), SyntaxError(..))
 import GenState      (GenState)
 import Types         (mkSymTab)
-import SuccState     (runSuccState)
+import SuccState     (runSuccState, throwError)
 import qualified     SymTab
 import qualified     ASM
 import qualified     TypeCheck
@@ -52,7 +52,7 @@ genASM (FunctionNode typ name paramList (Just stmts)) = do
 genASM (ParamNode typ (VarNode name)) = do
         SymTab.addParameter name typ
         return ASM.noOutput
-genASM (ParamNode _ param) = error $ "Invalid parameter: " ++ show param
+genASM (ParamNode a b) = throwError $ SyntaxError (Unexpected (ParamNode a b))
 
 genASM (FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name

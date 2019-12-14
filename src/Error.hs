@@ -30,6 +30,12 @@ data SyntaxError = InvalidIdentifier Token
                  | UnexpectedToken Token
                  | MissingIdentifier
                  | MissingKeyword Keyword
+                 | Undeclared Tree
+                 | Undefined Tree
+                 | DoubleDeclared Tree
+                 | DoubleDefined Tree
+                 | Unrecognised Tree
+                 | Unexpected Tree
                  deriving (Show, Eq)
 
 
