@@ -242,9 +242,13 @@ genASM (UnaryNode tree op) = do
         unode <- genASM tree
         return $ unode ++ ASM.unary op
 
-genASM (VarNode varName) = do
+genASM node@(VarNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
-        return $ getVariableASM offset argPos globLab
+        case (offset, argPos, globLab) of
+             (Just off, _, _) -> pure . ASM.varOffStack $ off
+             (_, Just reg, _) -> pure . ASM.getFromRegister . ASM.selectRegister $ reg
+             (_, _, Just lab) -> pure . ASM.loadGlobal $ lab
+             _ -> throwError $ SyntaxError (Unrecognised node)
 
 genASM node@(AddressOfNode varName) = do
         (offset, _, globLab) <- checkVariableExists varName
@@ -454,13 +458,6 @@ buildAssignmentASM varTree valueTree op
         | op == DivideAssign   = genASM (BinaryNode varTree valueTree Divide)
         | op == ModuloAssign   = genASM (BinaryNode varTree valueTree Modulo)
         | otherwise            = throwError $ SyntaxError (UnexpectedOp op)
-
-
-getVariableASM :: Maybe Int -> Maybe Int -> Maybe String -> String
-getVariableASM (Just off) _ _ = ASM.varOffStack off
-getVariableASM _ (Just reg) _ = ASM.getFromRegister . ASM.selectRegister $ reg
-getVariableASM _ _ (Just lab) = ASM.loadGlobal lab
-getVariableASM Nothing Nothing Nothing = error "variable unrecognised"
 
 
 storeAtDereferenced :: Maybe Int -> Maybe Int -> Maybe String -> String
