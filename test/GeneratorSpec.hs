@@ -18,8 +18,15 @@ generatorTest = hspec $ do
                 it "Should make asm for valid AST" $
                   fromRight "FAIL" (generate
                                     (ProgramNode
-                                     [FunctionNode IntVar "main" []
-                                      (Just [ReturnNode (ConstantNode 2)])
+                                     [FunctionNode
+                                      IntVar
+                                      "main"
+                                      []
+                                      (Just
+                                       [ReturnNode
+                                        (ConstantNode 2)
+                                       ]
+                                      )
                                      ]
                                     )
                                    )
