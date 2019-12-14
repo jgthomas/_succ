@@ -152,12 +152,12 @@ genASM (IfNode test action possElse) = do
 
 genASM (PointerNode varName typ Nothing) =
         genASM (DeclarationNode varName typ Nothing)
-genASM (PointerNode varName typ (Just a)) = do
+genASM node@(PointerNode varName typ (Just a)) = do
         pointerASM <- genASM (DeclarationNode varName typ Nothing)
         value      <- genASM a
         (offset, _, globLab) <- checkVariableExists varName
         if isNothing offset && isNothing globLab
-           then error $ "variable not declared: " ++ varName
+           then throwError $ SyntaxError (Undeclared node)
            else return $ pointerASM ++ value ++ storeAddressOf offset globLab
 
 genASM (DeclarationNode varName typ value) = do
@@ -174,7 +174,7 @@ genASM (DeclarationNode varName typ value) = do
                                             ++ ASM.varOnStack offset
                                             ++ ASM.adjustStackPointer adjust
 
-genASM (AssignmentNode varName value op) = do
+genASM node@(AssignmentNode varName value op) = do
         TypeCheck.assignment varName value
         currScope <- SymTab.currentScope
         if currScope == "global"
@@ -183,17 +183,17 @@ genASM (AssignmentNode varName value op) = do
                    (offset, _, globLab) <- checkVariableExists varName
                    assign  <- buildAssignmentASM (VarNode varName) value op
                    if isNothing offset && isNothing globLab
-                      then error $ "Undefined variable: " ++ varName
+                      then throwError $ SyntaxError (Undefined node)
                       else do
                               varToAssign <- assignToVariable offset globLab
                               return $ assign ++ varToAssign
 
-genASM (AssignDereferenceNode varName value op) = do
+genASM node@(AssignDereferenceNode varName value op) = do
         TypeCheck.assignment varName value
         assign  <- buildAssignmentASM (DereferenceNode varName) value op
         (offset, argPos, globLab) <- checkVariableExists varName
         if isNothing offset && isNothing argPos && isNothing globLab
-           then error $ "variable not declared: " ++ varName
+           then throwError $ SyntaxError (Undeclared node)
            else return $ assign ++ storeAtDereferenced offset argPos globLab
 
 genASM (ExprStmtNode expression) = genASM expression
@@ -202,13 +202,13 @@ genASM ContinueNode = do
         continueLabel <- SymTab.getContinue
         case continueLabel of
              Just target -> return $ ASM.emitJump JMP target
-             Nothing     -> error "Continue statement outside loop"
+             Nothing     -> throwError $ SyntaxError (Unexpected ContinueNode)
 
 genASM BreakNode = do
         breakLabel <- SymTab.getBreak
         case breakLabel of
              Just target -> return $ ASM.emitJump JMP target
-             Nothing     -> error "Break statement outside loop"
+             Nothing     -> throwError $ SyntaxError (Unexpected BreakNode)
 
 genASM (ReturnNode tree) = do
         TypeCheck.funcReturn tree
@@ -251,16 +251,16 @@ genASM (VarNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
         return $ getVariableASM offset argPos globLab
 
-genASM (AddressOfNode varName) = do
+genASM node@(AddressOfNode varName) = do
         (offset, _, globLab) <- checkVariableExists varName
         if isNothing offset && isNothing globLab
-           then error $ "trying to get address of undeclared variable: " ++ varName
+           then throwError $ SyntaxError (Undeclared node)
            else return $ loadAddressOf offset globLab
 
-genASM (DereferenceNode varName) = do
+genASM node@(DereferenceNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
         if isNothing offset && isNothing argPos && isNothing globLab
-           then error $ "trying to dereference undeclared variable: " ++ varName
+           then throwError $ SyntaxError (Undeclared node)
            else return $ loadDereferenced offset argPos globLab
 
 genASM NullExprNode = return ASM.noOutput
