@@ -57,16 +57,12 @@ genASM node@(FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
         checkArguments paramCount node
         TypeCheck.argsMatchParams name argList
-        callee <- SymTab.decSeqNumber name
-        caller <- SymTab.currentSeqNumber
-        if validSequence callee caller
-           then do
-                   argString <- processArgs argList 0 []
-                   return $ ASM.saveCallerRegisters
-                            ++ argString
-                            ++ ASM.makeFunctionCall name
-                            ++ ASM.restoreCallerRegisters
-           else throwError $ SyntaxError (Undeclared node)
+        validateCall node
+        argString <- processArgs argList 0 []
+        return $ ASM.saveCallerRegisters
+                 ++ argString
+                 ++ ASM.makeFunctionCall name
+                 ++ ASM.restoreCallerRegisters
 
 genASM (ArgNode arg) = genASM arg
 
@@ -415,13 +411,20 @@ processArg argPos arg = do
         return $ argASM ++ (ASM.putInRegister . ASM.selectRegister $ argPos)
 
 
-validSequence :: Maybe Int -> Maybe Int -> Bool
-validSequence Nothing (Just _) = error "callee undefined"
-validSequence (Just _) Nothing = error "caller undefined"
-validSequence Nothing Nothing  = error "callee and caller undefined"
-validSequence (Just callee) (Just caller)
-        | callee <= caller = True
-        | otherwise        = False
+validateCall :: Tree -> GenState ()
+validateCall node@(FuncCallNode name _) = do
+        callee <- SymTab.decSeqNumber name
+        caller <- SymTab.currentSeqNumber
+        unless (validSeq callee caller) $
+            throwError $ SyntaxError (InvalidCall node)
+validateCall tree = throwError $ SyntaxError (Unexpected tree)
+
+
+validSeq :: Maybe Int -> Maybe Int -> Bool
+validSeq Nothing Nothing   = False
+validSeq Nothing (Just _)  = False
+validSeq (Just _) Nothing  = False
+validSeq (Just a) (Just b) = a <= b
 
 
 checkIfFuncDefined :: Tree -> GenState ()

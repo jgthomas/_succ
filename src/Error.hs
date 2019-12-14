@@ -37,6 +37,7 @@ data SyntaxError = InvalidIdentifier Token
                  | Unrecognised Tree
                  | Unexpected Tree
                  | MisMatch Int Tree
+                 | InvalidCall Tree
                  deriving (Show, Eq)
 
 
