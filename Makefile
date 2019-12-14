@@ -11,8 +11,15 @@ build:
 	stack build --pedantic
 
 
-test:
-	stack test && ./func_test.sh
+test: unit func
+
+
+unit:
+	stack test
+
+
+func:
+	./func_test.sh
 
 
 lint:
