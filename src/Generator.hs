@@ -52,9 +52,9 @@ genASM (FunctionNode typ name paramList (Just stmts)) = do
 genASM (ParamNode typ (VarNode name)) = do
         SymTab.addParameter name typ
         return ASM.noOutput
-genASM (ParamNode a b) = throwError $ SyntaxError (Unexpected (ParamNode a b))
+genASM node@(ParamNode _ _) = throwError $ SyntaxError (Unexpected node)
 
-genASM (FuncCallNode name argList) = do
+genASM node@(FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
         checkArguments paramCount name argList
         TypeCheck.argsMatchParams name argList
@@ -67,7 +67,7 @@ genASM (FuncCallNode name argList) = do
                             ++ argString
                             ++ ASM.makeFunctionCall name
                             ++ ASM.restoreCallerRegisters
-           else error $ "calling function before declaration " ++ name
+           else throwError $ SyntaxError (Undeclared node)
 
 genASM (ArgNode arg) = genASM arg
 
