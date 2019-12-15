@@ -1,8 +1,7 @@
 
 module TypeCheck
-        (paramDeclaration,
+        (typesMatch,
          funcTypeDeclaration,
-         argsMatchParams,
          globalDeclaration,
          assignment,
          funcReturn
@@ -21,14 +20,8 @@ import FuncState   (allTypes, variableType, parameterType)
 import GenState    (GenState)
 
 
-paramDeclaration :: String -> [Tree] -> GenState ()
-paramDeclaration name treeList = do
-        (oldParams, newParams) <- passedTypes name treeList
-        checkTypes oldParams newParams
-
-
-argsMatchParams :: String -> [Tree] -> GenState ()
-argsMatchParams name treeList = do
+typesMatch :: String -> [Tree] -> GenState ()
+typesMatch name treeList = do
         (params, args) <- passedTypes name treeList
         checkTypes params args
 

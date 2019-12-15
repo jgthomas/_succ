@@ -62,7 +62,7 @@ genASM node@(ParamNode _ _) = throwError $ SyntaxError (Unexpected node)
 genASM node@(FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
         checkArguments paramCount node
-        TypeCheck.argsMatchParams name argList
+        TypeCheck.typesMatch name argList
         validateCall node
         argString <- processArgs argList 0 []
         return $ ASM.saveCallerRegisters
@@ -365,7 +365,7 @@ declareFunction node@(FunctionNode typ funcName paramList _) = do
                      processParameters funcName paramList
              Just count -> do
                      checkCountsMatch count node
-                     TypeCheck.paramDeclaration funcName paramList
+                     TypeCheck.typesMatch funcName paramList
                      TypeCheck.funcTypeDeclaration funcName typ
                      SymTab.declareFunction typ funcName (length paramList)
                      defined <- SymTab.checkFuncDefined funcName
