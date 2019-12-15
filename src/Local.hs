@@ -59,7 +59,7 @@ initScope = do
 closeScope :: GenState ()
 closeScope = do
         _ <- decrementScope
-        return ()
+        pure ()
 
 
 delFuncState :: String -> GenState ()
@@ -88,8 +88,8 @@ checkVariable varName = do
         scopeLevel   <- findScope currFuncName
         test         <- extract locOffset <$> getLocalVar currFuncName scopeLevel varName
         case test of
-             Just _  -> return True
-             Nothing -> return False
+             Just _  -> pure True
+             Nothing -> pure False
 
 
 variableOffset :: String -> GenState (Maybe Int)
@@ -105,7 +105,7 @@ addVariable varName typ = do
         currOff <- currentOffset
         store varName currOff typ
         incrementOffset
-        return currOff
+        pure currOff
 
 
 stackPointerValue :: GenState Int
@@ -124,7 +124,7 @@ parameterPosition :: String -> GenState (Maybe Int)
 parameterPosition paramName = do
         currFuncName <- FrameStack.currentFunc
         if currFuncName == "global"
-           then return Nothing
+           then pure Nothing
            else extract paramNum
                 . M.lookup paramName
                 . parameters <$> getFunctionState currFuncName
@@ -141,15 +141,15 @@ parameterType paramName = do
 allTypes :: String -> GenState [Type]
 allTypes funcName = do
         paramList <- M.elems . parameters <$> getFunctionState funcName
-        return $ snd <$> sortBy (compare `on` fst) (paramData <$> paramList)
+        pure $ snd <$> sortBy (compare `on` fst) (paramData <$> paramList)
 
 
 parameterDeclared :: String -> GenState Bool
 parameterDeclared paramName = do
         pos <- parameterPosition paramName
         case pos of
-             Just _  -> return True
-             Nothing -> return False
+             Just _  -> pure True
+             Nothing -> pure False
 
 
 -- store and lookup
@@ -166,7 +166,7 @@ getAttr :: String -> (LocalVar -> a) -> GenState (Maybe a)
 getAttr varName f = do
         currFuncName <- FrameStack.currentFunc
         if currFuncName == "global"
-           then return Nothing
+           then pure Nothing
            else do
                    scopeLevel <- findScope currFuncName
                    extract f <$> find currFuncName scopeLevel varName
@@ -175,12 +175,12 @@ getAttr varName f = do
 find :: String -> Int -> String -> GenState (Maybe LocalVar)
 find funcName scope name =
         if scope == scopeLimit
-           then return Nothing
+           then pure Nothing
            else do
                    locVar <- getLocalVar funcName scope name
                    case locVar of
                         Nothing -> find funcName (pred scope) name
-                        Just lv -> return (Just lv)
+                        Just lv -> pure (Just lv)
 
 
 store :: String -> Int -> Type -> GenState ()
@@ -233,7 +233,7 @@ stepScope f = do
         let newLevel   = f $ currentScope funcState
             funcState' = funcState { currentScope = newLevel }
         setFunctionState currFuncName funcState'
-        return newLevel
+        pure newLevel
 
 
 scopeLimit :: Int
@@ -259,15 +259,15 @@ checkFunctionState :: String -> GenState Bool
 checkFunctionState name = do
         fstates <- GenState.getFuncStates
         case M.lookup name fstates of
-             Just _  -> return True
-             Nothing -> return False
+             Just _  -> pure True
+             Nothing -> pure False
 
 
 getFunctionState :: String -> GenState FuncState
 getFunctionState name = do
         fstates <- GenState.getFuncStates
         case M.lookup name fstates of
-             Just st -> return st
+             Just st -> pure st
              Nothing -> throwError $ GeneratorError (NoStateFound name)
 
 
