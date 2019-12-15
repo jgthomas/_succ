@@ -84,10 +84,12 @@ setContinue labelNo = store "@Continue" labelNo Label
 
 checkVariable :: String -> GenState Bool
 checkVariable varName = do
-        currFuncName <- FrameStack.currentFunc
-        scopeLevel   <- findScope currFuncName
-        test         <- extract locOffset <$> getLocalVar currFuncName scopeLevel varName
-        case test of
+        funcName <- FrameStack.currentFunc
+        scope    <- findScope funcName
+        check    <- extract locOffset
+                    <$>
+                    getLocalVar funcName scope varName
+        case check of
              Just _  -> pure True
              Nothing -> pure False
 
