@@ -13,13 +13,12 @@ import           Data.Maybe    (isNothing)
 import qualified ASM
 import           AST           (Tree (..))
 import           Error         (CompilerError (SyntaxError), SyntaxError (..))
-import           GenState      (GenState)
+import           GenState      (GenState, mkSymTab)
 import           GenTokens     (Jump (..), Scope (..))
 import           SuccState     (runSuccState, throwError)
 import qualified SymTab
 import           Tokens        (Operator (..))
 import qualified TypeCheck
-import           Types         (mkSymTab)
 
 
 -- | Generate x86-64 asm from AST

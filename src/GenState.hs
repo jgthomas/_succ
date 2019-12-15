@@ -4,14 +4,25 @@ module GenState where
 
 import qualified Data.Map    as M
 
-import           GlobalScope (GlobalScope)
+import           GlobalScope (GlobalScope, mkGlobalScope)
 import           LocalScope  (FuncState)
-import           Stack       (Stack)
+import           Stack       (Stack, mkStack)
 import           SuccState   (SuccStateM, getState, putState)
-import           Types       (SymTab (..))
+
+
+data SymTab = Tab { label       :: Int
+                  , frameStack  :: Stack String
+                  , globalScope :: GlobalScope
+                  , funcStates  :: M.Map String FuncState }
+            deriving (Show)
+
 
 
 type GenState = SuccStateM SymTab
+
+
+mkSymTab :: SymTab
+mkSymTab = Tab 1 mkStack mkGlobalScope M.empty
 
 
 getGlobalScope :: GenState GlobalScope
