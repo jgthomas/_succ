@@ -2,10 +2,11 @@
 module GenState where
 
 
-import qualified Data.Map  as M
+import qualified Data.Map    as M
 
-import           SuccState (SuccStateM, getState, putState)
-import           Types     (FuncState, GlobalScope, SymTab (..))
+import           GlobalScope (GlobalScope)
+import           SuccState   (SuccStateM, getState, putState)
+import           Types       (FuncState, SymTab (..))
 
 
 type GenState = SuccStateM SymTab

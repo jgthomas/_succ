@@ -2,11 +2,11 @@
 module Types where
 
 
-import qualified Data.Map as M
-import qualified Data.Set as S
+import qualified Data.Map    as M
 
-import           Stack    (Stack, mkStack)
-import           VarTypes (Type)
+import           GlobalScope (GlobalScope, mkGlobalScope)
+import           Stack       (Stack, mkStack)
+import           VarTypes    (Type)
 
 
 data SymTab = Tab { label       :: Int
@@ -16,22 +16,7 @@ data SymTab = Tab { label       :: Int
             deriving (Show)
 
 mkSymTab :: SymTab
-mkSymTab = Tab 1 mkStack mkGS M.empty
-
-
-data GlobalScope = Gscope
-                 { seqNum       :: Int
-                 , funcDecSeq   :: M.Map String Int
-                 , funcParams   :: M.Map String Int
-                 , funcTypes    :: M.Map String Type
-                 , declaredVars :: M.Map String GlobalVar
-                 , definedVars  :: S.Set String
-                 , definedFuncs :: S.Set String
-                 , varsToinit   :: [String] }
-                 deriving (Show)
-
-mkGS :: GlobalScope
-mkGS = Gscope 0 M.empty M.empty M.empty M.empty S.empty S.empty []
+mkSymTab = Tab 1 mkStack mkGlobalScope M.empty
 
 
 data FuncState = Fs
@@ -52,14 +37,6 @@ data LocalVar = LocVar { locOffset :: Int
 
 mkLocVar :: Int -> Type -> LocalVar
 mkLocVar n t = LocVar n t
-
-
-data GlobalVar = GloVar { globLabel :: String
-                        , globType  :: Type }
-               deriving (Show)
-
-mkGloVar :: String -> Type -> GlobalVar
-mkGloVar l t = GloVar l t
 
 
 data ParamVar = ParVar { paramNum  :: Int
