@@ -8,10 +8,13 @@ module TypeCheck
          funcReturn
         ) where
 
+import Control.Monad (unless, when)
 
 import AST         (Tree(..))
 import VarTypes    (Type(..))
+import Error       (CompilerError(TypeError), TypeError(..))
 import Tokens      (Operator(..))
+import SuccState   (throwError)
 import FrameStack  (currentScope)
 import GlobalScope (globalType, declaredFuncType)
 import FuncState   (allTypes, variableType, parameterType)
@@ -21,38 +24,33 @@ import GenState    (GenState)
 paramDeclaration :: String -> [Tree] -> GenState ()
 paramDeclaration name treeList = do
         (oldParams, newParams) <- passedTypes name treeList
-        let errorType = ParamParam name oldParams newParams
-        checkTypes oldParams newParams errorType
+        checkTypes oldParams newParams
 
 
 argsMatchParams :: String -> [Tree] -> GenState ()
 argsMatchParams name treeList = do
         (params, args) <- passedTypes name treeList
-        let errorType = ArgParam name params args
-        checkTypes params args errorType
+        checkTypes params args
 
 
 funcTypeDeclaration :: String -> Type -> GenState ()
 funcTypeDeclaration name newTyp = do
         oldTyp <- getFuncType name
-        let errorType = FuncType name oldTyp newTyp
-        checkTypes [oldTyp] [newTyp] errorType
+        checkTypes [oldTyp] [newTyp]
 
 
 globalDeclaration :: String -> Type -> GenState ()
 globalDeclaration name newTyp = do
         oldTyp <- getType (VarNode name)
-        let errorType = VarType name oldTyp newTyp
-        checkTypes [oldTyp] [newTyp] errorType
+        checkTypes [oldTyp] [newTyp]
 
 
 assignment :: String -> Tree -> GenState ()
 assignment name value = do
         varTyp  <- getType (VarNode name)
         valType <- getType value
-        if valType `elem` permitted varTyp
-           then return ()
-           else error $ typeError (Assignment name varTyp valType)
+        unless (valType `elem` permitted varTyp) $
+            throwError $ TypeError (TypeMismatch [varTyp] [valType])
 
 
 funcReturn :: Tree -> GenState ()
@@ -60,8 +58,7 @@ funcReturn retVal = do
         currFuncName <- currentScope
         currFuncType <- getFuncType currFuncName
         retValType   <- getType retVal
-        let errorType = FuncReturn currFuncName currFuncType retValType
-        checkTypes [currFuncType] [retValType] errorType
+        checkTypes [currFuncType] [retValType]
 
 
 -- Internal
@@ -73,11 +70,10 @@ passedTypes name treeList = do
         return (currTypes, newTypes)
 
 
-checkTypes :: [Type] -> [Type] -> TypeError -> GenState ()
-checkTypes oldTypes newTypes errorType =
-        if oldTypes == newTypes
-           then return ()
-           else error $ typeError errorType
+checkTypes :: [Type] -> [Type] -> GenState ()
+checkTypes oldTypes newTypes =
+        when (oldTypes /= newTypes) $
+            throwError $ TypeError (TypeMismatch oldTypes newTypes)
 
 
 getType :: Tree -> GenState Type
@@ -122,7 +118,7 @@ varType Nothing Nothing Nothing = Nothing
 
 extractType :: String -> Maybe Type -> GenState Type
 extractType _ (Just typ) = return typ
-extractType name Nothing = error $ typeError (NoType name)
+extractType name Nothing = throwError $ TypeError (MissingType name)
 
 
 getBinaryType :: Tree -> Tree -> Operator -> GenState Type
@@ -182,48 +178,3 @@ dereferenceType name = do
 derefType :: Type -> GenState Type
 derefType IntPointer = return IntVar
 derefType _ = undefined
-
-
-data TypeError = NoType String
-               | ParamParam String [Type] [Type]
-               | ArgParam String [Type] [Type]
-               | VarType String Type Type
-               | Assignment String Type Type
-               | FuncType String Type Type
-               | FuncReturn String Type Type
-               deriving Eq
-
-
-typeError :: TypeError -> String
-
-typeError (NoType name) = "no type associated with: " ++ name
-
-typeError (ParamParam name oldParams newParams) =
-        "declarations have mismatching parameter types: "
-        ++ show oldParams ++ " vs. " ++ show newParams
-        ++ " for function: " ++ name
-
-typeError (ArgParam name params args) =
-        "mismatching parameters: " ++ show params
-        ++ " and arguments: " ++ show args
-        ++ " for function: " ++ name
-
-typeError (VarType name oldTyp newTyp) =
-        "previous declaration of " ++ name
-        ++ " as: " ++ show oldTyp
-        ++ " new declaration as: " ++ show newTyp
-
-typeError (Assignment name varTyp valTyp) =
-        "cannot assign: " ++ show valTyp
-        ++ " to variable: " ++ name
-        ++ " of type: " ++ show varTyp
-
-typeError (FuncType name oldTyp newTyp) =
-        "previous declaration of " ++ name
-        ++ " has return value: " ++ show oldTyp
-        ++ " new declaration has return value: " ++ show newTyp
-
-typeError (FuncReturn name decTyp retTyp) =
-        "attempting to return: " ++ show retTyp
-        ++ " from function " ++ name
-        ++ " which has type: " ++ show decTyp

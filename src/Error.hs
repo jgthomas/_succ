@@ -2,8 +2,9 @@
 module Error where
 
 
-import Tokens (Keyword, Token, Operator)
-import AST    (Tree)
+import Tokens   (Keyword, Token, Operator)
+import AST      (Tree)
+import VarTypes (Type)
 
 
 data CompilerError = LexerError LexerError
@@ -43,6 +44,7 @@ data SyntaxError = InvalidIdentifier Token
 
 
 data TypeError = InvalidType Token | Type
-               | TypeMismatch Token Token
+               | TypeMismatch [Type] [Type]
+               | MissingType String
                deriving (Show, Eq)
 
