@@ -17,7 +17,6 @@ import Control.Monad (unless, when)
 import AST         (Tree(..))
 import VarTypes    (Type(..))
 import Error       (CompilerError(TypeError, ImpossibleError), TypeError(..))
-import Tokens      (Operator(..))
 import SuccState   (throwError)
 import FrameStack  (currentScope)
 import GlobalScope (globalType, declaredFuncType)
@@ -84,7 +83,7 @@ getType (ParamNode typ _)         = pure typ
 getType (VarNode name)            = getVariableType name
 getType (AddressOfNode name)      = addressOfType name
 getType (TernaryNode l m r)       = getTernaryType l m r
-getType (BinaryNode l r op)       = getBinaryType l r op
+getType (BinaryNode l r _)        = getBinaryType l r
 getType (UnaryNode tree _)        = getType tree
 getType (ConstantNode _)          = pure IntVar
 getType (FuncCallNode name _)     = getFuncType name
@@ -123,16 +122,18 @@ extractType _ (Just typ) = pure typ
 extractType name Nothing = throwError $ TypeError (MissingType name)
 
 
-getBinaryType :: Tree -> Tree -> Operator -> GenState Type
-getBinaryType left right op = do
+getBinaryType :: Tree -> Tree -> GenState Type
+getBinaryType left right = do
         leftType  <- getType left
         rightType <- getType right
-        pure $ binType leftType rightType op
+        binType leftType rightType
 
 
-binType :: Type -> Type -> Operator -> Type
-binType IntVar IntVar _ = IntVar
-binType _ _ _ = undefined
+binType :: Type -> Type -> GenState Type
+binType IntVar IntVar = pure IntVar
+binType typ IntVar = throwError $ TypeError (UnexpectedType typ)
+binType IntVar typ = throwError $ TypeError (UnexpectedType typ)
+binType a _        = throwError $ TypeError (UnexpectedType a)
 
 
 getTernaryType :: Tree -> Tree -> Tree -> GenState Type
@@ -140,12 +141,15 @@ getTernaryType left mid right = do
         leftType  <- getType left
         midType   <- getType mid
         rightType <- getType right
-        pure $ ternaryType leftType midType rightType
+        ternaryType leftType midType rightType
 
 
-ternaryType :: Type -> Type -> Type -> Type
-ternaryType IntVar IntVar IntVar = IntVar
-ternaryType _ _ _ = undefined
+ternaryType :: Type -> Type -> Type -> GenState Type
+ternaryType IntVar IntVar IntVar = pure IntVar
+ternaryType a IntVar IntVar = throwError $ TypeError (UnexpectedType a)
+ternaryType IntVar b IntVar = throwError $ TypeError (UnexpectedType b)
+ternaryType IntVar IntVar c = throwError $ TypeError (UnexpectedType c)
+ternaryType a _ _           = throwError $ TypeError (UnexpectedType a)
 
 
 permitted :: Type -> GenState [Type]
@@ -170,7 +174,7 @@ addressOfType name = do
 
 addType :: Type -> GenState Type
 addType IntVar = pure IntPointer
-addType _ = undefined
+addType typ = throwError $ TypeError (UnexpectedType typ)
 
 
 dereferenceType :: String -> GenState Type
