@@ -1,5 +1,15 @@
 
-module GenState where
+module GenState
+        (GenState,
+         mkSymTab,
+         getGlobalScope,
+         putGlobalScope,
+         getFuncStates,
+         putFuncStates,
+         getFrameStack,
+         putFrameStack,
+         labelNum
+        ) where
 
 
 import qualified Data.Map    as M
@@ -48,18 +58,6 @@ putFuncStates fs = do
         putState $ state { funcStates = fs }
 
 
-getLabel :: GenState Int
-getLabel = do
-        state <- getState
-        return . label $ state
-
-
-putLabel :: Int -> GenState ()
-putLabel n = do
-        state <- getState
-        putState $ state { label = n }
-
-
 getFrameStack :: GenState (Stack String)
 getFrameStack = do
         state <- getState
@@ -70,3 +68,22 @@ putFrameStack :: Stack String -> GenState ()
 putFrameStack stack = do
         state <- getState
         putState $ state { frameStack = stack }
+
+
+labelNum :: GenState Int
+labelNum = do
+        l <- getLabel
+        putLabel . succ $ l
+        return l
+
+
+getLabel :: GenState Int
+getLabel = do
+        state <- getState
+        return . label $ state
+
+
+putLabel :: Int -> GenState ()
+putLabel n = do
+        state <- getState
+        putState $ state { label = n }
