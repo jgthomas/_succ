@@ -39,11 +39,8 @@ module ASM
         ) where
 
 
-import Tokens    (Operator(..))
-import GenTokens (Jump(..),
-                  Section(..),
-                  Set(..),
-                  Register(..))
+import GenTokens (Jump (..), Register (..), Section (..), Set (..))
+import Tokens    (Operator (..))
 
 
 -- Functions
@@ -436,9 +433,9 @@ signExtendRaxRdx = "cqto\n"
 emitJump :: Jump -> Int -> String
 emitJump j n =
         case j of
-             JMP  -> "jmp _label_" ++ num ++ "\n"
-             JE   -> "je _label_" ++ num ++ "\n"
-             JNE  -> "jne _label_" ++ num ++ "\n"
+             JMP -> "jmp _label_" ++ num ++ "\n"
+             JE  -> "je _label_" ++ num ++ "\n"
+             JNE -> "jne _label_" ++ num ++ "\n"
         where num = show n
 
 
