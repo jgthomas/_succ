@@ -295,7 +295,8 @@ incrementOffset :: GenState ()
 incrementOffset = do
         currFuncName <- FrameStack.currentFunc
         funcState    <- getFunctionState currFuncName
-        let funcState' = funcState { funcOffset = funcOffset funcState + memOffsetSize }
+        let offset     = funcOffset funcState
+            funcState' = funcState { funcOffset = offset + memOffsetSize }
         setFunctionState currFuncName funcState'
 
 
