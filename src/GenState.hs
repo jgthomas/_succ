@@ -17,7 +17,6 @@ data SymTab = Tab { label       :: Int
             deriving (Show)
 
 
-
 type GenState = SuccStateM SymTab
 
 
