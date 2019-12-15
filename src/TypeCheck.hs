@@ -25,25 +25,28 @@ import FuncState   (allTypes, variableType, parameterType)
 import GenState    (GenState)
 
 
--- | Throws error if two lists of types don't match
+-- | Throw error if two lists of types don't match
 typesMatch :: String -> [Tree] -> GenState ()
 typesMatch name treeList = do
         (params, args) <- passedTypes name treeList
         checkTypes params args
 
 
+-- | Throw error if function type declarations don't match
 funcDeclaration :: String -> Type -> GenState ()
 funcDeclaration name newTyp = do
         oldTyp <- getFuncType name
         checkTypes [oldTyp] [newTyp]
 
 
+-- | Throw error if global variable type declarations don't match
 globalDeclaration :: String -> Type -> GenState ()
 globalDeclaration name newTyp = do
         oldTyp <- getType (VarNode name)
         checkTypes [oldTyp] [newTyp]
 
 
+-- | Throw error if types of assignment and declaration don't match
 assignment :: String -> Tree -> GenState ()
 assignment name value = do
         varTyp  <- getType (VarNode name)
@@ -53,6 +56,7 @@ assignment name value = do
             throwError $ TypeError (TypeMismatch [varTyp] [valType])
 
 
+-- | Throw error if declared and actual return value don't match
 funcReturn :: Tree -> GenState ()
 funcReturn retVal = do
         currFuncName <- currentScope
@@ -60,8 +64,6 @@ funcReturn retVal = do
         retValType   <- getType retVal
         checkTypes [currFuncType] [retValType]
 
-
--- Internal
 
 passedTypes :: String -> [Tree] -> GenState ([Type], [Type])
 passedTypes name treeList = do
