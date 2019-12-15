@@ -1,5 +1,5 @@
 
-module GlobalScope
+module Global
         (declareFunction,
          defineFunction,
          declareGlobal,

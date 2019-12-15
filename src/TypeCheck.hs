@@ -18,10 +18,10 @@ import           AST           (Tree (..))
 import           Error         (CompilerError (ImpossibleError, TypeError),
                                 TypeError (..))
 import qualified FrameStack    (currentFunction, getScope)
-import           FuncState     (allTypes, parameterType, variableType)
 import           GenState      (GenState)
 import           GenTokens     (Scope (..))
-import           GlobalScope   (declaredFuncType, globalType)
+import           Global        (declaredFuncType, globalType)
+import           Local         (allTypes, parameterType, variableType)
 import           SuccState     (throwError)
 import           VarTypes      (Type (..))
 

@@ -2,16 +2,16 @@
 module SymTab
         (getScope,
          labelNum,
-         module GlobalScope,
-         module FuncState
+         module Global,
+         module Local
         ) where
 
 
-import           FrameStack  (getScope)
-import           FuncState   hiding (allTypes, parameterType, variableType)
-import           GenState    (GenState)
-import qualified GenState    (getLabel, putLabel)
-import           GlobalScope hiding (declaredFuncType, globalType)
+import           FrameStack (getScope)
+import           GenState   (GenState)
+import qualified GenState   (getLabel, putLabel)
+import           Global     hiding (declaredFuncType, globalType)
+import           Local      hiding (allTypes, parameterType, variableType)
 
 
 labelNum :: GenState Int

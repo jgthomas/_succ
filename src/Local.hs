@@ -1,5 +1,5 @@
 
-module FuncState
+module Local
         (initScope,
          closeScope,
          initFunction,
