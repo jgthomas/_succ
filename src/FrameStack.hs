@@ -12,11 +12,10 @@ module FrameStack
         where
 
 
-import GenState  (GenState)
-import GenTokens (Scope (..))
-import Stack     (Stack, stackPeek, stackPop, stackPush)
-import SuccState (getState, putState)
-import Types     (frameStack)
+import           GenState  (GenState)
+import qualified GenState  (getFrameStack, putFrameStack)
+import           GenTokens (Scope (..))
+import           Stack     (stackPeek, stackPop, stackPush)
 
 
 -- | Check if in Local or Global scope
@@ -31,7 +30,7 @@ getScope = do
 -- | Return name of the current function being compiled
 currentFunction :: GenState String
 currentFunction = do
-        currFuncName <- stackPeek <$> getFrameStack
+        currFuncName <- stackPeek <$> GenState.getFrameStack
         case currFuncName of
              Nothing   -> pure "global"
              Just name -> pure name
@@ -40,24 +39,12 @@ currentFunction = do
 -- | Remove function name from top of stack
 popFunctionName :: GenState ()
 popFunctionName = do
-        stack <- getFrameStack
-        putFrameStack $ stackPop stack
+        stack <- GenState.getFrameStack
+        GenState.putFrameStack $ stackPop stack
 
 
 -- | Add function name to top of stack
 pushFunctionName :: String -> GenState ()
 pushFunctionName name = do
-        stack <- getFrameStack
-        putFrameStack $ stackPush name stack
-
-
-getFrameStack :: GenState (Stack String)
-getFrameStack = do
-        state <- getState
-        pure . frameStack $ state
-
-
-putFrameStack :: Stack String -> GenState ()
-putFrameStack stack = do
-        state <- getState
-        putState $ state { frameStack = stack }
+        stack <- GenState.getFrameStack
+        GenState.putFrameStack $ stackPush name stack

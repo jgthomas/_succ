@@ -6,6 +6,7 @@ import qualified Data.Map    as M
 
 import           GlobalScope (GlobalScope)
 import           LocalScope  (FuncState)
+import           Stack       (Stack)
 import           SuccState   (SuccStateM, getState, putState)
 import           Types       (SymTab (..))
 
@@ -47,3 +48,15 @@ putLabel :: Int -> GenState ()
 putLabel n = do
         state <- getState
         putState $ state { label = n }
+
+
+getFrameStack :: GenState (Stack String)
+getFrameStack = do
+        state <- getState
+        pure . frameStack $ state
+
+
+putFrameStack :: Stack String -> GenState ()
+putFrameStack stack = do
+        state <- getState
+        putState $ state { frameStack = stack }
