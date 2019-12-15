@@ -1,10 +1,5 @@
 
-module GlobalScope
-        (GlobalScope(..),
-         mkGlobalScope,
-         GlobalVar(..),
-         mkGloVar
-        )where
+module GlobalScope where
 
 
 import qualified Data.Map as M
