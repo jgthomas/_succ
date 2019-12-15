@@ -8,19 +8,14 @@ representing the C program.
 module Parser (parse) where
 
 
-import Tokens           (Operator(..), Keyword(..), Token(..))
-import qualified Tokens (unary)
-import AST              (Tree(..))
-import VarTypes         (Type(..))
-import Error            (CompilerError(..),
-                         ParserError(..),
-                         SyntaxError(..),
-                         TypeError(..))
-import SuccState        (SuccStateM,
-                         getState,
-                         putState,
-                         throwError,
-                         runSuccState)
+import           AST       (Tree (..))
+import           Error     (CompilerError (..), ParserError (..),
+                            SyntaxError (..), TypeError (..))
+import           SuccState (SuccStateM, getState, putState, runSuccState,
+                            throwError)
+import           Tokens    (Keyword (..), Operator (..), Token (..))
+import qualified Tokens    (unary)
+import           VarTypes  (Type (..))
 
 
 type ParserState = SuccStateM Tree
@@ -57,7 +52,7 @@ parseTopLevelItems (a:_) = throwError $ TypeError (InvalidType a)
 
 
 parseTopLevelItem :: [Token] -> ParserState (Tree, [Token])
-parseTopLevelItem [] = throwError ImpossibleError
+parseTopLevelItem []                          = throwError ImpossibleError
 parseTopLevelItem toks@(_:_:_:TokOpenParen:_) = parseFunction toks
 parseTopLevelItem toks@(_:_:TokOpenParen:_)   = parseFunction toks
 parseTopLevelItem toks                        = parseDeclaration toks
@@ -116,7 +111,7 @@ parseParam toks = do
         (tree, toks'') <- parseParamValue toks'
         case tree of
              VarNode _ -> return (ParamNode typ tree, toks'')
-             _ -> throwError $ ParserError (TreeError tree)
+             _         -> throwError $ ParserError (TreeError tree)
 
 
 parseParamValue :: [Token] -> ParserState (Tree, [Token])
@@ -547,5 +542,5 @@ validType :: Keyword -> Bool
 validType kwd = kwd == Int
 
 lookAhead :: [Token] -> Token
-lookAhead [] = TokWut
+lookAhead []    = TokWut
 lookAhead (c:_) = c
