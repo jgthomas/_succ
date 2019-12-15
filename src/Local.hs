@@ -32,8 +32,8 @@ import qualified FrameStack    (currentFunction, popFunctionName,
                                 pushFunctionName)
 import           GenState      (GenState)
 import qualified GenState      (getFuncStates, putFuncStates)
-import           Types         (FuncState (..), LocalVar (..), ParamVar (..))
-import qualified Types         (mkFS, mkLocVar, mkParVar)
+import           LocalScope    (FuncState (..), LocalVar (..), ParamVar (..))
+import qualified LocalScope    (mkFuncState, mkLocVar, mkParVar)
 import           VarTypes      (Type (Label))
 
 
@@ -188,7 +188,7 @@ store name value typ = do
         funcState    <- getFunctionState currFuncName
         let level      = currentScope funcState
             scope      = getScope level funcState
-            locVar     = Types.mkLocVar value typ
+            locVar     = LocalScope.mkLocVar value typ
             scope'     = M.insert name locVar scope
             funcState' = funcState { scopes = M.insert level scope' $ scopes funcState }
         setFunctionState currFuncName funcState'
@@ -238,7 +238,7 @@ scopeLimit = -1
 newFuncState :: String -> GenState ()
 newFuncState name = do
         fstates <- GenState.getFuncStates
-        GenState.putFuncStates $ M.insert name Types.mkFS fstates
+        GenState.putFuncStates $ M.insert name LocalScope.mkFuncState fstates
 
 
 addNestedScope :: String -> Int -> GenState ()
@@ -302,7 +302,7 @@ addParam :: String -> Type -> FuncState -> FuncState
 addParam n t st =
         let pos = paramCount st
             st' = st { paramCount = succ pos }
-            parVar = Types.mkParVar pos t
+            parVar = LocalScope.mkParVar pos t
             in
         st' { parameters = M.insert n parVar $ parameters st' }
 
