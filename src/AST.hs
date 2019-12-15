@@ -1,9 +1,9 @@
 
-module AST (Tree(..)) where
+module AST where
 
 
-import Tokens   (Operator)
-import VarTypes (Type)
+import Tokens (Operator)
+import Type   (Type)
 
 
 data Tree = ProgramNode [Tree]

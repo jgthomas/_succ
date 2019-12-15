@@ -2,9 +2,9 @@
 module Main where
 
 
+import GeneratorSpec
 import LexerSpec
 import ParserSpec
-import GeneratorSpec
 
 
 main :: IO ()

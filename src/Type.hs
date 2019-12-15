@@ -1,7 +1,5 @@
 
-module VarTypes
-        (Type(..)
-        ) where
+module Type where
 
 
 data Type = IntVar

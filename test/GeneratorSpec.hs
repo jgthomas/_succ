@@ -5,11 +5,11 @@ module GeneratorSpec (generatorTest) where
 import Data.Either
 import Test.Hspec
 
-import Generator
-import Tokens
 import AST
 import Error
-import VarTypes
+import Generator
+import Tokens
+import Type
 
 
 generatorTest :: IO ()

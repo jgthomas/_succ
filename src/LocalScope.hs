@@ -4,7 +4,7 @@ module LocalScope where
 
 import qualified Data.Map as M
 
-import           VarTypes (Type)
+import           Type     (Type)
 
 
 data FuncState = Fs

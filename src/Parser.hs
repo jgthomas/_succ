@@ -15,7 +15,7 @@ import           SuccState (SuccStateM, getState, putState, runSuccState,
                             throwError)
 import           Tokens    (Keyword (..), Operator (..), Token (..))
 import qualified Tokens    (unary)
-import           VarTypes  (Type (..))
+import           Type      (Type (..))
 
 
 type ParserState = SuccStateM Tree

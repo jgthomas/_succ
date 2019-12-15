@@ -34,7 +34,7 @@ import           GenState      (GenState)
 import qualified GenState      (getFuncStates, putFuncStates)
 import           LocalScope    (FuncState (..), LocalVar (..), ParamVar (..))
 import qualified LocalScope    (mkFuncState, mkLocVar, mkParVar)
-import           VarTypes      (Type (Label))
+import           Type          (Type (Label))
 
 
 initFunction :: String -> GenState ()

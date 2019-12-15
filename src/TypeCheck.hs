@@ -23,7 +23,7 @@ import           GenTokens     (Scope (..))
 import           Global        (declaredFuncType, globalType)
 import           Local         (allTypes, parameterType, variableType)
 import           SuccState     (throwError)
-import           VarTypes      (Type (..))
+import           Type          (Type (..))
 
 
 -- | Throw error if two lists of types don't match

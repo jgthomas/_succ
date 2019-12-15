@@ -2,9 +2,9 @@
 module Error where
 
 
-import AST      (Tree)
-import Tokens   (Keyword, Operator, Token)
-import VarTypes (Type)
+import AST    (Tree)
+import Tokens (Keyword, Operator, Token)
+import Type   (Type)
 
 
 data CompilerError = LexerError LexerError

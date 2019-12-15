@@ -5,9 +5,9 @@ module LexerSpec (lexerTest) where
 import Data.Either
 import Test.Hspec
 
+import Error
 import Lexer
 import Tokens
-import Error
 
 
 lexerTest :: IO ()

@@ -5,7 +5,7 @@ module GlobalScope where
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import           VarTypes (Type)
+import           Type     (Type)
 
 
 data GlobalScope = Gscope

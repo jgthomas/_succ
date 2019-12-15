@@ -26,7 +26,7 @@ import           GenState    (GenState)
 import qualified GenState    (getGlobalScope, putGlobalScope)
 import           GlobalScope (GlobalScope (..), GlobalVar (..))
 import qualified GlobalScope (mkGloVar)
-import           VarTypes    (Type)
+import           Type        (Type)
 
 
 decParamCount :: String -> GenState (Maybe Int)

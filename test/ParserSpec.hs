@@ -5,11 +5,11 @@ module ParserSpec (parserTest) where
 import Data.Either
 import Test.Hspec
 
-import Parser
-import Tokens
 import AST
 import Error
-import VarTypes
+import Parser
+import Tokens
+import Type
 
 
 parserTest :: IO ()
