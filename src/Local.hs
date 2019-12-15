@@ -188,7 +188,7 @@ store name value typ = do
         currFuncName <- FrameStack.currentFunc
         funcState    <- getFunctionState currFuncName
         let level = currentScope funcState
-        scope        <- getScope level funcState
+        scope <- getScope level funcState
         let locVar     = LocalScope.mkLocVar value typ
             scope'     = M.insert name locVar scope
             funcState' = funcState { scopes = M.insert level scope' $ scopes funcState }
