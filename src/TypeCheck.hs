@@ -69,7 +69,7 @@ passedTypes :: String -> [Tree] -> GenState ([Type], [Type])
 passedTypes name treeList = do
         currTypes <- allTypes name
         newTypes  <- mapM getType treeList
-        return (currTypes, newTypes)
+        pure (currTypes, newTypes)
 
 
 checkTypes :: [Type] -> [Type] -> GenState ()
@@ -80,13 +80,13 @@ checkTypes oldTypes newTypes =
 
 getType :: Tree -> GenState Type
 getType (ArgNode tree)            = getType tree
-getType (ParamNode typ _)         = return typ
+getType (ParamNode typ _)         = pure typ
 getType (VarNode name)            = getVariableType name
 getType (AddressOfNode name)      = addressOfType name
 getType (TernaryNode l m r)       = getTernaryType l m r
 getType (BinaryNode l r op)       = getBinaryType l r op
 getType (UnaryNode tree _)        = getType tree
-getType (ConstantNode _)          = return IntVar
+getType (ConstantNode _)          = pure IntVar
 getType (FuncCallNode name _)     = getFuncType name
 getType (AssignmentNode _ tree _) = getType tree
 getType (DereferenceNode name)    = dereferenceType name
@@ -119,7 +119,7 @@ varType Nothing Nothing Nothing = Nothing
 
 
 extractType :: String -> Maybe Type -> GenState Type
-extractType _ (Just typ) = return typ
+extractType _ (Just typ) = pure typ
 extractType name Nothing = throwError $ TypeError (MissingType name)
 
 
@@ -127,7 +127,7 @@ getBinaryType :: Tree -> Tree -> Operator -> GenState Type
 getBinaryType left right op = do
         leftType  <- getType left
         rightType <- getType right
-        return $ binType leftType rightType op
+        pure $ binType leftType rightType op
 
 
 binType :: Type -> Type -> Operator -> Type
@@ -140,7 +140,7 @@ getTernaryType left mid right = do
         leftType  <- getType left
         midType   <- getType mid
         rightType <- getType right
-        return $ ternaryType leftType midType rightType
+        pure $ ternaryType leftType midType rightType
 
 
 ternaryType :: Type -> Type -> Type -> Type
@@ -169,7 +169,7 @@ addressOfType name = do
 
 
 addType :: Type -> GenState Type
-addType IntVar = return IntPointer
+addType IntVar = pure IntPointer
 addType _ = undefined
 
 
