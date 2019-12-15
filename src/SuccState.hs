@@ -9,8 +9,8 @@ module SuccState
         ) where
 
 
-import Control.Monad.State
-import Control.Monad.Trans.Except
+import Control.Monad.State        (State, evalState, get, lift, put)
+import Control.Monad.Trans.Except (ExceptT, runExceptT, throwE)
 
 import Error                      (CompilerError)
 
