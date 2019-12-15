@@ -22,24 +22,19 @@ module FuncState
         ) where
 
 
-import Data.Maybe            (fromMaybe)
-import Data.Function         (on)
-import Data.List             (sortBy)
-import Control.Monad         (unless)
-import qualified Data.Map as M
+import           Control.Monad (unless)
+import           Data.Function (on)
+import           Data.List     (sortBy)
+import qualified Data.Map      as M
+import           Data.Maybe    (fromMaybe)
 
-import GenState              (GenState)
-import qualified GenState    (getFuncStates, putFuncStates)
-import Types                 (FuncState(..),
-                              LocalVar(..),
-                              ParamVar(..))
-import VarTypes              (Type(Label))
-import qualified Types       (mkFS,
-                              mkLocVar,
-                              mkParVar)
-import qualified FrameStack  (currentFunction,
-                              popFunctionName,
-                              pushFunctionName)
+import qualified FrameStack    (currentFunction, popFunctionName,
+                                pushFunctionName)
+import           GenState      (GenState)
+import qualified GenState      (getFuncStates, putFuncStates)
+import           Types         (FuncState (..), LocalVar (..), ParamVar (..))
+import qualified Types         (mkFS, mkLocVar, mkParVar)
+import           VarTypes      (Type (Label))
 
 
 initFunction :: String -> GenState ()
@@ -183,8 +178,8 @@ find funcName scope name =
            else do
                    locVar <- getLocalVar funcName scope name
                    case locVar of
-                        Nothing  -> find funcName (pred scope) name
-                        Just lv  -> return (Just lv)
+                        Nothing -> find funcName (pred scope) name
+                        Just lv -> return (Just lv)
 
 
 store :: String -> Int -> Type -> GenState ()
