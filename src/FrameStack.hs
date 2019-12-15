@@ -12,10 +12,11 @@ module FrameStack
         where
 
 
-import           GenState  (GenState)
-import qualified GenState  (getFrameStack, putFrameStack)
-import           GenTokens (Scope (..))
-import           Types     (Stack (Stack))
+import GenState  (GenState)
+import GenTokens (Scope (..))
+import Stack     (Stack, stackPeek, stackPop, stackPush)
+import SuccState (getState, putState)
+import Types     (frameStack)
 
 
 -- | Check if in Local or Global scope
@@ -30,7 +31,7 @@ getScope = do
 -- | Return name of the current function being compiled
 currentFunction :: GenState String
 currentFunction = do
-        currFuncName <- stackPeek <$> GenState.getFrameStack
+        currFuncName <- stackPeek <$> getFrameStack
         case currFuncName of
              Nothing   -> pure "global"
              Just name -> pure name
@@ -39,26 +40,24 @@ currentFunction = do
 -- | Remove function name from top of stack
 popFunctionName :: GenState ()
 popFunctionName = do
-        stack <- GenState.getFrameStack
-        GenState.putFrameStack $ stackPop stack
+        stack <- getFrameStack
+        putFrameStack $ stackPop stack
 
 
 -- | Add function name to top of stack
 pushFunctionName :: String -> GenState ()
 pushFunctionName name = do
-        stack <- GenState.getFrameStack
-        GenState.putFrameStack $ stackPush name stack
+        stack <- getFrameStack
+        putFrameStack $ stackPush name stack
 
 
-stackPeek :: Stack a -> Maybe a
-stackPeek (Stack []) = Nothing
-stackPeek (Stack s)  = Just $ head s
+getFrameStack :: GenState (Stack String)
+getFrameStack = do
+        state <- getState
+        return . frameStack $ state
 
 
-stackPop :: Stack a -> Stack a
-stackPop (Stack []) = Stack []
-stackPop (Stack s)  = Stack $ tail s
-
-
-stackPush :: a -> Stack a -> Stack a
-stackPush x (Stack s) = Stack (x:s)
+putFrameStack :: Stack String -> GenState ()
+putFrameStack stack = do
+        state <- getState
+        putState $ state { frameStack = stack }

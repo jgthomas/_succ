@@ -5,6 +5,7 @@ module Types where
 import qualified Data.Map as M
 import qualified Data.Set as S
 
+import           Stack    (Stack, mkStack)
 import           VarTypes (Type)
 
 
@@ -16,12 +17,6 @@ data SymTab = Tab { label       :: Int
 
 mkSymTab :: SymTab
 mkSymTab = Tab 1 mkStack mkGS M.empty
-
-
-newtype Stack a = Stack [a] deriving Show
-
-mkStack :: Stack a
-mkStack = Stack []
 
 
 data GlobalScope = Gscope

@@ -5,7 +5,7 @@ module GenState where
 import qualified Data.Map  as M
 
 import           SuccState (SuccStateM, getState, putState)
-import           Types     (FuncState, GlobalScope, Stack, SymTab (..))
+import           Types     (FuncState, GlobalScope, SymTab (..))
 
 
 type GenState = SuccStateM SymTab
@@ -33,18 +33,6 @@ putFuncStates :: M.Map String FuncState -> GenState ()
 putFuncStates fs = do
         state <- getState
         putState $ state { funcStates = fs }
-
-
-getFrameStack :: GenState (Stack String)
-getFrameStack = do
-        state <- getState
-        return . frameStack $ state
-
-
-putFrameStack :: Stack String -> GenState ()
-putFrameStack stack = do
-        state <- getState
-        putState $ state { frameStack = stack }
 
 
 getLabel :: GenState Int
