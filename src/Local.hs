@@ -187,14 +187,14 @@ find funcName scope name =
 
 store :: String -> Int -> Type -> GenState ()
 store name value typ = do
-        currFuncName <- FrameStack.currentFunc
-        funcState    <- getFunctionState currFuncName
-        let level = currentScope funcState
-        scope <- getScope level funcState
-        let locVar     = LocalScope.mkLocVar value typ
-            scope'     = M.insert name locVar scope
-            funcState' = funcState { scopes = M.insert level scope' $ scopes funcState }
-        setFunctionState currFuncName funcState'
+        funcName <- FrameStack.currentFunc
+        fstate   <- getFunctionState funcName
+        let level = currentScope fstate
+        scope <- getScope level fstate
+        let locVar  = LocalScope.mkLocVar value typ
+            scope'  = M.insert name locVar scope
+            fstate' = fstate { scopes = M.insert level scope' $ scopes fstate }
+        setFunctionState funcName fstate'
 
 
 getLocalVar :: String -> Int -> String -> GenState (Maybe LocalVar)
