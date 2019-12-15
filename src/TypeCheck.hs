@@ -12,17 +12,18 @@ module TypeCheck
          funcReturn
         ) where
 
-import Control.Monad (unless, when)
+import           Control.Monad (unless, when)
 
-import AST         (Tree(..))
-import VarTypes    (Type(..))
-import Error       (CompilerError(TypeError, ImpossibleError), TypeError(..))
-import SuccState   (throwError)
-import qualified FrameStack  (getScope, currentFunction)
-import GlobalScope (globalType, declaredFuncType)
-import FuncState   (allTypes, variableType, parameterType)
-import GenState    (GenState)
-import GenTokens   (Scope(..))
+import           AST           (Tree (..))
+import           Error         (CompilerError (ImpossibleError, TypeError),
+                                TypeError (..))
+import qualified FrameStack    (currentFunction, getScope)
+import           FuncState     (allTypes, parameterType, variableType)
+import           GenState      (GenState)
+import           GenTokens     (Scope (..))
+import           GlobalScope   (declaredFuncType, globalType)
+import           SuccState     (throwError)
+import           VarTypes      (Type (..))
 
 
 -- | Throw error if two lists of types don't match
@@ -133,9 +134,9 @@ getBinaryType left right = do
 
 binType :: Type -> Type -> GenState Type
 binType IntVar IntVar = pure IntVar
-binType typ IntVar = throwError $ TypeError (UnexpectedType typ)
-binType IntVar typ = throwError $ TypeError (UnexpectedType typ)
-binType a _        = throwError $ TypeError (UnexpectedType a)
+binType typ IntVar    = throwError $ TypeError (UnexpectedType typ)
+binType IntVar typ    = throwError $ TypeError (UnexpectedType typ)
+binType a _           = throwError $ TypeError (UnexpectedType a)
 
 
 getTernaryType :: Tree -> Tree -> Tree -> GenState Type
@@ -148,10 +149,10 @@ getTernaryType left mid right = do
 
 ternaryType :: Type -> Type -> Type -> GenState Type
 ternaryType IntVar IntVar IntVar = pure IntVar
-ternaryType a IntVar IntVar = throwError $ TypeError (UnexpectedType a)
-ternaryType IntVar b IntVar = throwError $ TypeError (UnexpectedType b)
-ternaryType IntVar IntVar c = throwError $ TypeError (UnexpectedType c)
-ternaryType a _ _           = throwError $ TypeError (UnexpectedType a)
+ternaryType a IntVar IntVar      = throwError $ TypeError (UnexpectedType a)
+ternaryType IntVar b IntVar      = throwError $ TypeError (UnexpectedType b)
+ternaryType IntVar IntVar c      = throwError $ TypeError (UnexpectedType c)
+ternaryType a _ _                = throwError $ TypeError (UnexpectedType a)
 
 
 permitted :: Type -> GenState [Type]
@@ -176,7 +177,7 @@ addressOfType name = do
 
 addType :: Type -> GenState Type
 addType IntVar = pure IntPointer
-addType typ = throwError $ TypeError (UnexpectedType typ)
+addType typ    = throwError $ TypeError (UnexpectedType typ)
 
 
 dereferenceType :: String -> GenState Type
@@ -187,4 +188,4 @@ dereferenceType name = do
 
 derefType :: Type -> GenState Type
 derefType IntPointer = pure IntVar
-derefType typ = throwError $ TypeError (UnexpectedType typ)
+derefType typ        = throwError $ TypeError (UnexpectedType typ)
