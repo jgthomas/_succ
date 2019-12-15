@@ -5,10 +5,10 @@ Description  : Tracks current function
 Keeps track of the function currently being compiled.
 -}
 module FrameStack
-        (currentFunction,
+        (currentFunc,
          getScope,
-         popFunctionName,
-         pushFunctionName)
+         popFunc,
+         pushFunc)
         where
 
 
@@ -21,15 +21,15 @@ import           Stack     (stackPeek, stackPop, stackPush)
 -- | Check if in Local or Global scope
 getScope :: GenState Scope
 getScope = do
-        curr <- currentFunction
+        curr <- currentFunc
         if curr == "global"
            then pure Global
            else pure Local
 
 
 -- | Return name of the current function being compiled
-currentFunction :: GenState String
-currentFunction = do
+currentFunc :: GenState String
+currentFunc = do
         currFuncName <- stackPeek <$> GenState.getFrameStack
         case currFuncName of
              Nothing   -> pure "global"
@@ -37,14 +37,14 @@ currentFunction = do
 
 
 -- | Remove function name from top of stack
-popFunctionName :: GenState ()
-popFunctionName = do
+popFunc :: GenState ()
+popFunc = do
         stack <- GenState.getFrameStack
         GenState.putFrameStack $ stackPop stack
 
 
 -- | Add function name to top of stack
-pushFunctionName :: String -> GenState ()
-pushFunctionName name = do
+pushFunc :: String -> GenState ()
+pushFunc name = do
         stack <- GenState.getFrameStack
         GenState.putFrameStack $ stackPush name stack

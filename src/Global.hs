@@ -21,7 +21,7 @@ module Global
 import qualified Data.Map    as M
 import qualified Data.Set    as S
 
-import qualified FrameStack  (currentFunction)
+import qualified FrameStack  (currentFunc)
 import           GenState    (GenState)
 import qualified GenState    (getGlobalScope, putGlobalScope)
 import           GlobalScope (GlobalScope (..), GlobalVar (..))
@@ -51,7 +51,7 @@ declaredFuncType name = lookUp name funcTypes
 
 currentSeqNumber :: GenState (Maybe Int)
 currentSeqNumber = do
-        currFunc <- FrameStack.currentFunction
+        currFunc <- FrameStack.currentFunc
         decSeqNumber currFunc
 
 

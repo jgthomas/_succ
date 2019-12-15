@@ -28,8 +28,7 @@ import           Data.List     (sortBy)
 import qualified Data.Map      as M
 import           Data.Maybe    (fromMaybe)
 
-import qualified FrameStack    (currentFunction, popFunctionName,
-                                pushFunctionName)
+import qualified FrameStack    (currentFunc, popFunc, pushFunc)
 import           GenState      (GenState)
 import qualified GenState      (getFuncStates, putFuncStates)
 import           LocalScope    (FuncState (..), LocalVar (..), ParamVar (..))
@@ -39,18 +38,18 @@ import           Type          (Type (Label))
 
 initFunction :: String -> GenState ()
 initFunction name = do
-        FrameStack.pushFunctionName name
+        FrameStack.pushFunc name
         check <- checkFunctionState name
         unless check $ newFuncState name
 
 
 closeFunction :: GenState ()
-closeFunction = FrameStack.popFunctionName
+closeFunction = FrameStack.popFunc
 
 
 initScope :: GenState ()
 initScope = do
-        currFuncName  <- FrameStack.currentFunction
+        currFuncName  <- FrameStack.currentFunc
         newScopeLevel <- incrementScope
         addNestedScope currFuncName newScopeLevel
 
@@ -83,7 +82,7 @@ setContinue labelNo = store "@Continue" labelNo Label
 
 checkVariable :: String -> GenState Bool
 checkVariable varName = do
-        currFuncName <- FrameStack.currentFunction
+        currFuncName <- FrameStack.currentFunc
         scopeLevel   <- findScope currFuncName
         test         <- extract locOffset <$> getLocalVar currFuncName scopeLevel varName
         case test of
@@ -113,7 +112,7 @@ stackPointerValue = negate <$> currentOffset
 
 addParameter :: String -> Type -> GenState ()
 addParameter paramName typ = do
-        currFuncName <- FrameStack.currentFunction
+        currFuncName <- FrameStack.currentFunc
         funcState    <- getFunctionState currFuncName
         let funcState' = addParam paramName typ funcState
         setFunctionState currFuncName funcState'
@@ -121,7 +120,7 @@ addParameter paramName typ = do
 
 parameterPosition :: String -> GenState (Maybe Int)
 parameterPosition paramName = do
-        currFuncName <- FrameStack.currentFunction
+        currFuncName <- FrameStack.currentFunc
         if currFuncName == "global"
            then return Nothing
            else extract paramNum
@@ -131,7 +130,7 @@ parameterPosition paramName = do
 
 parameterType :: String -> GenState (Maybe Type)
 parameterType paramName = do
-        currFuncName <- FrameStack.currentFunction
+        currFuncName <- FrameStack.currentFunc
         extract paramType
             . M.lookup paramName
             . parameters <$> getFunctionState currFuncName
@@ -163,7 +162,7 @@ getType varName = getAttr varName locType
 
 getAttr :: String -> (LocalVar -> a) -> GenState (Maybe a)
 getAttr varName f = do
-        currFuncName <- FrameStack.currentFunction
+        currFuncName <- FrameStack.currentFunc
         if currFuncName == "global"
            then return Nothing
            else do
@@ -184,7 +183,7 @@ find funcName scope name =
 
 store :: String -> Int -> Type -> GenState ()
 store name value typ = do
-        currFuncName <- FrameStack.currentFunction
+        currFuncName <- FrameStack.currentFunc
         funcState    <- getFunctionState currFuncName
         let level      = currentScope funcState
             scope      = getScope level funcState
@@ -221,7 +220,7 @@ findScope name = currentScope <$> getFunctionState name
 
 stepScope :: (Int -> Int) -> GenState Int
 stepScope f = do
-        currFuncName <- FrameStack.currentFunction
+        currFuncName <- FrameStack.currentFunc
         funcState    <- getFunctionState currFuncName
         let newLevel   = f $ currentScope funcState
             funcState' = funcState { currentScope = newLevel }
@@ -280,13 +279,13 @@ delFunctionState name = do
 
 currentOffset :: GenState Int
 currentOffset = do
-        currFuncName <- FrameStack.currentFunction
+        currFuncName <- FrameStack.currentFunc
         funcOffset <$> getFunctionState currFuncName
 
 
 incrementOffset :: GenState ()
 incrementOffset = do
-        currFuncName <- FrameStack.currentFunction
+        currFuncName <- FrameStack.currentFunc
         funcState    <- getFunctionState currFuncName
         let funcState' = funcState { funcOffset = funcOffset funcState + memOffsetSize }
         setFunctionState currFuncName funcState'

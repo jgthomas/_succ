@@ -17,7 +17,7 @@ import           Control.Monad (unless, when)
 import           AST           (Tree (..))
 import           Error         (CompilerError (ImpossibleError, TypeError),
                                 TypeError (..))
-import qualified FrameStack    (currentFunction, getScope)
+import qualified FrameStack    (currentFunc, getScope)
 import           GenState      (GenState)
 import           GenTokens     (Scope (..))
 import           Global        (declaredFuncType, globalType)
@@ -60,7 +60,7 @@ assignment name value = do
 -- | Throw error if declared and actual return value don't match
 funcReturn :: Tree -> GenState ()
 funcReturn retVal = do
-        currFuncName <- FrameStack.currentFunction
+        currFuncName <- FrameStack.currentFunc
         currFuncType <- getFuncType currFuncName
         retValType   <- getType retVal
         checkTypes [currFuncType] [retValType]
