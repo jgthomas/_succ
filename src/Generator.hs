@@ -7,19 +7,19 @@ Generates the x86-64 assembly code for a particular abstract syntax tree.
 module Generator (generate) where
 
 
-import Data.Maybe    (isNothing)
-import Control.Monad (when, unless)
+import           Control.Monad (unless, when)
+import           Data.Maybe    (isNothing)
 
-import AST           (Tree(..))
-import Tokens        (Operator(..))
-import GenTokens     (Jump(..), Scope(..))
-import Error         (CompilerError(SyntaxError), SyntaxError(..))
-import GenState      (GenState)
-import Types         (mkSymTab)
-import SuccState     (runSuccState, throwError)
-import qualified     SymTab
-import qualified     ASM
-import qualified     TypeCheck
+import qualified ASM
+import           AST           (Tree (..))
+import           Error         (CompilerError (SyntaxError), SyntaxError (..))
+import           GenState      (GenState)
+import           GenTokens     (Jump (..), Scope (..))
+import           SuccState     (runSuccState, throwError)
+import qualified SymTab
+import           Tokens        (Operator (..))
+import qualified TypeCheck
+import           Types         (mkSymTab)
 
 
 -- | Generate x86-64 asm from AST
@@ -202,7 +202,7 @@ genASM node@(AssignDereferenceNode varName value op) = do
              (Just off, _, _) -> pure $ assign ++ ASM.derefStoreLocal off
              (_, Just pos, _) -> pure $ assign ++ ASM.derefStoreParam pos
              (_, _, Just lab) -> pure $ assign ++ ASM.derefStoreGlobal lab
-             _ -> throwError $ SyntaxError (Undeclared node)
+             _                -> throwError $ SyntaxError (Undeclared node)
 
 genASM (ExprStmtNode expression) = genASM expression
 
@@ -268,7 +268,7 @@ genASM node@(AddressOfNode varName) = do
         case (offset, globLab) of
              (Just off, _) -> pure . ASM.varAddressLoad $ off
              (_, Just lab) -> pure . ASM.varAddressLoadGlobal $ lab
-             _ -> throwError $ SyntaxError (Unrecognised node)
+             _             -> throwError $ SyntaxError (Unrecognised node)
 
 genASM node@(DereferenceNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
@@ -276,7 +276,7 @@ genASM node@(DereferenceNode varName) = do
              (Just off, _, _) -> pure . ASM.derefLoadLocal $ off
              (_, Just pos, _) -> pure . ASM.derefLoadParam $ pos
              (_, _, Just lab) -> pure . ASM.derefLoadGlobal $ lab
-             _ -> throwError $ SyntaxError (Unrecognised node)
+             _                -> throwError $ SyntaxError (Unrecognised node)
 
 genASM NullExprNode = return ASM.noOutput
 
