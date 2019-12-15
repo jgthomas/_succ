@@ -12,7 +12,7 @@ module SuccState
 import Control.Monad.State
 import Control.Monad.Trans.Except
 
-import Error (CompilerError)
+import Error                      (CompilerError)
 
 
 newtype SuccStateM s a = CM {
