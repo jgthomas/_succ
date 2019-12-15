@@ -1,7 +1,12 @@
+{-|
+Module       : TypeCheck
+Description  : Checks for type errors
 
+Provides basic type checking capabilities.
+-}
 module TypeCheck
         (typesMatch,
-         funcTypeDeclaration,
+         funcDeclaration,
          globalDeclaration,
          assignment,
          funcReturn
@@ -11,7 +16,7 @@ import Control.Monad (unless, when)
 
 import AST         (Tree(..))
 import VarTypes    (Type(..))
-import Error       (CompilerError(TypeError), TypeError(..))
+import Error       (CompilerError(TypeError, ImpossibleError), TypeError(..))
 import Tokens      (Operator(..))
 import SuccState   (throwError)
 import FrameStack  (currentScope)
@@ -20,14 +25,15 @@ import FuncState   (allTypes, variableType, parameterType)
 import GenState    (GenState)
 
 
+-- | Throws error if two lists of types don't match
 typesMatch :: String -> [Tree] -> GenState ()
 typesMatch name treeList = do
         (params, args) <- passedTypes name treeList
         checkTypes params args
 
 
-funcTypeDeclaration :: String -> Type -> GenState ()
-funcTypeDeclaration name newTyp = do
+funcDeclaration :: String -> Type -> GenState ()
+funcDeclaration name newTyp = do
         oldTyp <- getFuncType name
         checkTypes [oldTyp] [newTyp]
 
@@ -42,7 +48,8 @@ assignment :: String -> Tree -> GenState ()
 assignment name value = do
         varTyp  <- getType (VarNode name)
         valType <- getType value
-        unless (valType `elem` permitted varTyp) $
+        valid   <- permitted varTyp
+        unless (valType `elem` valid) $
             throwError $ TypeError (TypeMismatch [varTyp] [valType])
 
 
@@ -139,10 +146,12 @@ ternaryType IntVar IntVar IntVar = IntVar
 ternaryType _ _ _ = undefined
 
 
-permitted :: Type -> [Type]
-permitted IntVar     = [IntVar,IntPointer]
-permitted IntPointer = [IntVar,IntPointer]
-permitted typ        = error $ "unrecognised type: " ++ show typ
+permitted :: Type -> GenState [Type]
+permitted typ =
+        case typ of
+             IntVar     -> pure [IntVar, IntPointer]
+             IntPointer -> pure [IntVar, IntPointer]
+             Label      -> throwError ImpossibleError
 
 
 getFuncType :: String -> GenState Type

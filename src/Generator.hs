@@ -366,7 +366,7 @@ declareFunction node@(FunctionNode typ funcName paramList _) = do
              Just count -> do
                      checkCountsMatch count node
                      TypeCheck.typesMatch funcName paramList
-                     TypeCheck.funcTypeDeclaration funcName typ
+                     TypeCheck.funcDeclaration funcName typ
                      SymTab.declareFunction typ funcName (length paramList)
                      defined <- SymTab.checkFuncDefined funcName
                      unless defined $
