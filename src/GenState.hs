@@ -37,7 +37,7 @@ mkSymTab = Tab 1 mkStack mkGlobalScope M.empty
 getGlobalScope :: GenState GlobalScope
 getGlobalScope = do
         state <- getState
-        return . globalScope $ state
+        pure . globalScope $ state
 
 
 putGlobalScope :: GlobalScope -> GenState ()
@@ -49,7 +49,7 @@ putGlobalScope gs = do
 getFuncStates :: GenState (M.Map String FuncState)
 getFuncStates = do
         state <- getState
-        return . funcStates $ state
+        pure . funcStates $ state
 
 
 putFuncStates :: M.Map String FuncState -> GenState ()
@@ -74,13 +74,13 @@ labelNum :: GenState Int
 labelNum = do
         l <- getLabel
         putLabel . succ $ l
-        return l
+        pure l
 
 
 getLabel :: GenState Int
 getLabel = do
         state <- getState
-        return . label $ state
+        pure . label $ state
 
 
 putLabel :: Int -> GenState ()
