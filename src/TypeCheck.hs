@@ -88,7 +88,7 @@ getType (ConstantNode _)          = return IntVar
 getType (FuncCallNode name _)     = getFuncType name
 getType (AssignmentNode _ tree _) = getType tree
 getType (DereferenceNode name)    = dereferenceType name
-getType _                         = undefined
+getType tree                      = throwError $ TypeError (NotTyped tree)
 
 
 getVariableType :: String -> GenState Type

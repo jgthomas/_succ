@@ -47,5 +47,6 @@ data TypeError = InvalidType Token | Type
                | TypeMismatch [Type] [Type]
                | MissingType String
                | UnexpectedType Type
+               | NotTyped Tree
                deriving (Show, Eq)
 
