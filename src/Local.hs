@@ -126,8 +126,8 @@ parameterPosition paramName = do
         if currFuncName == "global"
            then return Nothing
            else extract paramNum
-                    . M.lookup paramName
-                    . parameters <$> getFunctionState currFuncName
+                . M.lookup paramName
+                . parameters <$> getFunctionState currFuncName
 
 
 parameterType :: String -> GenState (Maybe Type)
