@@ -1,5 +1,5 @@
 
-module ASM_Tokens
+module GenTokens
         (Jump(..),
          Section(..),
          Set(..),

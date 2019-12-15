@@ -12,7 +12,7 @@ import Control.Monad (when, unless)
 
 import AST           (Tree(..))
 import Tokens        (Operator(..))
-import ASM_Tokens    (Jump(..))
+import GenTokens     (Jump(..))
 import Error         (CompilerError(SyntaxError), SyntaxError(..))
 import GenState      (GenState)
 import Types         (mkSymTab)

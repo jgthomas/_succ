@@ -39,11 +39,11 @@ module ASM
         ) where
 
 
-import Tokens     (Operator(..))
-import ASM_Tokens (Jump(..),
-                   Section(..),
-                   Set(..),
-                   Register(..))
+import Tokens    (Operator(..))
+import GenTokens (Jump(..),
+                  Section(..),
+                  Set(..),
+                  Register(..))
 
 
 -- Functions
