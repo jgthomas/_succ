@@ -1,13 +1,13 @@
 
 module SymTab
-        (currentScope,
+        (getScope,
          labelNum,
          module GlobalScope,
          module FuncState
         ) where
 
 
-import FrameStack         (currentScope)
+import FrameStack         (getScope)
 import GenState           (GenState)
 import qualified GenState (getLabel, putLabel)
 import GlobalScope hiding (globalType, declaredFuncType)

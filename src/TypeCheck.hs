@@ -18,10 +18,11 @@ import AST         (Tree(..))
 import VarTypes    (Type(..))
 import Error       (CompilerError(TypeError, ImpossibleError), TypeError(..))
 import SuccState   (throwError)
-import FrameStack  (currentScope)
+import qualified FrameStack  (getScope, currentFunction)
 import GlobalScope (globalType, declaredFuncType)
 import FuncState   (allTypes, variableType, parameterType)
 import GenState    (GenState)
+import GenTokens   (Scope(..))
 
 
 -- | Throw error if two lists of types don't match
@@ -58,7 +59,7 @@ assignment name value = do
 -- | Throw error if declared and actual return value don't match
 funcReturn :: Tree -> GenState ()
 funcReturn retVal = do
-        currFuncName <- currentScope
+        currFuncName <- FrameStack.currentFunction
         currFuncType <- getFuncType currFuncName
         retValType   <- getType retVal
         checkTypes [currFuncType] [retValType]
@@ -94,12 +95,12 @@ getType tree                      = throwError $ TypeError (NotTyped tree)
 
 getVariableType :: String -> GenState Type
 getVariableType name = do
-        currScope <- currentScope
-        if currScope == "global"
-           then do
-                   typG <- globalType name
-                   extractType name typG
-           else checkAllVariableTypes name
+        currScope <- FrameStack.getScope
+        case currScope of
+             Local  -> checkAllVariableTypes name
+             Global -> do
+                     typG <- globalType name
+                     extractType name typG
 
 
 checkAllVariableTypes :: String -> GenState Type

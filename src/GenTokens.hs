@@ -1,10 +1,5 @@
 
-module GenTokens
-        (Jump(..),
-         Section(..),
-         Set(..),
-         Register(..)
-        ) where
+module GenTokens where
 
 
 data Jump = JMP
@@ -40,3 +35,8 @@ data Register = RAX
               | R9
               | R12
               deriving (Eq)
+
+
+data Scope = Global
+           | Local
+           deriving (Eq)

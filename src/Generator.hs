@@ -12,7 +12,7 @@ import Control.Monad (when, unless)
 
 import AST           (Tree(..))
 import Tokens        (Operator(..))
-import GenTokens     (Jump(..))
+import GenTokens     (Jump(..), Scope(..))
 import Error         (CompilerError(SyntaxError), SyntaxError(..))
 import GenState      (GenState)
 import Types         (mkSymTab)
@@ -163,10 +163,10 @@ genASM node@(PointerNode varName typ (Just a)) = do
              _ -> throwError $ SyntaxError (Unrecognised node)
 
 genASM node@(DeclarationNode varName typ value) = do
-        currScope <- SymTab.currentScope
-        if currScope == "global"
-           then declareGlobal node
-           else do
+        currScope <- SymTab.getScope
+        case currScope of
+             Global -> declareGlobal node
+             Local  -> do
                    checkIfUsedInScope node
                    offset <- SymTab.addVariable varName typ
                    adjust <- SymTab.stackPointerValue
@@ -178,18 +178,21 @@ genASM node@(DeclarationNode varName typ value) = do
 
 genASM node@(AssignmentNode varName value op) = do
         TypeCheck.assignment varName value
-        currScope <- SymTab.currentScope
-        if currScope == "global"
-           then defineGlobal node
-           else do
-                   assign  <- buildAssignmentASM (VarNode varName) value op
-                   (offset, _, globLab) <- checkVariableExists varName
-                   case (offset, globLab) of
-                        (Just off, _) -> do
-                                adj <- SymTab.stackPointerValue
-                                pure $ assign ++ ASM.varOnStack off ++ ASM.adjustStackPointer adj
-                        (_, Just lab) -> pure $ assign ++ ASM.storeGlobal lab
-                        _ -> throwError $ SyntaxError (Undeclared node)
+        currScope <- SymTab.getScope
+        case currScope of
+             Global -> defineGlobal node
+             Local  -> do
+                     assign  <- buildAssignmentASM (VarNode varName) value op
+                     (offset, _, globLab) <- checkVariableExists varName
+                     case (offset, globLab) of
+                          (Just off, _) -> do
+                                  adj <- SymTab.stackPointerValue
+                                  pure $ assign
+                                         ++ ASM.varOnStack off
+                                         ++ ASM.adjustStackPointer adj
+                          (_, Just lab) -> pure $ assign
+                                                  ++ ASM.storeGlobal lab
+                          _ -> throwError $ SyntaxError (Undeclared node)
 
 genASM node@(AssignDereferenceNode varName value op) = do
         TypeCheck.assignment varName value
@@ -278,10 +281,10 @@ genASM node@(DereferenceNode varName) = do
 genASM NullExprNode = return ASM.noOutput
 
 genASM (ConstantNode n) = do
-        currScope <- SymTab.currentScope
-        if currScope == "global"
-           then return . show $ n
-           else return . ASM.loadValue $ n
+        currScope <- SymTab.getScope
+        case currScope of
+             Global -> return . show $ n
+             Local  -> return . ASM.loadValue $ n
 
 
 -- Global variables

@@ -1,7 +1,7 @@
 
 module FrameStack
         (currentFunction,
-         currentScope,
+         getScope,
          popFunctionName,
          pushFunctionName)
         where
@@ -9,11 +9,16 @@ module FrameStack
 
 import Types              (Stack(Stack))
 import GenState           (GenState)
+import GenTokens          (Scope(..))
 import qualified GenState (getFrameStack, putFrameStack)
 
 
-currentScope:: GenState String
-currentScope = currentFunction
+getScope :: GenState Scope
+getScope = do
+        curr <- currentFunction
+        if curr == "global"
+           then pure Global
+           else pure Local
 
 
 currentFunction :: GenState String
