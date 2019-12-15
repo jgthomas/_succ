@@ -1,4 +1,9 @@
+{-|
+Module       : Global
+Description  : Track global scope state
 
+Keeps track of all global variables and functions defined in the program.
+-}
 module Global
         (declareFunction,
          defineFunction,
@@ -29,40 +34,49 @@ import qualified GlobalScope (mkGloVar)
 import           Type        (Type)
 
 
+-- | Get the number of parameters for a declared function
 decParamCount :: String -> GenState (Maybe Int)
 decParamCount name = lookUp name funcParams
 
 
+-- | Get the declaration sequence number
 decSeqNumber :: String -> GenState (Maybe Int)
 decSeqNumber name = lookUp name funcDecSeq
 
 
+-- | Get the ASM label associated with a named variable
 globalLabel :: String -> GenState (Maybe String)
 globalLabel name = extract globLabel <$> lookUp name declaredVars
 
 
+-- | Get the type of a named variable
 globalType :: String -> GenState (Maybe Type)
 globalType name = extract globType <$> lookUp name declaredVars
 
 
+-- | Get the type of a declared function
 declaredFuncType :: String -> GenState (Maybe Type)
 declaredFuncType name = lookUp name funcTypes
 
 
+-- | Get declaration number of current function
 currentSeqNumber :: GenState (Maybe Int)
 currentSeqNumber = do
         currFunc <- FrameStack.currentFunc
         decSeqNumber currFunc
 
 
+-- | Check if a variable has been defined
 checkVarDefined :: String -> GenState Bool
 checkVarDefined name = S.member name . definedVars <$> GenState.getGlobalScope
 
 
+-- | Check if a function has been defined
 checkFuncDefined :: String -> GenState Bool
 checkFuncDefined name = S.member name . definedFuncs <$> GenState.getGlobalScope
 
 
+-- | Declare a function
 declareFunction :: Type -> String -> Int -> GenState ()
 declareFunction typ funcName paramCount = do
         gscope <- GenState.getGlobalScope
@@ -72,12 +86,14 @@ declareFunction typ funcName paramCount = do
         GenState.putGlobalScope gscope'''
 
 
+-- | Define a function
 defineFunction :: String -> GenState ()
 defineFunction name = do
         gscope <- GenState.getGlobalScope
         GenState.putGlobalScope $ funcAsDefined name gscope
 
 
+-- | Declare a global variable
 declareGlobal :: String -> Type -> String -> GenState ()
 declareGlobal name typ label = do
         gscope <- GenState.getGlobalScope
@@ -85,12 +101,14 @@ declareGlobal name typ label = do
         GenState.putGlobalScope $ addGlobal name globVar gscope
 
 
+-- | Define a global variable
 defineGlobal :: String -> GenState ()
 defineGlobal name = do
         gscope <- GenState.getGlobalScope
         GenState.putGlobalScope $ varAsDefined name gscope
 
 
+-- | Get list of all undefined global variables
 getUndefined :: GenState [String]
 getUndefined = do
         gscope <- GenState.getGlobalScope
@@ -104,18 +122,18 @@ getUndefined = do
             <$> GenState.getGlobalScope
 
 
+-- | Store ASM code to initialise a global variable
 storeForInit :: String -> GenState ()
 storeForInit code = do
         gscope <- GenState.getGlobalScope
-        let gscope' = gscope { varsToinit = code : varsToinit gscope }
+        let gscope' = gscope { varsToInit = code : varsToInit gscope }
         GenState.putGlobalScope gscope'
 
 
+-- | Get list of all stored initilisation ASM code
 getAllForInit :: GenState [String]
-getAllForInit = varsToinit <$> GenState.getGlobalScope
+getAllForInit = varsToInit <$> GenState.getGlobalScope
 
-
-{- Internal -}
 
 lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> GenState (Maybe a)
 lookUp n f = M.lookup n . f <$> GenState.getGlobalScope

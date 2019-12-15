@@ -16,7 +16,7 @@ data GlobalScope = Gscope
                  , declaredVars :: M.Map String GlobalVar
                  , definedVars  :: S.Set String
                  , definedFuncs :: S.Set String
-                 , varsToinit   :: [String] }
+                 , varsToInit   :: [String] }
                  deriving (Show)
 
 
