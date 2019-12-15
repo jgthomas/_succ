@@ -5,13 +5,13 @@ module GenTokens where
 data Jump = JMP
           | JE
           | JNE
-          deriving Eq
+          deriving (Eq)
 
 
 data Section = TEXT
              | DATA
              | BSS
-             deriving Eq
+             deriving (Eq)
 
 
 data Set = Equ
@@ -20,7 +20,7 @@ data Set = Equ
          | GThanE
          | LThan
          | LThanE
-         deriving Eq
+         deriving (Eq)
 
 
 data Register = RAX
