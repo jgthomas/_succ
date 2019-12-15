@@ -46,5 +46,6 @@ data SyntaxError = InvalidIdentifier Token
 data TypeError = InvalidType Token | Type
                | TypeMismatch [Type] [Type]
                | MissingType String
+               | UnexpectedType Type
                deriving (Show, Eq)
 

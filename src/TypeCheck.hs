@@ -178,5 +178,5 @@ dereferenceType name = do
 
 
 derefType :: Type -> GenState Type
-derefType IntPointer = return IntVar
-derefType _ = undefined
+derefType IntPointer = pure IntVar
+derefType typ = throwError $ TypeError (UnexpectedType typ)
