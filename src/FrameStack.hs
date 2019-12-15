@@ -54,7 +54,7 @@ pushFunctionName name = do
 getFrameStack :: GenState (Stack String)
 getFrameStack = do
         state <- getState
-        return . frameStack $ state
+        pure . frameStack $ state
 
 
 putFrameStack :: Stack String -> GenState ()
