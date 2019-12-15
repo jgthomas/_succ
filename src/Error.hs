@@ -2,8 +2,8 @@
 module Error where
 
 
-import Tokens   (Keyword, Token, Operator)
 import AST      (Tree)
+import Tokens   (Keyword, Operator, Token)
 import VarTypes (Type)
 
 
