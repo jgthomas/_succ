@@ -1,22 +1,19 @@
 
 module Main where
 
-import System.Environment (getArgs)
-import System.FilePath    (dropExtension)
-import System.Process     (system)
-import System.Exit        (exitFailure)
 import Control.DeepSeq    (deepseq)
-import System.IO          (openFile,
-                           IOMode(ReadMode),
-                           hGetContents,
-                           writeFile,
-                           hClose)
+import System.Environment (getArgs)
+import System.Exit        (exitFailure)
+import System.FilePath    (dropExtension)
+import System.IO          (IOMode (ReadMode), hClose, hGetContents, openFile,
+                           writeFile)
+import System.Process     (system)
 
-import Lexer     (tokenize)
-import Parser    (parse)
-import Generator (generate)
-import Tokens    (Token)
-import AST       (Tree)
+import AST                (Tree)
+import Generator          (generate)
+import Lexer              (tokenize)
+import Parser             (parse)
+import Tokens             (Token)
 
 
 main :: IO()
