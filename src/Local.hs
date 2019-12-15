@@ -33,7 +33,7 @@ import qualified FrameStack    (currentFunc, popFunc, pushFunc)
 import           GenState      (GenState)
 import qualified GenState      (getFuncStates, putFuncStates)
 import           LocalScope    (FuncState (..), LocalVar (..), ParamVar (..))
-import qualified LocalScope    (mkFuncState, mkLocVar, mkParVar)
+import qualified LocalScope    (memOffset, mkFuncState, mkLocVar, mkParVar)
 import           SuccState     (throwError)
 import           Type          (Type (Label))
 
@@ -296,12 +296,8 @@ incrementOffset = do
         currFuncName <- FrameStack.currentFunc
         funcState    <- getFunctionState currFuncName
         let offset     = funcOffset funcState
-            funcState' = funcState { funcOffset = offset + memOffsetSize }
+            funcState' = funcState { funcOffset = offset + LocalScope.memOffset }
         setFunctionState currFuncName funcState'
-
-
-memOffsetSize :: Int
-memOffsetSize = -8
 
 
 -- parameters

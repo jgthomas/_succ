@@ -16,7 +16,11 @@ data FuncState = Fs { paramCount   :: Int
 
 
 mkFuncState :: FuncState
-mkFuncState = Fs 0 (-8) 0 M.empty (M.singleton 0 M.empty)
+mkFuncState = Fs 0 memOffset 0 M.empty (M.singleton 0 M.empty)
+
+
+memOffset :: Int
+memOffset = -8
 
 
 data LocalVar = LocVar { locOffset :: Int
