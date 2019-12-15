@@ -10,18 +10,11 @@ a list of tokens.
 module Lexer (tokenize) where
 
 
-import Data.Char (isDigit, isAlpha, isSpace)
+import Data.Char (isAlpha, isDigit, isSpace)
 
-import Tokens    (Operator(..),
-                  Keyword(..),
-                  Token(..))
-import Error     (CompilerError(LexerError, ImpossibleError),
-                  LexerError(..))
-import SuccState (SuccStateM,
-                  getState,
-                  putState,
-                  throwError,
-                  runSuccState)
+import Error     (CompilerError (ImpossibleError, LexerError), LexerError (..))
+import SuccState (SuccStateM, getState, putState, runSuccState, throwError)
+import Tokens    (Keyword (..), Operator (..), Token (..))
 
 
 type LexerState = SuccStateM [Token]
@@ -161,7 +154,7 @@ isSecondOpSymbol c = c `elem` secondOpSymbols
 
 
 isTwoCharOp :: Char -> String -> Bool
-isTwoCharOp _ [] = False
+isTwoCharOp _ []    = False
 isTwoCharOp c (x:_) = isOpSymbol c && isSecondOpSymbol x
 
 
