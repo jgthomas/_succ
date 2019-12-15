@@ -107,14 +107,15 @@ checkAllVariableTypes name = do
         typL <- variableType name
         typP <- parameterType name
         typG <- globalType name
-        extractType name $ varType typL typP typG
+        typ  <- varType typL typP typG
+        extractType name typ
 
 
-varType :: Maybe Type -> Maybe Type -> Maybe Type -> Maybe Type
-varType (Just typL) _ _         = Just typL
-varType _ (Just typP) _         = Just typP
-varType _ _ (Just typG)         = Just typG
-varType Nothing Nothing Nothing = Nothing
+varType :: Maybe Type -> Maybe Type -> Maybe Type -> GenState (Maybe Type)
+varType (Just typL) _ _         = pure $ Just typL
+varType _ (Just typP) _         = pure $ Just typP
+varType _ _ (Just typG)         = pure $ Just typG
+varType Nothing Nothing Nothing = pure Nothing
 
 
 extractType :: String -> Maybe Type -> GenState Type
