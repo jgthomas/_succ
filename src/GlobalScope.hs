@@ -18,15 +18,15 @@ module GlobalScope
         ) where
 
 
-import qualified Data.Map as M
-import qualified Data.Set as S
+import qualified Data.Map   as M
+import qualified Data.Set   as S
 
-import Types                (GlobalScope(..), GlobalVar(..))
-import VarTypes             (Type)
-import GenState             (GenState)
-import qualified GenState   (getGlobalScope, putGlobalScope)
-import qualified Types      (mkGloVar)
 import qualified FrameStack (currentFunction)
+import           GenState   (GenState)
+import qualified GenState   (getGlobalScope, putGlobalScope)
+import           Types      (GlobalScope (..), GlobalVar (..))
+import qualified Types      (mkGloVar)
+import           VarTypes   (Type)
 
 
 decParamCount :: String -> GenState (Maybe Int)
