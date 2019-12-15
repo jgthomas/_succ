@@ -28,11 +28,14 @@ import           Data.List     (sortBy)
 import qualified Data.Map      as M
 import           Data.Maybe    (fromMaybe)
 
+import           Error         (CompilerError (GeneratorError),
+                                GeneratorError (..))
 import qualified FrameStack    (currentFunc, popFunc, pushFunc)
 import           GenState      (GenState)
 import qualified GenState      (getFuncStates, putFuncStates)
 import           LocalScope    (FuncState (..), LocalVar (..), ParamVar (..))
 import qualified LocalScope    (mkFuncState, mkLocVar, mkParVar)
+import           SuccState     (throwError)
 import           Type          (Type (Label))
 
 
@@ -260,7 +263,7 @@ getFunctionState name = do
         fstates <- GenState.getFuncStates
         case M.lookup name fstates of
              Just st -> return st
-             Nothing -> error $ "No state defined for: " ++ name
+             Nothing -> throwError $ GeneratorError (NoStateFound name)
 
 
 setFunctionState :: String -> FuncState -> GenState ()

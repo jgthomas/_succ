@@ -9,6 +9,7 @@ import Type   (Type)
 
 data CompilerError = LexerError LexerError
                    | ParserError ParserError
+                   | GeneratorError GeneratorError
                    | SyntaxError SyntaxError
                    | TypeError TypeError
                    | ImpossibleError
@@ -24,6 +25,11 @@ data ParserError = ParseError String
                  | TreeError Tree
                  | TokensError [Token]
                  deriving (Show, Eq)
+
+
+data GeneratorError = NoStateFound String
+                    | UndefinedScope Int
+                    deriving (Show, Eq)
 
 
 data SyntaxError = InvalidIdentifier Token
