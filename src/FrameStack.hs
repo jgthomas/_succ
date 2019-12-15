@@ -1,4 +1,9 @@
+{-|
+Module       : FrameStack
+Description  : Tracks current function
 
+Keeps track of the function currently being compiled.
+-}
 module FrameStack
         (currentFunction,
          getScope,
@@ -13,6 +18,7 @@ import GenTokens          (Scope(..))
 import qualified GenState (getFrameStack, putFrameStack)
 
 
+-- | Check if in Local or Global scope
 getScope :: GenState Scope
 getScope = do
         curr <- currentFunction
@@ -21,30 +27,27 @@ getScope = do
            else pure Local
 
 
+-- | Return name of the current function being compiled
 currentFunction :: GenState String
 currentFunction = do
-        currFuncName <- queryStack
+        currFuncName <- stackPeek <$> GenState.getFrameStack
         case currFuncName of
-             Nothing   -> return "global"
-             Just name -> return name
+             Nothing   -> pure "global"
+             Just name -> pure name
 
 
+-- | Remove function name from top of stack
 popFunctionName :: GenState ()
 popFunctionName = do
         stack <- GenState.getFrameStack
         GenState.putFrameStack $ stackPop stack
 
 
+-- | Add function name to top of stack
 pushFunctionName :: String -> GenState ()
 pushFunctionName name = do
         stack <- GenState.getFrameStack
         GenState.putFrameStack $ stackPush name stack
-
-
-{- Internal -}
-
-queryStack :: GenState (Maybe String)
-queryStack = stackPeek <$> GenState.getFrameStack
 
 
 stackPeek :: Stack a -> Maybe a
