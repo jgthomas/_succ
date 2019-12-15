@@ -26,7 +26,6 @@ import           Control.Monad (unless)
 import           Data.Function (on)
 import           Data.List     (sortBy)
 import qualified Data.Map      as M
-import           Data.Maybe    (fromMaybe)
 
 import           Error         (CompilerError (GeneratorError),
                                 GeneratorError (..))
@@ -188,23 +187,29 @@ store :: String -> Int -> Type -> GenState ()
 store name value typ = do
         currFuncName <- FrameStack.currentFunc
         funcState    <- getFunctionState currFuncName
-        let level      = currentScope funcState
-            scope      = getScope level funcState
-            locVar     = LocalScope.mkLocVar value typ
+        let level = currentScope funcState
+        scope        <- getScope level funcState
+        let locVar     = LocalScope.mkLocVar value typ
             scope'     = M.insert name locVar scope
             funcState' = funcState { scopes = M.insert level scope' $ scopes funcState }
         setFunctionState currFuncName funcState'
 
 
 getLocalVar :: String -> Int -> String -> GenState (Maybe LocalVar)
-getLocalVar funcName lev var =
-        M.lookup var . getScope lev <$> getFunctionState funcName
+getLocalVar funcName lev var = do
+        fstate <- getFunctionState funcName
+        scope  <- getScope lev fstate
+        pure $ M.lookup var scope
 
 
-getScope :: Int -> FuncState -> M.Map String LocalVar
-getScope scope fs = fromMaybe
-                    (error "scope not defined")
-                    (M.lookup scope $ scopes fs)
+getScope :: Int -> FuncState -> GenState (M.Map String LocalVar)
+getScope scope fs =
+        let result = M.lookup scope $ scopes fs
+            in
+        case result of
+             Nothing -> throwError $ GeneratorError (UndefinedScope scope)
+             Just sc -> pure sc
+
 
 
 -- scope
