@@ -98,8 +98,9 @@ defineFunction name = do
 declareGlobal :: String -> Type -> String -> GenState ()
 declareGlobal name typ label = do
         gscope <- GenState.getGlobalScope
-        let globVar = GlobalScope.mkGloVar label typ
-        GenState.putGlobalScope $ addGlobal name globVar gscope
+        let globVar       = GlobalScope.mkGloVar label typ
+            declaredVars' = M.insert name globVar $ declaredVars gscope
+        GenState.putGlobalScope $ gscope { declaredVars = declaredVars' }
 
 
 -- | Define a global variable
@@ -148,10 +149,6 @@ extract _ Nothing   = Nothing
 
 checkInSet :: (Ord a) => a -> (GlobalScope -> S.Set a) -> GenState Bool
 checkInSet a f = S.member a . f <$> GenState.getGlobalScope
-
-
-addGlobal :: String -> GlobalVar -> GlobalScope -> GlobalScope
-addGlobal n g s = s { declaredVars = M.insert n g $ declaredVars s }
 
 
 addParams :: String -> Int -> GlobalScope -> GlobalScope
