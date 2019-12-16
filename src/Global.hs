@@ -90,7 +90,8 @@ declareFunction typ funcName paramCount = do
 defineFunction :: String -> GenState ()
 defineFunction name = do
         gscope <- GenState.getGlobalScope
-        GenState.putGlobalScope $ funcAsDefined name gscope
+        let definedFuncs' = S.insert name . definedFuncs $ gscope
+        GenState.putGlobalScope $ gscope { definedFuncs = definedFuncs' }
 
 
 -- | Declare a global variable
@@ -105,7 +106,8 @@ declareGlobal name typ label = do
 defineGlobal :: String -> GenState ()
 defineGlobal name = do
         gscope <- GenState.getGlobalScope
-        GenState.putGlobalScope $ varAsDefined name gscope
+        let definedVars' = S.insert name . definedVars $ gscope
+        GenState.putGlobalScope $ gscope { definedVars = definedVars' }
 
 
 -- | Get list of all undefined global variables
@@ -158,14 +160,6 @@ addParams n p s = s { funcParams = M.insert n p $ funcParams s }
 
 addType :: String -> Type -> GlobalScope -> GlobalScope
 addType n t s = s { funcTypes = M.insert n t $ funcTypes s }
-
-
-varAsDefined :: String -> GlobalScope -> GlobalScope
-varAsDefined n s = s { definedVars = S.insert n $ definedVars s }
-
-
-funcAsDefined :: String -> GlobalScope -> GlobalScope
-funcAsDefined n s = s { definedFuncs = S.insert n $ definedFuncs s }
 
 
 addSymbol :: String -> GlobalScope -> GlobalScope
