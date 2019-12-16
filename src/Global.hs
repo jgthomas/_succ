@@ -68,12 +68,12 @@ currentSeqNumber = do
 
 -- | Check if a variable has been defined
 checkVarDefined :: String -> GenState Bool
-checkVarDefined name = S.member name . definedVars <$> GenState.getGlobalScope
+checkVarDefined name = checkInSet name definedVars
 
 
 -- | Check if a function has been defined
 checkFuncDefined :: String -> GenState Bool
-checkFuncDefined name = S.member name . definedFuncs <$> GenState.getGlobalScope
+checkFuncDefined name = checkInSet name definedFuncs
 
 
 -- | Declare a function
@@ -139,9 +139,13 @@ lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> GenState (Maybe a)
 lookUp n f = M.lookup n . f <$> GenState.getGlobalScope
 
 
-extract :: (GlobalVar -> a) -> Maybe GlobalVar -> Maybe a
-extract f (Just gv) = Just . f $ gv
+extract :: (b -> a) -> Maybe b -> Maybe a
+extract f (Just pv) = Just . f $ pv
 extract _ Nothing   = Nothing
+
+
+checkInSet :: (Ord a) => a -> (GlobalScope -> S.Set a) -> GenState Bool
+checkInSet a f = S.member a . f <$> GenState.getGlobalScope
 
 
 addGlobal :: String -> GlobalVar -> GlobalScope -> GlobalScope
