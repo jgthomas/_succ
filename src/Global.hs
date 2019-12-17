@@ -160,8 +160,7 @@ addType n t s = s { funcTypes = M.insert n t $ funcTypes s }
 
 
 addSymbol :: String -> GlobalScope -> GlobalScope
-addSymbol name gs =
-        let i   = seqNum gs
-            gs' = gs { seqNum = i + 1 }
+addSymbol n g =
+        let g' = g { funcDecSeq = M.insert n (seqNum g) $ funcDecSeq g }
             in
-        gs' { funcDecSeq = M.insert name i $ funcDecSeq gs' }
+        g' { seqNum = succ . seqNum $ g' }
