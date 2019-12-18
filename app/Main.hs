@@ -48,7 +48,7 @@ lexString s = do
              (Left err)   -> do
                      print err
                      exitFailure
-             (Right toks) -> return toks
+             (Right toks) -> pure toks
 
 
 newParseTokens :: [Token] -> IO Tree
@@ -58,7 +58,7 @@ newParseTokens toks = do
              (Left err) -> do
                      print err
                      exitFailure
-             (Right ast) -> return ast
+             (Right ast) -> pure ast
 
 
 generateASM :: Tree -> IO String
@@ -68,4 +68,4 @@ generateASM ast = do
              (Left err) -> do
                      print err
                      exitFailure
-             (Right asm) -> return asm
+             (Right asm) -> pure asm
