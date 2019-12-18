@@ -206,12 +206,9 @@ getLocalVar funcName lev var = do
 
 getScope :: Int -> FuncState -> GenState (M.Map String LocalVar)
 getScope scope fs =
-        let result = M.lookup scope $ scopes fs
-            in
-        case result of
-             Nothing -> throwError $ GeneratorError (UndefinedScope scope)
+        case M.lookup scope $ scopes fs of
              Just sc -> pure sc
-
+             Nothing -> throwError $ GeneratorError (UndefinedScope scope)
 
 
 -- scope
