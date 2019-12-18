@@ -32,11 +32,11 @@ genASM (ProgramNode topLevelItems) = do
         text   <- concat <$> mapM genASM topLevelItems
         bss    <- ASM.allUninitialized <$> SymTab.getUndefined
         toInit <- ASM.outputInit . concat <$> SymTab.getAllForInit
-        return $ text ++ bss ++ toInit
+        pure $ text ++ bss ++ toInit
 
 genASM node@(FunctionNode _ _ _ Nothing) = do
         declareFunction node
-        return ASM.noOutput
+        pure ASM.noOutput
 genASM node@(FunctionNode _ name _ (Just stmts)) = do
         checkIfFuncDefined node
         declareFunction node
@@ -45,9 +45,9 @@ genASM node@(FunctionNode _ name _ (Just stmts)) = do
         SymTab.closeFunction
         SymTab.defineFunction name
         if hasReturn stmts || name /= "main"
-           then return $ ASM.functionName name
+           then pure $ ASM.functionName name
                          ++ concat statements
-           else return $ ASM.functionName name
+           else pure $ ASM.functionName name
                          ++ concat statements
                          ++ ASM.loadValue 0
                          ++ ASM.returnStatement
@@ -55,7 +55,7 @@ genASM node@(FunctionNode _ name _ (Just stmts)) = do
 
 genASM (ParamNode typ (VarNode name)) = do
         SymTab.addParameter name typ
-        return ASM.noOutput
+        pure ASM.noOutput
 genASM node@(ParamNode _ _) = throwError $ SyntaxError (Unexpected node)
 
 genASM node@(FuncCallNode name argList) = do
@@ -64,7 +64,7 @@ genASM node@(FuncCallNode name argList) = do
         TypeCheck.typesMatch name argList
         validateCall node
         argString <- processArgs argList 0 []
-        return $ ASM.saveCallerRegisters
+        pure $ ASM.saveCallerRegisters
                  ++ argString
                  ++ ASM.makeFunctionCall name
                  ++ ASM.restoreCallerRegisters
@@ -75,7 +75,7 @@ genASM (CompoundStmtNode blockItems) = do
         SymTab.initScope
         blockLines <- mapM genASM blockItems
         SymTab.closeScope
-        return . concat $ blockLines
+        pure . concat $ blockLines
 
 genASM (ForLoopNode ini test iter block) = do
         SymTab.initScope
@@ -89,7 +89,7 @@ genASM (ForLoopNode ini test iter block) = do
         iters <- genASM iter
         body  <- genASM block
         SymTab.closeScope
-        return $ inits
+        pure $ inits
                  ++ ASM.emitLabel passLabel
                  ++ tests
                  ++ ASM.testResult
@@ -107,7 +107,7 @@ genASM (WhileNode test whileBlock) = do
         body      <- genASM whileBlock
         SymTab.setContinue loopLabel
         SymTab.setBreak testLabel
-        return $ ASM.emitLabel loopLabel
+        pure $ ASM.emitLabel loopLabel
                  ++ tests
                  ++ ASM.testResult
                  ++ ASM.emitJump JE testLabel
@@ -123,7 +123,7 @@ genASM (DoWhileNode block test) = do
         testLabel <- SymTab.labelNum
         SymTab.setContinue contLabel
         SymTab.setBreak testLabel
-        return $ ASM.emitLabel loopLabel
+        pure $ ASM.emitLabel loopLabel
                  ++ body
                  ++ ASM.emitLabel contLabel
                  ++ tests
@@ -141,11 +141,11 @@ genASM (IfNode test action possElse) = do
                       ++ ASM.emitJump JE label
                       ++ ifAction
         case possElse of
-             Nothing -> return $ ifLines ++ ASM.emitLabel label
+             Nothing -> pure $ ifLines ++ ASM.emitLabel label
              Just e  -> do
                      elseAction <- genASM e
                      nextLabel  <- SymTab.labelNum
-                     return $ ifLines
+                     pure $ ifLines
                               ++ ASM.emitJump JMP nextLabel
                               ++ ASM.emitLabel label
                               ++ elseAction ++ ASM.emitLabel nextLabel
@@ -171,7 +171,7 @@ genASM node@(DeclarationNode varName typ value) = do
                    adjust <- SymTab.stackPointerValue
                    case value of
                         Just v  -> genASM v
-                        Nothing -> return $ ASM.loadValue 0
+                        Nothing -> pure $ ASM.loadValue 0
                                             ++ ASM.varOnStack offset
                                             ++ ASM.adjustStackPointer adjust
 
@@ -208,19 +208,19 @@ genASM (ExprStmtNode expression) = genASM expression
 genASM ContinueNode = do
         continueLabel <- SymTab.getContinue
         case continueLabel of
-             Just target -> return $ ASM.emitJump JMP target
+             Just target -> pure $ ASM.emitJump JMP target
              Nothing     -> throwError $ SyntaxError (Unexpected ContinueNode)
 
 genASM BreakNode = do
         breakLabel <- SymTab.getBreak
         case breakLabel of
-             Just target -> return $ ASM.emitJump JMP target
+             Just target -> pure $ ASM.emitJump JMP target
              Nothing     -> throwError $ SyntaxError (Unexpected BreakNode)
 
 genASM (ReturnNode tree) = do
         TypeCheck.funcReturn tree
         rtn <- genASM tree
-        return $ rtn ++ ASM.returnStatement
+        pure $ rtn ++ ASM.returnStatement
 
 genASM (TernaryNode cond pass fails) = do
         testVal    <- genASM cond
@@ -228,7 +228,7 @@ genASM (TernaryNode cond pass fails) = do
         failAction <- genASM fails
         failLabel  <- SymTab.labelNum
         passLabel  <- SymTab.labelNum
-        return $ testVal
+        pure $ testVal
                  ++ ASM.testResult
                  ++ ASM.emitJump JE failLabel
                  ++ passAction
@@ -244,15 +244,15 @@ genASM (BinaryNode left right op) = do
         rgt <- genASM right
         case op of
              LogicalOR  ->
-                     return $ ASM.logicalOR lft rgt nextLabel endLabel
+                     pure $ ASM.logicalOR lft rgt nextLabel endLabel
              LogicalAND ->
-                     return $ ASM.logicalAND lft rgt nextLabel endLabel
+                     pure $ ASM.logicalAND lft rgt nextLabel endLabel
              _          ->
-                     return $ ASM.binary lft rgt op
+                     pure $ ASM.binary lft rgt op
 
 genASM (UnaryNode tree op) = do
         unode <- genASM tree
-        return $ unode ++ ASM.unary op
+        pure $ unode ++ ASM.unary op
 
 genASM node@(VarNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
@@ -277,13 +277,13 @@ genASM node@(DereferenceNode varName) = do
              (_, _, Just lab) -> pure . ASM.derefLoadGlobal $ lab
              _                -> throwError $ SyntaxError (Unrecognised node)
 
-genASM NullExprNode = return ASM.noOutput
+genASM NullExprNode = pure ASM.noOutput
 
 genASM (ConstantNode n) = do
         currScope <- SymTab.getScope
         case currScope of
-             Global -> return . show $ n
-             Local  -> return . ASM.loadValue $ n
+             Global -> pure . show $ n
+             Local  -> pure . ASM.loadValue $ n
 
 
 -- Global variables
@@ -315,7 +315,7 @@ checkIfFunction tree = throwError $ SyntaxError (Unexpected tree)
 genAssignment :: Maybe Tree -> GenState String
 genAssignment toAssign =
         case toAssign of
-             Nothing     -> return ASM.noOutput
+             Nothing     -> pure ASM.noOutput
              Just assign -> genASM assign
 
 
@@ -333,10 +333,10 @@ defineGlobal node@(AssignmentNode name valNode _) = do
                      SymTab.defineGlobal name
                      value <- genASM valNode
                      case valNode of
-                          (ConstantNode _)  -> return $ globalVarASM lab value
+                          (ConstantNode _)  -> pure $ globalVarASM lab value
                           (AddressOfNode _) -> do
                                   SymTab.storeForInit $ value ++ ASM.varAddressStoreGlobal lab
-                                  return $ ASM.uninitializedGlobal lab
+                                  pure $ ASM.uninitializedGlobal lab
                           _ -> undefined
 defineGlobal tree = throwError $ SyntaxError (Unexpected tree)
 
@@ -418,7 +418,7 @@ hasReturn items
 
 processArgs :: [Tree] -> Int -> [String] -> GenState String
 processArgs argList argPos argASM
-        | null argList = return $ concat argASM
+        | null argList = pure $ concat argASM
         | otherwise    = do
                 asm <- processArg argPos $ head argList
                 processArgs (tail argList) (argPos+1) (argASM ++ [asm])
@@ -427,7 +427,7 @@ processArgs argList argPos argASM
 processArg :: Int -> Tree -> GenState String
 processArg argPos arg = do
         argASM <- genASM arg
-        return $ argASM ++ (ASM.putInRegister . ASM.selectRegister $ argPos)
+        pure $ argASM ++ (ASM.putInRegister . ASM.selectRegister $ argPos)
 
 
 validateCall :: Tree -> GenState ()
@@ -461,7 +461,7 @@ checkVariableExists varName = do
         offset  <- SymTab.variableOffset varName
         argPos  <- SymTab.parameterPosition varName
         globLab <- SymTab.globalLabel varName
-        return (offset, argPos, globLab)
+        pure (offset, argPos, globLab)
 
 
 buildAssignmentASM :: Tree -> Tree -> Operator -> GenState String
