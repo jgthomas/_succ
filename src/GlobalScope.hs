@@ -1,4 +1,8 @@
+{-|
+Module       : GlobalScope
+Description  : Global scope state
 
+-}
 module GlobalScope where
 
 
@@ -8,6 +12,7 @@ import qualified Data.Set as S
 import           Type     (Type)
 
 
+-- | Global scope state definition
 data GlobalScope = Gscope { seqNum       :: Int
                           , funcDecSeq   :: M.Map String Int
                           , funcParams   :: M.Map String Int
@@ -19,14 +24,17 @@ data GlobalScope = Gscope { seqNum       :: Int
                  deriving (Show)
 
 
+-- | Global scope state constructor
 mkGlobalScope :: GlobalScope
 mkGlobalScope = Gscope 0 M.empty M.empty M.empty M.empty S.empty S.empty []
 
 
+-- | Global variable state definition
 data GlobalVar = GloVar { globLabel :: String
                         , globType  :: Type }
                deriving (Show)
 
 
+-- | Global variable state constructor
 mkGloVar :: String -> Type -> GlobalVar
 mkGloVar l t = GloVar l t
