@@ -118,11 +118,11 @@ getUndefined = do
         let definedSet   = definedVars gscope
             declaredSet  = M.keysSet $ declaredVars gscope
             undefinedSet = S.difference declaredSet definedSet
-        map globLabel
+        pure $ map globLabel
             . M.elems
             . M.filterWithKey (\k _ -> k `elem` undefinedSet)
             . declaredVars
-            <$> GenState.getGlobalScope
+            $ gscope
 
 
 -- | Store ASM code to initialise a global variable
