@@ -38,7 +38,7 @@ parseTopLevelItems :: [Token] -> ParserState Tree
 parseTopLevelItems [] = do
         ast <- getState
         case ast of
-             ProgramNode items -> return $ ProgramNode (reverse items)
+             ProgramNode items -> pure $ ProgramNode (reverse items)
              _                 -> throwError ImpossibleError
 parseTopLevelItems toks@(TokKeyword typ:_)
         | validType typ = do
@@ -66,7 +66,7 @@ parseDeclaration toks@(_:TokIdent name:_) = do
         varType        <- parseType toks
         toks'          <- consumeTok toks
         (tree, toks'') <- parseOptAssign toks'
-        return (DeclarationNode name varType tree, toks'')
+        pure (DeclarationNode name varType tree, toks'')
 parseDeclaration (_:b:_) = throwError $ SyntaxError (InvalidIdentifier b)
 
 
@@ -76,12 +76,12 @@ parseFunction toks = do
         name            <- parseFuncName toks
         (params, toks') <- parseFuncParams toks
         (items, toks'') <- parseFuncBlockItems [] toks'
-        return (FunctionNode typ name params items, toks'')
+        pure (FunctionNode typ name params items, toks'')
 
 
 parseFuncName :: [Token] -> ParserState String
-parseFuncName (_:TokIdent name:_)   = return name
-parseFuncName (_:_:TokIdent name:_) = return name
+parseFuncName (_:TokIdent name:_)   = pure name
+parseFuncName (_:_:TokIdent name:_) = pure name
 parseFuncName _ = throwError $ SyntaxError MissingIdentifier
 
 
@@ -110,7 +110,7 @@ parseParam toks = do
         toks'          <- consumeTok toks
         (tree, toks'') <- parseParamValue toks'
         case tree of
-             VarNode _ -> return (ParamNode typ tree, toks'')
+             VarNode _ -> pure (ParamNode typ tree, toks'')
              _         -> throwError $ ParserError (TreeError tree)
 
 
@@ -121,16 +121,16 @@ parseParamValue toks = throwError $ ParserError (TokensError toks)
 
 
 parseFuncBlockItems :: [Tree] -> [Token] -> ParserState (Maybe [Tree], [Token])
-parseFuncBlockItems _ (TokSemiColon:rest) = return (Nothing, rest)
+parseFuncBlockItems _ (TokSemiColon:rest) = pure (Nothing, rest)
 parseFuncBlockItems stmts (TokOpenBrace:rest) = do
         (tree, toks') <- parseBlock stmts rest
         toks''        <- verifyAndConsume TokCloseBrace toks'
-        return (Just tree, toks'')
+        pure (Just tree, toks'')
 parseFuncBlockItems _ toks = throwError $ ParserError (TokensError toks)
 
 
 parseBlock :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseBlock stmts toks@(TokCloseBrace:_) = return (reverse stmts, toks)
+parseBlock stmts toks@(TokCloseBrace:_) = pure (reverse stmts, toks)
 parseBlock stmts toks = do
         (tree, toks') <- parseBlockItem toks
         parseBlock (tree:stmts) toks'
@@ -173,16 +173,16 @@ parseExprStatement (TokSemiColon:rest) = parseNullStatement rest
 parseExprStatement toks = do
         (tree, toks') <- parseExpression toks
         toks''        <- verifyAndConsume TokSemiColon toks'
-        return (ExprStmtNode tree, toks'')
+        pure (ExprStmtNode tree, toks'')
 
 
 parseBreak :: [Token] -> ParserState (Tree, [Token])
-parseBreak (TokSemiColon:rest) = return (BreakNode, rest)
+parseBreak (TokSemiColon:rest) = pure (BreakNode, rest)
 parseBreak _ = throwError $ SyntaxError (MissingToken TokSemiColon)
 
 
 parseContinue :: [Token] -> ParserState (Tree, [Token])
-parseContinue (TokSemiColon:rest) = return (ContinueNode, rest)
+parseContinue (TokSemiColon:rest) = pure (ContinueNode, rest)
 parseContinue _ = throwError $ SyntaxError (MissingToken TokSemiColon)
 
 
@@ -190,7 +190,7 @@ parseCompoundStmt :: [Token] -> ParserState (Tree, [Token])
 parseCompoundStmt toks = do
         (items, toks') <- parseBlock [] toks
         toks''         <- verifyAndConsume TokCloseBrace toks'
-        return (CompoundStmtNode items, toks'')
+        pure (CompoundStmtNode items, toks'')
 
 
 parseForLoop :: [Token] -> ParserState (Tree, [Token])
@@ -202,15 +202,15 @@ parseForLoop toks = do
         toks'''''           <- verifyAndConsume TokCloseParen toks''''
         (stmts, toks'''''') <- parseStatement toks'''''
         if test == NullExprNode
-           then return (ForLoopNode ini (ConstantNode 1) change stmts, toks'''''')
-           else return (ForLoopNode ini test change stmts, toks'''''')
+           then pure (ForLoopNode ini (ConstantNode 1) change stmts, toks'''''')
+           else pure (ForLoopNode ini test change stmts, toks'''''')
 
 
 parsePostExp :: [Token] -> ParserState (Tree, [Token])
 parsePostExp toks = do
         (tree, toks') <- parseForLoopPostExp toks
         nextTokIsNot TokSemiColon toks'
-        return (tree, toks')
+        pure (tree, toks')
 
 
 parseForLoopPostExp :: [Token] -> ParserState (Tree, [Token])
@@ -228,7 +228,7 @@ parseDoWhile toks@(TokOpenBrace:_) = do
                      (test, toks'') <- parseExpression rest
                      toks'''        <- verifyAndConsume TokCloseParen toks''
                      toks''''       <- verifyAndConsume TokSemiColon toks'''
-                     return (DoWhileNode stmts test, toks'''')
+                     pure (DoWhileNode stmts test, toks'''')
              (_:TokOpenParen:_) ->
                      throwError $ SyntaxError (MissingKeyword While)
              (TokKeyword While:_:_) ->
@@ -241,7 +241,7 @@ parseWhileStatement :: [Token] -> ParserState (Tree, [Token])
 parseWhileStatement toks = do
         (test, toks')   <- parseConditionalParen toks
         (stmts, toks'') <- parseStatement toks'
-        return (WhileNode test stmts, toks'')
+        pure (WhileNode test stmts, toks'')
 
 
 parseIfStatement :: [Token] -> ParserState (Tree, [Token])
@@ -249,7 +249,7 @@ parseIfStatement toks = do
         (test, toks')       <- parseConditionalParen toks
         (stmts, toks'')     <- parseStatement toks'
         (possElse, toks''') <- parseOptionalElse toks''
-        return (IfNode test stmts possElse, toks''')
+        pure (IfNode test stmts possElse, toks''')
 
 
 
@@ -258,25 +258,25 @@ parseConditionalParen toks = do
         toks'             <- verifyAndConsume TokOpenParen toks
         (test, toks'')    <- parseExpression toks'
         toks'''           <- verifyAndConsume TokCloseParen toks''
-        return (test, toks''')
+        pure (test, toks''')
 
 
 parseOptionalElse :: [Token] -> ParserState (Maybe Tree, [Token])
 parseOptionalElse (TokKeyword Else:rest) = do
         (tree, toks') <- parseStatement rest
-        return (Just tree, toks')
-parseOptionalElse toks = return (Nothing, toks)
+        pure (Just tree, toks')
+parseOptionalElse toks = pure (Nothing, toks)
 
 
 parseReturnStmt :: [Token] -> ParserState (Tree, [Token])
 parseReturnStmt toks = do
         (tree, toks') <- parseExpression toks
         toks''        <- verifyAndConsume TokSemiColon toks'
-        return (ReturnNode tree, toks'')
+        pure (ReturnNode tree, toks'')
 
 
 parseNullStatement :: [Token] -> ParserState (Tree, [Token])
-parseNullStatement toks = return (NullExprNode, toks)
+parseNullStatement toks = pure (NullExprNode, toks)
 
 
 parsePointerDec :: [Token] -> ParserState (Tree, [Token])
@@ -284,7 +284,7 @@ parsePointerDec toks@(_:_:TokIdent name:_) = do
         typ            <- parseType toks
         toks'          <- consumeNToks 2 toks
         (tree, toks'') <- parseOptAssign toks'
-        return (PointerNode name typ tree, toks'')
+        pure (PointerNode name typ tree, toks'')
 parsePointerDec (_:_:c:_) = throwError $ SyntaxError (InvalidIdentifier c)
 parsePointerDec toks = throwError $ ParserError (TokensError toks)
 
@@ -293,18 +293,18 @@ parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
 parseOptAssign toks = do
         (tree, toks') <- parseOptionalAssign toks
         toks''        <- verifyAndConsume TokSemiColon toks'
-        return (tree, toks'')
+        pure (tree, toks'')
 
 
 parseOptionalAssign :: [Token] -> ParserState (Maybe Tree, [Token])
 parseOptionalAssign toks@(_:TokOp op:_)
         | op `elem` assign = do
                 (tree, toks') <- parseExpression toks
-                return (Just tree, toks')
+                pure (Just tree, toks')
         | otherwise = throwError $ SyntaxError (UnexpectedToken (TokOp op))
 parseOptionalAssign toks = do
         toks' <- consumeTok toks
-        return (Nothing, toks')
+        pure (Nothing, toks')
 
 
 parseExpression :: [Token] -> ParserState (Tree, [Token])
@@ -315,7 +315,7 @@ parseExpression toks = do
                 | op `elem` assign -> parseAssignExpression tree toks'
                 | otherwise ->
                         throwError $ SyntaxError (UnexpectedToken (TokOp op))
-             _ -> return (tree, toks')
+             _ -> pure (tree, toks')
 
 
 parseAssignExpression :: Tree -> [Token] -> ParserState (Tree, [Token])
@@ -323,9 +323,9 @@ parseAssignExpression tree (TokOp op:rest) = do
                    (asgn, toks') <- parseExpression rest
                    case tree of
                      (VarNode a) ->
-                             return (AssignmentNode a asgn op, toks')
+                             pure (AssignmentNode a asgn op, toks')
                      (DereferenceNode a) ->
-                             return (AssignDereferenceNode a asgn op, toks')
+                             pure (AssignDereferenceNode a asgn op, toks')
                      _ -> throwError $ ParserError (TreeError tree)
 parseAssignExpression _ toks = throwError $ ParserError (TokensError toks)
 
@@ -339,8 +339,8 @@ parseTernaryExp toks = do
                      (expr1, toks''')   <- parseExpression toks''
                      toks''''           <- verifyAndConsume TokColon toks'''
                      (expr2, toks''''') <- parseTernaryExp toks''''
-                     return (TernaryNode cond expr1 expr2, toks''''')
-             _ -> return (cond, toks')
+                     pure (TernaryNode cond expr1 expr2, toks''''')
+             _ -> pure (cond, toks')
 
 
 parseLogicalOrExp :: [Token] -> ParserState (Tree, [Token])
@@ -384,33 +384,33 @@ parseFactor :: [Token] -> ParserState (Tree, [Token])
 parseFactor [] = throwError $ ParserError (TokensError [])
 parseFactor toks@(next:rest) =
         case next of
-             TokSemiColon    -> return (NullExprNode, rest)
-             (TokConstInt n) -> return (ConstantNode n, rest)
+             TokSemiColon    -> pure (NullExprNode, rest)
+             (TokConstInt n) -> pure (ConstantNode n, rest)
              (TokIdent a)   ->
                      if lookAhead rest == TokOpenParen
                         then parseFuncCall toks
-                        else return (VarNode a, rest)
+                        else pure (VarNode a, rest)
              (TokOp op)
                 | op == Ampersand -> parseAddressOf rest
                 | op == Multiply  -> parseDereference rest
                 | op `elem` Tokens.unary -> do
                         (tree, toks') <- parseFactor rest
-                        return (UnaryNode tree op, toks')
+                        pure (UnaryNode tree op, toks')
              TokOpenParen -> do
                      (tree, toks') <- parseExpression rest
                      toks''        <- verifyAndConsume TokCloseParen toks'
-                     return (tree, toks'')
+                     pure (tree, toks'')
              _ -> throwError $ ParserError (ParseError (show toks))
 
 
 parseAddressOf :: [Token] -> ParserState (Tree, [Token])
-parseAddressOf (TokIdent n:rest) = return (AddressOfNode n, rest)
+parseAddressOf (TokIdent n:rest) = pure (AddressOfNode n, rest)
 parseAddressOf (a:_) = throwError $ SyntaxError (InvalidIdentifier a)
 parseAddressOf toks = throwError $ ParserError (TokensError toks)
 
 
 parseDereference :: [Token] -> ParserState (Tree, [Token])
-parseDereference (TokIdent n:rest) = return (DereferenceNode n, rest)
+parseDereference (TokIdent n:rest) = pure (DereferenceNode n, rest)
 parseDereference (a:_) = throwError $ SyntaxError (InvalidIdentifier a)
 parseDereference toks = throwError $ ParserError (TokensError toks)
 
@@ -419,7 +419,7 @@ parseFuncCall :: [Token] -> ParserState (Tree, [Token])
 parseFuncCall toks@(TokIdent a:TokOpenParen:_) = do
         toks'          <- consumeTok toks
         (tree, toks'') <- parseArgs [] toks'
-        return (FuncCallNode a tree, toks'')
+        pure (FuncCallNode a tree, toks'')
 parseFuncCall (TokIdent _:_:_) =
         throwError $ SyntaxError (MissingToken TokOpenParen)
 parseFuncCall (a:TokOpenParen:_) =
@@ -445,8 +445,8 @@ parsePassIn :: [Tree]
             -> ([Tree] -> [Token] -> ParserState ([Tree], [Token]))
             -> ParserState ([Tree], [Token])
 parsePassIn _ [] _ = throwError $ ParserError (TokensError [])
-parsePassIn xs (TokOpenParen:TokCloseParen:rest) _ = return (xs, rest)
-parsePassIn xs (TokCloseParen:rest) _              = return (reverse xs, rest)
+parsePassIn xs (TokOpenParen:TokCloseParen:rest) _ = pure (xs, rest)
+parsePassIn xs (TokCloseParen:rest) _              = pure (reverse xs, rest)
 parsePassIn _ (TokComma:TokCloseParen:_) _ =
         throwError $ SyntaxError (UnexpectedToken TokComma)
 parsePassIn xs (TokOpenParen:rest) f = f xs rest
@@ -465,12 +465,12 @@ parseBinaryExp tree toks@(TokOp op:rest) f ops
         | op `elem` ops = do
                 (ntree, toks'') <- f rest
                 parseBinaryExp (BinaryNode tree ntree op) toks'' f ops
-        | otherwise = return (tree, toks)
-parseBinaryExp tree toks _ _ = return (tree, toks)
+        | otherwise = pure (tree, toks)
+parseBinaryExp tree toks _ _ = pure (tree, toks)
 
 
 getTreeList :: Tree -> ParserState [Tree]
-getTreeList (ProgramNode treeList) = return treeList
+getTreeList (ProgramNode treeList) = pure treeList
 getTreeList _                      = throwError ImpossibleError
 
 
@@ -504,38 +504,38 @@ nextTokIsNot t (a:_) = checkIsNotTok t a
 
 checkIsTok :: Token -> Token -> ParserState ()
 checkIsTok t a
-        | t == a = return ()
+        | t == a = pure ()
         | otherwise = throwError $ SyntaxError (MissingToken t)
 
 
 checkIsNotTok :: Token -> Token -> ParserState ()
 checkIsNotTok t a
-        | t /= a    = return ()
+        | t /= a    = pure ()
         | otherwise = throwError $ SyntaxError (UnexpectedToken a)
 
 
 consumeTok :: [Token] -> ParserState [Token]
 consumeTok []       = throwError $ ParserError (TokensError [])
-consumeTok [_]      = return []
-consumeTok (_:toks) = return toks
+consumeTok [_]      = pure []
+consumeTok (_:toks) = pure toks
 
 
 consumeNToks :: Int -> [Token] -> ParserState [Token]
-consumeNToks 0 toks = return toks
+consumeNToks 0 toks = pure toks
 consumeNToks n toks = do
         toks' <- consumeTok toks
         consumeNToks (n-1) toks'
 
 
 parseType :: [Token] -> ParserState Type
-parseType (TokKeyword Int:TokOp Multiply:_) = return IntPointer
-parseType (TokKeyword Int:_)                = return IntVar
+parseType (TokKeyword Int:TokOp Multiply:_) = pure IntPointer
+parseType (TokKeyword Int:_)                = pure IntVar
 parseType (a:_) = throwError $ TypeError (InvalidType a)
 parseType toks = throwError $ ParserError (TokensError toks)
 
 
 nullExpr :: [Token] -> ParserState (Tree, [Token])
-nullExpr toks = return (NullExprNode, toks)
+nullExpr toks = pure (NullExprNode, toks)
 
 
 validType :: Keyword -> Bool
