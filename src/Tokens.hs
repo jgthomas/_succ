@@ -26,10 +26,6 @@ data Operator = PlusSign
               deriving (Show, Eq)
 
 
-unary :: [Operator]
-unary = [MinusSign,Tilde,Bang]
-
-
 data TokenType = Unary
                | LogicalOR
                | LogicalAND
@@ -39,6 +35,14 @@ data TokenType = Unary
                | Equalit
                | Relational
                deriving (Eq)
+
+
+isUnary :: Operator -> Bool
+isUnary op = op `elem` kind Unary
+
+
+isAssign :: Operator -> Bool
+isAssign op = op `elem` kind Assign
 
 
 kind :: TokenType -> [Operator]

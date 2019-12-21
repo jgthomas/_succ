@@ -17,7 +17,7 @@ import           SuccState     (SuccStateM, getState, putState, runSuccState,
                                 throwError)
 import           Tokens        (Keyword (..), Operator (..), Token (..),
                                 TokenType (..))
-import qualified Tokens        (kind)
+import qualified Tokens        (isAssign, isUnary, kind)
 import           Type          (Type (..))
 
 
@@ -301,7 +301,7 @@ parseOptAssign toks = do
 
 parseOptionalAssign :: [Token] -> ParserState (Maybe Tree, [Token])
 parseOptionalAssign toks@(_:Op op:_)
-        | op `elem` assign = do
+        | Tokens.isAssign op = do
                 (tree, toks') <- parseExpression toks
                 pure (Just tree, toks')
         | otherwise = throwError $ SyntaxError (UnexpectedToken (Op op))
@@ -315,7 +315,7 @@ parseExpression toks = do
         (tree, toks') <- parseTernaryExp toks
         case toks' of
              (Op op:_)
-                | op `elem` assign -> parseAssignExpression tree toks'
+                | Tokens.isAssign op -> parseAssignExpression tree toks'
                 | otherwise ->
                         throwError $ SyntaxError (UnexpectedToken (Op op))
              _ -> pure (tree, toks')
@@ -350,38 +350,37 @@ parseTernaryExp toks = do
 parseLogicalOrExp :: [Token] -> ParserState (Tree, [Token])
 parseLogicalOrExp toks = do
         (orTree, toks') <- parseLogicalAndExp toks
-        parseBinaryExp orTree toks' parseLogicalAndExp [PipePipe]
+        parseBinaryExp orTree toks' parseLogicalAndExp (Tokens.kind LogicalOR)
 
 
 parseLogicalAndExp :: [Token] -> ParserState (Tree, [Token])
 parseLogicalAndExp toks = do
         (andTree, toks') <- parseEqualityExp toks
-        parseBinaryExp andTree toks' parseEqualityExp [AmpAmp]
+        parseBinaryExp andTree toks' parseEqualityExp (Tokens.kind LogicalAND)
 
 
 parseEqualityExp :: [Token] -> ParserState (Tree, [Token])
 parseEqualityExp toks = do
         (equTree, toks') <- parseRelationalExp toks
-        parseBinaryExp equTree toks' parseRelationalExp [EqualEqual,BangEqual]
+        parseBinaryExp equTree toks' parseRelationalExp (Tokens.kind Equalit)
 
 
 parseRelationalExp :: [Token] -> ParserState (Tree, [Token])
 parseRelationalExp toks = do
         (relaTree, toks') <- parseAdditiveExp toks
-        parseBinaryExp relaTree toks' parseAdditiveExp
-             [RightArrow,LeftArrow,RightArrowEquals,LeftArrowEquals]
+        parseBinaryExp relaTree toks' parseAdditiveExp (Tokens.kind Relational)
 
 
 parseAdditiveExp :: [Token] -> ParserState (Tree, [Token])
 parseAdditiveExp toks = do
         (termTree, toks') <- parseTerm toks
-        parseBinaryExp termTree toks' parseTerm [PlusSign,MinusSign]
+        parseBinaryExp termTree toks' parseTerm (Tokens.kind Term)
 
 
 parseTerm :: [Token] -> ParserState (Tree, [Token])
 parseTerm toks = do
         (facTree, toks') <- parseFactor toks
-        parseBinaryExp facTree toks' parseFactor [Asterisk,BackSlash,Percent]
+        parseBinaryExp facTree toks' parseFactor (Tokens.kind Factor)
 
 
 parseFactor :: [Token] -> ParserState (Tree, [Token])
@@ -397,7 +396,7 @@ parseFactor toks@(next:rest) =
              Ampersand -> parseAddressOf rest
              (Op op)
                 | op == Asterisk -> parseDereference rest
-                | op `elem` Tokens.kind Unary -> do
+                | Tokens.isUnary op -> do
                         (tree, toks') <- parseFactor rest
                         let unOp = NewOps.tokToUnaryOp op
                         pure (UnaryNode tree unOp, toks')
@@ -478,16 +477,6 @@ parseBinaryExp tree toks _ _ = pure (tree, toks)
 getTreeList :: Tree -> ParserState [Tree]
 getTreeList (ProgramNode treeList) = pure treeList
 getTreeList _                      = throwError ImpossibleError
-
-
-assign :: [Operator]
-assign = [EqualSign,
-          PlusEqual,
-          MinusEqual,
-          AsteriskEqual,
-          BackSlashEqual,
-          PercentEqual
-         ]
 
 
 verifyAndConsume :: Token -> [Token] -> ParserState [Token]
