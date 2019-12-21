@@ -32,7 +32,7 @@ data TokenType = Unary
                | Factor
                | Term
                | Assign
-               | Equalit
+               | Equality
                | Relational
                deriving (Eq)
 
@@ -58,7 +58,7 @@ kind tokTyp =
                             Percent]
              Term       -> [PlusSign,
                             MinusSign]
-             Equalit    -> [EqualEqual,
+             Equality   -> [EqualEqual,
                             BangEqual]
              Relational -> [RightArrow,
                             LeftArrow,

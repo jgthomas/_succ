@@ -111,7 +111,7 @@ binary load1 load2 binOp =
              Mul         -> computeMul load1 load2
              Div         -> computeDiv load1 load2
              Mod         -> computeMod load1 load2
-             Equality    -> comparison load1 load2 ++ setBitIf Equ
+             Equal       -> comparison load1 load2 ++ setBitIf Equ
              NotEqu      -> comparison load1 load2 ++ setBitIf NEqu
              GrThan      -> comparison load1 load2 ++ setBitIf GThan
              LeThan      -> comparison load1 load2 ++ setBitIf LThan

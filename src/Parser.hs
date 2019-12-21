@@ -362,7 +362,7 @@ parseLogicalAndExp toks = do
 parseEqualityExp :: [Token] -> ParserState (Tree, [Token])
 parseEqualityExp toks = do
         (equTree, toks') <- parseRelationalExp toks
-        parseBinaryExp equTree toks' parseRelationalExp (Tokens.kind Equalit)
+        parseBinaryExp equTree toks' parseRelationalExp (Tokens.kind Equality)
 
 
 parseRelationalExp :: [Token] -> ParserState (Tree, [Token])

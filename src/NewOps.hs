@@ -15,7 +15,7 @@ data BinaryOp = Add
               | Div
               | Mul
               | Mod
-              | Equality
+              | Equal
               | NotEqu
               | GrThan
               | LeThan
@@ -41,7 +41,7 @@ tokToBinOp tok =
              BackSlash        -> Div
              Asterisk         -> Mul
              Percent          -> Mod
-             EqualEqual       -> Equality
+             EqualEqual       -> Equal
              BangEqual        -> NotEqu
              RightArrow       -> GrThan
              LeftArrow        -> LeThan
