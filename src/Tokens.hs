@@ -7,7 +7,7 @@ data Operator = PlusSign
               | Asterisk
               | BackSlash
               | Percent
-              | BitwiseCompl
+              | Tilde
               | LogicNegation
               | LogicalOR
               | LogicalAND
@@ -27,7 +27,7 @@ data Operator = PlusSign
 
 
 unary :: [Operator]
-unary = [MinusSign,BitwiseCompl,LogicNegation]
+unary = [MinusSign,Tilde,LogicNegation]
 
 
 data Keyword = Int

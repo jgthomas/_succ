@@ -120,7 +120,7 @@ operator (c:cs) =
                 | c == '*'  = Op Asterisk
                 | c == '%'  = Op Percent
                 | c == '/'  = Op BackSlash
-                | c == '~'  = Op BitwiseCompl
+                | c == '~'  = Op Tilde
                 | c == '!'  = Op LogicNegation
                 | c == '>'  = Op GreaterThan
                 | c == '<'  = Op LessThan
