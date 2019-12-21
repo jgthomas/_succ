@@ -66,10 +66,6 @@ data TokenType = Unary
                deriving (Eq)
 
 
-isUnary :: OpTok -> Bool
-isUnary op = op `elem` kind Unary
-
-
 isAssign :: OpTok -> Bool
 isAssign op = op `elem` kind Assign
 

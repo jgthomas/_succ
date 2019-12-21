@@ -17,7 +17,7 @@ import           SuccState     (SuccStateM, getState, putState, runSuccState,
                                 throwError)
 import           Tokens        (Keyword (..), OpTok (..), Token (..),
                                 TokenType (..))
-import qualified Tokens        (isAssign, isUnary, kind)
+import qualified Tokens        (isAssign, kind)
 import           Type          (Type (..))
 
 
@@ -395,16 +395,22 @@ parseFactor toks@(next:rest) =
                         else pure (VarNode a, rest)
              (OpTok Ampersand) -> parseAddressOf rest
              (OpTok Asterisk)  -> parseDereference rest
-             (OpTok op)
-                | Tokens.isUnary op -> do
-                        (tree, toks') <- parseFactor rest
-                        let unOp = NewOps.tokToUnaryOp op
-                        pure (UnaryNode tree unOp, toks')
+             (OpTok MinusSign) -> parseUnary toks
+             (OpTok Tilde)     -> parseUnary toks
+             (OpTok Bang)      -> parseUnary toks
              OpenParen -> do
                      (tree, toks') <- parseExpression rest
                      toks''        <- verifyAndConsume CloseParen toks'
                      pure (tree, toks'')
              _ -> throwError $ ParserError (ParseError (show toks))
+
+
+parseUnary :: [Token] -> ParserState (Tree, [Token])
+parseUnary (OpTok op:rest) = do
+        (tree, toks') <- parseFactor rest
+        let unOp = NewOps.tokToUnaryOp op
+        pure (UnaryNode tree unOp, toks')
+parseUnary toks = throwError $ ParserError (TokensError toks)
 
 
 parseAddressOf :: [Token] -> ParserState (Tree, [Token])
