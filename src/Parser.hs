@@ -395,10 +395,7 @@ parseFactor toks@(next:rest) =
              (OpTok MinusSign) -> parseUnary toks
              (OpTok Tilde)     -> parseUnary toks
              (OpTok Bang)      -> parseUnary toks
-             OpenParen -> do
-                     (tree, toks') <- parseExpression rest
-                     toks''        <- verifyAndConsume CloseParen toks'
-                     pure (tree, toks'')
+             OpenParen         -> parseParenExp rest
              _ -> throwError $ ParserError (ParseError (show toks))
 
 
@@ -415,6 +412,13 @@ parseIdent toks@(Ident _:OpenParen:_) = parseFuncCall toks
 parseIdent (Ident a:rest)             = pure (VarNode a, rest)
 parseIdent (a:_) = throwError $ SyntaxError (UnexpectedToken a)
 parseIdent toks  = throwError $ ParserError (TokensError toks)
+
+
+parseParenExp :: [Token] -> ParserState (Tree, [Token])
+parseParenExp toks = do
+        (tree, toks') <- parseExpression toks
+        toks''        <- verifyAndConsume CloseParen toks'
+        pure (tree, toks'')
 
 
 parseAddressOf :: [Token] -> ParserState (Tree, [Token])
