@@ -55,6 +55,5 @@ data Token = OpenParen
            | Colon
            | QuestMark
            | Comma
-           | Space
            | Wut
            deriving (Show, Eq)
