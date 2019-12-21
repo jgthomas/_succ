@@ -243,9 +243,9 @@ genASM (BinaryNode left right op) = do
         lft <- genASM left
         rgt <- genASM right
         case op of
-             LogicOR  ->
+             LogicalOR  ->
                      pure $ ASM.logicalOR lft rgt nextLabel endLabel
-             LogicAND ->
+             LogicalAND ->
                      pure $ ASM.logicalAND lft rgt nextLabel endLabel
              _        ->
                      pure $ ASM.binary lft rgt op

@@ -10,20 +10,20 @@ data Oper = UnaryOp UnaryOp
           deriving (Show, Eq)
 
 
-data BinaryOp = Add
-              | Sub
-              | Div
-              | Mul
-              | Mod
+data BinaryOp = Plus
+              | Minus
+              | Divide
+              | Multiply
+              | Modulo
               | Equal
-              | NotEqu
-              | GrThan
-              | LeThan
-              | GrThanOrEqu
-              | LeThanOrEqu
+              | NotEqual
+              | GreaterThan
+              | LessThan
+              | GThanOrEqu
+              | LThanOrEqu
               | Assignment
-              | LogicOR
-              | LogicAND
+              | LogicalOR
+              | LogicalAND
               deriving (Show, Eq)
 
 
@@ -36,25 +36,25 @@ data UnaryOp = Negative
 tokToBinOp :: OpTok -> BinaryOp
 tokToBinOp tok =
         case tok of
-             PlusSign         -> Add
-             MinusSign        -> Sub
-             BackSlash        -> Div
-             Asterisk         -> Mul
-             Percent          -> Mod
+             PlusSign         -> Plus
+             MinusSign        -> Minus
+             BackSlash        -> Divide
+             Asterisk         -> Multiply
+             Percent          -> Modulo
              EqualEqual       -> Equal
-             BangEqual        -> NotEqu
-             RightArrow       -> GrThan
-             LeftArrow        -> LeThan
-             RightArrowEquals -> GrThanOrEqu
-             LeftArrowEquals  -> LeThanOrEqu
+             BangEqual        -> NotEqual
+             RightArrow       -> GreaterThan
+             LeftArrow        -> LessThan
+             RightArrowEquals -> GThanOrEqu
+             LeftArrowEquals  -> LThanOrEqu
              EqualSign        -> Assignment
-             PipePipe         -> LogicOR
-             AmpAmp           -> LogicAND
-             PlusEqual        -> Add
-             MinusEqual       -> Sub
-             AsteriskEqual    -> Mul
-             BackSlashEqual   -> Div
-             PercentEqual     -> Mod
+             PipePipe         -> LogicalOR
+             AmpAmp           -> LogicalAND
+             PlusEqual        -> Plus
+             MinusEqual       -> Minus
+             AsteriskEqual    -> Multiply
+             BackSlashEqual   -> Divide
+             PercentEqual     -> Modulo
              _                -> undefined
 
 

@@ -106,17 +106,17 @@ unary unOp =
 binary :: String -> String -> BinaryOp -> String
 binary load1 load2 binOp =
         case binOp of
-             Add         -> computeAdd load1 load2
-             Sub         -> computeSub load1 load2
-             Mul         -> computeMul load1 load2
-             Div         -> computeDiv load1 load2
-             Mod         -> computeMod load1 load2
+             Plus        -> computeAdd load1 load2
+             Minus       -> computeSub load1 load2
+             Multiply    -> computeMul load1 load2
+             Divide      -> computeDiv load1 load2
+             Modulo      -> computeMod load1 load2
              Equal       -> comparison load1 load2 ++ setBitIf Equ
-             NotEqu      -> comparison load1 load2 ++ setBitIf NEqu
-             GrThan      -> comparison load1 load2 ++ setBitIf GThan
-             LeThan      -> comparison load1 load2 ++ setBitIf LThan
-             GrThanOrEqu -> comparison load1 load2 ++ setBitIf GThanE
-             LeThanOrEqu -> comparison load1 load2 ++ setBitIf LThanE
+             NotEqual    -> comparison load1 load2 ++ setBitIf NEqu
+             GreaterThan -> comparison load1 load2 ++ setBitIf GThan
+             LessThan    -> comparison load1 load2 ++ setBitIf LThan
+             GThanOrEqu  -> comparison load1 load2 ++ setBitIf GThanE
+             LThanOrEqu  -> comparison load1 load2 ++ setBitIf LThanE
              _           -> noOutput
 
 
