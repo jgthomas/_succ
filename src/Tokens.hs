@@ -5,7 +5,7 @@ module Tokens where
 data Operator = PlusSign
               | MinusSign
               | Asterisk
-              | Divide
+              | BackSlash
               | Percent
               | BitwiseCompl
               | LogicNegation

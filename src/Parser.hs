@@ -380,7 +380,7 @@ parseAdditiveExp toks = do
 parseTerm :: [Token] -> ParserState (Tree, [Token])
 parseTerm toks = do
         (facTree, toks') <- parseFactor toks
-        parseBinaryExp facTree toks' parseFactor [Asterisk,Divide,Percent]
+        parseBinaryExp facTree toks' parseFactor [Asterisk,BackSlash,Percent]
 
 
 parseFactor :: [Token] -> ParserState (Tree, [Token])
