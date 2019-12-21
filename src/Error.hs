@@ -22,8 +22,7 @@ data LexerError = BadInput String
                 deriving (Show, Eq)
 
 
-data ParserError = ParseError String
-                 | TreeError Tree
+data ParserError = TreeError Tree
                  | TokensError [Token]
                  deriving (Show, Eq)
 

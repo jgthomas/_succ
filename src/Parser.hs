@@ -396,7 +396,7 @@ parseFactor toks@(next:rest) =
              (OpTok Tilde)     -> parseUnary toks
              (OpTok Bang)      -> parseUnary toks
              OpenParen         -> parseParenExp rest
-             _ -> throwError $ ParserError (ParseError (show toks))
+             _                 -> throwError $ ParserError (TokensError toks)
 
 
 parseUnary :: [Token] -> ParserState (Tree, [Token])
