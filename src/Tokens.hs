@@ -52,7 +52,6 @@ data Token = OpenParen
            | Ident String
            | ConstInt Int
            | Keyword Keyword
-           | End
            | Colon
            | QuestMark
            | Comma
