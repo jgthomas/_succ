@@ -393,7 +393,7 @@ parseFactor toks@(next:rest) =
                      if lookAhead rest == OpenParen
                         then parseFuncCall toks
                         else pure (VarNode a, rest)
-             Ampersand -> parseAddressOf rest
+             (OpTok Ampersand) -> parseAddressOf rest
              (OpTok op)
                 | op == Asterisk -> parseDereference rest
                 | Tokens.isUnary op -> do

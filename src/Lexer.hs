@@ -125,7 +125,7 @@ operator (c:cs) =
                 | c == '>'  = OpTok RightArrow
                 | c == '<'  = OpTok LeftArrow
                 | c == '='  = OpTok EqualSign
-                | c == '&'  = Ampersand
+                | c == '&'  = OpTok Ampersand
                 | otherwise = Wut
             in
         updateLexerState tok cs

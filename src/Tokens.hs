@@ -14,7 +14,6 @@ data Token = OpenParen
            | Colon
            | QuestMark
            | Comma
-           | Ampersand
            | Wut
            deriving (Show, Eq)
 
@@ -52,6 +51,7 @@ data OpTok = PlusSign
            | AsteriskEqual
            | BackSlashEqual
            | PercentEqual
+           | Ampersand
            deriving (Show, Eq)
 
 
