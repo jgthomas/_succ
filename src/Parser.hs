@@ -15,8 +15,9 @@ import           Error         (CompilerError (..), ParserError (..),
 import qualified NewOps        (tokToBinOp, tokToUnaryOp)
 import           SuccState     (SuccStateM, getState, putState, runSuccState,
                                 throwError)
-import           Tokens        (Keyword (..), Operator (..), Token (..))
-import qualified Tokens        (unary)
+import           Tokens        (Keyword (..), Operator (..), Token (..),
+                                TokenType (..))
+import qualified Tokens        (kind)
 import           Type          (Type (..))
 
 
@@ -396,7 +397,7 @@ parseFactor toks@(next:rest) =
              Ampersand -> parseAddressOf rest
              (Op op)
                 | op == Asterisk -> parseDereference rest
-                | op `elem` Tokens.unary -> do
+                | op `elem` Tokens.kind Unary -> do
                         (tree, toks') <- parseFactor rest
                         let unOp = NewOps.tokToUnaryOp op
                         pure (UnaryNode tree unOp, toks')
