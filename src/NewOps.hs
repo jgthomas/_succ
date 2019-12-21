@@ -51,10 +51,10 @@ tokToBinOp tok =
              PipePipe         -> LogicOR
              AmpAmp           -> LogicAND
              PlusEqual        -> Add
-             MinusAssign      -> Sub
-             MultiplyAssign   -> Mul
-             DivideAssign     -> Div
-             ModuloAssign     -> Mod
+             MinusEqual       -> Sub
+             AsteriskEqual    -> Mul
+             BackSlashEqual   -> Div
+             PercentEqual     -> Mod
              _                -> undefined
 
 

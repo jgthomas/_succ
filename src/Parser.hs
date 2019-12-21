@@ -482,10 +482,10 @@ getTreeList _                      = throwError ImpossibleError
 assign :: [Operator]
 assign = [EqualSign,
           PlusEqual,
-          MinusAssign,
-          MultiplyAssign,
-          DivideAssign,
-          ModuloAssign
+          MinusEqual,
+          AsteriskEqual,
+          BackSlashEqual,
+          PercentEqual
          ]
 
 

@@ -102,10 +102,10 @@ twoCharOperator (c:n:cs) =
                 | op == "==" = Op EqualEqual
                 | op == "!=" = Op BangEqual
                 | op == "+=" = Op PlusEqual
-                | op == "-=" = Op MinusAssign
-                | op == "*=" = Op MultiplyAssign
-                | op == "/=" = Op DivideAssign
-                | op == "%=" = Op ModuloAssign
+                | op == "-=" = Op MinusEqual
+                | op == "*=" = Op AsteriskEqual
+                | op == "/=" = Op BackSlashEqual
+                | op == "%=" = Op PercentEqual
                 | otherwise  = Wut
                 where op = c:[n]
             in

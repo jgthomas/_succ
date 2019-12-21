@@ -19,10 +19,10 @@ data Operator = PlusSign
               | BangEqual
               | EqualSign
               | PlusEqual
-              | MinusAssign
-              | MultiplyAssign
-              | DivideAssign
-              | ModuloAssign
+              | MinusEqual
+              | AsteriskEqual
+              | BackSlashEqual
+              | PercentEqual
               deriving (Show, Eq)
 
 
