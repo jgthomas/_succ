@@ -7,15 +7,16 @@ representing the C program.
 -}
 module Parser (parse) where
 
+import           Control.Monad (unless)
 
-import           AST       (Tree (..))
-import           Error     (CompilerError (..), ParserError (..),
-                            SyntaxError (..), TypeError (..))
-import           SuccState (SuccStateM, getState, putState, runSuccState,
-                            throwError)
-import           Tokens    (Keyword (..), Operator (..), Token (..))
-import qualified Tokens    (unary)
-import           Type      (Type (..))
+import           AST           (Tree (..))
+import           Error         (CompilerError (..), ParserError (..),
+                                SyntaxError (..), TypeError (..))
+import           SuccState     (SuccStateM, getState, putState, runSuccState,
+                                throwError)
+import           Tokens        (Keyword (..), Operator (..), Token (..))
+import qualified Tokens        (unary)
+import           Type          (Type (..))
 
 
 type ParserState = SuccStateM Tree
@@ -503,15 +504,11 @@ nextTokIsNot t (a:_) = checkIsNotTok t a
 
 
 checkIsTok :: Token -> Token -> ParserState ()
-checkIsTok t a
-        | t == a = pure ()
-        | otherwise = throwError $ SyntaxError (MissingToken t)
+checkIsTok t a = unless (t == a) $ throwError $ SyntaxError (MissingToken t)
 
 
 checkIsNotTok :: Token -> Token -> ParserState ()
-checkIsNotTok t a
-        | t /= a    = pure ()
-        | otherwise = throwError $ SyntaxError (UnexpectedToken a)
+checkIsNotTok t a = unless ( t /= a) $ throwError $ SyntaxError (UnexpectedToken a)
 
 
 consumeTok :: [Token] -> ParserState [Token]
