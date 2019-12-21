@@ -12,6 +12,7 @@ import           Control.Monad (unless)
 import           AST           (Tree (..))
 import           Error         (CompilerError (..), ParserError (..),
                                 SyntaxError (..), TypeError (..))
+import qualified NewOps        (tokToBinOp)
 import           SuccState     (SuccStateM, getState, putState, runSuccState,
                                 throwError)
 import           Tokens        (Keyword (..), Operator (..), Token (..))
@@ -322,11 +323,12 @@ parseExpression toks = do
 parseAssignExpression :: Tree -> [Token] -> ParserState (Tree, [Token])
 parseAssignExpression tree (Op op:rest) = do
                    (asgn, toks') <- parseExpression rest
+                   let binOp = NewOps.tokToBinOp op
                    case tree of
                      (VarNode a) ->
-                             pure (AssignmentNode a asgn op, toks')
+                             pure (AssignmentNode a asgn binOp, toks')
                      (DereferenceNode a) ->
-                             pure (AssignDereferenceNode a asgn op, toks')
+                             pure (AssignDereferenceNode a asgn binOp, toks')
                      _ -> throwError $ ParserError (TreeError tree)
 parseAssignExpression _ toks = throwError $ ParserError (TokensError toks)
 
@@ -465,7 +467,8 @@ parseBinaryExp _ _ _ [] = throwError ImpossibleError
 parseBinaryExp tree toks@(Op op:rest) f ops
         | op `elem` ops = do
                 (ntree, toks'') <- f rest
-                parseBinaryExp (BinaryNode tree ntree op) toks'' f ops
+                let binOp = NewOps.tokToBinOp op
+                parseBinaryExp (BinaryNode tree ntree binOp) toks'' f ops
         | otherwise = pure (tree, toks)
 parseBinaryExp tree toks _ _ = pure (tree, toks)
 

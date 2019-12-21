@@ -12,6 +12,7 @@ data CompilerError = LexerError LexerError
                    | GeneratorError GeneratorError
                    | SyntaxError SyntaxError
                    | TypeError TypeError
+                   | OperatorError Token
                    | ImpossibleError
                    deriving (Show, Eq)
 

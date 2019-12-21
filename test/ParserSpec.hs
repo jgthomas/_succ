@@ -7,6 +7,7 @@ import Test.Hspec
 
 import AST
 import Error
+import NewOps
 import Parser
 import Tokens
 import Type
@@ -60,7 +61,7 @@ parserTest = hspec $ do
                                                      ConstInt 10,
                                                      SemiColon])
                   `shouldBe`
-                  (ProgramNode [DeclarationNode "a" IntVar (Just (AssignmentNode "a" (ConstantNode 10) Assign))])
+                  (ProgramNode [DeclarationNode "a" IntVar (Just (AssignmentNode "a" (ConstantNode 10) OpAssign))])
 
                 it "Should parse valid function declarations" $
                   fromRight (ProgramNode []) (parse [Keyword Int,

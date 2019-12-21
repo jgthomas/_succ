@@ -40,6 +40,7 @@ module ASM
 
 
 import GenTokens (Jump (..), Register (..), Section (..), Set (..))
+import NewOps    (BinaryOp (..))
 import Tokens    (Operator (..))
 
 
@@ -103,20 +104,35 @@ unary o
    | otherwise = undefined
 
 
-binary :: String -> String -> Operator -> String
-binary load1 load2 o
-   | o == Plus               = computeAdd load1 load2
-   | o == Minus              = computeSub load1 load2
-   | o == Multiply           = computeMul load1 load2
-   | o == Divide             = computeDiv load1 load2
-   | o == Modulo             = computeMod load1 load2
-   | o == Equal              = comparison load1 load2 ++ setBitIf Equ
-   | o == NotEqual           = comparison load1 load2 ++ setBitIf NEqu
-   | o == GreaterThan        = comparison load1 load2 ++ setBitIf GThan
-   | o == LessThan           = comparison load1 load2 ++ setBitIf LThan
-   | o == GreaterThanOrEqual = comparison load1 load2 ++ setBitIf GThanE
-   | o == LessThanOrEqual    = comparison load1 load2 ++ setBitIf LThanE
-   | otherwise = undefined
+binary :: String -> String -> BinaryOp -> String
+binary load1 load2 binOp =
+        case binOp of
+             OpPlus       -> computeAdd load1 load2
+             OpMinus      -> computeSub load1 load2
+             OpMultiply   -> computeMul load1 load2
+             OpDivide     -> computeDiv load1 load2
+             OpModulo     -> computeMod load1 load2
+             OpEqual      -> comparison load1 load2 ++ setBitIf Equ
+             OpNotEqual   -> comparison load1 load2 ++ setBitIf NEqu
+             OpGrThan     -> comparison load1 load2 ++ setBitIf GThan
+             OpLeThan     -> comparison load1 load2 ++ setBitIf LThan
+             OpGrThanOrEq -> comparison load1 load2 ++ setBitIf GThanE
+             OpLeThanOrEq -> comparison load1 load2 ++ setBitIf LThanE
+             _            -> noOutput
+
+--binary load1 load2 o
+--   | o == Plus               = computeAdd load1 load2
+--   | o == Minus              = computeSub load1 load2
+--   | o == Multiply           = computeMul load1 load2
+--   | o == Divide             = computeDiv load1 load2
+--   | o == Modulo             = computeMod load1 load2
+--   | o == Equal              = comparison load1 load2 ++ setBitIf Equ
+--   | o == NotEqual           = comparison load1 load2 ++ setBitIf NEqu
+--   | o == GreaterThan        = comparison load1 load2 ++ setBitIf GThan
+--   | o == LessThan           = comparison load1 load2 ++ setBitIf LThan
+--   | o == GreaterThanOrEqual = comparison load1 load2 ++ setBitIf GThanE
+--   | o == LessThanOrEqual    = comparison load1 load2 ++ setBitIf LThanE
+--   | otherwise = undefined
 
 
 logicalOR :: String -> String -> Int -> Int -> String

@@ -15,9 +15,10 @@ import           AST           (Tree (..))
 import           Error         (CompilerError (SyntaxError), SyntaxError (..))
 import           GenState      (GenState, mkSymTab)
 import           GenTokens     (Jump (..), Scope (..))
+import           NewOps        (BinaryOp (..))
 import           SuccState     (runSuccState, throwError)
 import qualified SymTab
-import           Tokens        (Operator (..))
+--import           Tokens        (Operator (..))
 import qualified TypeCheck
 
 
@@ -243,9 +244,9 @@ genASM (BinaryNode left right op) = do
         lft <- genASM left
         rgt <- genASM right
         case op of
-             LogicalOR  ->
+             OpLogicOR  ->
                      pure $ ASM.logicalOR lft rgt nextLabel endLabel
-             LogicalAND ->
+             OpLogicAND ->
                      pure $ ASM.logicalAND lft rgt nextLabel endLabel
              _          ->
                      pure $ ASM.binary lft rgt op
@@ -464,16 +465,18 @@ checkVariableExists varName = do
         pure (offset, argPos, globLab)
 
 
-buildAssignmentASM :: Tree -> Tree -> Operator -> GenState String
-buildAssignmentASM varTree valTree op =
-        case op of
-          Assign         -> genASM valTree
-          PlusAssign     -> genASM (BinaryNode varTree valTree Plus)
-          MinusAssign    -> genASM (BinaryNode varTree valTree Minus)
-          MultiplyAssign -> genASM (BinaryNode varTree valTree Multiply)
-          DivideAssign   -> genASM (BinaryNode varTree valTree Divide)
-          ModuloAssign   -> genASM (BinaryNode varTree valTree Modulo)
-          _              -> throwError $ SyntaxError (UnexpectedOp op)
+buildAssignmentASM :: Tree -> Tree -> BinaryOp -> GenState String
+buildAssignmentASM _ valTree OpAssign = genASM valTree
+buildAssignmentASM varTree valTree binOp =
+        genASM (BinaryNode varTree valTree binOp)
+        --case op of
+        --  Assign         -> genASM valTree
+          --PlusAssign     -> genASM (BinaryNode varTree valTree Plus)
+          --MinusAssign    -> genASM (BinaryNode varTree valTree Minus)
+          --MultiplyAssign -> genASM (BinaryNode varTree valTree Multiply)
+          --DivideAssign   -> genASM (BinaryNode varTree valTree Divide)
+          --ModuloAssign   -> genASM (BinaryNode varTree valTree Modulo)
+          --_              -> throwError $ SyntaxError (UnexpectedOp op)
 
 
 checkIfUsedInScope :: Tree -> GenState ()
