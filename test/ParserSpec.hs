@@ -37,7 +37,7 @@ parserTest = hspec $ do
                   (TypeError (InvalidType  (Keyword Break)))
 
                 it "Should throw error if semicolon not final token" $
-                  fromLeft ImpossibleError (parse [Keyword Int, Ident "a", Wut])
+                  fromLeft ImpossibleError (parse [Keyword Int, Ident "a", Comma])
                   `shouldBe`
                   SyntaxError (MissingToken SemiColon)
 

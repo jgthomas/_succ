@@ -14,7 +14,6 @@ data Token = OpenParen
            | Colon
            | QuestMark
            | Comma
-           | Wut
            deriving (Show, Eq)
 
 
