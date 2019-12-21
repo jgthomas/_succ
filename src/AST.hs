@@ -2,8 +2,8 @@
 module AST where
 
 
-import NewOps (BinaryOp)
-import Tokens (Operator)
+import NewOps (BinaryOp, UnaryOp)
+--import Tokens (Operator)
 import Type   (Type)
 
 
@@ -30,7 +30,7 @@ data Tree = ProgramNode [Tree]
           | VarNode String
           | AddressOfNode String
           | DereferenceNode String
-          | UnaryNode Tree Operator
+          | UnaryNode Tree UnaryOp
           -- | BinaryNode Tree Tree Operator
           | BinaryNode Tree Tree BinaryOp
           | TernaryNode Tree Tree Tree

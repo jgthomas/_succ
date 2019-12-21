@@ -40,8 +40,8 @@ module ASM
 
 
 import GenTokens (Jump (..), Register (..), Section (..), Set (..))
-import NewOps    (BinaryOp (..))
-import Tokens    (Operator (..))
+import NewOps    (BinaryOp (..), UnaryOp (..))
+-- import Tokens    (Operator (..))
 
 
 -- Functions
@@ -94,14 +94,24 @@ adjustStackPointer offset =
 
 -- Operators
 
-unary :: Operator -> String
-unary o
-   | o == Minus         = makeNegative (reg RAX)
-   | o == BitwiseCompl  = invertBits (reg RAX)
-   | o == LogicNegation = comp (literalValue 0) (reg RAX)
-                          ++ move (literalValue 0) (reg RAX)
-                          ++ setBitIf Equ
-   | otherwise = undefined
+--unary :: Operator -> String
+--unary o
+--   | o == Minus         = makeNegative (reg RAX)
+--   | o == BitwiseCompl  = invertBits (reg RAX)
+--   | o == LogicNegation = comp (literalValue 0) (reg RAX)
+--                          ++ move (literalValue 0) (reg RAX)
+--                          ++ setBitIf Equ
+--   | otherwise = undefined
+
+
+unary :: UnaryOp -> String
+unary unOp =
+        case unOp of
+             Negative -> makeNegative (reg RAX)
+             BitComp  -> invertBits (reg RAX)
+             LogicNeg -> comp (literalValue 0) (reg RAX)
+                             ++ move (literalValue 0) (reg RAX)
+                             ++ setBitIf Equ
 
 
 binary :: String -> String -> BinaryOp -> String

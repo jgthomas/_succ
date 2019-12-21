@@ -12,7 +12,7 @@ import           Control.Monad (unless)
 import           AST           (Tree (..))
 import           Error         (CompilerError (..), ParserError (..),
                                 SyntaxError (..), TypeError (..))
-import qualified NewOps        (tokToBinOp)
+import qualified NewOps        (tokToBinOp, tokToUnaryOp)
 import           SuccState     (SuccStateM, getState, putState, runSuccState,
                                 throwError)
 import           Tokens        (Keyword (..), Operator (..), Token (..))
@@ -398,7 +398,8 @@ parseFactor toks@(next:rest) =
                 | op == Multiply  -> parseDereference rest
                 | op `elem` Tokens.unary -> do
                         (tree, toks') <- parseFactor rest
-                        pure (UnaryNode tree op, toks')
+                        let unOp = NewOps.tokToUnaryOp op
+                        pure (UnaryNode tree unOp, toks')
              OpenParen -> do
                      (tree, toks') <- parseExpression rest
                      toks''        <- verifyAndConsume CloseParen toks'

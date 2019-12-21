@@ -29,7 +29,7 @@ data BinaryOp = OpPlus
 
 data UnaryOp = Negative
              | BitComp
-             | LogicNegation
+             | LogicNeg
              deriving (Show, Eq)
 
 
@@ -56,3 +56,12 @@ tokToBinOp tok =
              DivideAssign       -> OpDivide
              ModuloAssign       -> OpModulo
              _                  -> undefined
+
+
+tokToUnaryOp :: Operator -> UnaryOp
+tokToUnaryOp tok =
+        case tok of
+             Minus         -> Negative
+             BitwiseCompl  -> BitComp
+             LogicNegation -> LogicNeg
+             _             -> undefined
