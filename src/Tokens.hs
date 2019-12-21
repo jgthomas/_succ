@@ -55,7 +55,7 @@ data OpTok = PlusSign
            deriving (Show, Eq)
 
 
-data TokenType = Unary
+data OpTokType = Unary
                | LogicalOR
                | LogicalAND
                | Factor
@@ -70,7 +70,7 @@ isAssign :: OpTok -> Bool
 isAssign op = op `elem` kind Assign
 
 
-kind :: TokenType -> [OpTok]
+kind :: OpTokType -> [OpTok]
 kind tokTyp =
         case tokTyp of
              Unary      -> [MinusSign,

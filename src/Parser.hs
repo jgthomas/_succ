@@ -15,8 +15,8 @@ import           Error         (CompilerError (..), ParserError (..),
 import qualified NewOps        (tokToBinOp, tokToUnaryOp)
 import           SuccState     (SuccStateM, getState, putState, runSuccState,
                                 throwError)
-import           Tokens        (Keyword (..), OpTok (..), Token (..),
-                                TokenType (..))
+import           Tokens        (Keyword (..), OpTok (..), OpTokType (..),
+                                Token (..))
 import qualified Tokens        (isAssign, kind)
 import           Type          (Type (..))
 
