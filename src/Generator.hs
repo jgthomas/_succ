@@ -465,14 +465,15 @@ checkVariableExists varName = do
 
 
 buildAssignmentASM :: Tree -> Tree -> Operator -> GenState String
-buildAssignmentASM varTree valueTree op
-        | op == Assign         = genASM valueTree
-        | op == PlusAssign     = genASM (BinaryNode varTree valueTree Plus)
-        | op == MinusAssign    = genASM (BinaryNode varTree valueTree Minus)
-        | op == MultiplyAssign = genASM (BinaryNode varTree valueTree Multiply)
-        | op == DivideAssign   = genASM (BinaryNode varTree valueTree Divide)
-        | op == ModuloAssign   = genASM (BinaryNode varTree valueTree Modulo)
-        | otherwise            = throwError $ SyntaxError (UnexpectedOp op)
+buildAssignmentASM varTree valTree op =
+        case op of
+          Assign         -> genASM valTree
+          PlusAssign     -> genASM (BinaryNode varTree valTree Plus)
+          MinusAssign    -> genASM (BinaryNode varTree valTree Minus)
+          MultiplyAssign -> genASM (BinaryNode varTree valTree Multiply)
+          DivideAssign   -> genASM (BinaryNode varTree valTree Divide)
+          ModuloAssign   -> genASM (BinaryNode varTree valTree Modulo)
+          _              -> throwError $ SyntaxError (UnexpectedOp op)
 
 
 checkIfUsedInScope :: Tree -> GenState ()
