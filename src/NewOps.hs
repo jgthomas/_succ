@@ -10,20 +10,20 @@ data Oper = UnaryOp UnaryOp
           deriving (Show, Eq)
 
 
-data BinaryOp = OpPlus
-              | OpMinus
-              | OpDivide
-              | OpMultiply
-              | OpModulo
-              | OpEqual
-              | OpNotEqual
-              | OpGrThan
-              | OpLeThan
-              | OpGrThanOrEq
-              | OpLeThanOrEq
-              | OpAssign
-              | OpLogicOR
-              | OpLogicAND
+data BinaryOp = Add
+              | Sub
+              | Div
+              | Mul
+              | Mod
+              | Equality
+              | NotEqu
+              | GrThan
+              | LeThan
+              | GrThanOrEqu
+              | LeThanOrEqu
+              | Assignment
+              | LogicOR
+              | LogicAND
               deriving (Show, Eq)
 
 
@@ -36,25 +36,25 @@ data UnaryOp = Negative
 tokToBinOp :: Operator -> BinaryOp
 tokToBinOp tok =
         case tok of
-             Plus               -> OpPlus
-             Minus              -> OpMinus
-             Divide             -> OpDivide
-             Multiply           -> OpMultiply
-             Modulo             -> OpModulo
-             Equal              -> OpEqual
-             NotEqual           -> OpNotEqual
-             GreaterThan        -> OpGrThan
-             LessThan           -> OpLeThan
-             GreaterThanOrEqual -> OpGrThanOrEq
-             LessThanOrEqual    -> OpLeThanOrEq
-             Assign             -> OpAssign
-             LogicalOR          -> OpLogicOR
-             LogicalAND         -> OpLogicAND
-             PlusAssign         -> OpPlus
-             MinusAssign        -> OpMinus
-             MultiplyAssign     -> OpMultiply
-             DivideAssign       -> OpDivide
-             ModuloAssign       -> OpModulo
+             Plus               -> Add
+             Minus              -> Sub
+             Divide             -> Div
+             Multiply           -> Mul
+             Modulo             -> Mod
+             Equal              -> Equality
+             NotEqual           -> NotEqu
+             GreaterThan        -> GrThan
+             LessThan           -> LeThan
+             GreaterThanOrEqual -> GrThanOrEqu
+             LessThanOrEqual    -> LeThanOrEqu
+             Assign             -> Assignment
+             LogicalOR          -> LogicOR
+             LogicalAND         -> LogicAND
+             PlusAssign         -> Add
+             MinusAssign        -> Sub
+             MultiplyAssign     -> Mul
+             DivideAssign       -> Div
+             ModuloAssign       -> Mod
              _                  -> undefined
 
 

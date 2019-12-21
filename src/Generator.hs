@@ -243,11 +243,11 @@ genASM (BinaryNode left right op) = do
         lft <- genASM left
         rgt <- genASM right
         case op of
-             OpLogicOR  ->
+             LogicOR  ->
                      pure $ ASM.logicalOR lft rgt nextLabel endLabel
-             OpLogicAND ->
+             LogicAND ->
                      pure $ ASM.logicalAND lft rgt nextLabel endLabel
-             _          ->
+             _        ->
                      pure $ ASM.binary lft rgt op
 
 genASM (UnaryNode tree op) = do
@@ -465,7 +465,7 @@ checkVariableExists varName = do
 
 
 buildAssignmentASM :: Tree -> Tree -> BinaryOp -> GenState String
-buildAssignmentASM _ valTree OpAssign = genASM valTree
+buildAssignmentASM _ valTree Assignment = genASM valTree
 buildAssignmentASM varTree valTree binOp =
         genASM (BinaryNode varTree valTree binOp)
 
