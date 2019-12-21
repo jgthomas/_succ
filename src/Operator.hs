@@ -1,5 +1,5 @@
 
-module NewOps where
+module Operator where
 
 
 import Tokens (OpTok (..))

@@ -7,7 +7,7 @@ import Test.Hspec
 
 import AST
 import Error
-import NewOps
+import Operator
 import Parser
 import Tokens
 import Type

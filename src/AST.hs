@@ -2,8 +2,8 @@
 module AST where
 
 
-import NewOps (BinaryOp, UnaryOp)
-import Type   (Type)
+import Operator (BinaryOp, UnaryOp)
+import Type     (Type)
 
 
 data Tree = ProgramNode [Tree]

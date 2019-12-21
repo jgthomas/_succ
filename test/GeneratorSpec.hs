@@ -8,7 +8,6 @@ import Test.Hspec
 import AST
 import Error
 import Generator
-import Tokens
 import Type
 
 

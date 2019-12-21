@@ -15,7 +15,7 @@ import           AST           (Tree (..))
 import           Error         (CompilerError (SyntaxError), SyntaxError (..))
 import           GenState      (GenState, mkSymTab)
 import           GenTokens     (Jump (..), Scope (..))
-import           NewOps        (BinaryOp (..))
+import           Operator      (BinaryOp (..))
 import           SuccState     (runSuccState, throwError)
 import qualified SymTab
 import qualified TypeCheck

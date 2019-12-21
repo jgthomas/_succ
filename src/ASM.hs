@@ -40,7 +40,7 @@ module ASM
 
 
 import GenTokens (Jump (..), Register (..), Section (..), Set (..))
-import NewOps    (BinaryOp (..), UnaryOp (..))
+import Operator  (BinaryOp (..), UnaryOp (..))
 
 
 -- Functions
