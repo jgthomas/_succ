@@ -355,7 +355,7 @@ parseLogicalOrExp toks = do
 parseLogicalAndExp :: [Token] -> ParserState (Tree, [Token])
 parseLogicalAndExp toks = do
         (andTree, toks') <- parseEqualityExp toks
-        parseBinaryExp andTree toks' parseEqualityExp [LogicalAND]
+        parseBinaryExp andTree toks' parseEqualityExp [AmpAmp]
 
 
 parseEqualityExp :: [Token] -> ParserState (Tree, [Token])

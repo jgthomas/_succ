@@ -96,7 +96,7 @@ twoCharOperator []  = throwError ImpossibleError
 twoCharOperator [_] = throwError ImpossibleError
 twoCharOperator (c:n:cs) =
         let tok | op == "||" = Op PipePipe
-                | op == "&&" = Op LogicalAND
+                | op == "&&" = Op AmpAmp
                 | op == ">=" = Op GreaterThanOrEqual
                 | op == "<=" = Op LessThanOrEqual
                 | op == "==" = Op Equal

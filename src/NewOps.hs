@@ -49,7 +49,7 @@ tokToBinOp tok =
              LessThanOrEqual    -> LeThanOrEqu
              Assign             -> Assignment
              PipePipe           -> LogicOR
-             LogicalAND         -> LogicAND
+             AmpAmp             -> LogicAND
              PlusAssign         -> Add
              MinusAssign        -> Sub
              MultiplyAssign     -> Mul

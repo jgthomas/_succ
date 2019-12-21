@@ -10,7 +10,7 @@ data Operator = PlusSign
               | Tilde
               | Bang
               | PipePipe
-              | LogicalAND
+              | AmpAmp
               | GreaterThan
               | GreaterThanOrEqual
               | LessThan
