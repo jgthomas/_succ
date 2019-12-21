@@ -40,16 +40,16 @@ data OpTok = PlusSign
            | PipePipe
            | AmpAmp
            | RightArrow
-           | RightArrowEquals
+           | RightArrowEqual
            | LeftArrow
-           | LeftArrowEquals
+           | LeftArrowEqual
            | EqualEqual
            | BangEqual
            | EqualSign
            | PlusEqual
            | MinusEqual
            | AsteriskEqual
-           | BackSlashEqual
+           | BackslashEqual
            | PercentEqual
            | Ampersand
            deriving (Show, Eq)
@@ -83,11 +83,11 @@ kind tokTyp =
                             BangEqual]
              Relational -> [RightArrow,
                             LeftArrow,
-                            RightArrowEquals,
-                            LeftArrowEquals]
+                            RightArrowEqual,
+                            LeftArrowEqual]
              Assign     -> [EqualSign,
                             PlusEqual,
                             MinusEqual,
                             AsteriskEqual,
-                            BackSlashEqual,
+                            BackslashEqual,
                             PercentEqual]

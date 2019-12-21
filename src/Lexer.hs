@@ -97,14 +97,14 @@ twoCharOperator [_] = throwError ImpossibleError
 twoCharOperator (c:n:cs) =
         let tok | op == "||" = OpTok PipePipe
                 | op == "&&" = OpTok AmpAmp
-                | op == ">=" = OpTok RightArrowEquals
-                | op == "<=" = OpTok LeftArrowEquals
+                | op == ">=" = OpTok RightArrowEqual
+                | op == "<=" = OpTok LeftArrowEqual
                 | op == "==" = OpTok EqualEqual
                 | op == "!=" = OpTok BangEqual
                 | op == "+=" = OpTok PlusEqual
                 | op == "-=" = OpTok MinusEqual
                 | op == "*=" = OpTok AsteriskEqual
-                | op == "/=" = OpTok BackSlashEqual
+                | op == "/=" = OpTok BackslashEqual
                 | op == "%=" = OpTok PercentEqual
                 | otherwise  = Wut
                 where op = c:[n]
