@@ -3,7 +3,6 @@ module AST where
 
 
 import NewOps (BinaryOp, UnaryOp)
---import Tokens (Operator)
 import Type   (Type)
 
 
@@ -31,7 +30,6 @@ data Tree = ProgramNode [Tree]
           | AddressOfNode String
           | DereferenceNode String
           | UnaryNode Tree UnaryOp
-          -- | BinaryNode Tree Tree Operator
           | BinaryNode Tree Tree BinaryOp
           | TernaryNode Tree Tree Tree
           deriving (Show, Eq)

@@ -18,7 +18,6 @@ import           GenTokens     (Jump (..), Scope (..))
 import           NewOps        (BinaryOp (..))
 import           SuccState     (runSuccState, throwError)
 import qualified SymTab
---import           Tokens        (Operator (..))
 import qualified TypeCheck
 
 
@@ -469,14 +468,6 @@ buildAssignmentASM :: Tree -> Tree -> BinaryOp -> GenState String
 buildAssignmentASM _ valTree OpAssign = genASM valTree
 buildAssignmentASM varTree valTree binOp =
         genASM (BinaryNode varTree valTree binOp)
-        --case op of
-        --  Assign         -> genASM valTree
-          --PlusAssign     -> genASM (BinaryNode varTree valTree Plus)
-          --MinusAssign    -> genASM (BinaryNode varTree valTree Minus)
-          --MultiplyAssign -> genASM (BinaryNode varTree valTree Multiply)
-          --DivideAssign   -> genASM (BinaryNode varTree valTree Divide)
-          --ModuloAssign   -> genASM (BinaryNode varTree valTree Modulo)
-          --_              -> throwError $ SyntaxError (UnexpectedOp op)
 
 
 checkIfUsedInScope :: Tree -> GenState ()

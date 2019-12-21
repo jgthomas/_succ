@@ -41,7 +41,6 @@ module ASM
 
 import GenTokens (Jump (..), Register (..), Section (..), Set (..))
 import NewOps    (BinaryOp (..), UnaryOp (..))
--- import Tokens    (Operator (..))
 
 
 -- Functions
@@ -94,16 +93,6 @@ adjustStackPointer offset =
 
 -- Operators
 
---unary :: Operator -> String
---unary o
---   | o == Minus         = makeNegative (reg RAX)
---   | o == BitwiseCompl  = invertBits (reg RAX)
---   | o == LogicNegation = comp (literalValue 0) (reg RAX)
---                          ++ move (literalValue 0) (reg RAX)
---                          ++ setBitIf Equ
---   | otherwise = undefined
-
-
 unary :: UnaryOp -> String
 unary unOp =
         case unOp of
@@ -129,20 +118,6 @@ binary load1 load2 binOp =
              OpGrThanOrEq -> comparison load1 load2 ++ setBitIf GThanE
              OpLeThanOrEq -> comparison load1 load2 ++ setBitIf LThanE
              _            -> noOutput
-
---binary load1 load2 o
---   | o == Plus               = computeAdd load1 load2
---   | o == Minus              = computeSub load1 load2
---   | o == Multiply           = computeMul load1 load2
---   | o == Divide             = computeDiv load1 load2
---   | o == Modulo             = computeMod load1 load2
---   | o == Equal              = comparison load1 load2 ++ setBitIf Equ
---   | o == NotEqual           = comparison load1 load2 ++ setBitIf NEqu
---   | o == GreaterThan        = comparison load1 load2 ++ setBitIf GThan
---   | o == LessThan           = comparison load1 load2 ++ setBitIf LThan
---   | o == GreaterThanOrEqual = comparison load1 load2 ++ setBitIf GThanE
---   | o == LessThanOrEqual    = comparison load1 load2 ++ setBitIf LThanE
---   | otherwise = undefined
 
 
 logicalOR :: String -> String -> Int -> Int -> String
