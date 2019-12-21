@@ -36,26 +36,26 @@ data UnaryOp = Negative
 tokToBinOp :: Operator -> BinaryOp
 tokToBinOp tok =
         case tok of
-             PlusSign           -> Add
-             MinusSign          -> Sub
-             BackSlash          -> Div
-             Asterisk           -> Mul
-             Percent            -> Mod
-             Equal              -> Equality
-             NotEqual           -> NotEqu
-             GreaterThan        -> GrThan
-             LessThan           -> LeThan
-             GreaterThanOrEqual -> GrThanOrEqu
-             LessThanOrEqual    -> LeThanOrEqu
-             Assign             -> Assignment
-             PipePipe           -> LogicOR
-             AmpAmp             -> LogicAND
-             PlusAssign         -> Add
-             MinusAssign        -> Sub
-             MultiplyAssign     -> Mul
-             DivideAssign       -> Div
-             ModuloAssign       -> Mod
-             _                  -> undefined
+             PlusSign         -> Add
+             MinusSign        -> Sub
+             BackSlash        -> Div
+             Asterisk         -> Mul
+             Percent          -> Mod
+             Equal            -> Equality
+             NotEqual         -> NotEqu
+             RightArrow       -> GrThan
+             LeftArrow        -> LeThan
+             RightArrowEquals -> GrThanOrEqu
+             LeftArrowEquals  -> LeThanOrEqu
+             Assign           -> Assignment
+             PipePipe         -> LogicOR
+             AmpAmp           -> LogicAND
+             PlusAssign       -> Add
+             MinusAssign      -> Sub
+             MultiplyAssign   -> Mul
+             DivideAssign     -> Div
+             ModuloAssign     -> Mod
+             _                -> undefined
 
 
 tokToUnaryOp :: Operator -> UnaryOp

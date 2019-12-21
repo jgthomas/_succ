@@ -368,7 +368,7 @@ parseRelationalExp :: [Token] -> ParserState (Tree, [Token])
 parseRelationalExp toks = do
         (relaTree, toks') <- parseAdditiveExp toks
         parseBinaryExp relaTree toks' parseAdditiveExp
-             [GreaterThan,LessThan,GreaterThanOrEqual,LessThanOrEqual]
+             [RightArrow,LeftArrow,RightArrowEquals,LeftArrowEquals]
 
 
 parseAdditiveExp :: [Token] -> ParserState (Tree, [Token])

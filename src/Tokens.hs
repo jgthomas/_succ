@@ -11,10 +11,10 @@ data Operator = PlusSign
               | Bang
               | PipePipe
               | AmpAmp
-              | GreaterThan
-              | GreaterThanOrEqual
-              | LessThan
-              | LessThanOrEqual
+              | RightArrow
+              | RightArrowEquals
+              | LeftArrow
+              | LeftArrowEquals
               | Equal
               | NotEqual
               | Assign

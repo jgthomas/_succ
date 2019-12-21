@@ -97,8 +97,8 @@ twoCharOperator [_] = throwError ImpossibleError
 twoCharOperator (c:n:cs) =
         let tok | op == "||" = Op PipePipe
                 | op == "&&" = Op AmpAmp
-                | op == ">=" = Op GreaterThanOrEqual
-                | op == "<=" = Op LessThanOrEqual
+                | op == ">=" = Op RightArrowEquals
+                | op == "<=" = Op LeftArrowEquals
                 | op == "==" = Op Equal
                 | op == "!=" = Op NotEqual
                 | op == "+=" = Op PlusAssign
@@ -122,8 +122,8 @@ operator (c:cs) =
                 | c == '/'  = Op BackSlash
                 | c == '~'  = Op Tilde
                 | c == '!'  = Op Bang
-                | c == '>'  = Op GreaterThan
-                | c == '<'  = Op LessThan
+                | c == '>'  = Op RightArrow
+                | c == '<'  = Op LeftArrow
                 | c == '='  = Op Assign
                 | c == '&'  = Ampersand
                 | otherwise = Wut
