@@ -55,8 +55,7 @@ data OpTok = PlusSign
            deriving (Show, Eq)
 
 
-data OpTokType = Unary
-               | LogicalOR
+data OpTokType = LogicalOR
                | LogicalAND
                | Factor
                | Term
@@ -73,9 +72,6 @@ isAssign op = op `elem` kind Assign
 kind :: OpTokType -> [OpTok]
 kind tokTyp =
         case tokTyp of
-             Unary      -> [MinusSign,
-                            Tilde,
-                            Bang]
              LogicalOR  -> [PipePipe]
              LogicalAND -> [AmpAmp]
              Factor     -> [Asterisk,
