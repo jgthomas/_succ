@@ -19,6 +19,7 @@ data CompilerError = LexerError LexerError
 
 data LexerError = BadInput String
                 | EmptyInput
+                | UnexpectedInput String
                 deriving (Show, Eq)
 
 

@@ -50,36 +50,34 @@ lexInput input@(c:cs) =
 separator :: String -> LexerState [Token]
 separator [] = throwError ImpossibleError
 separator (c:cs) =
-        let tok | c == '('  = OpenParen
-                | c == ')'  = CloseParen
-                | c == '{'  = OpenBrace
-                | c == '}'  = CloseBrace
-                | c == ';'  = SemiColon
-                | c == ':'  = Colon
-                | c == '?'  = QuestMark
-                | c == ','  = Comma
-                | otherwise = Wut
-            in
-        updateLexerState tok cs
+        case c of
+             '(' -> updateState OpenParen cs
+             ')' -> updateState CloseParen cs
+             '{' -> updateState OpenBrace cs
+             '}' -> updateState CloseBrace cs
+             ';' -> updateState SemiColon cs
+             ':' -> updateState Colon cs
+             '?' -> updateState QuestMark cs
+             ',' -> updateState Comma cs
+             _   -> throwError $ LexerError (UnexpectedInput [c])
 
 
 identifier :: String -> LexerState [Token]
 identifier [] = throwError ImpossibleError
 identifier (c:cs) =
         let (str, cs') = span isValidInIdentifier cs
-            tok | kwd == "int"      = Keyword Int
-                | kwd == "return"   = Keyword Return
-                | kwd == "if"       = Keyword If
-                | kwd == "else"     = Keyword Else
-                | kwd == "for"      = Keyword For
-                | kwd == "while"    = Keyword While
-                | kwd == "do"       = Keyword Do
-                | kwd == "break"    = Keyword Break
-                | kwd == "continue" = Keyword Continue
-                | otherwise         = Ident (c:str)
-                where kwd = c:str
             in
-        updateLexerState tok cs'
+        case c:str of
+             "int"      -> updateState (Keyword Int) cs'
+             "return"   -> updateState (Keyword Return) cs'
+             "if"       -> updateState (Keyword If) cs'
+             "else"     -> updateState (Keyword Else) cs'
+             "for"      -> updateState (Keyword For) cs'
+             "while"    -> updateState (Keyword While) cs'
+             "do"       -> updateState (Keyword Do) cs'
+             "break"    -> updateState (Keyword Break) cs'
+             "continue" -> updateState (Keyword Continue) cs'
+             _          -> updateState (Ident (c:str)) cs'
 
 
 number :: String -> LexerState [Token]
@@ -88,57 +86,51 @@ number (c:cs) =
         let (digs, cs') = span isDigit cs
             tok         = ConstInt (read (c:digs))
             in
-        updateLexerState tok cs'
+        updateState tok cs'
 
 
 twoCharOperator :: String -> LexerState [Token]
 twoCharOperator []  = throwError ImpossibleError
 twoCharOperator [_] = throwError ImpossibleError
 twoCharOperator (c:n:cs) =
-        let tok | op == "||" = OpTok PipePipe
-                | op == "&&" = OpTok AmpAmp
-                | op == ">=" = OpTok RightArrowEqual
-                | op == "<=" = OpTok LeftArrowEqual
-                | op == "==" = OpTok EqualEqual
-                | op == "!=" = OpTok BangEqual
-                | op == "+=" = OpTok PlusEqual
-                | op == "-=" = OpTok MinusEqual
-                | op == "*=" = OpTok AsteriskEqual
-                | op == "/=" = OpTok BackslashEqual
-                | op == "%=" = OpTok PercentEqual
-                | otherwise  = Wut
-                where op = c:[n]
-            in
-        updateLexerState tok cs
+        case c:[n] of
+             "||" -> updateState (OpTok PipePipe) cs
+             "&&" -> updateState (OpTok AmpAmp) cs
+             ">=" -> updateState (OpTok RightArrowEqual) cs
+             "<=" -> updateState (OpTok LeftArrowEqual) cs
+             "==" -> updateState (OpTok EqualEqual) cs
+             "!=" -> updateState (OpTok BangEqual) cs
+             "+=" -> updateState (OpTok PlusEqual) cs
+             "-=" -> updateState (OpTok MinusEqual) cs
+             "*=" -> updateState (OpTok AsteriskEqual) cs
+             "/=" -> updateState (OpTok BackslashEqual) cs
+             "%=" -> updateState (OpTok PercentEqual) cs
+             _    -> throwError $ LexerError (UnexpectedInput (c:[n]))
 
 
 operator :: String -> LexerState [Token]
 operator [] = throwError ImpossibleError
 operator (c:cs) =
-        let tok | c == '+'  = OpTok PlusSign
-                | c == '-'  = OpTok MinusSign
-                | c == '*'  = OpTok Asterisk
-                | c == '%'  = OpTok Percent
-                | c == '/'  = OpTok BackSlash
-                | c == '~'  = OpTok Tilde
-                | c == '!'  = OpTok Bang
-                | c == '>'  = OpTok RightArrow
-                | c == '<'  = OpTok LeftArrow
-                | c == '='  = OpTok EqualSign
-                | c == '&'  = OpTok Ampersand
-                | otherwise = Wut
-            in
-        updateLexerState tok cs
+        case c of
+             '+' -> updateState (OpTok PlusSign) cs
+             '-' -> updateState (OpTok MinusSign) cs
+             '*' -> updateState (OpTok Asterisk) cs
+             '%' -> updateState (OpTok Percent) cs
+             '/' -> updateState (OpTok BackSlash) cs
+             '~' -> updateState (OpTok Tilde) cs
+             '!' -> updateState (OpTok Bang) cs
+             '>' -> updateState (OpTok RightArrow) cs
+             '<' -> updateState (OpTok LeftArrow) cs
+             '=' -> updateState (OpTok EqualSign) cs
+             '&' -> updateState (OpTok Ampersand) cs
+             _   -> throwError $ LexerError (UnexpectedInput [c])
 
 
-updateLexerState :: Token -> String -> LexerState [Token]
-updateLexerState tok input = do
+updateState :: Token -> String -> LexerState [Token]
+updateState tok input = do
         lexOut <- getState
-        case tok of
-             Wut -> throwError ImpossibleError
-             _      -> do
-                     putState (tok:lexOut)
-                     lexInput input
+        putState (tok:lexOut)
+        lexInput input
 
 
 isSeparator :: Char -> Bool
