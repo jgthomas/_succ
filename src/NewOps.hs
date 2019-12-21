@@ -61,7 +61,7 @@ tokToBinOp tok =
 tokToUnaryOp :: Operator -> UnaryOp
 tokToUnaryOp tok =
         case tok of
-             MinusSign     -> Negative
-             Tilde         -> BitComp
-             LogicNegation -> LogicNeg
-             _             -> undefined
+             Bang      -> LogicNeg
+             MinusSign -> Negative
+             Tilde     -> BitComp
+             _         -> undefined

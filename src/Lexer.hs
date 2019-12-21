@@ -121,7 +121,7 @@ operator (c:cs) =
                 | c == '%'  = Op Percent
                 | c == '/'  = Op BackSlash
                 | c == '~'  = Op Tilde
-                | c == '!'  = Op LogicNegation
+                | c == '!'  = Op Bang
                 | c == '>'  = Op GreaterThan
                 | c == '<'  = Op LessThan
                 | c == '='  = Op Assign
