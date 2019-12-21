@@ -374,7 +374,7 @@ parseRelationalExp toks = do
 parseAdditiveExp :: [Token] -> ParserState (Tree, [Token])
 parseAdditiveExp toks = do
         (termTree, toks') <- parseTerm toks
-        parseBinaryExp termTree toks' parseTerm [Plus,Minus]
+        parseBinaryExp termTree toks' parseTerm [PlusSign,MinusSign]
 
 
 parseTerm :: [Token] -> ParserState (Tree, [Token])

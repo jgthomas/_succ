@@ -36,8 +36,8 @@ data UnaryOp = Negative
 tokToBinOp :: Operator -> BinaryOp
 tokToBinOp tok =
         case tok of
-             Plus               -> Add
-             Minus              -> Sub
+             PlusSign           -> Add
+             MinusSign          -> Sub
              Divide             -> Div
              Multiply           -> Mul
              Modulo             -> Mod
@@ -61,7 +61,7 @@ tokToBinOp tok =
 tokToUnaryOp :: Operator -> UnaryOp
 tokToUnaryOp tok =
         case tok of
-             Minus         -> Negative
+             MinusSign     -> Negative
              BitwiseCompl  -> BitComp
              LogicNegation -> LogicNeg
              _             -> undefined

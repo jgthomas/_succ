@@ -115,8 +115,8 @@ twoCharOperator (c:n:cs) =
 operator :: String -> LexerState [Token]
 operator [] = throwError ImpossibleError
 operator (c:cs) =
-        let tok | c == '+'  = Op Plus
-                | c == '-'  = Op Minus
+        let tok | c == '+'  = Op PlusSign
+                | c == '-'  = Op MinusSign
                 | c == '*'  = Op Multiply
                 | c == '%'  = Op Modulo
                 | c == '/'  = Op Divide

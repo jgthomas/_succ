@@ -17,7 +17,7 @@ lexerTest = hspec $ do
                   fromRight [] (tokenize "int a;") `shouldBe` [Keyword Int,Ident "a",SemiColon]
 
                 it "should be a two-character operator then a single one I" $
-                  fromRight [] (tokenize "+=+") `shouldBe` [Op PlusAssign,Op Plus]
+                  fromRight [] (tokenize "+=+") `shouldBe` [Op PlusAssign,Op PlusSign]
 
                 it "should be a two character operator then a single one II" $
                   fromRight [] (tokenize "+==") `shouldBe` [Op PlusAssign,Op Assign]

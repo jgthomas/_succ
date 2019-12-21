@@ -2,8 +2,8 @@
 module Tokens where
 
 
-data Operator = Plus
-              | Minus
+data Operator = PlusSign
+              | MinusSign
               | Multiply
               | Divide
               | Modulo
@@ -27,7 +27,7 @@ data Operator = Plus
 
 
 unary :: [Operator]
-unary = [Minus,BitwiseCompl,LogicNegation]
+unary = [MinusSign,BitwiseCompl,LogicNegation]
 
 
 data Keyword = Int
