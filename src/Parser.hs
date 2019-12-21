@@ -394,8 +394,8 @@ parseFactor toks@(next:rest) =
                         then parseFuncCall toks
                         else pure (VarNode a, rest)
              (OpTok Ampersand) -> parseAddressOf rest
+             (OpTok Asterisk)  -> parseDereference rest
              (OpTok op)
-                | op == Asterisk -> parseDereference rest
                 | Tokens.isUnary op -> do
                         (tree, toks') <- parseFactor rest
                         let unOp = NewOps.tokToUnaryOp op
