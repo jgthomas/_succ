@@ -387,12 +387,9 @@ parseFactor :: [Token] -> ParserState (Tree, [Token])
 parseFactor [] = throwError $ ParserError (TokensError [])
 parseFactor toks@(next:rest) =
         case next of
-             SemiColon    -> pure (NullExprNode, rest)
-             (ConstInt n) -> pure (ConstantNode n, rest)
-             (Ident a)   ->
-                     if lookAhead rest == OpenParen
-                        then parseFuncCall toks
-                        else pure (VarNode a, rest)
+             SemiColon         -> pure (NullExprNode, rest)
+             (ConstInt n)      -> pure (ConstantNode n, rest)
+             (Ident _)         -> parseIdent toks
              (OpTok Ampersand) -> parseAddressOf rest
              (OpTok Asterisk)  -> parseDereference rest
              (OpTok MinusSign) -> parseUnary toks
@@ -411,6 +408,13 @@ parseUnary (OpTok op:rest) = do
         let unOp = NewOps.tokToUnaryOp op
         pure (UnaryNode tree unOp, toks')
 parseUnary toks = throwError $ ParserError (TokensError toks)
+
+
+parseIdent :: [Token] -> ParserState (Tree, [Token])
+parseIdent toks@(Ident _:OpenParen:_) = parseFuncCall toks
+parseIdent (Ident a:rest)             = pure (VarNode a, rest)
+parseIdent (a:_) = throwError $ SyntaxError (UnexpectedToken a)
+parseIdent toks  = throwError $ ParserError (TokensError toks)
 
 
 parseAddressOf :: [Token] -> ParserState (Tree, [Token])
