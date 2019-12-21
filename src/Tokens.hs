@@ -15,10 +15,10 @@ data Operator = PlusSign
               | RightArrowEquals
               | LeftArrow
               | LeftArrowEquals
-              | Equal
-              | NotEqual
-              | Assign
-              | PlusAssign
+              | EqualEqual
+              | BangEqual
+              | EqualSign
+              | PlusEqual
               | MinusAssign
               | MultiplyAssign
               | DivideAssign

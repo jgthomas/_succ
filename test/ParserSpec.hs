@@ -57,7 +57,7 @@ parserTest = hspec $ do
                 it "Should parse valid variable assignment" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
                                                      Ident "a",
-                                                     Op Assign,
+                                                     Op EqualSign,
                                                      ConstInt 10,
                                                      SemiColon])
                   `shouldBe`

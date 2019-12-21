@@ -41,16 +41,16 @@ tokToBinOp tok =
              BackSlash        -> Div
              Asterisk         -> Mul
              Percent          -> Mod
-             Equal            -> Equality
-             NotEqual         -> NotEqu
+             EqualEqual       -> Equality
+             BangEqual        -> NotEqu
              RightArrow       -> GrThan
              LeftArrow        -> LeThan
              RightArrowEquals -> GrThanOrEqu
              LeftArrowEquals  -> LeThanOrEqu
-             Assign           -> Assignment
+             EqualSign        -> Assignment
              PipePipe         -> LogicOR
              AmpAmp           -> LogicAND
-             PlusAssign       -> Add
+             PlusEqual        -> Add
              MinusAssign      -> Sub
              MultiplyAssign   -> Mul
              DivideAssign     -> Div

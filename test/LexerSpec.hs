@@ -17,13 +17,13 @@ lexerTest = hspec $ do
                   fromRight [] (tokenize "int a;") `shouldBe` [Keyword Int,Ident "a",SemiColon]
 
                 it "should be a two-character operator then a single one I" $
-                  fromRight [] (tokenize "+=+") `shouldBe` [Op PlusAssign,Op PlusSign]
+                  fromRight [] (tokenize "+=+") `shouldBe` [Op PlusEqual,Op PlusSign]
 
                 it "should be a two character operator then a single one II" $
-                  fromRight [] (tokenize "+==") `shouldBe` [Op PlusAssign,Op Assign]
+                  fromRight [] (tokenize "+==") `shouldBe` [Op PlusEqual,Op EqualSign]
 
                 it "should be two of the SAME two-character operators" $
-                  fromRight [] (tokenize "+=+=") `shouldBe` [Op PlusAssign,Op PlusAssign]
+                  fromRight [] (tokenize "+=+=") `shouldBe` [Op PlusEqual,Op PlusEqual]
 
                 it "should throw error for unrecognised character" $
                   fromLeft ImpossibleError (tokenize "$") `shouldBe` LexerError (BadInput "$")

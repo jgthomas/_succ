@@ -361,7 +361,7 @@ parseLogicalAndExp toks = do
 parseEqualityExp :: [Token] -> ParserState (Tree, [Token])
 parseEqualityExp toks = do
         (equTree, toks') <- parseRelationalExp toks
-        parseBinaryExp equTree toks' parseRelationalExp [Equal,NotEqual]
+        parseBinaryExp equTree toks' parseRelationalExp [EqualEqual,BangEqual]
 
 
 parseRelationalExp :: [Token] -> ParserState (Tree, [Token])
@@ -480,8 +480,8 @@ getTreeList _                      = throwError ImpossibleError
 
 
 assign :: [Operator]
-assign = [Assign,
-          PlusAssign,
+assign = [EqualSign,
+          PlusEqual,
           MinusAssign,
           MultiplyAssign,
           DivideAssign,

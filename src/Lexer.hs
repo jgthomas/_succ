@@ -99,9 +99,9 @@ twoCharOperator (c:n:cs) =
                 | op == "&&" = Op AmpAmp
                 | op == ">=" = Op RightArrowEquals
                 | op == "<=" = Op LeftArrowEquals
-                | op == "==" = Op Equal
-                | op == "!=" = Op NotEqual
-                | op == "+=" = Op PlusAssign
+                | op == "==" = Op EqualEqual
+                | op == "!=" = Op BangEqual
+                | op == "+=" = Op PlusEqual
                 | op == "-=" = Op MinusAssign
                 | op == "*=" = Op MultiplyAssign
                 | op == "/=" = Op DivideAssign
@@ -124,7 +124,7 @@ operator (c:cs) =
                 | c == '!'  = Op Bang
                 | c == '>'  = Op RightArrow
                 | c == '<'  = Op LeftArrow
-                | c == '='  = Op Assign
+                | c == '='  = Op EqualSign
                 | c == '&'  = Ampersand
                 | otherwise = Wut
             in
