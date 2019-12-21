@@ -5,11 +5,6 @@ module NewOps where
 import Tokens (OpTok (..))
 
 
-data Oper = UnaryOp UnaryOp
-          | BinaryOp BinaryOp
-          deriving (Show, Eq)
-
-
 data BinaryOp = Plus
               | Minus
               | Divide
