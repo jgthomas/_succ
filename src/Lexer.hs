@@ -95,7 +95,7 @@ twoCharOperator :: String -> LexerState [Token]
 twoCharOperator []  = throwError ImpossibleError
 twoCharOperator [_] = throwError ImpossibleError
 twoCharOperator (c:n:cs) =
-        let tok | op == "||" = Op LogicalOR
+        let tok | op == "||" = Op PipePipe
                 | op == "&&" = Op LogicalAND
                 | op == ">=" = Op GreaterThanOrEqual
                 | op == "<=" = Op LessThanOrEqual

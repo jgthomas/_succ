@@ -48,7 +48,7 @@ tokToBinOp tok =
              GreaterThanOrEqual -> GrThanOrEqu
              LessThanOrEqual    -> LeThanOrEqu
              Assign             -> Assignment
-             LogicalOR          -> LogicOR
+             PipePipe           -> LogicOR
              LogicalAND         -> LogicAND
              PlusAssign         -> Add
              MinusAssign        -> Sub

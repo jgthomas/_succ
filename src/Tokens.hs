@@ -9,7 +9,7 @@ data Operator = PlusSign
               | Percent
               | Tilde
               | Bang
-              | LogicalOR
+              | PipePipe
               | LogicalAND
               | GreaterThan
               | GreaterThanOrEqual

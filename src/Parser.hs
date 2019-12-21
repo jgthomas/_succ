@@ -349,7 +349,7 @@ parseTernaryExp toks = do
 parseLogicalOrExp :: [Token] -> ParserState (Tree, [Token])
 parseLogicalOrExp toks = do
         (orTree, toks') <- parseLogicalAndExp toks
-        parseBinaryExp orTree toks' parseLogicalAndExp [LogicalOR]
+        parseBinaryExp orTree toks' parseLogicalAndExp [PipePipe]
 
 
 parseLogicalAndExp :: [Token] -> ParserState (Tree, [Token])
