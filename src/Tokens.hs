@@ -23,7 +23,6 @@ data Operator = Plus
               | MultiplyAssign
               | DivideAssign
               | ModuloAssign
-              | Ampersand
               deriving (Show, Eq)
 
 
@@ -55,5 +54,6 @@ data Token = OpenParen
            | Colon
            | QuestMark
            | Comma
+           | Ampersand
            | Wut
            deriving (Show, Eq)

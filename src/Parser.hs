@@ -393,8 +393,8 @@ parseFactor toks@(next:rest) =
                      if lookAhead rest == OpenParen
                         then parseFuncCall toks
                         else pure (VarNode a, rest)
+             Ampersand -> parseAddressOf rest
              (Op op)
-                | op == Ampersand -> parseAddressOf rest
                 | op == Multiply  -> parseDereference rest
                 | op `elem` Tokens.unary -> do
                         (tree, toks') <- parseFactor rest

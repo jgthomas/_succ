@@ -125,7 +125,7 @@ operator (c:cs) =
                 | c == '>'  = Op GreaterThan
                 | c == '<'  = Op LessThan
                 | c == '='  = Op Assign
-                | c == '&'  = Op Ampersand
+                | c == '&'  = Ampersand
                 | otherwise = Wut
             in
         updateLexerState tok cs
