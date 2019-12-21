@@ -40,7 +40,7 @@ tokToBinOp tok =
              MinusSign          -> Sub
              Divide             -> Div
              Asterisk           -> Mul
-             Modulo             -> Mod
+             Percent            -> Mod
              Equal              -> Equality
              NotEqual           -> NotEqu
              GreaterThan        -> GrThan

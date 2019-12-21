@@ -118,7 +118,7 @@ operator (c:cs) =
         let tok | c == '+'  = Op PlusSign
                 | c == '-'  = Op MinusSign
                 | c == '*'  = Op Asterisk
-                | c == '%'  = Op Modulo
+                | c == '%'  = Op Percent
                 | c == '/'  = Op Divide
                 | c == '~'  = Op BitwiseCompl
                 | c == '!'  = Op LogicNegation

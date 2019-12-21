@@ -6,7 +6,7 @@ data Operator = PlusSign
               | MinusSign
               | Asterisk
               | Divide
-              | Modulo
+              | Percent
               | BitwiseCompl
               | LogicNegation
               | LogicalOR
