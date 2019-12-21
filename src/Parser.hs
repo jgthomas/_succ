@@ -15,7 +15,7 @@ import           Error         (CompilerError (..), ParserError (..),
 import qualified NewOps        (tokToBinOp, tokToUnaryOp)
 import           SuccState     (SuccStateM, getState, putState, runSuccState,
                                 throwError)
-import           Tokens        (Keyword (..), Operator (..), Token (..),
+import           Tokens        (Keyword (..), OpTok (..), Token (..),
                                 TokenType (..))
 import qualified Tokens        (isAssign, isUnary, kind)
 import           Type          (Type (..))
@@ -64,7 +64,7 @@ parseTopLevelItem toks                     = parseDeclaration toks
 parseDeclaration :: [Token] -> ParserState (Tree, [Token])
 parseDeclaration []  = throwError ImpossibleError
 parseDeclaration [a] = throwError $ ParserError (TokensError [a])
-parseDeclaration toks@(_:Op Asterisk:_) = parsePointerDec toks
+parseDeclaration toks@(_:OpTok Asterisk:_) = parsePointerDec toks
 parseDeclaration toks@(_:Ident name:_) = do
         varType        <- parseType toks
         toks'          <- consumeTok toks
@@ -89,7 +89,7 @@ parseFuncName _                  = throwError $ SyntaxError MissingIdentifier
 
 
 parseFuncParams :: [Token] -> ParserState ([Tree], [Token])
-parseFuncParams (_:Op Asterisk:_:rest) = parseParams [] rest
+parseFuncParams (_:OpTok Asterisk:_:rest) = parseParams [] rest
 parseFuncParams (_:Ident _:rest)       = parseParams [] rest
 parseFuncParams toks = throwError $ ParserError (TokensError toks)
 
@@ -118,7 +118,7 @@ parseParam toks = do
 
 
 parseParamValue :: [Token] -> ParserState (Tree, [Token])
-parseParamValue (Op Asterisk:rest) = parseExpression rest
+parseParamValue (OpTok Asterisk:rest) = parseExpression rest
 parseParamValue toks@(Ident _:_)   = parseExpression toks
 parseParamValue toks = throwError $ ParserError (TokensError toks)
 
@@ -300,11 +300,11 @@ parseOptAssign toks = do
 
 
 parseOptionalAssign :: [Token] -> ParserState (Maybe Tree, [Token])
-parseOptionalAssign toks@(_:Op op:_)
+parseOptionalAssign toks@(_:OpTok op:_)
         | Tokens.isAssign op = do
                 (tree, toks') <- parseExpression toks
                 pure (Just tree, toks')
-        | otherwise = throwError $ SyntaxError (UnexpectedToken (Op op))
+        | otherwise = throwError $ SyntaxError (UnexpectedToken (OpTok op))
 parseOptionalAssign toks = do
         toks' <- consumeTok toks
         pure (Nothing, toks')
@@ -314,15 +314,15 @@ parseExpression :: [Token] -> ParserState (Tree, [Token])
 parseExpression toks = do
         (tree, toks') <- parseTernaryExp toks
         case toks' of
-             (Op op:_)
+             (OpTok op:_)
                 | Tokens.isAssign op -> parseAssignExpression tree toks'
                 | otherwise ->
-                        throwError $ SyntaxError (UnexpectedToken (Op op))
+                        throwError $ SyntaxError (UnexpectedToken (OpTok op))
              _ -> pure (tree, toks')
 
 
 parseAssignExpression :: Tree -> [Token] -> ParserState (Tree, [Token])
-parseAssignExpression tree (Op op:rest) = do
+parseAssignExpression tree (OpTok op:rest) = do
                    (asgn, toks') <- parseExpression rest
                    let binOp = NewOps.tokToBinOp op
                    case tree of
@@ -394,7 +394,7 @@ parseFactor toks@(next:rest) =
                         then parseFuncCall toks
                         else pure (VarNode a, rest)
              Ampersand -> parseAddressOf rest
-             (Op op)
+             (OpTok op)
                 | op == Asterisk -> parseDereference rest
                 | Tokens.isUnary op -> do
                         (tree, toks') <- parseFactor rest
@@ -461,11 +461,11 @@ parsePassIn _ (a:_) _ = throwError $ SyntaxError (UnexpectedToken a)
 parseBinaryExp :: Tree
                -> [Token]
                -> ([Token] -> ParserState (Tree, [Token]))
-               -> [Operator]
+               -> [OpTok]
                -> ParserState (Tree, [Token])
 parseBinaryExp _ [] _ _ = throwError $ ParserError (TokensError [])
 parseBinaryExp _ _ _ [] = throwError ImpossibleError
-parseBinaryExp tree toks@(Op op:rest) f ops
+parseBinaryExp tree toks@(OpTok op:rest) f ops
         | op `elem` ops = do
                 (ntree, toks'') <- f rest
                 let binOp = NewOps.tokToBinOp op
@@ -519,7 +519,7 @@ consumeNToks n toks = do
 
 
 parseType :: [Token] -> ParserState Type
-parseType (Keyword Int:Op Asterisk:_) = pure IntPointer
+parseType (Keyword Int:OpTok Asterisk:_) = pure IntPointer
 parseType (Keyword Int:_)             = pure IntVar
 parseType (a:_) = throwError $ TypeError (InvalidType a)
 parseType toks = throwError $ ParserError (TokensError toks)

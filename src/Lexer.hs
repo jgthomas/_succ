@@ -14,7 +14,7 @@ import Data.Char (isAlpha, isDigit, isSpace)
 
 import Error     (CompilerError (ImpossibleError, LexerError), LexerError (..))
 import SuccState (SuccStateM, getState, putState, runSuccState, throwError)
-import Tokens    (Keyword (..), Operator (..), Token (..))
+import Tokens    (Keyword (..), OpTok (..), Token (..))
 
 
 type LexerState = SuccStateM [Token]
@@ -95,17 +95,17 @@ twoCharOperator :: String -> LexerState [Token]
 twoCharOperator []  = throwError ImpossibleError
 twoCharOperator [_] = throwError ImpossibleError
 twoCharOperator (c:n:cs) =
-        let tok | op == "||" = Op PipePipe
-                | op == "&&" = Op AmpAmp
-                | op == ">=" = Op RightArrowEquals
-                | op == "<=" = Op LeftArrowEquals
-                | op == "==" = Op EqualEqual
-                | op == "!=" = Op BangEqual
-                | op == "+=" = Op PlusEqual
-                | op == "-=" = Op MinusEqual
-                | op == "*=" = Op AsteriskEqual
-                | op == "/=" = Op BackSlashEqual
-                | op == "%=" = Op PercentEqual
+        let tok | op == "||" = OpTok PipePipe
+                | op == "&&" = OpTok AmpAmp
+                | op == ">=" = OpTok RightArrowEquals
+                | op == "<=" = OpTok LeftArrowEquals
+                | op == "==" = OpTok EqualEqual
+                | op == "!=" = OpTok BangEqual
+                | op == "+=" = OpTok PlusEqual
+                | op == "-=" = OpTok MinusEqual
+                | op == "*=" = OpTok AsteriskEqual
+                | op == "/=" = OpTok BackSlashEqual
+                | op == "%=" = OpTok PercentEqual
                 | otherwise  = Wut
                 where op = c:[n]
             in
@@ -115,16 +115,16 @@ twoCharOperator (c:n:cs) =
 operator :: String -> LexerState [Token]
 operator [] = throwError ImpossibleError
 operator (c:cs) =
-        let tok | c == '+'  = Op PlusSign
-                | c == '-'  = Op MinusSign
-                | c == '*'  = Op Asterisk
-                | c == '%'  = Op Percent
-                | c == '/'  = Op BackSlash
-                | c == '~'  = Op Tilde
-                | c == '!'  = Op Bang
-                | c == '>'  = Op RightArrow
-                | c == '<'  = Op LeftArrow
-                | c == '='  = Op EqualSign
+        let tok | c == '+'  = OpTok PlusSign
+                | c == '-'  = OpTok MinusSign
+                | c == '*'  = OpTok Asterisk
+                | c == '%'  = OpTok Percent
+                | c == '/'  = OpTok BackSlash
+                | c == '~'  = OpTok Tilde
+                | c == '!'  = OpTok Bang
+                | c == '>'  = OpTok RightArrow
+                | c == '<'  = OpTok LeftArrow
+                | c == '='  = OpTok EqualSign
                 | c == '&'  = Ampersand
                 | otherwise = Wut
             in

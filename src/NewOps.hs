@@ -2,7 +2,7 @@
 module NewOps where
 
 
-import Tokens
+import Tokens (OpTok (..))
 
 
 data Oper = UnaryOp UnaryOp
@@ -33,7 +33,7 @@ data UnaryOp = Negative
              deriving (Show, Eq)
 
 
-tokToBinOp :: Operator -> BinaryOp
+tokToBinOp :: OpTok -> BinaryOp
 tokToBinOp tok =
         case tok of
              PlusSign         -> Add
@@ -58,7 +58,7 @@ tokToBinOp tok =
              _                -> undefined
 
 
-tokToUnaryOp :: Operator -> UnaryOp
+tokToUnaryOp :: OpTok -> UnaryOp
 tokToUnaryOp tok =
         case tok of
              Bang      -> LogicNeg

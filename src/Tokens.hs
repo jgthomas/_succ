@@ -2,28 +2,57 @@
 module Tokens where
 
 
-data Operator = PlusSign
-              | MinusSign
-              | Asterisk
-              | BackSlash
-              | Percent
-              | Tilde
-              | Bang
-              | PipePipe
-              | AmpAmp
-              | RightArrow
-              | RightArrowEquals
-              | LeftArrow
-              | LeftArrowEquals
-              | EqualEqual
-              | BangEqual
-              | EqualSign
-              | PlusEqual
-              | MinusEqual
-              | AsteriskEqual
-              | BackSlashEqual
-              | PercentEqual
-              deriving (Show, Eq)
+data Token = OpenParen
+           | CloseParen
+           | OpenBrace
+           | CloseBrace
+           | SemiColon
+           | OpTok OpTok
+           | Ident String
+           | ConstInt Int
+           | Keyword Keyword
+           | Colon
+           | QuestMark
+           | Comma
+           | Ampersand
+           | Wut
+           deriving (Show, Eq)
+
+
+data Keyword = Int
+             | Return
+             | If
+             | Else
+             | For
+             | While
+             | Do
+             | Break
+             | Continue
+             deriving (Show, Eq)
+
+
+data OpTok = PlusSign
+           | MinusSign
+           | Asterisk
+           | BackSlash
+           | Percent
+           | Tilde
+           | Bang
+           | PipePipe
+           | AmpAmp
+           | RightArrow
+           | RightArrowEquals
+           | LeftArrow
+           | LeftArrowEquals
+           | EqualEqual
+           | BangEqual
+           | EqualSign
+           | PlusEqual
+           | MinusEqual
+           | AsteriskEqual
+           | BackSlashEqual
+           | PercentEqual
+           deriving (Show, Eq)
 
 
 data TokenType = Unary
@@ -37,15 +66,15 @@ data TokenType = Unary
                deriving (Eq)
 
 
-isUnary :: Operator -> Bool
+isUnary :: OpTok -> Bool
 isUnary op = op `elem` kind Unary
 
 
-isAssign :: Operator -> Bool
+isAssign :: OpTok -> Bool
 isAssign op = op `elem` kind Assign
 
 
-kind :: TokenType -> [Operator]
+kind :: TokenType -> [OpTok]
 kind tokTyp =
         case tokTyp of
              Unary      -> [MinusSign,
@@ -70,32 +99,3 @@ kind tokTyp =
                             AsteriskEqual,
                             BackSlashEqual,
                             PercentEqual]
-
-
-data Keyword = Int
-             | Return
-             | If
-             | Else
-             | For
-             | While
-             | Do
-             | Break
-             | Continue
-             deriving (Show, Eq)
-
-
-data Token = OpenParen
-           | CloseParen
-           | OpenBrace
-           | CloseBrace
-           | SemiColon
-           | Op Operator
-           | Ident String
-           | ConstInt Int
-           | Keyword Keyword
-           | Colon
-           | QuestMark
-           | Comma
-           | Ampersand
-           | Wut
-           deriving (Show, Eq)

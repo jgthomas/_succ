@@ -3,7 +3,7 @@ module Error where
 
 
 import AST    (Tree)
-import Tokens (Keyword, Operator, Token)
+import Tokens (Keyword, OpTok, Token)
 import Type   (Type)
 
 
@@ -46,7 +46,7 @@ data SyntaxError = InvalidIdentifier Token
                  | Unexpected Tree
                  | MisMatch Int Tree
                  | InvalidCall Tree
-                 | UnexpectedOp Operator
+                 | UnexpectedOp OpTok
                  deriving (Show, Eq)
 
 
