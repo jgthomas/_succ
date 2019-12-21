@@ -337,13 +337,12 @@ parseAssignExpression _ toks = throwError $ ParserError (TokensError toks)
 parseTernaryExp :: [Token] -> ParserState (Tree, [Token])
 parseTernaryExp toks = do
         (cond, toks') <- parseLogicalOrExp toks
-        case lookAhead toks' of
-             QuestMark -> do
-                     toks''             <- verifyAndConsume QuestMark toks'
-                     (expr1, toks''')   <- parseExpression toks''
-                     toks''''           <- verifyAndConsume Colon toks'''
-                     (expr2, toks''''') <- parseTernaryExp toks''''
-                     pure (TernaryNode cond expr1 expr2, toks''''')
+        case toks' of
+             (QuestMark:rest) -> do
+                     (expr1, toks'')   <- parseExpression rest
+                     toks'''           <- verifyAndConsume Colon toks''
+                     (expr2, toks'''') <- parseTernaryExp toks'''
+                     pure (TernaryNode cond expr1 expr2, toks'''')
              _ -> pure (cond, toks')
 
 
@@ -545,7 +544,3 @@ nullExpr toks = pure (NullExprNode, toks)
 
 validType :: Keyword -> Bool
 validType kwd = kwd == Int
-
-lookAhead :: [Token] -> Token
-lookAhead []    = Wut
-lookAhead (c:_) = c
