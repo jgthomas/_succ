@@ -117,7 +117,7 @@ operator [] = throwError ImpossibleError
 operator (c:cs) =
         let tok | c == '+'  = Op PlusSign
                 | c == '-'  = Op MinusSign
-                | c == '*'  = Op Multiply
+                | c == '*'  = Op Asterisk
                 | c == '%'  = Op Modulo
                 | c == '/'  = Op Divide
                 | c == '~'  = Op BitwiseCompl

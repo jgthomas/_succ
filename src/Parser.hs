@@ -63,7 +63,7 @@ parseTopLevelItem toks                     = parseDeclaration toks
 parseDeclaration :: [Token] -> ParserState (Tree, [Token])
 parseDeclaration []  = throwError ImpossibleError
 parseDeclaration [a] = throwError $ ParserError (TokensError [a])
-parseDeclaration toks@(_:Op Multiply:_) = parsePointerDec toks
+parseDeclaration toks@(_:Op Asterisk:_) = parsePointerDec toks
 parseDeclaration toks@(_:Ident name:_) = do
         varType        <- parseType toks
         toks'          <- consumeTok toks
@@ -88,7 +88,7 @@ parseFuncName _                  = throwError $ SyntaxError MissingIdentifier
 
 
 parseFuncParams :: [Token] -> ParserState ([Tree], [Token])
-parseFuncParams (_:Op Multiply:_:rest) = parseParams [] rest
+parseFuncParams (_:Op Asterisk:_:rest) = parseParams [] rest
 parseFuncParams (_:Ident _:rest)       = parseParams [] rest
 parseFuncParams toks = throwError $ ParserError (TokensError toks)
 
@@ -117,7 +117,7 @@ parseParam toks = do
 
 
 parseParamValue :: [Token] -> ParserState (Tree, [Token])
-parseParamValue (Op Multiply:rest) = parseExpression rest
+parseParamValue (Op Asterisk:rest) = parseExpression rest
 parseParamValue toks@(Ident _:_)   = parseExpression toks
 parseParamValue toks = throwError $ ParserError (TokensError toks)
 
@@ -380,7 +380,7 @@ parseAdditiveExp toks = do
 parseTerm :: [Token] -> ParserState (Tree, [Token])
 parseTerm toks = do
         (facTree, toks') <- parseFactor toks
-        parseBinaryExp facTree toks' parseFactor [Multiply,Divide,Modulo]
+        parseBinaryExp facTree toks' parseFactor [Asterisk,Divide,Modulo]
 
 
 parseFactor :: [Token] -> ParserState (Tree, [Token])
@@ -395,7 +395,7 @@ parseFactor toks@(next:rest) =
                         else pure (VarNode a, rest)
              Ampersand -> parseAddressOf rest
              (Op op)
-                | op == Multiply  -> parseDereference rest
+                | op == Asterisk -> parseDereference rest
                 | op `elem` Tokens.unary -> do
                         (tree, toks') <- parseFactor rest
                         let unOp = NewOps.tokToUnaryOp op
@@ -529,7 +529,7 @@ consumeNToks n toks = do
 
 
 parseType :: [Token] -> ParserState Type
-parseType (Keyword Int:Op Multiply:_) = pure IntPointer
+parseType (Keyword Int:Op Asterisk:_) = pure IntPointer
 parseType (Keyword Int:_)             = pure IntVar
 parseType (a:_) = throwError $ TypeError (InvalidType a)
 parseType toks = throwError $ ParserError (TokensError toks)

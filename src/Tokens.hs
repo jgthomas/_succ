@@ -4,7 +4,7 @@ module Tokens where
 
 data Operator = PlusSign
               | MinusSign
-              | Multiply
+              | Asterisk
               | Divide
               | Modulo
               | BitwiseCompl
