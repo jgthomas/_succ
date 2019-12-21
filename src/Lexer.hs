@@ -50,15 +50,15 @@ lexInput input@(c:cs) =
 separator :: String -> LexerState [Token]
 separator [] = throwError ImpossibleError
 separator (c:cs) =
-        let tok | c == '('  = TokOpenParen
-                | c == ')'  = TokCloseParen
-                | c == '{'  = TokOpenBrace
-                | c == '}'  = TokCloseBrace
-                | c == ';'  = TokSemiColon
-                | c == ':'  = TokColon
-                | c == '?'  = TokQuestMark
-                | c == ','  = TokComma
-                | otherwise = TokWut
+        let tok | c == '('  = OpenParen
+                | c == ')'  = CloseParen
+                | c == '{'  = OpenBrace
+                | c == '}'  = CloseBrace
+                | c == ';'  = SemiColon
+                | c == ':'  = Colon
+                | c == '?'  = QuestMark
+                | c == ','  = Comma
+                | otherwise = Wut
             in
         updateLexerState tok cs
 
@@ -67,16 +67,16 @@ identifier :: String -> LexerState [Token]
 identifier [] = throwError ImpossibleError
 identifier (c:cs) =
         let (str, cs') = span isValidInIdentifier cs
-            tok | kwd == "int"      = TokKeyword Int
-                | kwd == "return"   = TokKeyword Return
-                | kwd == "if"       = TokKeyword If
-                | kwd == "else"     = TokKeyword Else
-                | kwd == "for"      = TokKeyword For
-                | kwd == "while"    = TokKeyword While
-                | kwd == "do"       = TokKeyword Do
-                | kwd == "break"    = TokKeyword Break
-                | kwd == "continue" = TokKeyword Continue
-                | otherwise         = TokIdent (c:str)
+            tok | kwd == "int"      = Keyword Int
+                | kwd == "return"   = Keyword Return
+                | kwd == "if"       = Keyword If
+                | kwd == "else"     = Keyword Else
+                | kwd == "for"      = Keyword For
+                | kwd == "while"    = Keyword While
+                | kwd == "do"       = Keyword Do
+                | kwd == "break"    = Keyword Break
+                | kwd == "continue" = Keyword Continue
+                | otherwise         = Ident (c:str)
                 where kwd = c:str
             in
         updateLexerState tok cs'
@@ -86,7 +86,7 @@ number :: String -> LexerState [Token]
 number [] = throwError ImpossibleError
 number (c:cs) =
         let (digs, cs') = span isDigit cs
-            tok         = TokConstInt (read (c:digs))
+            tok         = ConstInt (read (c:digs))
             in
         updateLexerState tok cs'
 
@@ -95,18 +95,18 @@ twoCharOperator :: String -> LexerState [Token]
 twoCharOperator []  = throwError ImpossibleError
 twoCharOperator [_] = throwError ImpossibleError
 twoCharOperator (c:n:cs) =
-        let tok | op == "||" = TokOp LogicalOR
-                | op == "&&" = TokOp LogicalAND
-                | op == ">=" = TokOp GreaterThanOrEqual
-                | op == "<=" = TokOp LessThanOrEqual
-                | op == "==" = TokOp Equal
-                | op == "!=" = TokOp NotEqual
-                | op == "+=" = TokOp PlusAssign
-                | op == "-=" = TokOp MinusAssign
-                | op == "*=" = TokOp MultiplyAssign
-                | op == "/=" = TokOp DivideAssign
-                | op == "%=" = TokOp ModuloAssign
-                | otherwise  = TokWut
+        let tok | op == "||" = Op LogicalOR
+                | op == "&&" = Op LogicalAND
+                | op == ">=" = Op GreaterThanOrEqual
+                | op == "<=" = Op LessThanOrEqual
+                | op == "==" = Op Equal
+                | op == "!=" = Op NotEqual
+                | op == "+=" = Op PlusAssign
+                | op == "-=" = Op MinusAssign
+                | op == "*=" = Op MultiplyAssign
+                | op == "/=" = Op DivideAssign
+                | op == "%=" = Op ModuloAssign
+                | otherwise  = Wut
                 where op = c:[n]
             in
         updateLexerState tok cs
@@ -115,18 +115,18 @@ twoCharOperator (c:n:cs) =
 operator :: String -> LexerState [Token]
 operator [] = throwError ImpossibleError
 operator (c:cs) =
-        let tok | c == '+'  = TokOp Plus
-                | c == '-'  = TokOp Minus
-                | c == '*'  = TokOp Multiply
-                | c == '%'  = TokOp Modulo
-                | c == '/'  = TokOp Divide
-                | c == '~'  = TokOp BitwiseCompl
-                | c == '!'  = TokOp LogicNegation
-                | c == '>'  = TokOp GreaterThan
-                | c == '<'  = TokOp LessThan
-                | c == '='  = TokOp Assign
-                | c == '&'  = TokOp Ampersand
-                | otherwise = TokWut
+        let tok | c == '+'  = Op Plus
+                | c == '-'  = Op Minus
+                | c == '*'  = Op Multiply
+                | c == '%'  = Op Modulo
+                | c == '/'  = Op Divide
+                | c == '~'  = Op BitwiseCompl
+                | c == '!'  = Op LogicNegation
+                | c == '>'  = Op GreaterThan
+                | c == '<'  = Op LessThan
+                | c == '='  = Op Assign
+                | c == '&'  = Op Ampersand
+                | otherwise = Wut
             in
         updateLexerState tok cs
 
@@ -135,7 +135,7 @@ updateLexerState :: Token -> String -> LexerState [Token]
 updateLexerState tok input = do
         lexOut <- getState
         case tok of
-             TokWut -> throwError ImpossibleError
+             Wut -> throwError ImpossibleError
              _      -> do
                      putState (tok:lexOut)
                      lexInput input

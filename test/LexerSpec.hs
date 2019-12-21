@@ -14,16 +14,16 @@ lexerTest :: IO ()
 lexerTest = hspec $ do
         describe "lex tokens" $ do
                 it "simple token of a single variable" $
-                  fromRight [] (tokenize "int a;") `shouldBe` [TokKeyword Int,TokIdent "a",TokSemiColon]
+                  fromRight [] (tokenize "int a;") `shouldBe` [Keyword Int,Ident "a",SemiColon]
 
                 it "should be a two-character operator then a single one I" $
-                  fromRight [] (tokenize "+=+") `shouldBe` [TokOp PlusAssign,TokOp Plus]
+                  fromRight [] (tokenize "+=+") `shouldBe` [Op PlusAssign,Op Plus]
 
                 it "should be a two character operator then a single one II" $
-                  fromRight [] (tokenize "+==") `shouldBe` [TokOp PlusAssign,TokOp Assign]
+                  fromRight [] (tokenize "+==") `shouldBe` [Op PlusAssign,Op Assign]
 
                 it "should be two of the SAME two-character operators" $
-                  fromRight [] (tokenize "+=+=") `shouldBe` [TokOp PlusAssign,TokOp PlusAssign]
+                  fromRight [] (tokenize "+=+=") `shouldBe` [Op PlusAssign,Op PlusAssign]
 
                 it "should throw error for unrecognised character" $
                   fromLeft ImpossibleError (tokenize "$") `shouldBe` LexerError (BadInput "$")

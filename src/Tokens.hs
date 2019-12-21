@@ -43,19 +43,19 @@ data Keyword = Int
              deriving (Show, Eq)
 
 
-data Token = TokOpenParen
-           | TokCloseParen
-           | TokOpenBrace
-           | TokCloseBrace
-           | TokSemiColon
-           | TokOp Operator
-           | TokIdent String
-           | TokConstInt Int
-           | TokKeyword Keyword
-           | TokEnd
-           | TokColon
-           | TokQuestMark
-           | TokComma
-           | TokSpace
-           | TokWut
+data Token = OpenParen
+           | CloseParen
+           | OpenBrace
+           | CloseBrace
+           | SemiColon
+           | Op Operator
+           | Ident String
+           | ConstInt Int
+           | Keyword Keyword
+           | End
+           | Colon
+           | QuestMark
+           | Comma
+           | Space
+           | Wut
            deriving (Show, Eq)

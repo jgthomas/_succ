@@ -16,14 +16,14 @@ parserTest :: IO ()
 parserTest = hspec $ do
         describe "Parse tokens to AST" $ do
                 it "Should parse valid variable declaration" $
-                  fromRight (ProgramNode []) (parse [TokKeyword Int, TokIdent "a", TokSemiColon])
+                  fromRight (ProgramNode []) (parse [Keyword Int, Ident "a", SemiColon])
                   `shouldBe`
                   (ProgramNode [DeclarationNode "a" IntVar Nothing])
 
                 it "Should throw error on invalid variable identifier" $
-                  fromLeft ImpossibleError (parse [TokKeyword Int, TokOpenBrace, TokSemiColon])
+                  fromLeft ImpossibleError (parse [Keyword Int, OpenBrace, SemiColon])
                   `shouldBe`
-                  (SyntaxError (InvalidIdentifier TokOpenBrace))
+                  (SyntaxError (InvalidIdentifier OpenBrace))
 
                 it "Should throw error on empty input" $
                   fromLeft ImpossibleError (parse [])
@@ -31,44 +31,44 @@ parserTest = hspec $ do
                   ParserError (TokensError [])
 
                 it "Should throw error on invalid type" $
-                  fromLeft ImpossibleError (parse [TokKeyword Break, TokIdent "a", TokSemiColon])
+                  fromLeft ImpossibleError (parse [Keyword Break, Ident "a", SemiColon])
                   `shouldBe`
-                  (TypeError (InvalidType  (TokKeyword Break)))
+                  (TypeError (InvalidType  (Keyword Break)))
 
                 it "Should throw error if semicolon not final token" $
-                  fromLeft ImpossibleError (parse [TokKeyword Int, TokIdent "a", TokWut])
+                  fromLeft ImpossibleError (parse [Keyword Int, Ident "a", Wut])
                   `shouldBe`
-                  SyntaxError (MissingToken TokSemiColon)
+                  SyntaxError (MissingToken SemiColon)
 
                 it "Should correctly parse a simple function" $
-                  fromRight (ProgramNode []) (parse [TokKeyword Int,
-                                                     TokIdent "main",
-                                                     TokOpenParen,
-                                                     TokCloseParen,
-                                                     TokOpenBrace,
-                                                     TokKeyword Return,
-                                                     TokConstInt 2,
-                                                     TokSemiColon,
-                                                     TokCloseBrace])
+                  fromRight (ProgramNode []) (parse [Keyword Int,
+                                                     Ident "main",
+                                                     OpenParen,
+                                                     CloseParen,
+                                                     OpenBrace,
+                                                     Keyword Return,
+                                                     ConstInt 2,
+                                                     SemiColon,
+                                                     CloseBrace])
                   `shouldBe`
                   (ProgramNode [FunctionNode IntVar "main" [] (Just [ReturnNode (ConstantNode 2)])])
 
                 it "Should parse valid variable assignment" $
-                  fromRight (ProgramNode []) (parse [TokKeyword Int,
-                                                     TokIdent "a",
-                                                     TokOp Assign,
-                                                     TokConstInt 10,
-                                                     TokSemiColon])
+                  fromRight (ProgramNode []) (parse [Keyword Int,
+                                                     Ident "a",
+                                                     Op Assign,
+                                                     ConstInt 10,
+                                                     SemiColon])
                   `shouldBe`
                   (ProgramNode [DeclarationNode "a" IntVar (Just (AssignmentNode "a" (ConstantNode 10) Assign))])
 
                 it "Should parse valid function declarations" $
-                  fromRight (ProgramNode []) (parse [TokKeyword Int,
-                                                     TokIdent "cat",
-                                                     TokOpenParen,
-                                                     TokKeyword Int,
-                                                     TokIdent "a",
-                                                     TokCloseParen,
-                                                     TokSemiColon])
+                  fromRight (ProgramNode []) (parse [Keyword Int,
+                                                     Ident "cat",
+                                                     OpenParen,
+                                                     Keyword Int,
+                                                     Ident "a",
+                                                     CloseParen,
+                                                     SemiColon])
                   `shouldBe`
                   (ProgramNode [FunctionNode IntVar "cat" [ParamNode IntVar (VarNode "a")] Nothing])
