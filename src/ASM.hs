@@ -36,14 +36,14 @@ import GenTokens (Jump (..), Register (..), Section (..), Set (..))
 import Operator  (BinaryOp (..), UnaryOp (..))
 
 
--- Functions
-
+-- | Output asm for a function
 function :: String -> String -> String
 function name stmts =
         functionName name
         ++ stmts
 
 
+-- | Output asm for a main function with no explicit return value
 mainNoReturn :: String -> String -> String
 mainNoReturn name stmts =
         function name stmts
@@ -60,6 +60,7 @@ functionName funcName =
         ++ saveRegisters allScratch
 
 
+-- | Output asm for a return statement
 returnStatement :: String
 returnStatement =
         restoreRegisters allScratch
@@ -77,6 +78,7 @@ restoreBasePointer = move (reg RBP) (reg RSP)
                      ++ pop (reg RBP)
 
 
+-- | Output asm for a function call
 functionCall :: String -> String -> String
 functionCall name args =
         saveCallerRegisters
@@ -85,23 +87,18 @@ functionCall name args =
         ++ restoreCallerRegisters
 
 
--- Variables
-
-loadVariable :: Maybe Int -> Maybe Int -> Maybe String -> String
-loadVariable (Just off) _ _ = varOffStack off
-loadVariable _ (Just pos) _ = getFromRegister pos
-loadVariable _ _ (Just lab) = loadGlobal lab
-loadVariable _ _ _          = undefined
 
 
 -- Declarations and assignments
 
+-- | Output asm for a declaration with no assignment
 decNoAssign :: Int -> Int -> String
 decNoAssign off adj =
         loadValue 0
         ++ declare off adj
 
 
+-- | Output asm for an assignment
 assign :: String -> Int -> Int -> String
 assign toAssign off adj =
         toAssign
@@ -114,7 +111,13 @@ declare off adj =
         ++ adjustStackPointer adj
 
 
--- Local variables
+-- | Load a variable value
+loadVariable :: Maybe Int -> Maybe Int -> Maybe String -> String
+loadVariable (Just off) _ _ = varOffStack off
+loadVariable _ (Just pos) _ = getFromRegister pos
+loadVariable _ _ (Just lab) = loadGlobal lab
+loadVariable _ _ _          = undefined
+
 
 loadValue :: Int -> String
 loadValue n = move (literalValue n) (reg RAX)
@@ -134,8 +137,7 @@ adjustStackPointer offset =
         ++ sub (literalValue offset) (reg RSP)
 
 
--- Statements
-
+-- | Output asm for while loop
 while :: String -> String -> Int -> Int -> String
 while test body loopLab testLab =
         emitLabel loopLab
@@ -147,6 +149,7 @@ while test body loopLab testLab =
         ++ emitLabel testLab
 
 
+-- | Output asm for do while loop
 doWhile :: String -> String -> Int -> Int -> Int -> String
 doWhile body test loopLab contLab testLab =
         emitLabel loopLab
@@ -159,6 +162,7 @@ doWhile body test loopLab contLab testLab =
         ++ emitLabel testLab
 
 
+-- | Output asm for a for loop
 forLoop :: String
         -> String
         -> String
@@ -181,12 +185,14 @@ forLoop inits test iter body trueLab falseLab contLab =
 
 
 
+-- | Output asm for a simple if statement
 ifOnly :: String -> String -> Int -> String
 ifOnly test action testLab =
         ifStart test action testLab
         ++ emitLabel testLab
 
 
+-- | Output asm for an if statement with an else clause
 ifElse :: String -> String -> Int -> String -> Int -> String
 ifElse test action testLab elseAction nextLab =
         ifStart test action testLab
@@ -204,8 +210,7 @@ ifStart test action testLab =
         ++ action
 
 
--- Operators
-
+-- | Output asm for the ternary operator
 ternary :: String -> String -> String -> Int -> Int -> String
 ternary test true false trueLab falseLab =
         test
@@ -218,6 +223,7 @@ ternary test true false trueLab falseLab =
         ++ emitLabel trueLab
 
 
+-- | Output asm for unary operators
 unary :: UnaryOp -> String
 unary unOp =
         case unOp of
@@ -229,6 +235,7 @@ unary unOp =
                           ++ setBitIf Equ
 
 
+-- | Output asm for binary operators
 binary :: String -> String -> BinaryOp -> Int -> Int -> String
 binary load1 load2 binOp lab1 lab2 =
         case binOp of
