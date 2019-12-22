@@ -10,6 +10,7 @@ module ASM
          binary,
          ternary,
          functionCall,
+         while,
          testResult,
          emitJump,
          emitLabel,
@@ -94,6 +95,19 @@ adjustStackPointer :: Int -> String
 adjustStackPointer offset =
         move (reg RBP) (reg RSP)
         ++ sub (literalValue offset) (reg RSP)
+
+
+-- Statements
+
+while :: String -> String -> Int -> Int -> String
+while test body loopLab testLab =
+        emitLabel loopLab
+        ++ test
+        ++ testResult
+        ++ emitJump JE testLab
+        ++ body
+        ++ emitJump JMP loopLab
+        ++ emitLabel testLab
 
 
 -- Operators
