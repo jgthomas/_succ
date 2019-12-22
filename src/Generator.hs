@@ -352,11 +352,10 @@ hasReturn items =
 
 
 processArgs :: [Tree] -> Int -> [String] -> GenState String
-processArgs argList argPos argASM
-        | null argList = pure $ concat argASM
-        | otherwise    = do
-                asm <- processArg argPos $ head argList
-                processArgs (tail argList) (argPos+1) (argASM ++ [asm])
+processArgs [] _ argASM = pure . concat . reverse $ argASM
+processArgs (arg:rest) argPos argASM = do
+        asm <- processArg argPos arg
+        processArgs rest (succ argPos) (asm:argASM)
 
 
 processArg :: Int -> Tree -> GenState String
