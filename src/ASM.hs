@@ -180,7 +180,6 @@ forLoop inits test iter body trueLab falseLab contLab =
         ++ emitLabel falseLab
 
 
-
 -- | Output asm for a simple if statement
 ifOnly :: String -> String -> Int -> String
 ifOnly test action testLab =
