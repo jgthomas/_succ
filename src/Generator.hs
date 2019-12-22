@@ -313,10 +313,8 @@ checkIfFunction tree = throwError $ SyntaxError (Unexpected tree)
 
 
 genAssignment :: Maybe Tree -> GenState String
-genAssignment toAssign =
-        case toAssign of
-             Nothing     -> pure ASM.noOutput
-             Just assign -> genASM assign
+genAssignment Nothing  = pure ASM.noOutput
+genAssignment (Just t) = genASM t
 
 
 mkGlobLabel :: String -> Int -> String
