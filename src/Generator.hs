@@ -76,26 +76,17 @@ genASM (CompoundStmtNode blockItems) = do
 
 genASM (ForLoopNode ini test iter block) = do
         SymTab.initScope
-        passLabel     <- SymTab.labelNum
-        failLabel     <- SymTab.labelNum
-        continueLabel <- SymTab.labelNum
+        passLabel <- SymTab.labelNum
+        failLabel <- SymTab.labelNum
+        contLabel <- SymTab.labelNum
         SymTab.setBreak failLabel
-        SymTab.setContinue continueLabel
+        SymTab.setContinue contLabel
         inits <- genASM ini
         tests <- genASM test
         iters <- genASM iter
         body  <- genASM block
         SymTab.closeScope
-        pure $ inits
-                 ++ ASM.emitLabel passLabel
-                 ++ tests
-                 ++ ASM.testResult
-                 ++ ASM.emitJump JE failLabel
-                 ++ body
-                 ++ ASM.emitLabel continueLabel
-                 ++ iters
-                 ++ ASM.emitJump JMP passLabel
-                 ++ ASM.emitLabel failLabel
+        pure $ ASM.forLoop inits tests iters body passLabel failLabel contLabel
 
 genASM (WhileNode test whileBlock) = do
         loopLabel <- SymTab.labelNum

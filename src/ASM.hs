@@ -14,6 +14,7 @@ module ASM
          doWhile,
          ifOnly,
          ifElse,
+         forLoop,
          testResult,
          emitJump,
          emitLabel,
@@ -123,6 +124,28 @@ doWhile body test loopLab contLab testLab =
         ++ emitJump JE testLab
         ++ emitJump JMP loopLab
         ++ emitLabel testLab
+
+
+forLoop :: String
+        -> String
+        -> String
+        -> String
+        -> Int
+        -> Int
+        -> Int
+        -> String
+forLoop inits test iter body trueLab falseLab contLab =
+        inits
+        ++ emitLabel trueLab
+        ++ test
+        ++ testResult
+        ++ emitJump JE falseLab
+        ++ body
+        ++ emitLabel contLab
+        ++ iter
+        ++ emitJump JMP trueLab
+        ++ emitLabel falseLab
+
 
 
 ifOnly :: String -> String -> Int -> String
