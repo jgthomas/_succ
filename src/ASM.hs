@@ -8,6 +8,7 @@ module ASM
          adjustStackPointer,
          unary,
          binary,
+         ternary,
          testResult,
          emitJump,
          emitLabel,
@@ -89,7 +90,23 @@ adjustStackPointer offset =
         ++ sub (literalValue offset) (reg RSP)
 
 
+-- Statements
+
+
+
 -- Operators
+
+ternary :: String -> String -> String -> Int -> Int -> String
+ternary test true false trueLab falseLab =
+        test
+        ++ testResult
+        ++ emitJump JE falseLab
+        ++ true
+        ++ emitJump JMP trueLab
+        ++ emitLabel falseLab
+        ++ false
+        ++ emitLabel trueLab
+
 
 unary :: UnaryOp -> String
 unary unOp =

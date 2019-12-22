@@ -223,19 +223,11 @@ genASM (ReturnNode tree) = do
         pure $ rtn ++ ASM.returnStatement
 
 genASM (TernaryNode cond pass fails) = do
-        testVal    <- genASM cond
-        passAction <- genASM pass
-        failAction <- genASM fails
-        failLabel  <- SymTab.labelNum
-        passLabel  <- SymTab.labelNum
-        pure $ testVal
-                 ++ ASM.testResult
-                 ++ ASM.emitJump JE failLabel
-                 ++ passAction
-                 ++ ASM.emitJump JMP passLabel
-                 ++ ASM.emitLabel failLabel
-                 ++ failAction
-                 ++ ASM.emitLabel passLabel
+        testExp  <- genASM cond
+        true     <- genASM pass
+        false    <- genASM fails
+        falseLab <- SymTab.labelNum
+        ASM.ternary testExp true false falseLab <$> SymTab.labelNum
 
 genASM (BinaryNode left right op) = do
         lab1 <- SymTab.labelNum
