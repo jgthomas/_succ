@@ -96,11 +96,12 @@ adjustStackPointer offset =
 unary :: UnaryOp -> String
 unary unOp =
         case unOp of
-             Negative -> makeNegative (reg RAX)
-             BitComp  -> invertBits (reg RAX)
-             LogicNeg -> comp (literalValue 0) (reg RAX)
-                             ++ move (literalValue 0) (reg RAX)
-                             ++ setBitIf Equ
+             Negate      -> makeNegative (reg RAX)
+             BitwiseComp -> invertBits (reg RAX)
+             LogicalNeg  ->
+                     comp (literalValue 0) (reg RAX)
+                          ++ move (literalValue 0) (reg RAX)
+                          ++ setBitIf Equ
 
 
 binary :: String -> String -> BinaryOp -> String
