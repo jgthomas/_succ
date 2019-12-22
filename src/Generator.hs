@@ -238,11 +238,11 @@ genASM (TernaryNode cond pass fails) = do
                  ++ ASM.emitLabel passLabel
 
 genASM (BinaryNode left right op) = do
-        nextLabel <- SymTab.labelNum
-        endLabel  <- SymTab.labelNum
-        lft <- genASM left
-        rgt <- genASM right
-        pure $ ASM.binary lft rgt op nextLabel endLabel
+        lab1 <- SymTab.labelNum
+        lab2 <- SymTab.labelNum
+        lft  <- genASM left
+        rgt  <- genASM right
+        pure $ ASM.binary lft rgt op lab1 lab2
 
 genASM (UnaryNode tree op) = do
         unode <- genASM tree
