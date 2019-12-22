@@ -256,7 +256,6 @@ parseIfStatement toks = do
         pure (IfNode test stmts possElse, toks''')
 
 
-
 parseConditionalParen :: [Token] -> ParserState (Tree, [Token])
 parseConditionalParen toks = do
         toks'             <- verifyAndConsume OpenParen toks
