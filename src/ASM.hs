@@ -15,7 +15,6 @@ module ASM
          ifOnly,
          ifElse,
          forLoop,
-         testResult,
          emitJump,
          emitLabel,
          putInRegister,
