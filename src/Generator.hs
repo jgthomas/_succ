@@ -58,7 +58,7 @@ genASM node@(FuncCallNode name argList) = do
         checkArguments paramCount node
         TypeCheck.typesMatch name argList
         validateCall node
-        argString <- processArgs argList 0 []
+        argString <- processArgs argList
         pure $ ASM.functionCall name argString
 
 genASM (ArgNode arg) = genASM arg
@@ -351,17 +351,14 @@ hasReturn items =
              _            -> False
 
 
-processArgs :: [Tree] -> Int -> [String] -> GenState String
-processArgs [] _ argASM = pure . concat . reverse $ argASM
-processArgs (arg:rest) argPos argASM = do
-        asm <- processArg argPos arg
-        processArgs rest (succ argPos) (asm:argASM)
+processArgs :: [Tree] -> GenState String
+processArgs args = concat <$> mapM processArg (zip args [0..])
 
 
-processArg :: Int -> Tree -> GenState String
-processArg argPos arg = do
+processArg :: (Tree, Int) -> GenState String
+processArg (arg, pos) = do
         argASM <- genASM arg
-        pure $ argASM ++ ASM.putInRegister argPos
+        pure $ argASM ++ ASM.putInRegister pos
 
 
 validateCall :: Tree -> GenState ()
