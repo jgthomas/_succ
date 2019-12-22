@@ -415,42 +415,12 @@ storeGlobal label =
 
 -- Pointers
 
+-- | Load a dereferenced pointer value
 derefLoad :: Maybe Int -> Maybe Int -> Maybe String -> String
 derefLoad (Just off) _ _ = derefLoadLocal off
 derefLoad _ (Just pos) _ = derefLoadParam pos
 derefLoad _ _ (Just lab) = derefLoadGlobal lab
 derefLoad _ _ _          = undefined
-
-
-derefStore :: Maybe Int -> Maybe Int -> Maybe String -> String
-derefStore (Just off) _ _ = derefStoreLocal off
-derefStore _ (Just pos) _ = derefStoreParam pos
-derefStore _ _ (Just lab) = derefStoreGlobal lab
-derefStore _ _ _          = undefined
-
-
-addressOf :: Maybe Int -> Maybe String -> String
-addressOf (Just off) _ = varAddressLoad off
-addressOf _ (Just lab) = varAddressLoadGlobal lab
-addressOf _ _          = undefined
-
-
-derefLoadParam :: Int -> String
-derefLoadParam r =
-        move (valueFromAddressIn . selectRegister $ r) (reg RAX)
-
-
-derefStoreParam :: Int -> String
-derefStoreParam r =
-        move (reg RAX) (addressIn . selectRegister $ r)
-
-
-varAddressLoad :: Int -> String
-varAddressLoad offset = loadAddOf (fromBasePointer offset) (reg RAX)
-
-
-varAddressStore :: Int -> String
-varAddressStore offset = move (reg RAX) (fromBasePointer offset)
 
 
 derefLoadLocal :: Int -> String
@@ -459,10 +429,9 @@ derefLoadLocal offset =
         ++ move (valueFromAddressIn scratch) (reg RAX)
 
 
-derefStoreLocal :: Int -> String
-derefStoreLocal offset =
-        move (fromBasePointer offset) scratch
-        ++ move (reg RAX) (addressIn scratch)
+derefLoadParam :: Int -> String
+derefLoadParam r =
+        move (valueFromAddressIn . selectRegister $ r) (reg RAX)
 
 
 derefLoadGlobal :: String -> String
@@ -471,16 +440,52 @@ derefLoadGlobal label =
         ++ move (valueFromAddressIn scratch) (reg RAX)
 
 
+-- | Store a dereferenced pointer value
+derefStore :: Maybe Int -> Maybe Int -> Maybe String -> String
+derefStore (Just off) _ _ = derefStoreLocal off
+derefStore _ (Just pos) _ = derefStoreParam pos
+derefStore _ _ (Just lab) = derefStoreGlobal lab
+derefStore _ _ _          = undefined
+
+
+derefStoreLocal :: Int -> String
+derefStoreLocal offset =
+        move (fromBasePointer offset) scratch
+        ++ move (reg RAX) (addressIn scratch)
+
+
+derefStoreParam :: Int -> String
+derefStoreParam r =
+        move (reg RAX) (addressIn . selectRegister $ r)
+
+
 derefStoreGlobal :: String -> String
 derefStoreGlobal label =
         move (fromInstructionPointer label) scratch
         ++ move (reg RAX) (addressIn scratch)
 
 
+-- | Load the address of a variable
+addressOf :: Maybe Int -> Maybe String -> String
+addressOf (Just off) _ = varAddressLoad off
+addressOf _ (Just lab) = varAddressLoadGlobal lab
+addressOf _ _          = undefined
+
+
+varAddressLoad :: Int -> String
+varAddressLoad offset = loadAddOf (fromBasePointer offset) (reg RAX)
+
+
 varAddressLoadGlobal :: String -> String
 varAddressLoadGlobal label = loadAddOf (fromInstructionPointer label) (reg RAX)
 
 
+-- | Store the address of a local variable
+varAddressStore :: Int -> String
+varAddressStore offset = move (reg RAX) (fromBasePointer offset)
+
+
+-- | Store the address of a global variable
 varAddressStoreGlobal :: String -> String
 varAddressStoreGlobal label = move (reg RAX) (fromInstructionPointer label)
 
