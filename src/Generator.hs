@@ -64,10 +64,7 @@ genASM node@(FuncCallNode name argList) = do
         TypeCheck.typesMatch name argList
         validateCall node
         argString <- processArgs argList 0 []
-        pure $ ASM.saveCallerRegisters
-                 ++ argString
-                 ++ ASM.makeFunctionCall name
-                 ++ ASM.restoreCallerRegisters
+        pure $ ASM.functionCall name argString
 
 genASM (ArgNode arg) = genASM arg
 

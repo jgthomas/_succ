@@ -9,15 +9,13 @@ module ASM
          unary,
          binary,
          ternary,
+         functionCall,
          testResult,
          emitJump,
          emitLabel,
-         makeFunctionCall,
          putInRegister,
          getFromRegister,
          selectRegister,
-         saveCallerRegisters,
-         restoreCallerRegisters,
          initializedGlobal,
          uninitializedGlobal,
          loadGlobal,
@@ -68,6 +66,14 @@ saveBasePointer = push (reg RBP)
 restoreBasePointer :: String
 restoreBasePointer = move (reg RBP) (reg RSP)
                      ++ pop (reg RBP)
+
+
+functionCall :: String -> String -> String
+functionCall name args =
+        saveCallerRegisters
+        ++ args
+        ++ makeFunctionCall name
+        ++ restoreCallerRegisters
 
 
 -- Local variables
