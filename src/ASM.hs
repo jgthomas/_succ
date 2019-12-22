@@ -87,10 +87,6 @@ functionCall name args =
         ++ restoreCallerRegisters
 
 
-
-
--- Declarations and assignments
-
 -- | Output asm for a declaration with no assignment
 decNoAssign :: Int -> Int -> String
 decNoAssign off adj =
