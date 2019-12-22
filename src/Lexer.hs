@@ -5,8 +5,6 @@ Description  : Tokenizes an input string
 Processes a string representing a program written in C into
 a list of tokens.
 -}
-{-# LANGUAGE MultiWayIf #-}
-
 module Lexer (tokenize) where
 
 

@@ -7,6 +7,7 @@ representing the C program.
 -}
 module Parser (parse) where
 
+
 import           Control.Monad (unless)
 
 import           AST           (Tree (..))
