@@ -350,9 +350,8 @@ checkIfDefined tree = throwError $ SyntaxError (Unexpected tree)
 
 
 globalVarASM :: String -> String -> String
-globalVarASM lab con
-        | con == "0" = ASM.uninitializedGlobal lab
-        | otherwise  = ASM.initializedGlobal lab con
+globalVarASM lab "0" = ASM.uninitializedGlobal lab
+globalVarASM lab val = ASM.initializedGlobal lab val
 
 
 -- Functions / function calls
