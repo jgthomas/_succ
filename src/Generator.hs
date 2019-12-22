@@ -41,16 +41,12 @@ genASM node@(FunctionNode _ name _ (Just stmts)) = do
         checkIfFuncDefined node
         declareFunction node
         SymTab.initFunction name
-        statements <- mapM genASM stmts
+        statements <- concat <$> mapM genASM stmts
         SymTab.closeFunction
         SymTab.defineFunction name
         if hasReturn stmts || name /= "main"
-           then pure $ ASM.functionName name
-                         ++ concat statements
-           else pure $ ASM.functionName name
-                         ++ concat statements
-                         ++ ASM.loadValue 0
-                         ++ ASM.returnStatement
+           then pure $ ASM.function name statements
+           else pure $ ASM.mainNoReturn name statements
 
 
 genASM (ParamNode typ (VarNode name)) = do

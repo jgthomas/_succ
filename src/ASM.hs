@@ -1,6 +1,7 @@
 
 module ASM
-        (functionName,
+        (function,
+         mainNoReturn,
          returnStatement,
          loadValue,
          varOnStack,
@@ -45,6 +46,19 @@ import Operator  (BinaryOp (..), UnaryOp (..))
 
 
 -- Functions
+
+function :: String -> String -> String
+function name stmts =
+        functionName name
+        ++ stmts
+
+
+mainNoReturn :: String -> String -> String
+mainNoReturn name stmts =
+        function name stmts
+        ++ loadValue 0
+        ++ returnStatement
+
 
 functionName :: String -> String
 functionName funcName =
