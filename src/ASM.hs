@@ -17,7 +17,6 @@ module ASM
          ifElse,
          forLoop,
          emitJump,
-         emitLabel,
          putInRegister,
          getFromRegister,
          initializedGlobal,
