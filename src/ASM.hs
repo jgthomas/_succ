@@ -11,6 +11,8 @@ module ASM
          binary,
          ternary,
          functionCall,
+         decNoAssign,
+         assign,
          while,
          doWhile,
          ifOnly,
@@ -90,6 +92,26 @@ functionCall name args =
         ++ args
         ++ makeFunctionCall name
         ++ restoreCallerRegisters
+
+
+-- Declarations and assignments
+
+decNoAssign :: Int -> Int -> String
+decNoAssign off adj =
+        loadValue 0
+        ++ declare off adj
+
+
+assign :: String -> Int -> Int -> String
+assign toAssign off adj =
+        toAssign
+        ++ declare off adj
+
+
+declare :: Int -> Int -> String
+declare off adj =
+        varOnStack off
+        ++ adjustStackPointer adj
 
 
 -- Local variables

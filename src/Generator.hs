@@ -133,10 +133,8 @@ genASM node@(DeclarationNode varName typ value) = do
                    offset <- SymTab.addVariable varName typ
                    adjust <- SymTab.stackPointerValue
                    case value of
-                        Just v  -> genASM v
-                        Nothing -> pure $ ASM.loadValue 0
-                                            ++ ASM.varOnStack offset
-                                            ++ ASM.adjustStackPointer adjust
+                        Just val -> genASM val
+                        Nothing  -> pure $ ASM.decNoAssign offset adjust
 
 genASM node@(AssignmentNode varName value op) = do
         TypeCheck.assignment varName value
