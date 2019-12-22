@@ -13,6 +13,7 @@ module ASM
          while,
          doWhile,
          ifOnly,
+         ifElse,
          testResult,
          emitJump,
          emitLabel,
@@ -128,6 +129,15 @@ ifOnly :: String -> String -> Int -> String
 ifOnly test action testLab =
         ifStart test action testLab
         ++ emitLabel testLab
+
+
+ifElse :: String -> String -> Int -> String -> Int -> String
+ifElse test action testLab elseAction nextLab =
+        ifStart test action testLab
+        ++ emitJump JMP nextLab
+        ++ emitLabel testLab
+        ++ elseAction
+        ++ emitLabel nextLab
 
 
 ifStart :: String -> String -> Int -> String

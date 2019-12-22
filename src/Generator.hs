@@ -117,22 +117,14 @@ genASM (DoWhileNode block test) = do
         pure $ ASM.doWhile body tests loopLabel contLabel testLabel
 
 genASM (IfNode test action possElse) = do
-        testVal  <- genASM test
-        ifAction <- genASM action
-        label    <- SymTab.labelNum
-        let ifLines = testVal
-                      ++ ASM.testResult
-                      ++ ASM.emitJump JE label
-                      ++ ifAction
+        testExp <- genASM test
+        ifAct   <- genASM action
+        label   <- SymTab.labelNum
         case possElse of
-             Nothing -> pure $ ASM.ifOnly testVal ifAction label--ifLines ++ ASM.emitLabel label
+             Nothing -> pure $ ASM.ifOnly testExp ifAct label
              Just e  -> do
-                     elseAction <- genASM e
-                     nextLabel  <- SymTab.labelNum
-                     pure $ ifLines
-                              ++ ASM.emitJump JMP nextLabel
-                              ++ ASM.emitLabel label
-                              ++ elseAction ++ ASM.emitLabel nextLabel
+                     elseAct <- genASM e
+                     ASM.ifElse testExp ifAct label elseAct <$> SymTab.labelNum
 
 genASM (PointerNode varName typ Nothing) =
         genASM (DeclarationNode varName typ Nothing)
