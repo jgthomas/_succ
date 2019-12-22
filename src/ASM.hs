@@ -11,6 +11,7 @@ module ASM
          ternary,
          functionCall,
          while,
+         doWhile,
          testResult,
          emitJump,
          emitLabel,
@@ -106,6 +107,18 @@ while test body loopLab testLab =
         ++ testResult
         ++ emitJump JE testLab
         ++ body
+        ++ emitJump JMP loopLab
+        ++ emitLabel testLab
+
+
+doWhile :: String -> String -> Int -> Int -> Int -> String
+doWhile body test loopLab contLab testLab =
+        emitLabel loopLab
+        ++ body
+        ++ emitLabel contLab
+        ++ test
+        ++ testResult
+        ++ emitJump JE testLab
         ++ emitJump JMP loopLab
         ++ emitLabel testLab
 
