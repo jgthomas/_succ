@@ -12,6 +12,7 @@ module ASM
          functionCall,
          while,
          doWhile,
+         ifOnly,
          testResult,
          emitJump,
          emitLabel,
@@ -121,6 +122,20 @@ doWhile body test loopLab contLab testLab =
         ++ emitJump JE testLab
         ++ emitJump JMP loopLab
         ++ emitLabel testLab
+
+
+ifOnly :: String -> String -> Int -> String
+ifOnly test action testLab =
+        ifStart test action testLab
+        ++ emitLabel testLab
+
+
+ifStart :: String -> String -> Int -> String
+ifStart test action testLab =
+        test
+        ++ testResult
+        ++ emitJump JE testLab
+        ++ action
 
 
 -- Operators

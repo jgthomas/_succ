@@ -125,7 +125,7 @@ genASM (IfNode test action possElse) = do
                       ++ ASM.emitJump JE label
                       ++ ifAction
         case possElse of
-             Nothing -> pure $ ifLines ++ ASM.emitLabel label
+             Nothing -> pure $ ASM.ifOnly testVal ifAction label--ifLines ++ ASM.emitLabel label
              Just e  -> do
                      elseAction <- genASM e
                      nextLabel  <- SymTab.labelNum
