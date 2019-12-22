@@ -126,7 +126,7 @@ operator (c:cs) =
              '-' -> pure (OpTok MinusSign, cs)
              '*' -> pure (OpTok Asterisk, cs)
              '%' -> pure (OpTok Percent, cs)
-             '/' -> pure (OpTok BackSlash, cs)
+             '/' -> pure (OpTok Backslash, cs)
              '~' -> pure (OpTok Tilde, cs)
              '!' -> pure (OpTok Bang, cs)
              '>' -> pure (OpTok RightArrow, cs)

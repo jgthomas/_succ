@@ -33,7 +33,7 @@ tokToBinOp tok =
         case tok of
              PlusSign        -> Plus
              MinusSign       -> Minus
-             BackSlash       -> Divide
+             Backslash       -> Divide
              Asterisk        -> Multiply
              Percent         -> Modulo
              EqualEqual      -> Equal

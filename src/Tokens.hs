@@ -32,7 +32,7 @@ data Keyword = Int
 data OpTok = PlusSign
            | MinusSign
            | Asterisk
-           | BackSlash
+           | Backslash
            | Percent
            | Tilde
            | Bang
@@ -74,7 +74,7 @@ kind tokTyp =
              LogicalOR  -> [PipePipe]
              LogicalAND -> [AmpAmp]
              Factor     -> [Asterisk,
-                            BackSlash,
+                            Backslash,
                             Percent]
              Term       -> [PlusSign,
                             MinusSign]
