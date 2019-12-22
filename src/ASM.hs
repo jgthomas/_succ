@@ -25,11 +25,9 @@ module ASM
          storeGlobal,
          varAddressLoad,
          varAddressStore,
-         derefLoadLocal,
+         dereference,
          derefStoreLocal,
-         derefLoadParam,
          derefStoreParam,
-         derefLoadGlobal,
          derefStoreGlobal,
          varAddressLoadGlobal,
          varAddressStoreGlobal,
@@ -412,6 +410,13 @@ storeGlobal label =
 
 
 -- Pointers
+
+dereference :: Maybe Int -> Maybe Int -> Maybe String -> String
+dereference (Just off) _ _ = derefLoadLocal off
+dereference _ (Just pos) _ = derefLoadParam pos
+dereference _ _ (Just lab) = derefLoadGlobal lab
+dereference _ _ _          = undefined
+
 
 derefLoadParam :: Int -> String
 derefLoadParam r =

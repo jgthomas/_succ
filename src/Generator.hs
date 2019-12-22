@@ -214,10 +214,9 @@ genASM node@(AddressOfNode varName) = do
 genASM node@(DereferenceNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
         case (offset, argPos, globLab) of
-             (Just off, _, _) -> pure . ASM.derefLoadLocal $ off
-             (_, Just pos, _) -> pure . ASM.derefLoadParam $ pos
-             (_, _, Just lab) -> pure . ASM.derefLoadGlobal $ lab
-             _                -> throwError $ SyntaxError (Unrecognised node)
+             (Nothing, Nothing, Nothing) ->
+                     throwError $ SyntaxError (Unrecognised node)
+             _ -> pure $ ASM.dereference offset argPos globLab
 
 genASM NullExprNode = pure ASM.noOutput
 
