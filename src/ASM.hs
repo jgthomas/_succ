@@ -20,7 +20,6 @@ module ASM
          emitLabel,
          putInRegister,
          getFromRegister,
-         selectRegister,
          initializedGlobal,
          uninitializedGlobal,
          loadGlobal,
@@ -317,12 +316,12 @@ makeFunctionCall :: String -> String
 makeFunctionCall funcName = call funcName
 
 
-putInRegister :: String -> String
-putInRegister r = move (reg RAX) r
+putInRegister :: Int -> String
+putInRegister r = move (reg RAX) (selectRegister r)
 
 
-getFromRegister :: String -> String
-getFromRegister r = move r (reg RAX)
+getFromRegister :: Int -> String
+getFromRegister r = move (selectRegister r) (reg RAX)
 
 
 selectRegister :: Int -> String

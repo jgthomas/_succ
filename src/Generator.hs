@@ -207,9 +207,9 @@ genASM node@(VarNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
         case (offset, argPos, globLab) of
              (Just off, _, _) -> pure . ASM.varOffStack $ off
-             (_, Just reg, _) -> pure . ASM.getFromRegister . ASM.selectRegister $ reg
+             (_, Just reg, _) -> pure . ASM.getFromRegister $ reg
              (_, _, Just lab) -> pure . ASM.loadGlobal $ lab
-             _ -> throwError $ SyntaxError (Unrecognised node)
+             _                -> throwError $ SyntaxError (Unrecognised node)
 
 genASM node@(AddressOfNode varName) = do
         (offset, _, globLab) <- checkVariableExists varName
@@ -373,7 +373,7 @@ processArgs argList argPos argASM
 processArg :: Int -> Tree -> GenState String
 processArg argPos arg = do
         argASM <- genASM arg
-        pure $ argASM ++ (ASM.putInRegister . ASM.selectRegister $ argPos)
+        pure $ argASM ++ ASM.putInRegister argPos
 
 
 validateCall :: Tree -> GenState ()
