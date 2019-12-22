@@ -4,7 +4,6 @@ module ASM
          mainNoReturn,
          returnStatement,
          loadValue,
-         varOffStack,
          unary,
          binary,
          ternary,
@@ -18,18 +17,16 @@ module ASM
          forLoop,
          emitJump,
          putInRegister,
-         getFromRegister,
          initializedGlobal,
          uninitializedGlobal,
-         loadGlobal,
          storeGlobal,
-         varAddressLoad,
          varAddressStore,
          dereference,
+         addressOf,
+         loadVariable,
          derefStoreLocal,
          derefStoreParam,
          derefStoreGlobal,
-         varAddressLoadGlobal,
          varAddressStoreGlobal,
          outputInit,
          allUninitialized,
@@ -88,6 +85,15 @@ functionCall name args =
         ++ args
         ++ makeFunctionCall name
         ++ restoreCallerRegisters
+
+
+-- Variables
+
+loadVariable :: Maybe Int -> Maybe Int -> Maybe String -> String
+loadVariable (Just off) _ _ = varOffStack off
+loadVariable _ (Just pos) _ = getFromRegister pos
+loadVariable _ _ (Just lab) = loadGlobal lab
+loadVariable _ _ _          = undefined
 
 
 -- Declarations and assignments
@@ -416,6 +422,12 @@ dereference (Just off) _ _ = derefLoadLocal off
 dereference _ (Just pos) _ = derefLoadParam pos
 dereference _ _ (Just lab) = derefLoadGlobal lab
 dereference _ _ _          = undefined
+
+
+addressOf :: Maybe Int -> Maybe String -> String
+addressOf (Just off) _ = varAddressLoad off
+addressOf _ (Just lab) = varAddressLoadGlobal lab
+addressOf _ _          = undefined
 
 
 derefLoadParam :: Int -> String

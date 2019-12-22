@@ -199,17 +199,16 @@ genASM (UnaryNode tree op) = do
 genASM node@(VarNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
         case (offset, argPos, globLab) of
-             (Just off, _, _) -> pure . ASM.varOffStack $ off
-             (_, Just reg, _) -> pure . ASM.getFromRegister $ reg
-             (_, _, Just lab) -> pure . ASM.loadGlobal $ lab
-             _                -> throwError $ SyntaxError (Unrecognised node)
+             (Nothing, Nothing, Nothing) ->
+                     throwError $ SyntaxError (Unrecognised node)
+             _ -> pure $ ASM.loadVariable offset argPos globLab
 
 genASM node@(AddressOfNode varName) = do
         (offset, _, globLab) <- checkVariableExists varName
         case (offset, globLab) of
-             (Just off, _) -> pure . ASM.varAddressLoad $ off
-             (_, Just lab) -> pure . ASM.varAddressLoadGlobal $ lab
-             _             -> throwError $ SyntaxError (Unrecognised node)
+             (Nothing, Nothing) ->
+                     throwError $ SyntaxError (Unrecognised node)
+             _ -> pure $ ASM.addressOf offset globLab
 
 genASM node@(DereferenceNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
