@@ -90,10 +90,6 @@ adjustStackPointer offset =
         ++ sub (literalValue offset) (reg RSP)
 
 
--- Statements
-
-
-
 -- Operators
 
 ternary :: String -> String -> String -> Int -> Int -> String
