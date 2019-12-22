@@ -409,11 +409,11 @@ processParameters name params = do
 
 
 hasReturn :: [Tree] -> Bool
-hasReturn items
-        | null items = False
-        | otherwise  = case last items of
-                            ReturnNode _ -> True
-                            _            -> False
+hasReturn [] = False
+hasReturn items =
+        case last items of
+             ReturnNode _ -> True
+             _            -> False
 
 
 processArgs :: [Tree] -> Int -> [String] -> GenState String
