@@ -92,11 +92,9 @@ identifier (c:cs) =
 
 number :: String -> LexerState (Token, String)
 number [] = throwError ImpossibleError
-number (c:cs) =
+number (c:cs) = do
         let (digs, cs') = span isDigit cs
-            tok         = ConstInt (read (c:digs))
-            in
-        pure (tok, cs')
+        pure (ConstInt $ read (c:digs), cs')
 
 
 twoCharOperator :: String -> LexerState (Token, String)
