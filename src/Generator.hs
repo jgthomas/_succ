@@ -242,13 +242,7 @@ genASM (BinaryNode left right op) = do
         endLabel  <- SymTab.labelNum
         lft <- genASM left
         rgt <- genASM right
-        case op of
-             LogicalOR  ->
-                     pure $ ASM.logicalOR lft rgt nextLabel endLabel
-             LogicalAND ->
-                     pure $ ASM.logicalAND lft rgt nextLabel endLabel
-             _        ->
-                     pure $ ASM.binary lft rgt op
+        pure $ ASM.binary lft rgt op nextLabel endLabel
 
 genASM (UnaryNode tree op) = do
         unode <- genASM tree

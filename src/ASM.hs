@@ -8,8 +8,6 @@ module ASM
          adjustStackPointer,
          unary,
          binary,
-         logicalOR,
-         logicalAND,
          testResult,
          emitJump,
          emitLabel,
@@ -104,8 +102,8 @@ unary unOp =
                           ++ setBitIf Equ
 
 
-binary :: String -> String -> BinaryOp -> String
-binary load1 load2 binOp =
+binary :: String -> String -> BinaryOp -> Int -> Int -> String
+binary load1 load2 binOp lab1 lab2 =
         case binOp of
              Plus        -> computeAdd load1 load2
              Minus       -> computeSub load1 load2
@@ -118,7 +116,9 @@ binary load1 load2 binOp =
              LessThan    -> comparison load1 load2 ++ setBitIf LThan
              GThanOrEqu  -> comparison load1 load2 ++ setBitIf GThanE
              LThanOrEqu  -> comparison load1 load2 ++ setBitIf LThanE
-             _           -> noOutput
+             LogicalOR   -> logicalOR load1 load2 lab1 lab2
+             LogicalAND  -> logicalAND load1 load2 lab1 lab2
+             Assignment  -> noOutput
 
 
 logicalOR :: String -> String -> Int -> Int -> String
