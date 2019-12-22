@@ -375,8 +375,7 @@ restoreCallerRegisters :: String
 restoreCallerRegisters = restoreRegisters params
 
 
--- Global variables
-
+-- | Output asm for an initialized global variable
 initializedGlobal :: String -> String -> String
 initializedGlobal label val =
         declareGlobl label
@@ -387,6 +386,7 @@ initializedGlobal label val =
         ++ section TEXT
 
 
+-- | Output asm for an uninitialized global variable
 uninitializedGlobal :: String -> String
 uninitializedGlobal label =
         declareGlobl label
@@ -396,6 +396,7 @@ uninitializedGlobal label =
         ++ section TEXT
 
 
+-- | Output asm for all uninitialized global variables
 allUninitialized :: [String] -> String
 allUninitialized vars = concatMap uninitializedGlobal vars
 
