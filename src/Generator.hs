@@ -154,10 +154,9 @@ genASM node@(AssignDereferenceNode varName value op) = do
         assign <- buildAssignmentASM (DereferenceNode varName) value op
         (offset, argPos, globLab) <- checkVariableExists varName
         case (offset, argPos, globLab) of
-             (Just off, _, _) -> pure $ assign ++ ASM.derefStoreLocal off
-             (_, Just pos, _) -> pure $ assign ++ ASM.derefStoreParam pos
-             (_, _, Just lab) -> pure $ assign ++ ASM.derefStoreGlobal lab
-             _                -> throwError $ SyntaxError (Undeclared node)
+             (Nothing, Nothing, Nothing) ->
+                     throwError $ SyntaxError (Undeclared node)
+             _ -> pure $ assign ++ ASM.derefStore offset argPos globLab
 
 genASM (ExprStmtNode expression) = genASM expression
 
@@ -215,7 +214,7 @@ genASM node@(DereferenceNode varName) = do
         case (offset, argPos, globLab) of
              (Nothing, Nothing, Nothing) ->
                      throwError $ SyntaxError (Unrecognised node)
-             _ -> pure $ ASM.dereference offset argPos globLab
+             _ -> pure $ ASM.derefLoad offset argPos globLab
 
 genASM NullExprNode = pure ASM.noOutput
 

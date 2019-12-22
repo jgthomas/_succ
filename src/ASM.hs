@@ -21,12 +21,10 @@ module ASM
          uninitializedGlobal,
          storeGlobal,
          varAddressStore,
-         dereference,
+         derefLoad,
+         derefStore,
          addressOf,
          loadVariable,
-         derefStoreLocal,
-         derefStoreParam,
-         derefStoreGlobal,
          varAddressStoreGlobal,
          outputInit,
          allUninitialized,
@@ -417,11 +415,18 @@ storeGlobal label =
 
 -- Pointers
 
-dereference :: Maybe Int -> Maybe Int -> Maybe String -> String
-dereference (Just off) _ _ = derefLoadLocal off
-dereference _ (Just pos) _ = derefLoadParam pos
-dereference _ _ (Just lab) = derefLoadGlobal lab
-dereference _ _ _          = undefined
+derefLoad :: Maybe Int -> Maybe Int -> Maybe String -> String
+derefLoad (Just off) _ _ = derefLoadLocal off
+derefLoad _ (Just pos) _ = derefLoadParam pos
+derefLoad _ _ (Just lab) = derefLoadGlobal lab
+derefLoad _ _ _          = undefined
+
+
+derefStore :: Maybe Int -> Maybe Int -> Maybe String -> String
+derefStore (Just off) _ _ = derefStoreLocal off
+derefStore _ (Just pos) _ = derefStoreParam pos
+derefStore _ _ (Just lab) = derefStoreGlobal lab
+derefStore _ _ _          = undefined
 
 
 addressOf :: Maybe Int -> Maybe String -> String
