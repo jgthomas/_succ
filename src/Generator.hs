@@ -48,7 +48,6 @@ genASM node@(FunctionNode _ name _ (Just stmts)) = do
            then pure $ ASM.function name statements
            else pure $ ASM.mainNoReturn name statements
 
-
 genASM (ParamNode typ (VarNode name)) = do
         SymTab.addParameter name typ
         pure ASM.noOutput
