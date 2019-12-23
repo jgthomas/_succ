@@ -615,16 +615,16 @@ emitJump j n =
 
 -- Directives
 
-data Section = TEXT
-             | DATA
-             | BSS
-             deriving (Eq)
-
 declareGlobl :: String -> String
 declareGlobl name = ".globl " ++ name ++ "\n"
 
 globlLabel :: String -> String
 globlLabel name = name ++ ":\n"
+
+data Section = TEXT
+             | DATA
+             | BSS
+             deriving (Eq)
 
 section :: Section -> String
 section sect =
