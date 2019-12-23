@@ -528,7 +528,7 @@ consumeNToks :: Int -> [Token] -> ParserState [Token]
 consumeNToks 0 toks = pure toks
 consumeNToks n toks = do
         toks' <- consumeTok toks
-        consumeNToks (n-1) toks'
+        consumeNToks (pred n) toks'
 
 
 parseType :: [Token] -> ParserState Type
