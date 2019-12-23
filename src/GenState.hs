@@ -7,6 +7,8 @@ State holder for the code generation stage of compilation.
 module GenState
         (GenState,
          mkSymTab,
+         runGenState,
+         throwError,
          getGlobalScope,
          putGlobalScope,
          getFuncStates,
@@ -19,10 +21,12 @@ module GenState
 
 import qualified Data.Map    as M
 
+import           Error       (CompilerError)
 import           GlobalScope (GlobalScope, mkGlobalScope)
 import           LocalScope  (FuncState)
 import           Stack       (Stack, mkStack)
-import           SuccState   (SuccStateM, getState, putState)
+import           SuccState   (SuccStateM, getState, putState, throwError)
+import qualified SuccState   (runSuccState)
 
 
 data SymTab = Tab { label       :: Int
@@ -39,6 +43,11 @@ type GenState = SuccStateM SymTab
 -- | State constructor
 mkSymTab :: SymTab
 mkSymTab = Tab 1 mkStack mkGlobalScope M.empty
+
+
+-- | Run the state extracting the error or result
+runGenState :: (t -> SuccStateM s a) -> t -> s -> Either CompilerError a
+runGenState f t s = SuccState.runSuccState f t s
 
 
 -- | Get the global scope state holder
