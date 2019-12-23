@@ -8,22 +8,18 @@ a list of tokens.
 module Lexer (tokenize) where
 
 
-import Data.Char (isAlpha, isDigit, isSpace)
+import           Data.Char (isAlpha, isDigit, isSpace)
 
-import Error     (CompilerError (ImpossibleError, LexerError), LexerError (..))
-import SuccState (SuccStateM, getState, putState, runSuccState, throwError)
-import Tokens    (Keyword (..), OpTok (..), Token (..))
-
-
-type LexerState = SuccStateM [Token]
-
-startState :: [Token]
-startState = []
+import           Error     (CompilerError (ImpossibleError, LexerError),
+                            LexerError (..))
+import           LexState  (LexerState, runLexState, throwError)
+import qualified LexState  (getState, putState, startState)
+import           Tokens    (Keyword (..), OpTok (..), Token (..))
 
 
 -- | Convert a string representing a C program to a list of tokens
 tokenize :: String -> Either CompilerError [Token]
-tokenize input = runSuccState lexer input startState
+tokenize input = runLexState lexer input LexState.startState
 
 
 lexer :: String -> LexerState [Token]
@@ -33,14 +29,14 @@ lexer input = lexInput input
 
 lexInput :: String -> LexerState [Token]
 lexInput [] = do
-        lexOut <- getState
+        lexOut <- LexState.getState
         pure . reverse $ lexOut
 lexInput input@(c:cs)
         | isSpace c = lexInput cs
         | otherwise = do
-                lexOut <- getState
+                lexOut <- LexState.getState
                 (tok, input') <- lexToken input
-                putState (tok:lexOut)
+                LexState.putState (tok:lexOut)
                 lexInput input'
 
 

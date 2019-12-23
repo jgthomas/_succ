@@ -14,23 +14,17 @@ import           AST           (Tree (..))
 import           Error         (CompilerError (..), ParserError (..),
                                 SyntaxError (..), TypeError (..))
 import qualified Operator      (tokToBinOp, tokToUnaryOp)
-import           ParState      (ParserState, getState, putState, runParState,
-                                throwError)
+import           ParState      (ParserState, runParState, throwError)
+import qualified ParState      (getState, putState, startState)
 import           Tokens        (Keyword (..), OpTok (..), OpTokType (..),
                                 Token (..))
 import qualified Tokens        (isAssign, kind)
 import           Type          (Type (..))
 
 
---type ParserState = SuccStateM Tree
-
-startState :: Tree
-startState = ProgramNode []
-
-
 -- | Convert a list of tokens into an AST
 parse :: [Token] -> Either CompilerError Tree
-parse toks = runParState parseTokens toks startState
+parse toks = runParState parseTokens toks ParState.startState
 
 
 parseTokens :: [Token] -> ParserState Tree
@@ -39,12 +33,12 @@ parseTokens toks = parseTopLevelItems toks
 
 
 parseTopLevelItems :: [Token] -> ParserState Tree
-parseTopLevelItems [] = ProgramNode . reverse <$> getState
+parseTopLevelItems [] = ProgramNode . reverse <$> ParState.getState
 parseTopLevelItems toks@(Keyword typ:_)
         | validType typ = do
-                items           <- getState
+                items         <- ParState.getState
                 (item, toks') <- parseTopLevelItem toks
-                putState $ ProgramNode (item:items)
+                ParState.putState $ ProgramNode (item:items)
                 parseTopLevelItems toks'
         | otherwise = throwError $ TypeError (InvalidType (Keyword typ))
 parseTopLevelItems (a:_) = throwError $ TypeError (InvalidType a)
