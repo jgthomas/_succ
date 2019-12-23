@@ -14,7 +14,7 @@ import           AST           (Tree (..))
 import           Error         (CompilerError (..), ParserError (..),
                                 SyntaxError (..), TypeError (..))
 import qualified Operator      (tokToBinOp, tokToUnaryOp)
-import           SuccState     (SuccStateM, getState, putState, runSuccState,
+import           ParState      (ParserState, getState, putState, runParState,
                                 throwError)
 import           Tokens        (Keyword (..), OpTok (..), OpTokType (..),
                                 Token (..))
@@ -22,7 +22,7 @@ import qualified Tokens        (isAssign, kind)
 import           Type          (Type (..))
 
 
-type ParserState = SuccStateM Tree
+--type ParserState = SuccStateM Tree
 
 startState :: Tree
 startState = ProgramNode []
@@ -30,7 +30,7 @@ startState = ProgramNode []
 
 -- | Convert a list of tokens into an AST
 parse :: [Token] -> Either CompilerError Tree
-parse toks = runSuccState parseTokens toks startState
+parse toks = runParState parseTokens toks startState
 
 
 parseTokens :: [Token] -> ParserState Tree
@@ -39,15 +39,10 @@ parseTokens toks = parseTopLevelItems toks
 
 
 parseTopLevelItems :: [Token] -> ParserState Tree
-parseTopLevelItems [] = do
-        ast <- getState
-        case ast of
-             ProgramNode items -> pure $ ProgramNode (reverse items)
-             _                 -> throwError ImpossibleError
+parseTopLevelItems [] = ProgramNode . reverse <$> getState
 parseTopLevelItems toks@(Keyword typ:_)
         | validType typ = do
-                ast           <- getState
-                items         <- getTreeList ast
+                items           <- getState
                 (item, toks') <- parseTopLevelItem toks
                 putState $ ProgramNode (item:items)
                 parseTopLevelItems toks'
@@ -485,11 +480,6 @@ parseBinaryExp tree toks@(OpTok op:rest) f ops
                 parseBinaryExp (BinaryNode tree ntree binOp) toks'' f ops
         | otherwise = pure (tree, toks)
 parseBinaryExp tree toks _ _ = pure (tree, toks)
-
-
-getTreeList :: Tree -> ParserState [Tree]
-getTreeList (ProgramNode treeList) = pure treeList
-getTreeList _                      = throwError ImpossibleError
 
 
 verifyAndConsume :: Token -> [Token] -> ParserState [Token]
