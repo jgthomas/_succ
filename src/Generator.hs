@@ -13,7 +13,8 @@ import           Data.Maybe    (isNothing)
 import qualified ASM
 import           AST           (Tree (..))
 import           Error         (CompilerError (SyntaxError), SyntaxError (..))
-import           GenState      (GenState, mkSymTab, runGenState, throwError)
+import           GenState      (GenState, runGenState, throwError)
+import qualified GenState      (startState)
 import           GenTokens     (Jump (..), Scope (..))
 import           Operator      (BinaryOp (..))
 import qualified SymTab
@@ -22,7 +23,7 @@ import qualified TypeCheck
 
 -- | Generate x86-64 asm from AST
 generate :: Tree -> Either CompilerError String
-generate ast = runGenState genASM ast mkSymTab
+generate ast = runGenState genASM ast GenState.startState
 
 
 genASM :: Tree -> GenState String
