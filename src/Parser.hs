@@ -500,22 +500,22 @@ verifyAndConsume t toks = do
 
 nextTokIs :: Token -> [Token] -> ParserState ()
 nextTokIs t []    = throwError $ SyntaxError (MissingToken t)
-nextTokIs t [a]   = checkIsTok t a
-nextTokIs t (a:_) = checkIsTok t a
+nextTokIs t [a]   = isTok t a
+nextTokIs t (a:_) = isTok t a
 
 
 nextTokIsNot :: Token -> [Token] -> ParserState ()
 nextTokIsNot _ []    = throwError $ ParserError (TokensError [])
-nextTokIsNot t [a]   = checkIsNotTok t a
-nextTokIsNot t (a:_) = checkIsNotTok t a
+nextTokIsNot t [a]   = isNotTok t a
+nextTokIsNot t (a:_) = isNotTok t a
 
 
-checkIsTok :: Token -> Token -> ParserState ()
-checkIsTok t a = unless (t == a) $ throwError $ SyntaxError (MissingToken t)
+isTok :: Token -> Token -> ParserState ()
+isTok t a = unless (t == a) $ throwError $ SyntaxError (MissingToken t)
 
 
-checkIsNotTok :: Token -> Token -> ParserState ()
-checkIsNotTok t a = unless ( t /= a) $ throwError $ SyntaxError (UnexpectedToken a)
+isNotTok :: Token -> Token -> ParserState ()
+isNotTok t a = unless ( t /= a) $ throwError $ SyntaxError (UnexpectedToken a)
 
 
 consumeTok :: [Token] -> ParserState [Token]
