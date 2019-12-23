@@ -15,7 +15,7 @@ module ASM
          ifOnly,
          ifElse,
          forLoop,
-         emitJump,
+         setGotoPoint,
          putInRegister,
          initializedGlobal,
          uninitializedGlobal,
@@ -32,8 +32,7 @@ module ASM
         ) where
 
 
-import GenTokens (Jump (..), Register (..), Section (..), Set (..))
-import Operator  (BinaryOp (..), UnaryOp (..))
+import Operator (BinaryOp (..), UnaryOp (..))
 
 
 -- | Output asm for a function
@@ -105,6 +104,11 @@ declare :: Int -> Int -> String
 declare off adj =
         varOnStack off
         ++ adjustStackPointer adj
+
+
+-- | Output asm for jump
+setGotoPoint :: Int -> String
+setGotoPoint target = emitJump JMP target
 
 
 -- | Load a variable value
@@ -573,6 +577,14 @@ invertBits s = "not " ++ s ++ "\n"
 returnControl :: String
 returnControl = "ret\n"
 
+data Set = Equ
+         | NEqu
+         | GThan
+         | GThanE
+         | LThan
+         | LThanE
+         deriving (Eq)
+
 setBitIf :: Set -> String
 setBitIf set =
         case set of
@@ -587,6 +599,11 @@ setBitIf set =
 signExtendRaxRdx :: String
 signExtendRaxRdx = "cqto\n"
 
+data Jump = JMP
+          | JE
+          | JNE
+          deriving (Eq)
+
 emitJump :: Jump -> Int -> String
 emitJump j n =
         case j of
@@ -597,6 +614,11 @@ emitJump j n =
 
 
 -- Directives
+
+data Section = TEXT
+             | DATA
+             | BSS
+             deriving (Eq)
 
 declareGlobl :: String -> String
 declareGlobl name = ".globl " ++ name ++ "\n"
@@ -622,6 +644,19 @@ emitLabel n = "_label_" ++ show n ++ ":\n"
 
 
 -- Registers
+
+data Register = RAX
+              | RBP
+              | RIP
+              | RSP
+              | RDI
+              | RSI
+              | RDX
+              | RCX
+              | R8
+              | R9
+              | R12
+              deriving (Eq)
 
 reg :: Register -> String
 reg r = case r of

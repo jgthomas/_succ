@@ -15,7 +15,7 @@ import           AST           (Tree (..))
 import           Error         (CompilerError (SyntaxError), SyntaxError (..))
 import           GenState      (GenState, runGenState, throwError)
 import qualified GenState      (startState)
-import           GenTokens     (Jump (..), Scope (..))
+import           GenTokens     (Scope (..))
 import           Operator      (BinaryOp (..))
 import qualified SymTab
 import qualified TypeCheck
@@ -162,13 +162,13 @@ genASM (ExprStmtNode expression) = genASM expression
 genASM ContinueNode = do
         continueLabel <- SymTab.getContinue
         case continueLabel of
-             Just target -> pure $ ASM.emitJump JMP target
+             Just target -> pure $ ASM.setGotoPoint target
              Nothing     -> throwError $ SyntaxError (Unexpected ContinueNode)
 
 genASM BreakNode = do
         breakLabel <- SymTab.getBreak
         case breakLabel of
-             Just target -> pure $ ASM.emitJump JMP target
+             Just target -> pure $ ASM.setGotoPoint target
              Nothing     -> throwError $ SyntaxError (Unexpected BreakNode)
 
 genASM (ReturnNode tree) = do
