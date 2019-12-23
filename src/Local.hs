@@ -30,11 +30,10 @@ import qualified Data.Map      as M
 import           Error         (CompilerError (GeneratorError),
                                 GeneratorError (..))
 import qualified FrameStack    (currentFunc, popFunc, pushFunc)
-import           GenState      (GenState)
+import           GenState      (GenState, throwError)
 import qualified GenState      (getFuncStates, putFuncStates)
 import           LocalScope    (FuncState (..), LocalVar (..), ParamVar (..))
 import qualified LocalScope    (memOffset, mkFuncState, mkLocVar, mkParVar)
-import           SuccState     (throwError)
 import           Type          (Type (Label))
 
 
