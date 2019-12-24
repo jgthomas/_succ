@@ -62,7 +62,9 @@ closeScope = do
 
 
 delFuncState :: String -> GenState ()
-delFuncState name = delFunctionState name
+delFuncState name = do
+        newState <- M.delete name <$> GenState.getFuncStates
+        GenState.putFuncStates newState
 
 
 getBreak :: GenState (Maybe Int)
@@ -273,12 +275,6 @@ setFunctionState :: String -> FuncState -> GenState ()
 setFunctionState name st = do
         fstates <- GenState.getFuncStates
         GenState.putFuncStates $ M.insert name st fstates
-
-
-delFunctionState :: String -> GenState ()
-delFunctionState name = do
-        fstates <- GenState.getFuncStates
-        GenState.putFuncStates $ M.delete name fstates
 
 
 -- offset
