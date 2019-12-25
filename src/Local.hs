@@ -80,12 +80,12 @@ delFuncState name = GenState.delFuncState name
 
 -- | Get the break label number for current scope
 getBreak :: GenState (Maybe Int)
-getBreak = getAttr "@Break" locOffset
+getBreak = getAttr locOffset "@Break"
 
 
 -- | Get the continue label number for current scope
 getContinue :: GenState (Maybe Int)
-getContinue = getAttr "@Continue" locOffset
+getContinue = getAttr locOffset "@Continue"
 
 
 -- | Set the break label number for current scope
@@ -113,12 +113,12 @@ checkVariable varName = do
 
 -- | Get the offset from base pointer of variable
 variableOffset :: String -> GenState (Maybe Int)
-variableOffset name = getAttr name locOffset
+variableOffset name = getAttr locOffset name
 
 
 -- | Get the type of variable
 variableType :: String -> GenState (Maybe Type)
-variableType name = getAttr name locType
+variableType name = getAttr locType name
 
 
 -- | Store new variable, returning offset from base pointer
@@ -182,8 +182,8 @@ parameterDeclared paramName = do
 
 -- store and lookup
 
-getAttr :: String -> (LocalVar -> a) -> GenState (Maybe a)
-getAttr varName f = do
+getAttr :: (LocalVar -> a) -> String -> GenState (Maybe a)
+getAttr f varName = do
         currFuncName <- FrameStack.currentFunc
         if currFuncName == "global"
            then pure Nothing
