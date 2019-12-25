@@ -80,12 +80,12 @@ delFuncState name = GenState.delFuncState name
 
 -- | Get the break label number for current scope
 getBreak :: GenState (Maybe Int)
-getBreak = getOffset "@Break"
+getBreak = getAttr "@Break" locOffset
 
 
 -- | Get the continue label number for current scope
 getContinue :: GenState (Maybe Int)
-getContinue = getOffset "@Continue"
+getContinue = getAttr "@Continue" locOffset
 
 
 -- | Set the break label number for current scope
@@ -113,12 +113,12 @@ checkVariable varName = do
 
 -- | Get the offset from base pointer of variable
 variableOffset :: String -> GenState (Maybe Int)
-variableOffset name = getOffset name
+variableOffset name = getAttr name locOffset
 
 
 -- | Get the type of variable
 variableType :: String -> GenState (Maybe Type)
-variableType name = getType name
+variableType name = getAttr name locType
 
 
 -- | Store new variable, returning offset from base pointer
@@ -181,14 +181,6 @@ parameterDeclared paramName = do
 
 
 -- store and lookup
-
-getOffset :: String -> GenState (Maybe Int)
-getOffset varName = getAttr varName locOffset
-
-
-getType :: String -> GenState (Maybe Type)
-getType varName = getAttr varName locType
-
 
 getAttr :: String -> (LocalVar -> a) -> GenState (Maybe a)
 getAttr varName f = do
