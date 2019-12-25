@@ -213,8 +213,7 @@ store name value typ = do
 getLocalVar :: String -> Int -> String -> GenState (Maybe LocalVar)
 getLocalVar funcName lev var = do
         fstate <- getFunctionState funcName
-        scope  <- getScope lev fstate
-        pure $ M.lookup var scope
+        M.lookup var <$> getScope lev fstate
 
 
 getScope :: Int -> FuncState -> GenState (M.Map String LocalVar)
