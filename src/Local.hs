@@ -259,8 +259,6 @@ getFunctionState name = do
 
 setFunctionState :: String -> FuncState -> GenState ()
 setFunctionState name fstate = GenState.updateFuncState name fstate
-        --fstates <- GenState.getFuncStates
-        --GenState.putFuncStates $ M.insert name st fstates
 
 
 -- offset
