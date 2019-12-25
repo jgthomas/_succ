@@ -297,11 +297,11 @@ getParamPos paramName funcName =
 
 
 addParam :: String -> Type -> FuncState -> FuncState
-addParam name typ state =
-        let parVar = LocalScope.mkParVar (paramCount state) typ
-            state' = state { paramCount = succ . paramCount $ state }
+addParam name typ fstate =
+        let parVar  = LocalScope.mkParVar (paramCount fstate) typ
+            fstate' = fstate { paramCount = succ . paramCount $ fstate }
             in
-        state' { parameters = M.insert name parVar . parameters $ state' }
+        fstate' { parameters = M.insert name parVar . parameters $ fstate' }
 
 
 extract :: (b -> a) -> Maybe b -> Maybe a
