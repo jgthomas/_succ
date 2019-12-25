@@ -1,4 +1,10 @@
+{-|
+Module       : Local
+Description  : Control state of each function
 
+Functions to manipulate the state stored for each function being
+compiled.
+-}
 module Local
         (initScope,
          closeScope,
@@ -38,6 +44,7 @@ import qualified LocalScope    (memOffset, mkFuncState, mkLocVar, mkParVar)
 import           Type          (Type (Label))
 
 
+-- | Switch to scope of named function, creating if needed
 initFunction :: String -> GenState ()
 initFunction name = do
         FrameStack.pushFunc name
@@ -46,10 +53,12 @@ initFunction name = do
             GenState.updateFuncState name LocalScope.mkFuncState
 
 
+-- | Close current function scope
 closeFunction :: GenState ()
 closeFunction = FrameStack.popFunc
 
 
+-- | Initialize a new scope inside a function
 initScope :: GenState ()
 initScope = do
         currFuncName  <- FrameStack.currentFunc
@@ -57,32 +66,39 @@ initScope = do
         addNestedScope currFuncName newScopeLevel
 
 
+-- | Exit current scope inside a function
 closeScope :: GenState ()
 closeScope = do
         _ <- decrementScope
         pure ()
 
 
+-- | Delete named function state record
 delFuncState :: String -> GenState ()
 delFuncState name = GenState.delFuncState name
 
 
+-- | Get the break label number for current scope
 getBreak :: GenState (Maybe Int)
 getBreak = getOffset "@Break"
 
 
+-- | Get the continue label number for current scope
 getContinue :: GenState (Maybe Int)
 getContinue = getOffset "@Continue"
 
 
+-- | Set the break label number for current scope
 setBreak :: Int -> GenState ()
 setBreak labelNo = store "@Break" labelNo Label
 
 
+-- | Set the continue label number for current scope
 setContinue :: Int -> GenState ()
 setContinue labelNo = store "@Continue" labelNo Label
 
 
+-- | Check if variable name is in use in current scope
 checkVariable :: String -> GenState Bool
 checkVariable varName = do
         funcName <- FrameStack.currentFunc
@@ -95,14 +111,17 @@ checkVariable varName = do
              Nothing -> pure False
 
 
+-- | Get the offset from base pointer of variable
 variableOffset :: String -> GenState (Maybe Int)
 variableOffset name = getOffset name
 
 
+-- | Get the type of variable
 variableType :: String -> GenState (Maybe Type)
 variableType name = getType name
 
 
+-- | Store new variable, returning offset from base pointer
 addVariable :: String -> Type -> GenState Int
 addVariable varName typ = do
         currOff <- currentOffset
@@ -111,10 +130,12 @@ addVariable varName typ = do
         pure currOff
 
 
+-- | Retrieve current value of stack pointer
 stackPointerValue :: GenState Int
 stackPointerValue = negate <$> currentOffset
 
 
+-- | Add a new parameter to the state of a function
 addParameter :: String -> Type -> GenState ()
 addParameter paramName typ = do
         currFuncName <- FrameStack.currentFunc
@@ -123,6 +144,7 @@ addParameter paramName typ = do
         setFunctionState currFuncName funcState'
 
 
+-- | Retrieve the position of function parameter
 parameterPosition :: String -> GenState (Maybe Int)
 parameterPosition paramName = do
         currFuncName <- FrameStack.currentFunc
@@ -133,6 +155,7 @@ parameterPosition paramName = do
                 . parameters <$> getFunctionState currFuncName
 
 
+-- | Retrieve the type of function parameter
 parameterType :: String -> GenState (Maybe Type)
 parameterType paramName = do
         currFuncName <- FrameStack.currentFunc
@@ -141,12 +164,14 @@ parameterType paramName = do
             . parameters <$> getFunctionState currFuncName
 
 
+-- | Retrieve list of all the type of function parameters
 allTypes :: String -> GenState [Type]
 allTypes funcName = do
         paramList <- M.elems . parameters <$> getFunctionState funcName
         pure $ snd <$> sortBy (compare `on` fst) (paramData <$> paramList)
 
 
+-- | Check a parameter exits for function
 parameterDeclared :: String -> GenState Bool
 parameterDeclared paramName = do
         pos <- parameterPosition paramName
