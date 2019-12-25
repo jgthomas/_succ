@@ -284,11 +284,10 @@ currentOffset = do
 
 incrementOffset :: GenState ()
 incrementOffset = do
-        funcName <- FrameStack.currentFunc
-        fstate   <- getFunctionState funcName
-        let offset  = funcOffset fstate
-            fstate' = fstate { funcOffset = offset + LocalScope.memOffset }
-        setFunctionState funcName fstate'
+        name  <- FrameStack.currentFunc
+        fs    <- getFunctionState name
+        let fs' = fs { funcOffset = funcOffset fs + LocalScope.memOffset }
+        setFunctionState name fs'
 
 
 -- parameters
