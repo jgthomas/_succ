@@ -10,8 +10,6 @@ module GenState
          throwError,
          getGlobalScope,
          putGlobalScope,
-         getFuncStates,
-         putFuncStates,
          getFrameStack,
          putFrameStack,
          startState,
@@ -67,15 +65,6 @@ putGlobalScope gs = do
         SuccState.putState $ state { globalScope = gs }
 
 
--- | Get the function scope state holder
-getFuncStates :: GenState (M.Map String FuncState)
-getFuncStates = do
-        state <- SuccState.getState
-        pure . funcStates $ state
-
-
--- NEW
-
 -- | Get the state for the named function
 getFuncState :: String -> GenState (Maybe FuncState)
 getFuncState name = M.lookup name . funcStates <$> SuccState.getState
@@ -93,15 +82,6 @@ delFuncState :: String -> GenState ()
 delFuncState n = do
         st <- SuccState.getState
         SuccState.putState $ st { funcStates = M.delete n $ funcStates st }
-
--- NEW END
-
-
--- | Update the function scope state holder
-putFuncStates :: M.Map String FuncState -> GenState ()
-putFuncStates fs = do
-        state <- SuccState.getState
-        SuccState.putState $ state { funcStates = fs }
 
 
 -- | Get the framestack

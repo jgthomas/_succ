@@ -32,8 +32,7 @@ import           Error         (CompilerError (GeneratorError),
                                 GeneratorError (..))
 import qualified FrameStack    (currentFunc, popFunc, pushFunc)
 import           GenState      (GenState, throwError)
-import qualified GenState      (delFuncState, getFuncState, getFuncStates,
-                                putFuncStates, updateFuncState)
+import qualified GenState      (delFuncState, getFuncState, updateFuncState)
 import           LocalScope    (FuncState (..), LocalVar (..), ParamVar (..))
 import qualified LocalScope    (memOffset, mkFuncState, mkLocVar, mkParVar)
 import           Type          (Type (Label))
@@ -259,9 +258,9 @@ getFunctionState name = do
 
 
 setFunctionState :: String -> FuncState -> GenState ()
-setFunctionState name st = do
-        fstates <- GenState.getFuncStates
-        GenState.putFuncStates $ M.insert name st fstates
+setFunctionState name fstate = GenState.updateFuncState name fstate
+        --fstates <- GenState.getFuncStates
+        --GenState.putFuncStates $ M.insert name st fstates
 
 
 -- offset
