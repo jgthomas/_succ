@@ -293,12 +293,11 @@ incrementOffset = do
 -- parameters
 
 addParam :: String -> Type -> FuncState -> FuncState
-addParam n t st =
-        let pos = paramCount st
-            st' = st { paramCount = succ pos }
-            parVar = LocalScope.mkParVar pos t
+addParam name typ state =
+        let parVar = LocalScope.mkParVar (paramCount state) typ
+            state' = state { paramCount = succ . paramCount $ state }
             in
-        st' { parameters = M.insert n parVar $ parameters st' }
+        state' { parameters = M.insert name parVar . parameters $ state' }
 
 
 extract :: (b -> a) -> Maybe b -> Maybe a
