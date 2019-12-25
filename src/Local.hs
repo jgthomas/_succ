@@ -246,11 +246,10 @@ findScope name = currentScope <$> getFunctionState name
 
 stepScope :: (Int -> Int) -> GenState Int
 stepScope f = do
-        currFuncName <- FrameStack.currentFunc
-        funcState    <- getFunctionState currFuncName
-        let newLevel   = f $ currentScope funcState
-            funcState' = funcState { currentScope = newLevel }
-        setFunctionState currFuncName funcState'
+        funcName  <- FrameStack.currentFunc
+        funcState <- getFunctionState funcName
+        let newLevel = f . currentScope $ funcState
+        setFunctionState funcName funcState { currentScope = newLevel }
         pure newLevel
 
 
