@@ -80,12 +80,12 @@ delFuncState name = GenState.delFuncState name
 
 -- | Get the break label number for current scope
 getBreak :: GenState (Maybe Int)
-getBreak = getAttr locOffset "@Break"
+getBreak = getAttribute locOffset "@Break"
 
 
 -- | Get the continue label number for current scope
 getContinue :: GenState (Maybe Int)
-getContinue = getAttr locOffset "@Continue"
+getContinue = getAttribute locOffset "@Continue"
 
 
 -- | Set the break label number for current scope
@@ -113,12 +113,12 @@ checkVariable varName = do
 
 -- | Get the offset from base pointer of variable
 variableOffset :: String -> GenState (Maybe Int)
-variableOffset name = getAttr locOffset name
+variableOffset name = getAttribute locOffset name
 
 
 -- | Get the type of variable
 variableType :: String -> GenState (Maybe Type)
-variableType name = getAttr locType name
+variableType name = getAttribute locType name
 
 
 -- | Store new variable, returning offset from base pointer
@@ -182,14 +182,17 @@ parameterDeclared paramName = do
 
 -- store and lookup
 
-getAttr :: (LocalVar -> a) -> String -> GenState (Maybe a)
-getAttr f varName = do
-        currFuncName <- FrameStack.currentFunc
-        if currFuncName == "global"
-           then pure Nothing
-           else do
-                   scopeLevel <- findScope currFuncName
-                   extract f <$> find currFuncName scopeLevel varName
+getAttribute :: (LocalVar -> a) -> String -> GenState (Maybe a)
+getAttribute f varName = do
+        funcName <- FrameStack.currentFunc
+        getAttr f varName funcName
+
+
+getAttr :: (LocalVar -> a) -> String -> String -> GenState (Maybe a)
+getAttr _ _ "global" = pure Nothing
+getAttr f varName funcName = do
+        scopeLevel <- findScope funcName
+        extract f <$> find funcName scopeLevel varName
 
 
 find :: String -> Int -> String -> GenState (Maybe LocalVar)
