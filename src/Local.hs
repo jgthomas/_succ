@@ -252,8 +252,8 @@ addNestedScope name level = do
 
 getFunctionState :: String -> GenState FuncState
 getFunctionState name = do
-        fstates <- GenState.getFuncStates
-        case M.lookup name fstates of
+        fstate <- GenState.getFuncState name
+        case fstate of
              Just st -> pure st
              Nothing -> throwError $ GeneratorError (NoStateFound name)
 
