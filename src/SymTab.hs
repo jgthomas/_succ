@@ -1,4 +1,10 @@
+{-|
+Module       : SymTab
+Description  : GenState control abstraction
 
+Central interface for all functions used to manipulate the
+generator stage state.
+-}
 module SymTab
         (module FrameStack,
          module Global,
