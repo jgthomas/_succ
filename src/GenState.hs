@@ -17,7 +17,8 @@ module GenState
          startState,
          labelNum,
          getFuncState,
-         updateFuncState
+         updateFuncState,
+         delFuncState
         ) where
 
 
@@ -73,6 +74,8 @@ getFuncStates = do
         pure . funcStates $ state
 
 
+-- NEW
+
 -- | Get the state for the named function
 getFuncState :: String -> GenState (Maybe FuncState)
 getFuncState name = M.lookup name . funcStates <$> SuccState.getState
@@ -83,6 +86,15 @@ updateFuncState :: String -> FuncState -> GenState ()
 updateFuncState n s = do
         st <- SuccState.getState
         SuccState.putState $ st { funcStates = M.insert n s $ funcStates st }
+
+
+-- | Delete function state for named function
+delFuncState :: String -> GenState ()
+delFuncState n = do
+        st <- SuccState.getState
+        SuccState.putState $ st { funcStates = M.delete n $ funcStates st }
+
+-- NEW END
 
 
 -- | Update the function scope state holder

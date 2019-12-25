@@ -32,8 +32,8 @@ import           Error         (CompilerError (GeneratorError),
                                 GeneratorError (..))
 import qualified FrameStack    (currentFunc, popFunc, pushFunc)
 import           GenState      (GenState, throwError)
-import qualified GenState      (getFuncState, getFuncStates, putFuncStates,
-                                updateFuncState)
+import qualified GenState      (delFuncState, getFuncState, getFuncStates,
+                                putFuncStates, updateFuncState)
 import           LocalScope    (FuncState (..), LocalVar (..), ParamVar (..))
 import qualified LocalScope    (memOffset, mkFuncState, mkLocVar, mkParVar)
 import           Type          (Type (Label))
@@ -65,9 +65,7 @@ closeScope = do
 
 
 delFuncState :: String -> GenState ()
-delFuncState name = do
-        newState <- M.delete name <$> GenState.getFuncStates
-        GenState.putFuncStates newState
+delFuncState name = GenState.delFuncState name
 
 
 getBreak :: GenState (Maybe Int)
