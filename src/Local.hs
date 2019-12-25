@@ -22,16 +22,17 @@ module Local
         ) where
 
 
-import           Control.Monad (unless)
+import           Control.Monad (when)
 import           Data.Function (on)
 import           Data.List     (sortBy)
 import qualified Data.Map      as M
+import           Data.Maybe    (isNothing)
 
 import           Error         (CompilerError (GeneratorError),
                                 GeneratorError (..))
 import qualified FrameStack    (currentFunc, popFunc, pushFunc)
 import           GenState      (GenState, throwError)
-import qualified GenState      (getFuncStates, putFuncStates)
+import qualified GenState      (getFuncState, getFuncStates, putFuncStates)
 import           LocalScope    (FuncState (..), LocalVar (..), ParamVar (..))
 import qualified LocalScope    (memOffset, mkFuncState, mkLocVar, mkParVar)
 import           Type          (Type (Label))
@@ -40,8 +41,9 @@ import           Type          (Type (Label))
 initFunction :: String -> GenState ()
 initFunction name = do
         FrameStack.pushFunc name
-        check <- checkFunctionState name
-        unless check $ newFuncState name
+        fstate <- GenState.getFuncState name
+        when (isNothing fstate) $
+            newFuncState name
 
 
 closeFunction :: GenState ()
@@ -255,12 +257,12 @@ addNestedScope name level = do
         setFunctionState name fs'
 
 
-checkFunctionState :: String -> GenState Bool
-checkFunctionState name = do
-        fstates <- GenState.getFuncStates
-        case M.lookup name fstates of
-             Just _  -> pure True
-             Nothing -> pure False
+--checkFunctionState :: String -> GenState Bool
+--checkFunctionState name = do
+--        fstates <- GenState.getFuncStates
+--        case M.lookup name fstates of
+--             Just _  -> pure True
+--             Nothing -> pure False
 
 
 getFunctionState :: String -> GenState FuncState
