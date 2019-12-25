@@ -201,14 +201,12 @@ getAttr varName f = do
 
 
 find :: String -> Int -> String -> GenState (Maybe LocalVar)
-find funcName scope name =
-        if scope == scopeLimit
-           then pure Nothing
-           else do
-                   locVar <- getLocalVar funcName scope name
-                   case locVar of
-                        Nothing -> find funcName (pred scope) name
-                        Just lv -> pure (Just lv)
+find _ (-1) _ = pure Nothing
+find funcName scope name = do
+        locVar <- getLocalVar funcName scope name
+        case locVar of
+             Nothing -> find funcName (pred scope) name
+             Just lv -> pure (Just lv)
 
 
 store :: String -> Int -> Type -> GenState ()
@@ -259,10 +257,6 @@ stepScope f = do
             funcState' = funcState { currentScope = newLevel }
         setFunctionState currFuncName funcState'
         pure newLevel
-
-
-scopeLimit :: Int
-scopeLimit = -1
 
 
 -- FuncState
