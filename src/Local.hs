@@ -147,12 +147,8 @@ addParameter paramName typ = do
 -- | Retrieve the position of function parameter
 parameterPosition :: String -> GenState (Maybe Int)
 parameterPosition paramName = do
-        currFuncName <- FrameStack.currentFunc
-        if currFuncName == "global"
-           then pure Nothing
-           else extract paramNum
-                . M.lookup paramName
-                . parameters <$> getFunctionState currFuncName
+        funcName <- FrameStack.currentFunc
+        getParamPos paramName funcName
 
 
 -- | Retrieve the type of function parameter
@@ -291,6 +287,14 @@ incrementOffset = do
 
 
 -- parameters
+
+getParamPos :: String -> String -> GenState (Maybe Int)
+getParamPos _ "global" = pure Nothing
+getParamPos paramName funcName =
+        extract paramNum
+        . M.lookup paramName
+        . parameters <$> getFunctionState funcName
+
 
 addParam :: String -> Type -> FuncState -> FuncState
 addParam name typ state =
