@@ -16,7 +16,8 @@ module GenState
          putFrameStack,
          startState,
          labelNum,
-         getFuncState
+         getFuncState,
+         updateFuncState
         ) where
 
 
@@ -75,6 +76,13 @@ getFuncStates = do
 -- | Get the state for the named function
 getFuncState :: String -> GenState (Maybe FuncState)
 getFuncState name = M.lookup name . funcStates <$> SuccState.getState
+
+
+-- | Update function state for named function
+updateFuncState :: String -> FuncState -> GenState ()
+updateFuncState n s = do
+        st <- SuccState.getState
+        SuccState.putState $ st { funcStates = M.insert n s $ funcStates st }
 
 
 -- | Update the function scope state holder

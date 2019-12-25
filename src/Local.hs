@@ -32,7 +32,8 @@ import           Error         (CompilerError (GeneratorError),
                                 GeneratorError (..))
 import qualified FrameStack    (currentFunc, popFunc, pushFunc)
 import           GenState      (GenState, throwError)
-import qualified GenState      (getFuncState, getFuncStates, putFuncStates)
+import qualified GenState      (getFuncState, getFuncStates, putFuncStates,
+                                updateFuncState)
 import           LocalScope    (FuncState (..), LocalVar (..), ParamVar (..))
 import qualified LocalScope    (memOffset, mkFuncState, mkLocVar, mkParVar)
 import           Type          (Type (Label))
@@ -43,7 +44,7 @@ initFunction name = do
         FrameStack.pushFunc name
         fstate <- GenState.getFuncState name
         when (isNothing fstate) $
-            newFuncState name
+            GenState.updateFuncState name LocalScope.mkFuncState
 
 
 closeFunction :: GenState ()
@@ -244,25 +245,11 @@ scopeLimit = -1
 
 -- FuncState
 
-newFuncState :: String -> GenState ()
-newFuncState name = do
-        fstates <- GenState.getFuncStates
-        GenState.putFuncStates $ M.insert name LocalScope.mkFuncState fstates
-
-
 addNestedScope :: String -> Int -> GenState ()
 addNestedScope name level = do
         fs <- getFunctionState name
         let fs' = fs { scopes = M.insert level M.empty $ scopes fs }
         setFunctionState name fs'
-
-
---checkFunctionState :: String -> GenState Bool
---checkFunctionState name = do
---        fstates <- GenState.getFuncStates
---        case M.lookup name fstates of
---             Just _  -> pure True
---             Nothing -> pure False
 
 
 getFunctionState :: String -> GenState FuncState
