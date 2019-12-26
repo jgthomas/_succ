@@ -246,6 +246,7 @@ unaryOp :: UnaryOp -> String
 unaryOp unOp =
         case unOp of
              Increment   -> inc (reg RAX)
+             Decrement   -> dec (reg RAX)
              Negate      -> makeNegative (reg RAX)
              BitwiseComp -> invertBits (reg RAX)
              LogicalNeg  ->
@@ -584,6 +585,9 @@ idivq target = signExtendRaxRdx
 
 inc :: String -> String
 inc a = "inc " ++ a ++ "\n"
+
+dec :: String -> String
+dec a = "dec " ++ a ++ "\n"
 
 push :: String -> String
 push s = "pushq " ++ s ++ "\n"

@@ -375,17 +375,18 @@ parseFactor :: [Token] -> ParserState (Tree, [Token])
 parseFactor [] = throwError $ ParserError (TokensError [])
 parseFactor toks@(next:rest) =
         case next of
-             SemiColon         -> pure (NullExprNode, rest)
-             (ConstInt n)      -> pure (ConstantNode n, rest)
-             (Ident _)         -> parseIdent toks
-             (OpTok Ampersand) -> parseAddressOf rest
-             (OpTok Asterisk)  -> parseDereference rest
-             (OpTok MinusSign) -> parseUnary toks
-             (OpTok Tilde)     -> parseUnary toks
-             (OpTok Bang)      -> parseUnary toks
-             (OpTok PlusPlus)  -> parseUnary toks
-             OpenParen         -> parseParenExp rest
-             _                 -> throwError $ ParserError (TokensError toks)
+             SemiColon          -> pure (NullExprNode, rest)
+             (ConstInt n)       -> pure (ConstantNode n, rest)
+             (Ident _)          -> parseIdent toks
+             (OpTok Ampersand)  -> parseAddressOf rest
+             (OpTok Asterisk)   -> parseDereference rest
+             (OpTok MinusSign)  -> parseUnary toks
+             (OpTok Tilde)      -> parseUnary toks
+             (OpTok Bang)       -> parseUnary toks
+             (OpTok PlusPlus)   -> parseUnary toks
+             (OpTok MinusMinus) -> parseUnary toks
+             OpenParen          -> parseParenExp rest
+             _                  -> throwError $ ParserError (TokensError toks)
 
 
 parseUnary :: [Token] -> ParserState (Tree, [Token])

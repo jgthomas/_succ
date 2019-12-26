@@ -94,7 +94,7 @@ number (c:cs) = do
 twoCharOperator :: String -> LexerState (Token, String)
 twoCharOperator []  = throwError ImpossibleError
 twoCharOperator [_] = throwError ImpossibleError
-twoCharOperator (c:n:cs) =
+twoCharOperator input@(c:n:cs) =
         case c:[n] of
              "||" -> pure (OpTok PipePipe, cs)
              "&&" -> pure (OpTok AmpAmp, cs)
@@ -108,12 +108,13 @@ twoCharOperator (c:n:cs) =
              "/=" -> pure (OpTok BackslashEqual, cs)
              "%=" -> pure (OpTok PercentEqual, cs)
              "++" -> pure (OpTok PlusPlus, cs)
-             _    -> throwError $ LexerError (UnexpectedInput (c:[n]))
+             "--" -> pure (OpTok MinusMinus, cs)
+             _    -> operator input
 
 
 operator :: String -> LexerState (Token, String)
 operator [] = throwError ImpossibleError
-operator (c:cs) =
+operator input@(c:cs) =
         case c of
              '+' -> pure (OpTok PlusSign, cs)
              '-' -> pure (OpTok MinusSign, cs)
@@ -126,7 +127,7 @@ operator (c:cs) =
              '<' -> pure (OpTok LeftArrow, cs)
              '=' -> pure (OpTok EqualSign, cs)
              '&' -> pure (OpTok Ampersand, cs)
-             _   -> throwError $ LexerError (UnexpectedInput [c])
+             _   -> throwError $ LexerError (UnexpectedInput input)
 
 
 isSeparator :: Char -> Bool
@@ -159,7 +160,7 @@ separators = "(){};:,?"
 
 
 secondOpSymbols :: String
-secondOpSymbols = "=|&+"
+secondOpSymbols = "=|&+-"
 
 
 identStart :: Char -> Bool

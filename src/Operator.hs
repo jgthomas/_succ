@@ -26,6 +26,7 @@ data UnaryOp = Negate
              | BitwiseComp
              | LogicalNeg
              | Increment
+             | Decrement
              deriving (Show, Eq)
 
 
@@ -57,8 +58,9 @@ tokToBinOp tok =
 tokToUnaryOp :: OpTok -> UnaryOp
 tokToUnaryOp tok =
         case tok of
-             Bang      -> LogicalNeg
-             MinusSign -> Negate
-             Tilde     -> BitwiseComp
-             PlusPlus  -> Increment
-             _         -> undefined
+             Bang       -> LogicalNeg
+             MinusSign  -> Negate
+             Tilde      -> BitwiseComp
+             PlusPlus   -> Increment
+             MinusMinus -> Decrement
+             _          -> undefined
