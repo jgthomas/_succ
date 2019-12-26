@@ -358,7 +358,7 @@ processArgs args = concat <$> mapM processArg (zip args [0..])
 processArg :: (Tree, Int) -> GenState String
 processArg (arg, pos) = do
         argASM <- genASM arg
-        pure $ argASM ++ ASM.putInRegister pos
+        ASM.passArgument argASM pos
 
 
 validateCall :: Tree -> GenState ()

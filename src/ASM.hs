@@ -21,7 +21,7 @@ module ASM
          ifElse,
          forLoop,
          setGotoPoint,
-         putInRegister,
+         passArgument,
          initializedGlobal,
          uninitializedGlobal,
          storeGlobal,
@@ -37,6 +37,7 @@ module ASM
         ) where
 
 
+import GenState (GenState)
 import Operator (BinaryOp (..), UnaryOp (..))
 
 
@@ -349,7 +350,11 @@ makeFunctionCall :: String -> String
 makeFunctionCall funcName = call funcName
 
 
--- | Move value in return register into selected register
+-- | Pass argument to function
+passArgument:: String -> Int -> GenState String
+passArgument toLoad pos = pure $ toLoad ++ putInRegister pos
+
+
 putInRegister :: Int -> String
 putInRegister r = move (reg RAX) (selectRegister r)
 
