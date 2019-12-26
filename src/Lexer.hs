@@ -107,6 +107,7 @@ twoCharOperator (c:n:cs) =
              "*=" -> pure (OpTok AsteriskEqual, cs)
              "/=" -> pure (OpTok BackslashEqual, cs)
              "%=" -> pure (OpTok PercentEqual, cs)
+             "++" -> pure (OpTok PlusPlus, cs)
              _    -> throwError $ LexerError (UnexpectedInput (c:[n]))
 
 
@@ -158,7 +159,7 @@ separators = "(){};:,?"
 
 
 secondOpSymbols :: String
-secondOpSymbols = "=|&"
+secondOpSymbols = "=|&+"
 
 
 identStart :: Char -> Bool

@@ -383,6 +383,7 @@ parseFactor toks@(next:rest) =
              (OpTok MinusSign) -> parseUnary toks
              (OpTok Tilde)     -> parseUnary toks
              (OpTok Bang)      -> parseUnary toks
+             (OpTok PlusPlus)  -> parseUnary toks
              OpenParen         -> parseParenExp rest
              _                 -> throwError $ ParserError (TokensError toks)
 

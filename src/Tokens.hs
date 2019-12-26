@@ -51,6 +51,7 @@ data OpTok = PlusSign
            | BackslashEqual
            | PercentEqual
            | Ampersand
+           | PlusPlus
            deriving (Show, Eq)
 
 

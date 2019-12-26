@@ -245,6 +245,7 @@ unary toLoad unOp = pure $ toLoad ++ unaryOp unOp
 unaryOp :: UnaryOp -> String
 unaryOp unOp =
         case unOp of
+             Increment   -> inc (reg RAX)
              Negate      -> makeNegative (reg RAX)
              BitwiseComp -> invertBits (reg RAX)
              LogicalNeg  ->
@@ -580,6 +581,9 @@ sub a b = "subq " ++ a ++ ", " ++ b ++ "\n"
 idivq :: String -> String
 idivq target = signExtendRaxRdx
                ++ "idivq " ++ target ++ "\n"
+
+inc :: String -> String
+inc a = "inc " ++ a ++ "\n"
 
 push :: String -> String
 push s = "pushq " ++ s ++ "\n"

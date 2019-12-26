@@ -25,6 +25,7 @@ data BinaryOp = Plus
 data UnaryOp = Negate
              | BitwiseComp
              | LogicalNeg
+             | Increment
              deriving (Show, Eq)
 
 
@@ -59,4 +60,5 @@ tokToUnaryOp tok =
              Bang      -> LogicalNeg
              MinusSign -> Negate
              Tilde     -> BitwiseComp
+             PlusPlus  -> Increment
              _         -> undefined
