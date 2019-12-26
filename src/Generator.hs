@@ -122,9 +122,9 @@ genASM node@(PointerNode varName typ (Just a)) = do
         value      <- genASM a
         (offset, _, globLab) <- checkVariableExists varName
         case (offset, globLab) of
-             (Just off, _) -> pure $ pointerASM ++ value ++ ASM.varAddressStore off
+             (Just off, _) -> ASM.varAddressStore (pointerASM ++ value) off
              (_, Just _)   -> pure $ pointerASM ++ value
-             _ -> throwError $ SyntaxError (Unrecognised node)
+             _             -> throwError $ SyntaxError (Unrecognised node)
 
 genASM node@(DeclarationNode varName typ value) = do
         currScope <- SymTab.getScope

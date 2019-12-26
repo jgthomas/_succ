@@ -509,8 +509,10 @@ varAddressLoadGlobal label = loadAddOf (fromInstructionPointer label) (reg RAX)
 
 
 -- | Store the address of a local variable
-varAddressStore :: Int -> String
-varAddressStore offset = move (reg RAX) (fromBasePointer offset)
+varAddressStore :: String -> Int -> GenState String
+varAddressStore value offset = pure $
+        value
+        ++ move (reg RAX) (fromBasePointer offset)
 
 
 -- | Store the address of a global variable
