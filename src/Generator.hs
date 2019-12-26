@@ -12,11 +12,12 @@ import           Data.Maybe    (isNothing)
 
 import qualified ASM
 import           AST           (Tree (..))
-import           Error         (CompilerError (SyntaxError), SyntaxError (..))
+import           Error         (CompilerError (GeneratorError, SyntaxError),
+                                GeneratorError (..), SyntaxError (..))
 import           GenState      (GenState, runGenState, throwError)
 import qualified GenState      (startState)
 import           GenTokens     (Scope (..))
-import           Operator      (BinaryOp (..))
+import           Operator      (BinaryOp (..), UnaryOp (..))
 import qualified SymTab
 import qualified TypeCheck
 
@@ -202,7 +203,10 @@ genASM (UnaryNode tree op) = do
              VarNode a -> do
                      (offset, _, label) <- checkVariableExists a
                      ASM.unary unode op offset label
-             _ -> ASM.unary unode op Nothing Nothing
+             _ -> case op of
+                       Increment -> throwError $ GeneratorError (UnaryOpError op)
+                       Decrement -> throwError $ GeneratorError (UnaryOpError op)
+                       _         -> ASM.unary unode op Nothing Nothing
 
 genASM node@(VarNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
