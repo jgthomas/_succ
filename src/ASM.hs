@@ -224,8 +224,8 @@ ifStart test action testLab =
 
 
 -- | Output asm for the ternary operator
-ternary :: String -> String -> String -> Int -> Int -> String
-ternary test true false trueLab falseLab =
+ternary :: String -> String -> String -> Int -> Int -> GenState String
+ternary test true false trueLab falseLab = pure $
         test
         ++ testResult
         ++ emitJump JE falseLab
