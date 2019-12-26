@@ -243,24 +243,27 @@ unary :: String
       -> Maybe Int
       -> Maybe String
       -> GenState String
-unary load Increment (Just n) _ = pure $ load ++ unaryOp Increment ++ varOnStack n
-unary load Decrement (Just n) _ = pure $ load ++ unaryOp Decrement ++ varOnStack n
-unary load Increment _ (Just l) = pure $ load ++ unaryOp Increment ++ saveGlobal l
-unary load Decrement _ (Just l) = pure $ load ++ unaryOp Decrement ++ saveGlobal l
-unary load op _ _               = pure $ load ++ unaryOp op
+unary load Increment (Just n) _ = pure $ unaryOp load Increment ++ varOnStack n
+unary load Decrement (Just n) _ = pure $ unaryOp load Decrement ++ varOnStack n
+unary load Increment _ (Just l) = pure $ unaryOp load Increment ++ saveGlobal l
+unary load Decrement _ (Just l) = pure $ unaryOp load Decrement ++ saveGlobal l
+unary load op _ _               = pure $ unaryOp load op
 
 
-unaryOp :: UnaryOp -> String
-unaryOp unOp =
+unaryOp :: String -> UnaryOp -> String
+unaryOp load unOp =
         case unOp of
-             Increment   -> inc (reg RAX)
-             Decrement   -> dec (reg RAX)
-             Negate      -> makeNegative (reg RAX)
-             BitwiseComp -> invertBits (reg RAX)
-             LogicalNeg  ->
-                     comp (literalValue 0) (reg RAX)
-                          ++ move (literalValue 0) (reg RAX)
-                          ++ setBitIf Equ
+             Increment   -> load ++ inc (reg RAX)
+             Decrement   -> load ++ dec (reg RAX)
+             Negate      -> load ++ makeNegative (reg RAX)
+             BitwiseComp -> load ++ invertBits (reg RAX)
+             LogicalNeg  -> load ++ logNeg
+
+
+logNeg :: String
+logNeg = comp (literalValue 0) (reg RAX)
+         ++ move (literalValue 0) (reg RAX)
+         ++ setBitIf Equ
 
 
 -- | Output asm for binary operators
