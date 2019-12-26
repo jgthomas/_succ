@@ -196,7 +196,7 @@ genASM (BinaryNode left right op) = do
 
 genASM (UnaryNode tree op) = do
         unode <- genASM tree
-        pure $ unode ++ ASM.unary op
+        ASM.unary unode op
 
 genASM node@(VarNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName

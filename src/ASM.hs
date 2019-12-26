@@ -238,8 +238,12 @@ ternary test true false trueLab falseLab = pure $
 
 
 -- | Output asm for unary operators
-unary :: UnaryOp -> String
-unary unOp =
+unary :: String -> UnaryOp -> GenState String
+unary toLoad unOp = pure $ toLoad ++ unaryOp unOp
+
+
+unaryOp :: UnaryOp -> String
+unaryOp unOp =
         case unOp of
              Negate      -> makeNegative (reg RAX)
              BitwiseComp -> invertBits (reg RAX)
