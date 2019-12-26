@@ -184,8 +184,8 @@ forLoop :: String
         -> Int
         -> Int
         -> Int
-        -> String
-forLoop inits test iter body trueLab falseLab contLab =
+        -> GenState String
+forLoop inits test iter body trueLab falseLab contLab = pure $
         inits
         ++ emitLabel trueLab
         ++ test

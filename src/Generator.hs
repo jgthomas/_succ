@@ -81,7 +81,7 @@ genASM (ForLoopNode ini test iter block) = do
         iters <- genASM iter
         body  <- genASM block
         SymTab.closeScope
-        pure $ ASM.forLoop inits tests iters body passLabel failLabel contLabel
+        ASM.forLoop inits tests iters body passLabel failLabel contLabel
 
 genASM (WhileNode test whileBlock) = do
         loopLabel <- SymTab.labelNum
