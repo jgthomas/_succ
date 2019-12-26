@@ -241,11 +241,13 @@ ternary test true false trueLab falseLab = pure $
 unary :: String
       -> UnaryOp
       -> Maybe Int
+      -> Maybe String
       -> GenState String
-unary load Increment (Just n) = pure $ load ++ unaryOp Increment ++ varOnStack n
-unary load Decrement (Just n) = pure $ load ++ unaryOp Decrement ++ varOnStack n
-unary load op (Just _)        = pure $ load ++ unaryOp op
-unary load op Nothing         = pure $ load ++ unaryOp op
+unary load Increment (Just n) _ = pure $ load ++ unaryOp Increment ++ varOnStack n
+unary load Decrement (Just n) _ = pure $ load ++ unaryOp Decrement ++ varOnStack n
+unary load Increment _ (Just l) = pure $ load ++ unaryOp Increment ++ saveGlobal l
+unary load Decrement _ (Just l) = pure $ load ++ unaryOp Decrement ++ saveGlobal l
+unary load op _ _               = pure $ load ++ unaryOp op
 
 
 unaryOp :: UnaryOp -> String
@@ -444,9 +446,11 @@ loadGlobal label =
 
 -- | Store the value of a global variable
 storeGlobal :: String -> String -> GenState String
-storeGlobal toAssign label = pure $
-        toAssign
-        ++ move (reg RAX) (fromInstructionPointer label)
+storeGlobal toAssign label = pure $ toAssign ++ saveGlobal label
+
+
+saveGlobal :: String -> String
+saveGlobal label = move (reg RAX) (fromInstructionPointer label)
 
 
 -- Pointers

@@ -200,9 +200,9 @@ genASM (UnaryNode tree op) = do
         unode <- genASM tree
         case tree of
              VarNode a -> do
-                     offset <- SymTab.variableOffset a
-                     ASM.unary unode op offset
-             _ -> ASM.unary unode op Nothing
+                     (offset, _, label) <- checkVariableExists a
+                     ASM.unary unode op offset label
+             _ -> ASM.unary unode op Nothing Nothing
 
 genASM node@(VarNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
