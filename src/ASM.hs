@@ -44,20 +44,21 @@ import Operator (BinaryOp (..), UnaryOp (..))
 -- | Output asm for a function
 function :: String -> String -> String
 function name stmts =
-        functionName name
+        functionInit name
         ++ stmts
 
 
 -- | Output asm for a main function with no explicit return value
 mainNoReturn :: String -> String -> String
 mainNoReturn name stmts =
-        function name stmts
+        functionInit name
+        ++ stmts
         ++ loadValue 0
         ++ returnStatement
 
 
-functionName :: String -> String
-functionName funcName =
+functionInit :: String -> String
+functionInit funcName =
         declareGlobl funcName
         ++ globlLabel funcName
         ++ runInit funcName
