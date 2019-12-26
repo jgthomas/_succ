@@ -449,11 +449,11 @@ storeGlobal label =
 -- Pointers
 
 -- | Load a dereferenced pointer value
-derefLoad :: Maybe Int -> Maybe Int -> Maybe String -> String
-derefLoad (Just off) _ _ = derefLoadLocal off
-derefLoad _ (Just pos) _ = derefLoadParam pos
-derefLoad _ _ (Just lab) = derefLoadGlobal lab
-derefLoad _ _ _          = undefined
+derefLoad :: Maybe Int -> Maybe Int -> Maybe String -> GenState String
+derefLoad (Just off) _ _ = pure $ derefLoadLocal off
+derefLoad _ (Just pos) _ = pure $ derefLoadParam pos
+derefLoad _ _ (Just lab) = pure $ derefLoadGlobal lab
+derefLoad _ _ _          = throwError ImpossibleError
 
 
 derefLoadLocal :: Int -> String

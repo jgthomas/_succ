@@ -217,7 +217,7 @@ genASM node@(DereferenceNode varName) = do
         case (offset, argPos, globLab) of
              (Nothing, Nothing, Nothing) ->
                      throwError $ SyntaxError (Unrecognised node)
-             _ -> pure $ ASM.derefLoad offset argPos globLab
+             _ -> ASM.derefLoad offset argPos globLab
 
 genASM NullExprNode = ASM.noOutput
 
