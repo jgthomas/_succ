@@ -144,13 +144,13 @@ genASM node@(AssignmentNode varName value op) = do
         case currScope of
              Global -> defineGlobal node
              Local  -> do
-                     assign  <- buildAssignmentASM (VarNode varName) value op
+                     assign <- buildAssignmentASM (VarNode varName) value op
                      (offset, _, globLab) <- checkVariableExists varName
                      case (offset, globLab) of
                           (Just off, _) -> do
                                   adj <- SymTab.stackPointerValue
                                   ASM.assign assign off adj
-                          (_, Just lab) -> pure $ assign ++ ASM.storeGlobal lab
+                          (_, Just lab) -> ASM.storeGlobal assign lab
                           _ -> throwError $ SyntaxError (Undeclared node)
 
 genASM node@(AssignDereferenceNode varName value op) = do

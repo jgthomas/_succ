@@ -435,9 +435,10 @@ loadGlobal label =
 
 
 -- | Store the value of a global variable
-storeGlobal :: String -> String
-storeGlobal label =
-        move (reg RAX) (fromInstructionPointer label)
+storeGlobal :: String -> String -> GenState String
+storeGlobal toAssign label = pure $
+        toAssign
+        ++ move (reg RAX) (fromInstructionPointer label)
 
 
 -- Pointers
