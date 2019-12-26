@@ -96,8 +96,8 @@ functionCall name args = pure $
 
 
 -- | Output asm for a declaration with no assignment
-decNoAssign :: Int -> Int -> String
-decNoAssign off adj =
+decNoAssign :: Int -> Int -> GenState String
+decNoAssign off adj = pure $
         loadValue 0
         ++ declare off adj
 
