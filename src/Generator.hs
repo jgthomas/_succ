@@ -162,13 +162,13 @@ genASM (ExprStmtNode expression) = genASM expression
 genASM ContinueNode = do
         continueLabel <- SymTab.getContinue
         case continueLabel of
-             Just target -> pure $ ASM.setGotoPoint target
+             Just target -> ASM.setGotoPoint target
              Nothing     -> throwError $ SyntaxError (Unexpected ContinueNode)
 
 genASM BreakNode = do
         breakLabel <- SymTab.getBreak
         case breakLabel of
-             Just target -> pure $ ASM.setGotoPoint target
+             Just target -> ASM.setGotoPoint target
              Nothing     -> throwError $ SyntaxError (Unexpected BreakNode)
 
 genASM (ReturnNode tree) = do
