@@ -277,9 +277,10 @@ defineGlobal node@(AssignmentNode name valNode _) = do
                      case valNode of
                           (ConstantNode _)  -> globalVarASM lab value
                           (AddressOfNode _) -> do
-                                  SymTab.storeForInit $ value ++ ASM.varAddressStoreGlobal lab
+                                  initASM <- ASM.varAddressStoreGlobal value lab
+                                  SymTab.storeForInit initASM
                                   ASM.uninitializedGlobal lab
-                          _ -> undefined
+                          _ -> throwError $ SyntaxError (Unexpected valNode)
 defineGlobal tree = throwError $ SyntaxError (Unexpected tree)
 
 

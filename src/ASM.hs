@@ -516,8 +516,10 @@ varAddressStore value offset = pure $
 
 
 -- | Store the address of a global variable
-varAddressStoreGlobal :: String -> String
-varAddressStoreGlobal label = move (reg RAX) (fromInstructionPointer label)
+varAddressStoreGlobal :: String -> String -> GenState String
+varAddressStoreGlobal value label = pure $
+        value
+        ++ move (reg RAX) (fromInstructionPointer label)
 
 
 -- Addressing
