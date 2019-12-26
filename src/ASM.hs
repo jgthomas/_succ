@@ -8,7 +8,7 @@ module ASM
         (function,
          mainNoReturn,
          returnStatement,
-         loadValue,
+         loadLiteral,
          unary,
          binary,
          ternary,
@@ -126,6 +126,10 @@ loadVariable _ _ _          = undefined
 
 
 -- | Load a literal value into return register
+loadLiteral :: Int -> GenState String
+loadLiteral n = pure . loadValue $ n
+
+
 loadValue :: Int -> String
 loadValue n = move (literalValue n) (reg RAX)
 

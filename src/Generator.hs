@@ -221,7 +221,7 @@ genASM (ConstantNode n) = do
         currScope <- SymTab.getScope
         case currScope of
              Global -> pure . show $ n
-             Local  -> pure . ASM.loadValue $ n
+             Local  -> ASM.loadLiteral n
 
 
 -- Global variables
