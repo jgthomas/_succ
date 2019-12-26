@@ -199,15 +199,15 @@ forLoop inits test iter body trueLab falseLab contLab = pure $
 
 
 -- | Output asm for a simple if statement
-ifOnly :: String -> String -> Int -> String
-ifOnly test action testLab =
+ifOnly :: String -> String -> Int -> GenState String
+ifOnly test action testLab = pure $
         ifStart test action testLab
         ++ emitLabel testLab
 
 
 -- | Output asm for an if statement with an else clause
-ifElse :: String -> String -> Int -> String -> Int -> String
-ifElse test action testLab elseAction nextLab =
+ifElse :: String -> String -> Int -> String -> Int -> GenState String
+ifElse test action testLab elseAction nextLab = pure $
         ifStart test action testLab
         ++ emitJump JMP nextLab
         ++ emitLabel testLab

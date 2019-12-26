@@ -107,10 +107,11 @@ genASM (IfNode test action possElse) = do
         ifAct   <- genASM action
         label   <- SymTab.labelNum
         case possElse of
-             Nothing -> pure $ ASM.ifOnly testExp ifAct label
+             Nothing -> ASM.ifOnly testExp ifAct label
              Just e  -> do
                      elseAct <- genASM e
-                     ASM.ifElse testExp ifAct label elseAct <$> SymTab.labelNum
+                     nextLab <- SymTab.labelNum
+                     ASM.ifElse testExp ifAct label elseAct nextLab
 
 genASM (PointerNode varName typ Nothing) =
         genASM (DeclarationNode varName typ Nothing)
