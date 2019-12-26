@@ -242,8 +242,8 @@ unary :: String
       -> UnaryOp
       -> Maybe Int
       -> GenState String
-unary load Increment (Just a) = pure $ load ++ unaryOp Increment ++ updateUnary a
-unary load Decrement (Just a) = pure $ load ++ unaryOp Decrement ++ updateUnary a
+unary load Increment (Just n) = pure $ load ++ unaryOp Increment ++ varOnStack n
+unary load Decrement (Just n) = pure $ load ++ unaryOp Decrement ++ varOnStack n
 unary load op (Just _)        = pure $ load ++ unaryOp op
 unary load op Nothing         = pure $ load ++ unaryOp op
 
@@ -259,10 +259,6 @@ unaryOp unOp =
                      comp (literalValue 0) (reg RAX)
                           ++ move (literalValue 0) (reg RAX)
                           ++ setBitIf Equ
-
-
-updateUnary :: Int -> String
-updateUnary pos = move (reg RAX) (fromBasePointer pos)
 
 
 -- | Output asm for binary operators
