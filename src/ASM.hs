@@ -554,13 +554,12 @@ outputInit :: String -> String
 outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
 
 runInit :: String -> String
-runInit name = if name == "main"
-               then "jmp init\n" ++ "init_done:\n"
-               else noOutput
+runInit "main" = "jmp init\n" ++ "init_done:\n"
+runInit _      = ""
 
 -- | Empty output
-noOutput :: String
-noOutput = ""
+noOutput :: GenState String
+noOutput = pure ""
 
 
 -- Instructions

@@ -36,7 +36,7 @@ genASM (ProgramNode topLevelItems) = do
 
 genASM node@(FunctionNode _ _ _ Nothing) = do
         declareFunction node
-        pure ASM.noOutput
+        ASM.noOutput
 genASM node@(FunctionNode _ name _ (Just stmts)) = do
         checkIfFuncDefined node
         declareFunction node
@@ -50,7 +50,7 @@ genASM node@(FunctionNode _ name _ (Just stmts)) = do
 
 genASM (ParamNode typ (VarNode name)) = do
         SymTab.addParameter name typ
-        pure ASM.noOutput
+        ASM.noOutput
 genASM node@(ParamNode _ _) = throwError $ SyntaxError (Unexpected node)
 
 genASM node@(FuncCallNode name argList) = do
@@ -219,7 +219,7 @@ genASM node@(DereferenceNode varName) = do
                      throwError $ SyntaxError (Unrecognised node)
              _ -> pure $ ASM.derefLoad offset argPos globLab
 
-genASM NullExprNode = pure ASM.noOutput
+genASM NullExprNode = ASM.noOutput
 
 genASM (ConstantNode n) = do
         currScope <- SymTab.getScope
@@ -255,7 +255,7 @@ checkIfFunction tree = throwError $ SyntaxError (Unexpected tree)
 
 
 genAssignment :: Maybe Tree -> GenState String
-genAssignment Nothing  = pure ASM.noOutput
+genAssignment Nothing  = ASM.noOutput
 genAssignment (Just t) = genASM t
 
 
