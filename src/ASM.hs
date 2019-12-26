@@ -37,7 +37,8 @@ module ASM
         ) where
 
 
-import Error    (CompilerError (GeneratorError), GeneratorError (..))
+import Error    (CompilerError (GeneratorError, ImpossibleError),
+                 GeneratorError (..))
 import GenState (GenState, throwError)
 import Operator (BinaryOp (..), UnaryOp (..))
 
@@ -122,11 +123,11 @@ setGotoPoint target = pure $ emitJump JMP target
 
 
 -- | Load a variable value
-loadVariable :: Maybe Int -> Maybe Int -> Maybe String -> String
-loadVariable (Just off) _ _ = varOffStack off
-loadVariable _ (Just pos) _ = getFromRegister pos
-loadVariable _ _ (Just lab) = loadGlobal lab
-loadVariable _ _ _          = undefined
+loadVariable :: Maybe Int -> Maybe Int -> Maybe String -> GenState String
+loadVariable (Just off) _ _ = pure $ varOffStack off
+loadVariable _ (Just pos) _ = pure $ getFromRegister pos
+loadVariable _ _ (Just lab) = pure $ loadGlobal lab
+loadVariable _ _ _          = throwError ImpossibleError
 
 
 -- | Load a literal value into return register
