@@ -198,7 +198,11 @@ genASM (BinaryNode left right op) = do
 
 genASM (UnaryNode tree op) = do
         unode <- genASM tree
-        ASM.unary unode op
+        case tree of
+             VarNode a -> do
+                     offset <- SymTab.variableOffset a
+                     ASM.unary unode op offset
+             _ -> ASM.unary unode op Nothing
 
 genASM node@(VarNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName

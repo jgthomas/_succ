@@ -238,8 +238,9 @@ ternary test true false trueLab falseLab = pure $
 
 
 -- | Output asm for unary operators
-unary :: String -> UnaryOp -> GenState String
-unary toLoad unOp = pure $ toLoad ++ unaryOp unOp
+unary :: String -> UnaryOp -> Maybe Int -> GenState String
+unary toLoad unOp (Just a) = pure $ toLoad ++ unaryOp unOp ++ updateFromUnary a
+unary toLoad unOp Nothing  = pure $ toLoad ++ unaryOp unOp
 
 
 unaryOp :: UnaryOp -> String
@@ -253,6 +254,10 @@ unaryOp unOp =
                      comp (literalValue 0) (reg RAX)
                           ++ move (literalValue 0) (reg RAX)
                           ++ setBitIf Equ
+
+
+updateFromUnary :: Int -> String
+updateFromUnary pos = move (reg RAX) (fromBasePointer pos)
 
 
 -- | Output asm for binary operators
