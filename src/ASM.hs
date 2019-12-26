@@ -32,7 +32,6 @@ module ASM
          loadVariable,
          varAddressStoreGlobal,
          outputInit,
-         allUninitialized,
          noOutput
         ) where
 
@@ -404,8 +403,8 @@ restoreCallerRegisters = restoreRegisters params
 
 
 -- | Output asm for an initialized global variable
-initializedGlobal :: String -> String -> String
-initializedGlobal label val =
+initializedGlobal :: String -> String -> GenState String
+initializedGlobal label val = pure $
         declareGlobl label
         ++ section DATA
         ++ align
@@ -415,18 +414,13 @@ initializedGlobal label val =
 
 
 -- | Output asm for an uninitialized global variable
-uninitializedGlobal :: String -> String
-uninitializedGlobal label =
+uninitializedGlobal :: String -> GenState String
+uninitializedGlobal label = pure $
         declareGlobl label
         ++ section BSS
         ++ align
         ++ globlLabel label
         ++ section TEXT
-
-
--- | Output asm for all uninitialized global variables
-allUninitialized :: [String] -> String
-allUninitialized vars = concatMap uninitializedGlobal vars
 
 
 {-

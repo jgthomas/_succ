@@ -30,7 +30,8 @@ genASM :: Tree -> GenState String
 
 genASM (ProgramNode topLevelItems) = do
         text   <- concat <$> mapM genASM topLevelItems
-        bss    <- ASM.allUninitialized <$> SymTab.getUndefined
+        undef  <- SymTab.getUndefined
+        bss    <- concat <$> mapM ASM.uninitializedGlobal undef
         toInit <- ASM.outputInit . concat <$> SymTab.getAllForInit
         pure $ text ++ bss ++ toInit
 
@@ -273,10 +274,10 @@ defineGlobal node@(AssignmentNode name valNode _) = do
                      SymTab.defineGlobal name
                      value <- genASM valNode
                      case valNode of
-                          (ConstantNode _)  -> pure $ globalVarASM lab value
+                          (ConstantNode _)  -> globalVarASM lab value
                           (AddressOfNode _) -> do
                                   SymTab.storeForInit $ value ++ ASM.varAddressStoreGlobal lab
-                                  pure $ ASM.uninitializedGlobal lab
+                                  ASM.uninitializedGlobal lab
                           _ -> undefined
 defineGlobal tree = throwError $ SyntaxError (Unexpected tree)
 
@@ -289,7 +290,7 @@ checkIfDefined node@(AssignmentNode name _ _) = do
 checkIfDefined tree = throwError $ SyntaxError (Unexpected tree)
 
 
-globalVarASM :: String -> String -> String
+globalVarASM :: String -> String -> GenState String
 globalVarASM lab "0" = ASM.uninitializedGlobal lab
 globalVarASM lab val = ASM.initializedGlobal lab val
 
