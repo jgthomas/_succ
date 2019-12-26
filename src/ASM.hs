@@ -545,8 +545,8 @@ literalValue n = "$" ++ show n
 
 
 -- | Setup initialisation block
-outputInit :: String -> String
-outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
+outputInit :: String -> GenState String
+outputInit toInit = pure $ "init:\n" ++ toInit ++ "jmp init_done\n"
 
 runInit :: String -> String
 runInit "main" = "jmp init\n" ++ "init_done:\n"
