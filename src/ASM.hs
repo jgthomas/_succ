@@ -1,4 +1,9 @@
+{-|
+Module       : ASM
+Description  : Builds strings of assembly code
 
+Generates the strings of x86-64 assembly code.
+-}
 module ASM
         (function,
          mainNoReturn,
@@ -119,6 +124,7 @@ loadVariable _ _ (Just lab) = loadGlobal lab
 loadVariable _ _ _          = undefined
 
 
+-- | Load a literal value into return register
 loadValue :: Int -> String
 loadValue n = move (literalValue n) (reg RAX)
 
@@ -343,6 +349,7 @@ makeFunctionCall :: String -> String
 makeFunctionCall funcName = call funcName
 
 
+-- | Move value in return register into selected register
 putInRegister :: Int -> String
 putInRegister r = move (reg RAX) (selectRegister r)
 
@@ -415,6 +422,7 @@ loadGlobal label =
         move (fromInstructionPointer label) (reg RAX)
 
 
+-- | Store the value of a global variable
 storeGlobal :: String -> String
 storeGlobal label =
         move (reg RAX) (fromInstructionPointer label)
@@ -523,6 +531,8 @@ indirectAddressing s = "(" ++ s ++ ")"
 literalValue :: Int -> String
 literalValue n = "$" ++ show n
 
+
+-- | Setup initialisation block
 outputInit :: String -> String
 outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
 
@@ -531,6 +541,7 @@ runInit name = if name == "main"
                then "jmp init\n" ++ "init_done:\n"
                else noOutput
 
+-- | Empty output
 noOutput :: String
 noOutput = ""
 
