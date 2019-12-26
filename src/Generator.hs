@@ -45,8 +45,8 @@ genASM node@(FunctionNode _ name _ (Just stmts)) = do
         SymTab.closeFunction
         SymTab.defineFunction name
         if hasReturn stmts || name /= "main"
-           then pure $ ASM.function name statements
-           else pure $ ASM.mainNoReturn name statements
+           then ASM.function name statements
+           else ASM.mainNoReturn name statements
 
 genASM (ParamNode typ (VarNode name)) = do
         SymTab.addParameter name typ
