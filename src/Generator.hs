@@ -174,7 +174,7 @@ genASM BreakNode = do
 genASM (ReturnNode tree) = do
         TypeCheck.funcReturn tree
         rtn <- genASM tree
-        pure $ rtn ++ ASM.returnStatement
+        ASM.returnValue rtn
 
 genASM (TernaryNode cond pass fails) = do
         testExp  <- genASM cond

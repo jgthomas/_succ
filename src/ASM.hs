@@ -7,7 +7,7 @@ Generates the strings of x86-64 assembly code.
 module ASM
         (function,
          mainNoReturn,
-         returnStatement,
+         returnValue,
          loadLiteral,
          unary,
          binary,
@@ -66,12 +66,16 @@ functionInit funcName =
         ++ saveRegisters allScratch
 
 
--- | Output asm for a return statement
 returnStatement :: String
 returnStatement =
         restoreRegisters allScratch
         ++ restoreBasePointer
         ++ returnControl
+
+
+-- | Output asm for a return value
+returnValue :: String -> GenState String
+returnValue rtn = pure $ rtn ++ returnStatement
 
 
 saveBasePointer :: String
