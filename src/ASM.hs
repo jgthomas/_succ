@@ -164,8 +164,8 @@ while test body loopLab testLab = pure $
 
 
 -- | Output asm for do while loop
-doWhile :: String -> String -> Int -> Int -> Int -> String
-doWhile body test loopLab contLab testLab =
+doWhile :: String -> String -> Int -> Int -> Int -> GenState String
+doWhile body test loopLab contLab testLab = pure $
         emitLabel loopLab
         ++ body
         ++ emitLabel contLab
