@@ -474,16 +474,10 @@ derefStore :: String
            -> Maybe Int
            -> Maybe String
            -> GenState String
-derefStore value loc par glo = do
-        deref <- derefSto loc par glo
-        pure $ value ++ deref
-
-
-derefSto :: Maybe Int -> Maybe Int -> Maybe String -> GenState String
-derefSto (Just off) _ _ = pure $ derefStoreLocal off
-derefSto _ (Just pos) _ = pure $ derefStoreParam pos
-derefSto _ _ (Just lab) = pure $ derefStoreGlobal lab
-derefSto _ _ _          = throwError ImpossibleError
+derefStore val (Just off) _ _ = pure $ val ++ derefStoreLocal off
+derefStore val _ (Just pos) _ = pure $ val ++ derefStoreParam pos
+derefStore val _ _ (Just lab) = pure $ val ++ derefStoreGlobal lab
+derefStore _ _ _ _            = throwError ImpossibleError
 
 
 derefStoreLocal :: Int -> String
