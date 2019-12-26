@@ -192,7 +192,7 @@ genASM (BinaryNode left right op) = do
         lab2 <- SymTab.labelNum
         lft  <- genASM left
         rgt  <- genASM right
-        pure $ ASM.binary lft rgt op lab1 lab2
+        ASM.binary lft rgt op lab1 lab2
 
 genASM (UnaryNode tree op) = do
         unode <- genASM tree

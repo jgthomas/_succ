@@ -2,9 +2,10 @@
 module Error where
 
 
-import AST    (Tree)
-import Tokens (Keyword, OpTok, Token)
-import Type   (Type)
+import AST      (Tree)
+import Operator (BinaryOp)
+import Tokens   (Keyword, OpTok, Token)
+import Type     (Type)
 
 
 data CompilerError = LexerError LexerError
@@ -12,7 +13,6 @@ data CompilerError = LexerError LexerError
                    | GeneratorError GeneratorError
                    | SyntaxError SyntaxError
                    | TypeError TypeError
-                   | OperatorError Token
                    | ImpossibleError
                    deriving (Show, Eq)
 
@@ -30,6 +30,7 @@ data ParserError = TreeError Tree
 
 data GeneratorError = NoStateFound String
                     | UndefinedScope Int
+                    | BinOpError BinaryOp
                     deriving (Show, Eq)
 
 
