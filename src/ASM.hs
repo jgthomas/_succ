@@ -499,10 +499,10 @@ derefStoreGlobal label =
 
 
 -- | Load the address of a variable
-addressOf :: Maybe Int -> Maybe String -> String
-addressOf (Just off) _ = varAddressLoad off
-addressOf _ (Just lab) = varAddressLoadGlobal lab
-addressOf _ _          = undefined
+addressOf :: Maybe Int -> Maybe String -> GenState String
+addressOf (Just off) _ = pure $ varAddressLoad off
+addressOf _ (Just lab) = pure $ varAddressLoadGlobal lab
+addressOf _ _          = throwError ImpossibleError
 
 
 varAddressLoad :: Int -> String

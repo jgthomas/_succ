@@ -210,7 +210,7 @@ genASM node@(AddressOfNode varName) = do
         case (offset, globLab) of
              (Nothing, Nothing) ->
                      throwError $ SyntaxError (Unrecognised node)
-             _ -> pure $ ASM.addressOf offset globLab
+             _ -> ASM.addressOf offset globLab
 
 genASM node@(DereferenceNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
