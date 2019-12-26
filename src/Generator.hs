@@ -160,7 +160,7 @@ genASM node@(AssignDereferenceNode varName value op) = do
         case (offset, argPos, globLab) of
              (Nothing, Nothing, Nothing) ->
                      throwError $ SyntaxError (Undeclared node)
-             _ -> pure $ assign ++ ASM.derefStore offset argPos globLab
+             _ -> ASM.derefStore assign offset argPos globLab
 
 genASM (ExprStmtNode expression) = genASM expression
 
