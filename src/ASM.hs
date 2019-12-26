@@ -152,8 +152,8 @@ adjustStackPointer offset =
 
 
 -- | Output asm for while loop
-while :: String -> String -> Int -> Int -> String
-while test body loopLab testLab =
+while :: String -> String -> Int -> Int -> GenState String
+while test body loopLab testLab = pure $
         emitLabel loopLab
         ++ test
         ++ testResult
