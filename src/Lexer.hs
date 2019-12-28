@@ -47,7 +47,7 @@ lexToken input@(c:_)
         | isOpSymbol c  = lexOperator input
         | identStart c  = lexIdentifier input
         | isDigit c     = lexNumber input
-        | otherwise     = throwError (LexerError (BadInput [c]))
+        | otherwise     = throwError $ LexerError (BadInput input)
 
 
 lexSeparator :: String -> LexerState (Token, String)
