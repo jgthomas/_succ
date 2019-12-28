@@ -16,7 +16,7 @@ import Parser             (parse)
 import Tokens             (Token)
 
 
-main :: IO()
+main :: IO ()
 main = do
         args <- getArgs
         let infileName = head args
