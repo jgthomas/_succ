@@ -63,6 +63,7 @@ data OpTokType = LogicalOR
                | Assign
                | Equality
                | Relational
+               | PostPosition
                deriving (Eq)
 
 
@@ -70,25 +71,31 @@ isAssign :: OpTok -> Bool
 isAssign op = op `elem` kind Assign
 
 
+isPostPos :: OpTok -> Bool
+isPostPos op = op `elem` kind PostPosition
+
+
 kind :: OpTokType -> [OpTok]
 kind tokTyp =
         case tokTyp of
-             LogicalOR  -> [PipePipe]
-             LogicalAND -> [AmpAmp]
-             Factor     -> [Asterisk,
-                            Backslash,
-                            Percent]
-             Term       -> [PlusSign,
-                            MinusSign]
-             Equality   -> [EqualEqual,
-                            BangEqual]
-             Relational -> [RightArrow,
-                            LeftArrow,
-                            RightArrowEqual,
-                            LeftArrowEqual]
-             Assign     -> [EqualSign,
-                            PlusEqual,
-                            MinusEqual,
-                            AsteriskEqual,
-                            BackslashEqual,
-                            PercentEqual]
+             LogicalOR    -> [PipePipe]
+             LogicalAND   -> [AmpAmp]
+             Factor       -> [Asterisk,
+                              Backslash,
+                              Percent]
+             Term         -> [PlusSign,
+                              MinusSign]
+             Equality     -> [EqualEqual,
+                              BangEqual]
+             Relational   -> [RightArrow,
+                              LeftArrow,
+                              RightArrowEqual,
+                              LeftArrowEqual]
+             Assign       -> [EqualSign,
+                              PlusEqual,
+                              MinusEqual,
+                              AsteriskEqual,
+                              BackslashEqual,
+                              PercentEqual]
+             PostPosition -> [PlusPlus,
+                              MinusMinus]

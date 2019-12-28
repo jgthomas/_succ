@@ -18,7 +18,7 @@ import           ParState      (ParserState, runParState, throwError)
 import qualified ParState      (getState, putState, startState)
 import           Tokens        (Keyword (..), OpTok (..), OpTokType (..),
                                 Token (..))
-import qualified Tokens        (isAssign, kind)
+import qualified Tokens        (isAssign, isPostPos, kind)
 import           Type          (Type (..))
 
 
@@ -304,8 +304,8 @@ parseExpression toks = do
         (tree, toks') <- parseTernaryExp toks
         case toks' of
              (OpTok op:rest)
-                | Tokens.isAssign op -> parseAssignExpression tree toks'
-                | op == PlusPlus     -> do
+                | Tokens.isAssign op  -> parseAssignExpression tree toks'
+                | Tokens.isPostPos op -> do
                         let unOp = Operator.tokToPostUnaryOp op
                         pure (UnaryNode tree unOp, rest)
                 | otherwise ->
