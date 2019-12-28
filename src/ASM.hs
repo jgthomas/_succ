@@ -39,7 +39,7 @@ module ASM
 import Error    (CompilerError (GeneratorError, ImpossibleError),
                  GeneratorError (..))
 import GenState (GenState, throwError)
-import Operator (BinaryOp (..), UnaryOp (..))
+import Operator (BinaryOp (..), PostOpUnary (..), UnaryOp (..))
 
 
 -- | Output asm for a function
@@ -247,18 +247,46 @@ unary load Increment (Just n) _ = pure $ load ++ unaryOp Increment ++ varOnStack
 unary load Decrement (Just n) _ = pure $ load ++ unaryOp Decrement ++ varOnStack n
 unary load Increment _ (Just l) = pure $ load ++ unaryOp Increment ++ saveGlobal l
 unary load Decrement _ (Just l) = pure $ load ++ unaryOp Decrement ++ saveGlobal l
+unary load (PostOpUnary po) l g = pure $ load ++ unaryPostOp po l g
 unary load op _ _               = pure $ load ++ unaryOp op
+
+
+unaryPostOp :: PostOpUnary -> Maybe Int -> Maybe String -> String
+unaryPostOp PostIncrement (Just n) _ = doubleLoadLocal n inc
+unaryPostOp PostDecrement (Just n) _ = doubleLoadLocal n dec
+unaryPostOp PostIncrement _ (Just l) = doubleLoadGlobal l inc
+unaryPostOp PostDecrement _ (Just l) = doubleLoadGlobal l dec
+unaryPostOp _ _ _                    = undefined
+
+
+doubleLoadLocal :: Int -> (String -> String) -> String
+doubleLoadLocal n f =
+        varOffStack n
+        ++ move (reg RAX) scratch
+        ++ f (reg RAX)
+        ++ varOnStack n
+        ++ move scratch (reg RAX)
+
+
+doubleLoadGlobal :: String -> (String -> String) -> String
+doubleLoadGlobal l f =
+        loadGlobal l
+        ++ move (reg RAX) scratch
+        ++ f (reg RAX)
+        ++ saveGlobal l
+        ++ move scratch (reg RAX)
 
 
 unaryOp :: UnaryOp -> String
 unaryOp unOp =
         case unOp of
-             Increment   -> inc (reg RAX)
-             Decrement   -> dec (reg RAX)
-             Negate      -> makeNegative (reg RAX)
-             Positive    -> empty
-             BitwiseComp -> invertBits (reg RAX)
-             LogicalNeg  -> logNeg
+             Increment     -> inc (reg RAX)
+             Decrement     -> dec (reg RAX)
+             Negate        -> makeNegative (reg RAX)
+             Positive      -> empty
+             BitwiseComp   -> invertBits (reg RAX)
+             LogicalNeg    -> logNeg
+             PostOpUnary _ -> empty
 
 
 logNeg :: String
