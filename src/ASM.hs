@@ -243,22 +243,22 @@ unary :: String
       -> Maybe Int
       -> Maybe String
       -> GenState String
-unary load Increment (Just n) _ = pure $ unaryOp load Increment ++ varOnStack n
-unary load Decrement (Just n) _ = pure $ unaryOp load Decrement ++ varOnStack n
-unary load Increment _ (Just l) = pure $ unaryOp load Increment ++ saveGlobal l
-unary load Decrement _ (Just l) = pure $ unaryOp load Decrement ++ saveGlobal l
-unary load op _ _               = pure $ unaryOp load op
+unary load Increment (Just n) _ = pure $ load ++ unaryOp Increment ++ varOnStack n
+unary load Decrement (Just n) _ = pure $ load ++ unaryOp Decrement ++ varOnStack n
+unary load Increment _ (Just l) = pure $ load ++ unaryOp Increment ++ saveGlobal l
+unary load Decrement _ (Just l) = pure $ load ++ unaryOp Decrement ++ saveGlobal l
+unary load op _ _               = pure $ load ++ unaryOp op
 
 
-unaryOp :: String -> UnaryOp -> String
-unaryOp load unOp =
+unaryOp :: UnaryOp -> String
+unaryOp unOp =
         case unOp of
-             Increment   -> load ++ inc (reg RAX)
-             Decrement   -> load ++ dec (reg RAX)
-             Negate      -> load ++ makeNegative (reg RAX)
-             Positive    -> load
-             BitwiseComp -> load ++ invertBits (reg RAX)
-             LogicalNeg  -> load ++ logNeg
+             Increment   -> inc (reg RAX)
+             Decrement   -> dec (reg RAX)
+             Negate      -> makeNegative (reg RAX)
+             Positive    -> empty
+             BitwiseComp -> invertBits (reg RAX)
+             LogicalNeg  -> logNeg
 
 
 logNeg :: String
@@ -579,7 +579,10 @@ runInit _      = ""
 
 -- | Empty output
 noOutput :: GenState String
-noOutput = pure ""
+noOutput = pure empty
+
+empty :: String
+empty = ""
 
 
 -- Instructions
