@@ -261,8 +261,7 @@ unaryPostOp _ _ _                    = undefined
 
 doubleLoadLocal :: Int -> (String -> String) -> String
 doubleLoadLocal n f =
-        varOffStack n
-        ++ move (reg RAX) scratch
+        move (reg RAX) scratch
         ++ f (reg RAX)
         ++ varOnStack n
         ++ move scratch (reg RAX)
@@ -270,8 +269,7 @@ doubleLoadLocal n f =
 
 doubleLoadGlobal :: String -> (String -> String) -> String
 doubleLoadGlobal l f =
-        loadGlobal l
-        ++ move (reg RAX) scratch
+        move (reg RAX) scratch
         ++ f (reg RAX)
         ++ saveGlobal l
         ++ move scratch (reg RAX)
