@@ -42,13 +42,18 @@ lexInput input@(c:cs)
 
 lexToken :: String -> LexerState (Token, String)
 lexToken [] = throwError ImpossibleError
-lexToken input@(c:cs)
+lexToken input@(c:_)
         | isSeparator c    = separator input
-        | isTwoCharOp c cs = twoCharOperator input
-        | isOpSymbol c     = operator input
+        | isOpSymbol c     = lexOperator input
         | identStart c     = identifier input
         | isDigit c        = number input
         | otherwise        = throwError (LexerError (BadInput [c]))
+
+
+lexOperator :: String -> LexerState (Token, String)
+lexOperator []    = throwError ImpossibleError
+lexOperator [a]   = operator [a]
+lexOperator input = twoCharOperator input
 
 
 separator :: String -> LexerState (Token, String)
@@ -138,15 +143,6 @@ isOpSymbol :: Char -> Bool
 isOpSymbol c = c `elem` opSymbols
 
 
-isSecondOpSymbol :: Char -> Bool
-isSecondOpSymbol c = c `elem` secondOpSymbols
-
-
-isTwoCharOp :: Char -> String -> Bool
-isTwoCharOp _ []    = False
-isTwoCharOp c (x:_) = isOpSymbol c && isSecondOpSymbol x
-
-
 isValidInIdentifier :: Char -> Bool
 isValidInIdentifier c = identStart c || isDigit c
 
@@ -157,10 +153,6 @@ opSymbols = "+-*/~!|&<>=%"
 
 separators :: String
 separators = "(){};:,?"
-
-
-secondOpSymbols :: String
-secondOpSymbols = "=|&+-"
 
 
 identStart :: Char -> Bool
