@@ -50,12 +50,6 @@ lexToken input@(c:_)
         | otherwise     = throwError (LexerError (BadInput [c]))
 
 
-lexOperator :: String -> LexerState (Token, String)
-lexOperator []    = throwError ImpossibleError
-lexOperator [a]   = operator [a]
-lexOperator input = twoCharOperator input
-
-
 lexSeparator :: String -> LexerState (Token, String)
 lexSeparator [] = throwError ImpossibleError
 lexSeparator (c:cs) =
@@ -96,10 +90,10 @@ lexNumber (c:cs) = do
         pure (ConstInt $ read (c:digs), cs')
 
 
-twoCharOperator :: String -> LexerState (Token, String)
-twoCharOperator []  = throwError ImpossibleError
-twoCharOperator [_] = throwError ImpossibleError
-twoCharOperator input@(c:n:cs) =
+lexOperator :: String -> LexerState (Token, String)
+lexOperator []  = throwError ImpossibleError
+lexOperator [a] = oneCharOperator [a]
+lexOperator input@(c:n:cs) =
         case c:[n] of
              "||" -> pure (OpTok PipePipe, cs)
              "&&" -> pure (OpTok AmpAmp, cs)
@@ -114,12 +108,12 @@ twoCharOperator input@(c:n:cs) =
              "%=" -> pure (OpTok PercentEqual, cs)
              "++" -> pure (OpTok PlusPlus, cs)
              "--" -> pure (OpTok MinusMinus, cs)
-             _    -> operator input
+             _    -> oneCharOperator input
 
 
-operator :: String -> LexerState (Token, String)
-operator [] = throwError ImpossibleError
-operator input@(c:cs) =
+oneCharOperator :: String -> LexerState (Token, String)
+oneCharOperator [] = throwError ImpossibleError
+oneCharOperator input@(c:cs) =
         case c of
              '+' -> pure (OpTok PlusSign, cs)
              '-' -> pure (OpTok MinusSign, cs)
