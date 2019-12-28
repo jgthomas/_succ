@@ -43,11 +43,11 @@ lexInput input@(c:cs)
 lexToken :: String -> LexerState (Token, String)
 lexToken [] = throwError ImpossibleError
 lexToken input@(c:_)
-        | isSeparator c    = separator input
-        | isOpSymbol c     = lexOperator input
-        | identStart c     = identifier input
-        | isDigit c        = number input
-        | otherwise        = throwError (LexerError (BadInput [c]))
+        | isSeparator c = lexSeparator input
+        | isOpSymbol c  = lexOperator input
+        | identStart c  = lexIdentifier input
+        | isDigit c     = lexNumber input
+        | otherwise     = throwError (LexerError (BadInput [c]))
 
 
 lexOperator :: String -> LexerState (Token, String)
@@ -56,9 +56,9 @@ lexOperator [a]   = operator [a]
 lexOperator input = twoCharOperator input
 
 
-separator :: String -> LexerState (Token, String)
-separator [] = throwError ImpossibleError
-separator (c:cs) =
+lexSeparator :: String -> LexerState (Token, String)
+lexSeparator [] = throwError ImpossibleError
+lexSeparator (c:cs) =
         case c of
              '(' -> pure (OpenParen, cs)
              ')' -> pure (CloseParen, cs)
@@ -71,9 +71,9 @@ separator (c:cs) =
              _   -> throwError $ LexerError (UnexpectedInput [c])
 
 
-identifier :: String -> LexerState (Token, String)
-identifier [] = throwError ImpossibleError
-identifier (c:cs) =
+lexIdentifier :: String -> LexerState (Token, String)
+lexIdentifier [] = throwError ImpossibleError
+lexIdentifier (c:cs) =
         let (str, cs') = span isValidInIdentifier cs
             in
         case c:str of
@@ -89,9 +89,9 @@ identifier (c:cs) =
              _          -> pure (Ident (c:str), cs')
 
 
-number :: String -> LexerState (Token, String)
-number [] = throwError ImpossibleError
-number (c:cs) = do
+lexNumber :: String -> LexerState (Token, String)
+lexNumber [] = throwError ImpossibleError
+lexNumber (c:cs) = do
         let (digs, cs') = span isDigit cs
         pure (ConstInt $ read (c:digs), cs')
 
