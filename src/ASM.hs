@@ -256,6 +256,7 @@ unaryOp load unOp =
              Increment   -> load ++ inc (reg RAX)
              Decrement   -> load ++ dec (reg RAX)
              Negate      -> load ++ makeNegative (reg RAX)
+             Positive    -> load
              BitwiseComp -> load ++ invertBits (reg RAX)
              LogicalNeg  -> load ++ logNeg
 

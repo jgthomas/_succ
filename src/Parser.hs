@@ -385,6 +385,7 @@ parseFactor toks@(next:rest) =
              (OpTok Bang)       -> parseUnary toks
              (OpTok PlusPlus)   -> parseUnary toks
              (OpTok MinusMinus) -> parseUnary toks
+             (OpTok PlusSign)   -> parseUnary toks
              OpenParen          -> parseParenExp rest
              _                  -> throwError $ ParserError (TokensError toks)
 
