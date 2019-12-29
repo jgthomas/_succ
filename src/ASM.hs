@@ -244,8 +244,8 @@ unary :: String
       -> Maybe Int
       -> Maybe String
       -> GenState String
-unary load (PreOpUnary op) l g  = pure $ load ++ unaryPreOp op l g
-unary load (PostOpUnary op) l g = pure $ load ++ unaryPostOp op l g
+unary load (PreOpUnary op) n l  = pure $ load ++ unaryPreOp op n l
+unary load (PostOpUnary op) n l = pure $ load ++ unaryPostOp op n l
 unary load (Unary op) _ _       = pure $ load ++ unaryOp op
 
 
