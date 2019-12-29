@@ -246,10 +246,10 @@ declareGlobal node@(DeclarationNode name typ toAssign) = do
         checkIfFunction node
         currLabel <- SymTab.globalLabel name
         case currLabel of
-             Just _ -> do
+             Just _  -> do
                      TypeCheck.globalDeclaration name typ
                      genAssignment toAssign
-             Nothing  -> do
+             Nothing -> do
                      labnum <- SymTab.labelNum
                      let globLab = mkGlobLabel name labnum
                      SymTab.declareGlobal name typ globLab
@@ -266,8 +266,8 @@ checkIfFunction tree = throwError $ SyntaxError (Unexpected tree)
 
 
 genAssignment :: Maybe Tree -> GenState String
-genAssignment Nothing  = ASM.noOutput
-genAssignment (Just t) = genASM t
+genAssignment Nothing     = ASM.noOutput
+genAssignment (Just tree) = genASM tree
 
 
 mkGlobLabel :: String -> Int -> String
