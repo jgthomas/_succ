@@ -250,8 +250,7 @@ declareGlobal node@(DeclarationNode name typ toAssign) = do
                      TypeCheck.globalDeclaration name typ
                      genAssignment toAssign
              Nothing -> do
-                     labnum <- SymTab.labelNum
-                     let globLab = mkGlobLabel name labnum
+                     globLab <- mkGlobLabel name <$> SymTab.labelNum
                      SymTab.declareGlobal name typ globLab
                      genAssignment toAssign
 declareGlobal tree = throwError $ SyntaxError (Unexpected tree)
