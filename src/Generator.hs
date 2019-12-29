@@ -275,22 +275,27 @@ mkGlobLabel name labnum = "_" ++ name ++ show labnum
 
 
 defineGlobal :: Tree -> GenState String
-defineGlobal node@(AssignmentNode name valNode _) = do
+defineGlobal node@(AssignmentNode name _ _) = do
         checkIfDefined node
         label <- SymTab.globalLabel name
-        case label of
-             Nothing  -> throwError $ SyntaxError (Undeclared node)
-             Just lab -> do
-                     SymTab.defineGlobal name
-                     value <- genASM valNode
-                     case valNode of
-                          (ConstantNode _)  -> globalVarASM lab value
-                          (AddressOfNode _) -> do
-                                  initASM <- ASM.varAddressStoreGlobal value lab
-                                  SymTab.storeForInit initASM
-                                  ASM.uninitializedGlobal lab
-                          _ -> throwError $ SyntaxError (Unexpected valNode)
+        SymTab.defineGlobal name
+        defPrevDecGlob label node
 defineGlobal tree = throwError $ SyntaxError (Unexpected tree)
+
+
+defPrevDecGlob :: Maybe String -> Tree -> GenState String
+defPrevDecGlob Nothing node = throwError $ SyntaxError (Undeclared node)
+defPrevDecGlob (Just label) (AssignmentNode _ (ConstantNode a) _) = do
+        value <- genASM (ConstantNode a)
+        globalVarASM label value
+defPrevDecGlob (Just label) (AssignmentNode _ (AddressOfNode a) _) = do
+        value   <- genASM (AddressOfNode a)
+        initASM <- ASM.varAddressStoreGlobal value label
+        SymTab.storeForInit initASM
+        ASM.uninitializedGlobal label
+defPrevDecGlob _ (AssignmentNode _ valNode _) =
+        throwError $ SyntaxError (Unexpected valNode)
+defPrevDecGlob _ tree = throwError $ SyntaxError (Unexpected tree)
 
 
 checkIfDefined :: Tree -> GenState ()
