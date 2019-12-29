@@ -17,7 +17,7 @@ import           Error         (CompilerError (GeneratorError, SyntaxError),
 import           GenState      (GenState, runGenState, throwError)
 import qualified GenState      (startState)
 import           GenTokens     (Scope (..))
-import           Operator      (BinaryOp (..), UnaryOp (..))
+import           Operator      (BinaryOp (..), PostOpUnary (..), UnaryOp (..))
 import qualified SymTab
 import qualified TypeCheck
 
@@ -197,16 +197,21 @@ genASM (BinaryNode left right op) = do
         rgt  <- genASM right
         ASM.binary lft rgt op lab1 lab2
 
+genASM (UnaryNode (VarNode a) op) = do
+        unaryNode     <- genASM (VarNode a)
+        (off, _, lab) <- checkVariableExists a
+        ASM.unary unaryNode op off lab
+genASM (UnaryNode _ Increment) =
+        throwError $ GeneratorError (UnaryOpError Increment)
+genASM (UnaryNode _ (PostOpUnary PostIncrement)) =
+        throwError $ GeneratorError (UnaryOpError (PostOpUnary PostIncrement))
+genASM (UnaryNode _ Decrement) =
+        throwError $ GeneratorError (UnaryOpError Decrement)
+genASM (UnaryNode _ (PostOpUnary PostDecrement)) =
+        throwError $ GeneratorError (UnaryOpError (PostOpUnary PostDecrement))
 genASM (UnaryNode tree op) = do
         unode <- genASM tree
-        case tree of
-             VarNode a -> do
-                     (offset, _, label) <- checkVariableExists a
-                     ASM.unary unode op offset label
-             _ -> case op of
-                       Increment -> throwError $ GeneratorError (UnaryOpError op)
-                       Decrement -> throwError $ GeneratorError (UnaryOpError op)
-                       _         -> ASM.unary unode op Nothing Nothing
+        ASM.unary unode op Nothing Nothing
 
 genASM node@(VarNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
