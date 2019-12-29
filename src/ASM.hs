@@ -258,23 +258,23 @@ unaryPreOp _ _ _                   = undefined
 
 
 unaryPostOp :: PostOpUnary -> Maybe Int -> Maybe String -> String
-unaryPostOp PostIncrement (Just n) _ = doubleLoadLocal n inc
-unaryPostOp PostDecrement (Just n) _ = doubleLoadLocal n dec
-unaryPostOp PostIncrement _ (Just l) = doubleLoadGlobal l inc
-unaryPostOp PostDecrement _ (Just l) = doubleLoadGlobal l dec
+unaryPostOp PostIncrement (Just n) _ = updateStoredLocal n inc
+unaryPostOp PostDecrement (Just n) _ = updateStoredLocal n dec
+unaryPostOp PostIncrement _ (Just l) = updateStoredGlobal l inc
+unaryPostOp PostDecrement _ (Just l) = updateStoredGlobal l dec
 unaryPostOp _ _ _                    = undefined
 
 
-doubleLoadLocal :: Int -> (String -> String) -> String
-doubleLoadLocal n f =
+updateStoredLocal :: Int -> (String -> String) -> String
+updateStoredLocal n f =
         move (reg RAX) scratch
         ++ f (reg RAX)
         ++ varOnStack n
         ++ move scratch (reg RAX)
 
 
-doubleLoadGlobal :: String -> (String -> String) -> String
-doubleLoadGlobal l f =
+updateStoredGlobal :: String -> (String -> String) -> String
+updateStoredGlobal l f =
         move (reg RAX) scratch
         ++ f (reg RAX)
         ++ saveGlobal l
