@@ -198,9 +198,9 @@ genASM (BinaryNode left right op) = do
         ASM.binary lft rgt op lab1 lab2
 
 genASM (UnaryNode (VarNode a) op) = do
-        unaryNode     <- genASM (VarNode a)
+        unaryASM      <- genASM (VarNode a)
         (off, _, lab) <- checkVariableExists a
-        ASM.unary unaryNode op off lab
+        ASM.unary unaryASM op off lab
 genASM (UnaryNode _ (PreOpUnary preOp)) =
         throwError $ GeneratorError (UnaryOpError (PreOpUnary preOp))
 genASM (UnaryNode _ (PostOpUnary postOp)) =
