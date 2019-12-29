@@ -17,7 +17,7 @@ import           Error         (CompilerError (GeneratorError, SyntaxError),
 import           GenState      (GenState, runGenState, throwError)
 import qualified GenState      (startState)
 import           GenTokens     (Scope (..))
-import           Operator      (BinaryOp (..), PostOpUnary (..), UnaryOp (..))
+import           Operator      (BinaryOp (..), UnaryOp (..))
 import qualified SymTab
 import qualified TypeCheck
 
@@ -203,12 +203,10 @@ genASM (UnaryNode (VarNode a) op) = do
         ASM.unary unaryNode op off lab
 genASM (UnaryNode _ Increment) =
         throwError $ GeneratorError (UnaryOpError Increment)
-genASM (UnaryNode _ (PostOpUnary PostIncrement)) =
-        throwError $ GeneratorError (UnaryOpError (PostOpUnary PostIncrement))
 genASM (UnaryNode _ Decrement) =
         throwError $ GeneratorError (UnaryOpError Decrement)
-genASM (UnaryNode _ (PostOpUnary PostDecrement)) =
-        throwError $ GeneratorError (UnaryOpError (PostOpUnary PostDecrement))
+genASM (UnaryNode _ (PostOpUnary postOp)) =
+        throwError $ GeneratorError (UnaryOpError (PostOpUnary postOp))
 genASM (UnaryNode tree op) = do
         unode <- genASM tree
         ASM.unary unode op Nothing Nothing
