@@ -22,14 +22,22 @@ data BinaryOp = Plus
               deriving (Show, Eq)
 
 
-data UnaryOp = Negate
-             | Positive
-             | BitwiseComp
-             | LogicalNeg
-             | Increment
-             | Decrement
+data UnaryOp = Unary Unary
+             | PreOpUnary PreOpUnary
              | PostOpUnary PostOpUnary
              deriving (Show, Eq)
+
+
+data Unary = Negate
+           | Positive
+           | BitwiseComp
+           | LogicalNeg
+           deriving (Show, Eq)
+
+
+data PreOpUnary = PreIncrement
+                | PreDecrement
+                deriving (Show, Eq)
 
 
 data PostOpUnary = PostIncrement
@@ -65,12 +73,12 @@ tokToBinOp tok =
 tokToUnaryOp :: OpTok -> UnaryOp
 tokToUnaryOp tok =
         case tok of
-             Bang       -> LogicalNeg
-             MinusSign  -> Negate
-             Tilde      -> BitwiseComp
-             PlusPlus   -> Increment
-             MinusMinus -> Decrement
-             PlusSign   -> Positive
+             Bang       -> Unary LogicalNeg
+             MinusSign  -> Unary Negate
+             PlusSign   -> Unary Positive
+             Tilde      -> Unary BitwiseComp
+             PlusPlus   -> PreOpUnary PreIncrement
+             MinusMinus -> PreOpUnary PreDecrement
              _          -> undefined
 
 

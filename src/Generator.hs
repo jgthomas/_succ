@@ -201,15 +201,13 @@ genASM (UnaryNode (VarNode a) op) = do
         unaryNode     <- genASM (VarNode a)
         (off, _, lab) <- checkVariableExists a
         ASM.unary unaryNode op off lab
-genASM (UnaryNode _ Increment) =
-        throwError $ GeneratorError (UnaryOpError Increment)
-genASM (UnaryNode _ Decrement) =
-        throwError $ GeneratorError (UnaryOpError Decrement)
+genASM (UnaryNode _ (PreOpUnary preOp)) =
+        throwError $ GeneratorError (UnaryOpError (PreOpUnary preOp))
 genASM (UnaryNode _ (PostOpUnary postOp)) =
         throwError $ GeneratorError (UnaryOpError (PostOpUnary postOp))
-genASM (UnaryNode tree op) = do
+genASM (UnaryNode tree (Unary op)) = do
         unode <- genASM tree
-        ASM.unary unode op Nothing Nothing
+        ASM.unary unode (Unary op) Nothing Nothing
 
 genASM node@(VarNode varName) = do
         (offset, argPos, globLab) <- checkVariableExists varName
