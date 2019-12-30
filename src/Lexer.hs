@@ -108,6 +108,9 @@ lexOperator input@(c:n:cs) =
              "%=" -> pure (OpTok PercentEqual, cs)
              "++" -> pure (OpTok PlusPlus, cs)
              "--" -> pure (OpTok MinusMinus, cs)
+             "&=" -> pure (OpTok AmpEqual, cs)
+             "^=" -> pure (OpTok CaretEqual, cs)
+             "|=" -> pure (OpTok PipeEqual, cs)
              _    -> oneCharOperator input
 
 

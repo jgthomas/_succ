@@ -73,6 +73,9 @@ tokToBinOp tok =
              Caret           -> BitwiseXOR
              Ampersand       -> BitwiseAND
              Pipe            -> BitwiseOR
+             AmpEqual        -> BitwiseAND
+             CaretEqual      -> BitwiseXOR
+             PipeEqual       -> BitwiseOR
              _               -> undefined
 
 
