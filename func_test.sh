@@ -19,7 +19,8 @@ ALL_TEST_CASES="1 \
                 10 \
                 ops \
                 pointers \
-                types"
+                types \
+                bitwise"
 
 
 if [[ ! -z $TESTS ]]; then
