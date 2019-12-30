@@ -126,6 +126,7 @@ oneCharOperator input@(c:cs) =
              '<' -> pure (OpTok LeftArrow, cs)
              '=' -> pure (OpTok EqualSign, cs)
              '&' -> pure (OpTok Ampersand, cs)
+             '^' -> pure (OpTok Caret, cs)
              _   -> throwError $ LexerError (UnexpectedInput input)
 
 
@@ -142,7 +143,7 @@ isValidInIdentifier c = identStart c || isDigit c
 
 
 opSymbols :: String
-opSymbols = "+-*/~!|&<>=%"
+opSymbols = "+-*/~!|&<>=%^"
 
 
 separators :: String

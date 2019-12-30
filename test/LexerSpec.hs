@@ -30,3 +30,6 @@ lexerTest = hspec $ do
 
                 it "should throw error for empty input" $
                   fromLeft ImpossibleError (tokenize "") `shouldBe` LexerError EmptyInput
+
+                it "should lex the caret operator" $
+                  fromRight [] (tokenize "^") `shouldBe` [OpTok Caret]

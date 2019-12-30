@@ -53,6 +53,7 @@ data OpTok = PlusSign
            | Ampersand
            | PlusPlus
            | MinusMinus
+           | Caret
            deriving (Show, Eq)
 
 
