@@ -314,13 +314,20 @@ binary load1 load2 binOp lab1 lab2 =
              LogicalOR   -> pure $ logicalOR load1 load2 lab1 lab2
              LogicalAND  -> pure $ logicalAND load1 load2 lab1 lab2
              BitwiseXOR  -> pure $ computeBitXOR load1 load2
+             BitwiseAND  -> pure $ computeBitAND load1 load2
              _           -> throwError $ GeneratorError (BinOpError binOp)
 
 
 computeBitXOR :: String -> String -> String
 computeBitXOR load1 load2 =
         loadValues load1 load2
-        ++ xor scratch (reg RAX)
+        ++ xorBits scratch (reg RAX)
+
+
+computeBitAND :: String -> String -> String
+computeBitAND load1 load2 =
+        loadValues load1 load2
+        ++ andBits scratch (reg RAX)
 
 
 logicalOR :: String -> String -> Int -> Int -> String
@@ -642,8 +649,11 @@ inc a = "inc " ++ a ++ "\n"
 dec :: String -> String
 dec a = "dec " ++ a ++ "\n"
 
-xor :: String -> String -> String
-xor a b = "xor " ++ a ++ ", " ++ b ++ "\n"
+xorBits :: String -> String -> String
+xorBits a b = "xor " ++ a ++ ", " ++ b ++ "\n"
+
+andBits :: String -> String -> String
+andBits a b = "and " ++ a ++ ", " ++ b ++ "\n"
 
 push :: String -> String
 push s = "pushq " ++ s ++ "\n"

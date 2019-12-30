@@ -20,6 +20,7 @@ data BinaryOp = Plus
               | LogicalOR
               | LogicalAND
               | BitwiseXOR
+              | BitwiseAND
               deriving (Show, Eq)
 
 
@@ -69,6 +70,7 @@ tokToBinOp tok =
              BackslashEqual  -> Divide
              PercentEqual    -> Modulo
              Caret           -> BitwiseXOR
+             Ampersand       -> BitwiseAND
              _               -> undefined
 
 

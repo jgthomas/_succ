@@ -66,6 +66,7 @@ data OpTokType = LogicalOR
                | Relational
                | PostPosition
                | BitwiseXOR
+               | BitwiseAND
                deriving (Eq)
 
 
@@ -102,3 +103,4 @@ kind tokTyp =
              PostPosition -> [PlusPlus,
                               MinusMinus]
              BitwiseXOR   -> [Caret]
+             BitwiseAND   -> [Ampersand]

@@ -352,8 +352,14 @@ parseLogicalAndExp toks = do
 
 parseBitwiseXOR :: [Token] -> ParserState (Tree, [Token])
 parseBitwiseXOR toks = do
-        (xorTree, toks') <- parseEqualityExp toks
-        parseBinaryExp xorTree toks' parseEqualityExp (Tokens.kind BitwiseXOR)
+        (xorTree, toks') <- parseBitwiseAND toks
+        parseBinaryExp xorTree toks' parseBitwiseAND (Tokens.kind BitwiseXOR)
+
+
+parseBitwiseAND :: [Token] -> ParserState (Tree, [Token])
+parseBitwiseAND toks = do
+        (andTree, toks') <- parseEqualityExp toks
+        parseBinaryExp andTree toks' parseEqualityExp (Tokens.kind BitwiseAND)
 
 
 parseEqualityExp :: [Token] -> ParserState (Tree, [Token])
