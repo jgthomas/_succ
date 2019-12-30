@@ -21,6 +21,7 @@ data BinaryOp = Plus
               | LogicalAND
               | BitwiseXOR
               | BitwiseAND
+              | BitwiseOR
               deriving (Show, Eq)
 
 
@@ -71,6 +72,7 @@ tokToBinOp tok =
              PercentEqual    -> Modulo
              Caret           -> BitwiseXOR
              Ampersand       -> BitwiseAND
+             Pipe            -> BitwiseOR
              _               -> undefined
 
 

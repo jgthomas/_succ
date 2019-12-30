@@ -346,8 +346,14 @@ parseLogicalOrExp toks = do
 
 parseLogicalAndExp :: [Token] -> ParserState (Tree, [Token])
 parseLogicalAndExp toks = do
-        (andTree, toks') <- parseBitwiseXOR toks
-        parseBinaryExp andTree toks' parseBitwiseXOR (Tokens.kind LogicalAND)
+        (andTree, toks') <- parseBitwiseOR toks
+        parseBinaryExp andTree toks' parseBitwiseOR (Tokens.kind LogicalAND)
+
+
+parseBitwiseOR :: [Token] -> ParserState (Tree, [Token])
+parseBitwiseOR toks = do
+        (orTree, toks') <- parseBitwiseXOR toks
+        parseBinaryExp orTree toks' parseBitwiseXOR (Tokens.kind BitwiseOR)
 
 
 parseBitwiseXOR :: [Token] -> ParserState (Tree, [Token])

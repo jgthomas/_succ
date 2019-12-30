@@ -127,6 +127,7 @@ oneCharOperator input@(c:cs) =
              '=' -> pure (OpTok EqualSign, cs)
              '&' -> pure (OpTok Ampersand, cs)
              '^' -> pure (OpTok Caret, cs)
+             '|' -> pure (OpTok Pipe, cs)
              _   -> throwError $ LexerError (UnexpectedInput input)
 
 

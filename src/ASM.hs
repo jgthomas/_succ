@@ -315,6 +315,7 @@ binary load1 load2 binOp lab1 lab2 =
              LogicalAND  -> pure $ logicalAND load1 load2 lab1 lab2
              BitwiseXOR  -> pure $ computeBitwise load1 load2 xorBits
              BitwiseAND  -> pure $ computeBitwise load1 load2 andBits
+             BitwiseOR   -> pure $ computeBitwise load1 load2 orBits
              _           -> throwError $ GeneratorError (BinOpError binOp)
 
 
@@ -651,6 +652,9 @@ xorBits a b = "xor " ++ a ++ ", " ++ b ++ "\n"
 
 andBits :: String -> String -> String
 andBits a b = "and " ++ a ++ ", " ++ b ++ "\n"
+
+orBits :: String -> String -> String
+orBits a b = "or " ++ a ++ ", " ++ b ++ "\n"
 
 push :: String -> String
 push s = "pushq " ++ s ++ "\n"
