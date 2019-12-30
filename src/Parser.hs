@@ -13,7 +13,8 @@ import           Control.Monad (unless)
 import           AST           (Tree (..))
 import           Error         (CompilerError (..), ParserError (..),
                                 SyntaxError (..), TypeError (..))
-import qualified Operator      (tokToBinOp, tokToPostUnaryOp, tokToUnaryOp)
+import qualified Operator      (tokToBinOp, tokToOp, tokToPostUnaryOp,
+                                tokToUnaryOp)
 import           ParState      (ParserState, runParState, throwError)
 import qualified ParState      (getState, putState, startState)
 import           Tokens        (Keyword (..), OpTok (..), OpTokType (..),
@@ -316,12 +317,12 @@ parseExpression toks = do
 parseAssignExpression :: Tree -> [Token] -> ParserState (Tree, [Token])
 parseAssignExpression tree (OpTok op:rest) = do
                    (asgn, toks') <- parseExpression rest
-                   let binOp = Operator.tokToBinOp op
+                   let asgnOp = Operator.tokToOp op
                    case tree of
                      (VarNode a) ->
-                             pure (AssignmentNode a asgn binOp, toks')
+                             pure (AssignmentNode a asgn asgnOp, toks')
                      (DereferenceNode a) ->
-                             pure (AssignDereferenceNode a asgn binOp, toks')
+                             pure (AssignDereferenceNode a asgn asgnOp, toks')
                      _ -> throwError $ ParserError (TreeError tree)
 parseAssignExpression _ toks = throwError $ ParserError (TokensError toks)
 

@@ -36,8 +36,7 @@ module ASM
         ) where
 
 
-import Error    (CompilerError (GeneratorError, ImpossibleError),
-                 GeneratorError (..))
+import Error    (CompilerError (ImpossibleError))
 import GenState (GenState, throwError)
 import Operator (BinaryOp (..), PostOpUnary (..), PreOpUnary (..), Unary (..),
                  UnaryOp (..))
@@ -316,7 +315,6 @@ binary load1 load2 binOp lab1 lab2 =
              BitwiseXOR  -> pure $ computeBitwise load1 load2 xorBits
              BitwiseAND  -> pure $ computeBitwise load1 load2 andBits
              BitwiseOR   -> pure $ computeBitwise load1 load2 orBits
-             _           -> throwError $ GeneratorError (BinOpError binOp)
 
 
 computeBitwise :: String

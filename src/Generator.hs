@@ -17,7 +17,7 @@ import           Error         (CompilerError (GeneratorError, SyntaxError),
 import           GenState      (GenState, runGenState, throwError)
 import qualified GenState      (startState)
 import           GenTokens     (Scope (..))
-import           Operator      (BinaryOp (..), UnaryOp (..))
+import           Operator      (Operator (..), UnaryOp (..))
 import qualified SymTab
 import qualified TypeCheck
 
@@ -415,9 +415,9 @@ checkVariableExists varName = do
         pure (offset, argPos, globLab)
 
 
-buildAssignmentASM :: Tree -> Tree -> BinaryOp -> GenState String
+buildAssignmentASM :: Tree -> Tree -> Operator -> GenState String
 buildAssignmentASM _ valTree Assignment = genASM valTree
-buildAssignmentASM varTree valTree binOp =
+buildAssignmentASM varTree valTree (BinaryOp binOp) =
         genASM (BinaryNode varTree valTree binOp)
 
 

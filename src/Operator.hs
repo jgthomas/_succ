@@ -5,6 +5,11 @@ module Operator where
 import Tokens (OpTok (..))
 
 
+data Operator = Assignment
+              | BinaryOp BinaryOp
+              deriving (Show, Eq)
+
+
 data BinaryOp = Plus
               | Minus
               | Divide
@@ -16,7 +21,6 @@ data BinaryOp = Plus
               | LessThan
               | GThanOrEqu
               | LThanOrEqu
-              | Assignment
               | LogicalOR
               | LogicalAND
               | BitwiseXOR
@@ -48,6 +52,13 @@ data PostOpUnary = PostIncrement
                  deriving (Show, Eq)
 
 
+tokToOp :: OpTok -> Operator
+tokToOp tok =
+        case tok of
+             EqualSign -> Assignment
+             _         -> BinaryOp (tokToBinOp tok)
+
+
 tokToBinOp :: OpTok -> BinaryOp
 tokToBinOp tok =
         case tok of
@@ -62,7 +73,6 @@ tokToBinOp tok =
              LeftArrow       -> LessThan
              RightArrowEqual -> GThanOrEqu
              LeftArrowEqual  -> LThanOrEqu
-             EqualSign       -> Assignment
              PipePipe        -> LogicalOR
              AmpAmp          -> LogicalAND
              PlusEqual       -> Plus

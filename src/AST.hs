@@ -2,7 +2,7 @@
 module AST where
 
 
-import Operator (BinaryOp, UnaryOp)
+import Operator (BinaryOp, Operator, UnaryOp)
 import Type     (Type)
 
 
@@ -12,8 +12,8 @@ data Tree = ProgramNode [Tree]
           | PointerNode String Type (Maybe Tree)
           | CompoundStmtNode [Tree]               -- statements
           | ReturnNode Tree
-          | AssignmentNode String Tree BinaryOp
-          | AssignDereferenceNode String Tree BinaryOp
+          | AssignmentNode String Tree Operator
+          | AssignDereferenceNode String Tree Operator
           | ExprStmtNode Tree
           | IfNode Tree Tree (Maybe Tree)
           | WhileNode Tree Tree
