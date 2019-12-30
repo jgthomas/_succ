@@ -313,7 +313,14 @@ binary load1 load2 binOp lab1 lab2 =
              LThanOrEqu  -> pure $ comparison load1 load2 ++ setBitIf LThanE
              LogicalOR   -> pure $ logicalOR load1 load2 lab1 lab2
              LogicalAND  -> pure $ logicalAND load1 load2 lab1 lab2
+             BitwiseXOR  -> pure $ computeBitXOR load1 load2
              _           -> throwError $ GeneratorError (BinOpError binOp)
+
+
+computeBitXOR :: String -> String -> String
+computeBitXOR load1 load2 =
+        loadValues load1 load2
+        ++ xor scratch (reg RAX)
 
 
 logicalOR :: String -> String -> Int -> Int -> String
@@ -634,6 +641,9 @@ inc a = "inc " ++ a ++ "\n"
 
 dec :: String -> String
 dec a = "dec " ++ a ++ "\n"
+
+xor :: String -> String -> String
+xor a b = "xor " ++ a ++ ", " ++ b ++ "\n"
 
 push :: String -> String
 push s = "pushq " ++ s ++ "\n"
