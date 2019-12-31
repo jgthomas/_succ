@@ -53,8 +53,8 @@ data PostOpUnary = PostIncrement
                  deriving (Show, Eq)
 
 
-tokToOp :: OpTok -> Operator
-tokToOp tok =
+tokToAssignOp :: OpTok -> Operator
+tokToAssignOp tok =
         case tok of
              EqualSign -> Assignment
              _         -> BinaryOp (tokToBinOp tok)
