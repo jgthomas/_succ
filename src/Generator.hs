@@ -201,10 +201,10 @@ genASM (UnaryNode (VarNode a) op) = do
         unaryASM      <- genASM (VarNode a)
         (off, _, lab) <- checkVariableExists a
         ASM.unary unaryASM op off lab
-genASM (UnaryNode _ (PreOpUnary preOp)) =
-        throwError $ GeneratorError (UnaryOpError (PreOpUnary preOp))
-genASM (UnaryNode _ (PostOpUnary postOp)) =
-        throwError $ GeneratorError (UnaryOpError (PostOpUnary postOp))
+genASM (UnaryNode _ unOp@(PreOpUnary _)) =
+        throwError $ GeneratorError (OperatorError (UnaryOp unOp))
+genASM (UnaryNode _ unOp@(PostOpUnary _)) =
+        throwError $ GeneratorError (OperatorError (UnaryOp unOp))
 genASM (UnaryNode tree (Unary op)) = do
         unode <- genASM tree
         ASM.unary unode (Unary op) Nothing Nothing
@@ -419,6 +419,8 @@ buildAssignmentASM :: Tree -> Tree -> Operator -> GenState String
 buildAssignmentASM _ valTree Assignment = genASM valTree
 buildAssignmentASM varTree valTree (BinaryOp binOp) =
         genASM (BinaryNode varTree valTree binOp)
+buildAssignmentASM _ _ (UnaryOp a) =
+        throwError $ GeneratorError (OperatorError (UnaryOp a))
 
 
 checkIfUsedInScope :: Tree -> GenState ()

@@ -3,7 +3,7 @@ module Error where
 
 
 import AST      (Tree)
-import Operator (BinaryOp, UnaryOp)
+import Operator (Operator)
 import Tokens   (Keyword, OpTok, Token)
 import Type     (Type)
 
@@ -30,8 +30,7 @@ data ParserError = TreeError Tree
 
 data GeneratorError = NoStateFound String
                     | UndefinedScope Int
-                    | BinOpError BinaryOp
-                    | UnaryOpError UnaryOp
+                    | OperatorError Operator
                     deriving (Show, Eq)
 
 

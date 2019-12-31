@@ -7,6 +7,7 @@ import Tokens (OpTok (..))
 
 data Operator = Assignment
               | BinaryOp BinaryOp
+              | UnaryOp UnaryOp
               deriving (Show, Eq)
 
 
