@@ -12,7 +12,11 @@ import Tokens
 
 lexerTest :: IO ()
 lexerTest = hspec $ do
-        describe "lex tokens" $ do
+        describe "Lex string into tokens" $ do
+                it "Correctly lex all separator characters" $
+                  concatMap (fromRight [] . tokenize) ["(",")","{","}",";",":","?",","]
+                  `shouldBe` [OpenParen,CloseParen,OpenBrace,CloseBrace,SemiColon,Colon,QuestMark,Comma]
+
                 it "simple token of a single variable" $
                   fromRight [] (tokenize "int a;") `shouldBe` [Keyword Int,Ident "a",SemiColon]
 
