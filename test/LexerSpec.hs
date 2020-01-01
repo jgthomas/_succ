@@ -53,6 +53,17 @@ lexerTest = hspec $ do
                               Keyword Continue]
 
 
+                it "Should correctly lex valid identifiers" $
+                  concatMap (fromRight [] . tokenize) ["main",
+                                                       "dog",
+                                                       "_cat",
+                                                       "Mouse"]
+                  `shouldBe` [Ident "main",
+                              Ident "dog",
+                              Ident "_cat",
+                              Ident "Mouse"]
+
+
                 it "Should correctly lex valid numbers" $
                   concatMap (fromRight [] . tokenize) ["123","1","0"]
                   `shouldBe` [ConstInt 123,ConstInt 1,ConstInt 0]
