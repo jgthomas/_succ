@@ -112,6 +112,7 @@ lexOperator input@(c:n:cs) =
              "^=" -> pure (OpTok CaretEqual, cs)
              "|=" -> pure (OpTok PipeEqual, cs)
              "<<" -> pure (OpTok DoubleLeftArrow, cs)
+             ">>" -> pure (OpTok DoubleRightArrow, cs)
              _    -> oneCharOperator input
 
 

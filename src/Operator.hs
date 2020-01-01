@@ -70,32 +70,33 @@ tokToAssignOp tok =
 tokToBinOp :: OpTok -> BinaryOp
 tokToBinOp tok =
         case tok of
-             PlusSign        -> Plus
-             MinusSign       -> Minus
-             Backslash       -> Divide
-             Asterisk        -> Multiply
-             Percent         -> Modulo
-             EqualEqual      -> Equal
-             BangEqual       -> NotEqual
-             RightArrow      -> GreaterThan
-             LeftArrow       -> LessThan
-             RightArrowEqual -> GThanOrEqu
-             LeftArrowEqual  -> LThanOrEqu
-             PipePipe        -> LogicalOR
-             AmpAmp          -> LogicalAND
-             PlusEqual       -> Plus
-             MinusEqual      -> Minus
-             AsteriskEqual   -> Multiply
-             BackslashEqual  -> Divide
-             PercentEqual    -> Modulo
-             Caret           -> BitwiseXOR
-             Ampersand       -> BitwiseAND
-             Pipe            -> BitwiseOR
-             CaretEqual      -> BitwiseXOR
-             AmpEqual        -> BitwiseAND
-             PipeEqual       -> BitwiseOR
-             DoubleLeftArrow -> ShiftOp LeftShift
-             _               -> undefined
+             PlusSign         -> Plus
+             MinusSign        -> Minus
+             Backslash        -> Divide
+             Asterisk         -> Multiply
+             Percent          -> Modulo
+             EqualEqual       -> Equal
+             BangEqual        -> NotEqual
+             RightArrow       -> GreaterThan
+             LeftArrow        -> LessThan
+             RightArrowEqual  -> GThanOrEqu
+             LeftArrowEqual   -> LThanOrEqu
+             PipePipe         -> LogicalOR
+             AmpAmp           -> LogicalAND
+             PlusEqual        -> Plus
+             MinusEqual       -> Minus
+             AsteriskEqual    -> Multiply
+             BackslashEqual   -> Divide
+             PercentEqual     -> Modulo
+             Caret            -> BitwiseXOR
+             Ampersand        -> BitwiseAND
+             Pipe             -> BitwiseOR
+             CaretEqual       -> BitwiseXOR
+             AmpEqual         -> BitwiseAND
+             PipeEqual        -> BitwiseOR
+             DoubleLeftArrow  -> ShiftOp LeftShift
+             DoubleRightArrow -> ShiftOp RightShift
+             _                -> undefined
 
 
 tokToUnaryOp :: OpTok -> UnaryOp
