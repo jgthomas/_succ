@@ -101,6 +101,47 @@ lexerTest = hspec $ do
                    OpTok Caret,
                    OpTok Pipe]
 
+                it "Should correctly lex all two character operators" $
+                  concatMap
+                  (fromRight [] . tokenize)
+                  ["||",
+                   "&&",
+                   ">=",
+                   "<=",
+                   "==",
+                   "!=",
+                   "+=",
+                   "-=",
+                   "*=",
+                   "/=",
+                   "%=",
+                   "++",
+                   "--",
+                   "&=",
+                   "^=",
+                   "|=",
+                   "<<",
+                   ">>"]
+                  `shouldBe`
+                  [OpTok PipePipe,
+                   OpTok AmpAmp,
+                   OpTok RightArrowEqual,
+                   OpTok LeftArrowEqual,
+                   OpTok EqualEqual,
+                   OpTok BangEqual,
+                   OpTok PlusEqual,
+                   OpTok MinusEqual,
+                   OpTok AsteriskEqual,
+                   OpTok BackslashEqual,
+                   OpTok PercentEqual,
+                   OpTok PlusPlus,
+                   OpTok MinusMinus,
+                   OpTok AmpEqual,
+                   OpTok CaretEqual,
+                   OpTok PipeEqual,
+                   OpTok DoubleLeftArrow,
+                   OpTok DoubleRightArrow]
+
                 it "Should correctly lex valid numbers" $
                   concatMap (fromRight [] . tokenize) ["123","1","0"]
                   `shouldBe` [ConstInt 123,ConstInt 1,ConstInt 0]
