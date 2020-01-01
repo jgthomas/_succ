@@ -146,6 +146,19 @@ lexerTest = hspec $ do
                   concatMap (fromRight [] . tokenize) ["<<=",">>="]
                   `shouldBe` [OpTok DoubleLArrowEqual,OpTok DoubleRArrowEqual]
 
+                it "Should correctly lex a mix of different length operators" $
+                  concatMap
+                  (fromRight [] . tokenize)
+                  ["+",
+                   "||",
+                   "<<=",
+                   "*"]
+                  `shouldBe`
+                  [OpTok PlusSign,
+                   OpTok PipePipe,
+                   OpTok DoubleLArrowEqual,
+                   OpTok Asterisk]
+
                 it "Should correctly lex valid numbers" $
                   concatMap (fromRight [] . tokenize) ["123","1","0"]
                   `shouldBe` [ConstInt 123,ConstInt 1,ConstInt 0]
