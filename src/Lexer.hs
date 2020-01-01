@@ -91,9 +91,20 @@ lexNumber (c:cs) = do
 
 
 lexOperator :: String -> LexerState (Token, String)
-lexOperator []  = throwError ImpossibleError
-lexOperator [a] = oneCharOperator [a]
-lexOperator input@(c:n:cs) =
+lexOperator []    = throwError ImpossibleError
+lexOperator [a]   = oneCharOperator [a]
+lexOperator [a,b] = twoCharOperator [a,b]
+lexOperator input@(c:n:m:cs) =
+        case c:n:[m] of
+             "<<=" -> pure (OpTok DoubleLArrowEqual, cs)
+             ">>=" -> pure (OpTok DoubleRArrowEqual, cs)
+             _     -> twoCharOperator input
+
+
+twoCharOperator :: String -> LexerState (Token, String)
+twoCharOperator []  = throwError ImpossibleError
+twoCharOperator [a] = oneCharOperator [a]
+twoCharOperator input@(c:n:cs) =
         case c:[n] of
              "||" -> pure (OpTok PipePipe, cs)
              "&&" -> pure (OpTok AmpAmp, cs)

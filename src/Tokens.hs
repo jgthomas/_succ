@@ -60,6 +60,8 @@ data OpTok = PlusSign
            | PipeEqual
            | DoubleLeftArrow
            | DoubleRightArrow
+           | DoubleLArrowEqual
+           | DoubleRArrowEqual
            deriving (Show, Eq)
 
 
@@ -110,7 +112,9 @@ kind tokTyp =
                               PercentEqual,
                               AmpEqual,
                               CaretEqual,
-                              PipeEqual]
+                              PipeEqual,
+                              DoubleLArrowEqual,
+                              DoubleRArrowEqual]
              PostPosition -> [PlusPlus,
                               MinusMinus]
              BitwiseXOR   -> [Caret]
