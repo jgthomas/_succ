@@ -64,6 +64,35 @@ lexerTest = hspec $ do
                               Ident "Mouse"]
 
 
+                it "Should correctly lex all single character operators" $
+                  concatMap (fromRight [] . tokenize) ["+",
+                                                       "-",
+                                                       "*",
+                                                       "%",
+                                                       "/",
+                                                       "~",
+                                                       "!",
+                                                       ">",
+                                                       "<",
+                                                       "=",
+                                                       "&",
+                                                       "^",
+                                                       "|"]
+                  `shouldBe` [OpTok PlusSign,
+                              OpTok MinusSign,
+                              OpTok Asterisk,
+                              OpTok Percent,
+                              OpTok Backslash,
+                              OpTok Tilde,
+                              OpTok Bang,
+                              OpTok RightArrow,
+                              OpTok LeftArrow,
+                              OpTok EqualSign,
+                              OpTok Ampersand,
+                              OpTok Caret,
+                              OpTok Pipe]
+
+
                 it "Should correctly lex valid numbers" $
                   concatMap (fromRight [] . tokenize) ["123","1","0"]
                   `shouldBe` [ConstInt 123,ConstInt 1,ConstInt 0]
