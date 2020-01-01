@@ -323,7 +323,7 @@ computeShift :: String
              -> String
              -> (String -> String -> String)
              -> String
-computeShift load1 n f = load1 ++ f (reg RAX) n
+computeShift load1 n f = load1 ++ f n (reg RAX)
 
 
 computeBitwise :: String
@@ -664,10 +664,10 @@ orBits :: String -> String -> String
 orBits a b = "or " ++ a ++ ", " ++ b ++ "\n"
 
 shiftBitsLeft :: String -> String -> String
-shiftBitsLeft dest n = "sal " ++ "$" ++ n ++ ", " ++ dest ++ "\n"
+shiftBitsLeft n dest = "sal " ++ "$" ++ n ++ ", " ++ dest ++ "\n"
 
 shiftBitsRight :: String -> String -> String
-shiftBitsRight dest n = "sar " ++ "$" ++ n ++ ", " ++ dest ++ "\n"
+shiftBitsRight n dest = "sar " ++ "$" ++ n ++ ", " ++ dest ++ "\n"
 
 push :: String -> String
 push s = "pushq " ++ s ++ "\n"
