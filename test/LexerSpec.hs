@@ -12,7 +12,7 @@ import Tokens
 
 lexerTest :: IO ()
 lexerTest = hspec $ do
-        describe "Lex string into tokens" $ do
+        describe "Lex input string into tokens" $ do
                 it "Should correctly lex all separator characters" $
                   concatMap
                   (fromRight [] . tokenize)
@@ -159,34 +159,23 @@ lexerTest = hspec $ do
                    OpTok DoubleLArrowEqual,
                    OpTok Asterisk]
 
+                it "Should correctly lex easily confused operators" $
+                  concatMap (fromRight [] . tokenize) ["++","+","+="]
+                  `shouldBe` [OpTok PlusPlus,OpTok PlusSign,OpTok PlusEqual]
+
                 it "Should correctly lex valid numbers" $
                   concatMap (fromRight [] . tokenize) ["123","1","0"]
                   `shouldBe` [ConstInt 123,ConstInt 1,ConstInt 0]
 
-                it "simple token of a single variable" $
+                it "Should correctly lex a variable declaration" $
                   fromRight [] (tokenize "int a;")
                   `shouldBe` [Keyword Int,Ident "a",SemiColon]
 
-                it "should be a two-character operator then a single one I" $
-                  fromRight [] (tokenize "+=+")
-                  `shouldBe` [OpTok PlusEqual,OpTok PlusSign]
-
-                it "should be a two character operator then a single one II" $
-                  fromRight [] (tokenize "+==")
-                  `shouldBe` [OpTok PlusEqual,OpTok EqualSign]
-
-                it "should be two of the SAME two-character operators" $
-                  fromRight [] (tokenize "+=+=")
-                  `shouldBe` [OpTok PlusEqual,OpTok PlusEqual]
-
-                it "should throw error for unrecognised character" $
+        describe "Throw errors on bad input" $ do
+                it "Should throw error for unrecognised character" $
                   fromLeft ImpossibleError (tokenize "$")
                   `shouldBe` LexerError (BadInput "$")
 
-                it "should throw error for empty input" $
+                it "Should throw error for empty input" $
                   fromLeft ImpossibleError (tokenize "")
                   `shouldBe` LexerError EmptyInput
-
-                it "should lex the caret operator" $
-                  fromRight [] (tokenize "^")
-                  `shouldBe` [OpTok Caret]
