@@ -17,6 +17,26 @@ lexerTest = hspec $ do
                   concatMap (fromRight [] . tokenize) ["(",")","{","}",";",":","?",","]
                   `shouldBe` [OpenParen,CloseParen,OpenBrace,CloseBrace,SemiColon,Colon,QuestMark,Comma]
 
+                it "Correctly lex all language keywords" $
+                  concatMap (fromRight [] . tokenize) ["int",
+                                                       "return",
+                                                       "if",
+                                                       "else",
+                                                       "for",
+                                                       "while",
+                                                       "do",
+                                                       "break",
+                                                       "continue"]
+                  `shouldBe` [Keyword Int,
+                              Keyword Return,
+                              Keyword If,
+                              Keyword Else,
+                              Keyword For,
+                              Keyword While,
+                              Keyword Do,
+                              Keyword Break,
+                              Keyword Continue]
+
                 it "simple token of a single variable" $
                   fromRight [] (tokenize "int a;") `shouldBe` [Keyword Int,Ident "a",SemiColon]
 
