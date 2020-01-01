@@ -70,7 +70,7 @@ lexerTest = hspec $ do
                    Ident "_cat",
                    Ident "Mouse"]
 
-                it "Should correctly lex all single character operators" $
+                it "Should correctly lex all single-character operators" $
                   concatMap
                   (fromRight [] . tokenize)
                   ["+",
@@ -101,7 +101,7 @@ lexerTest = hspec $ do
                    OpTok Caret,
                    OpTok Pipe]
 
-                it "Should correctly lex all two character operators" $
+                it "Should correctly lex all two-character operators" $
                   concatMap
                   (fromRight [] . tokenize)
                   ["||",
@@ -141,6 +141,10 @@ lexerTest = hspec $ do
                    OpTok PipeEqual,
                    OpTok DoubleLeftArrow,
                    OpTok DoubleRightArrow]
+
+                it "Should correctly lex all three-character opertators" $
+                  concatMap (fromRight [] . tokenize) ["<<=",">>="]
+                  `shouldBe` [OpTok DoubleLArrowEqual,OpTok DoubleRArrowEqual]
 
                 it "Should correctly lex valid numbers" $
                   concatMap (fromRight [] . tokenize) ["123","1","0"]
