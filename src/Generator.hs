@@ -190,17 +190,11 @@ genASM (TernaryNode cond pass fails) = do
         falseLab <- SymTab.labelNum
         ASM.ternary testExp true false trueLab falseLab
 
-genASM (BinaryNode left (ConstantNode n) (ShiftOp op)) = do
-        lab1 <- SymTab.labelNum
-        lab2 <- SymTab.labelNum
-        lft  <- genASM left
-        ASM.binary lft (show n) (ShiftOp op) lab1 lab2
-genASM (BinaryNode left right op) = do
-        lab1 <- SymTab.labelNum
-        lab2 <- SymTab.labelNum
-        lft  <- genASM left
-        rgt  <- genASM right
-        ASM.binary lft rgt op lab1 lab2
+genASM node@(BinaryNode _ (ConstantNode n) (ShiftOp _)) =
+        processBinaryNode node (show n)
+genASM node@(BinaryNode _ right _) = do
+        rgt <- genASM right
+        processBinaryNode node rgt
 
 genASM (UnaryNode (VarNode a) op) = do
         unaryASM      <- genASM (VarNode a)
@@ -435,3 +429,14 @@ checkIfUsedInScope node@(DeclarationNode name _ _) = do
         when (localDec || paramDec) $
            throwError $ SyntaxError (DoubleDeclared node)
 checkIfUsedInScope tree = throwError $ SyntaxError (Unexpected tree)
+
+
+-- Operators
+
+processBinaryNode :: Tree -> String -> GenState String
+processBinaryNode (BinaryNode left _ op) rgt = do
+        lab1 <- SymTab.labelNum
+        lab2 <- SymTab.labelNum
+        lft  <- genASM left
+        ASM.binary lft rgt op lab1 lab2
+processBinaryNode tree _ = throwError $ SyntaxError (Unexpected tree)
