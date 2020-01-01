@@ -14,84 +14,92 @@ lexerTest :: IO ()
 lexerTest = hspec $ do
         describe "Lex string into tokens" $ do
                 it "Should correctly lex all separator characters" $
-                  concatMap (fromRight [] . tokenize) ["(",
-                                                       ")",
-                                                       "{",
-                                                       "}",
-                                                       ";",
-                                                       ":",
-                                                       "?",
-                                                       ","]
-                  `shouldBe` [OpenParen,
-                              CloseParen,
-                              OpenBrace,
-                              CloseBrace,
-                              SemiColon,
-                              Colon,
-                              QuestMark,
-                              Comma]
-
+                  concatMap
+                  (fromRight [] . tokenize)
+                  ["(",
+                   ")",
+                   "{",
+                   "}",
+                   ";",
+                   ":",
+                   "?",
+                   ","]
+                  `shouldBe`
+                  [OpenParen,
+                   CloseParen,
+                   OpenBrace,
+                   CloseBrace,
+                   SemiColon,
+                   Colon,
+                   QuestMark,
+                   Comma]
 
                 it "Should correctly lex all language keywords" $
-                  concatMap (fromRight [] . tokenize) ["int",
-                                                       "return",
-                                                       "if",
-                                                       "else",
-                                                       "for",
-                                                       "while",
-                                                       "do",
-                                                       "break",
-                                                       "continue"]
-                  `shouldBe` [Keyword Int,
-                              Keyword Return,
-                              Keyword If,
-                              Keyword Else,
-                              Keyword For,
-                              Keyword While,
-                              Keyword Do,
-                              Keyword Break,
-                              Keyword Continue]
-
+                  concatMap
+                  (fromRight [] . tokenize)
+                  ["int",
+                   "return",
+                   "if",
+                   "else",
+                   "for",
+                   "while",
+                   "do",
+                   "break",
+                   "continue"]
+                  `shouldBe`
+                  [Keyword Int,
+                   Keyword Return,
+                   Keyword If,
+                   Keyword Else,
+                   Keyword For,
+                   Keyword While,
+                   Keyword Do,
+                   Keyword Break,
+                   Keyword Continue]
 
                 it "Should correctly lex valid identifiers" $
-                  concatMap (fromRight [] . tokenize) ["main",
-                                                       "dog",
-                                                       "_cat",
-                                                       "Mouse"]
-                  `shouldBe` [Ident "main",
-                              Ident "dog",
-                              Ident "_cat",
-                              Ident "Mouse"]
-
+                  concatMap
+                  (fromRight [] . tokenize)
+                  ["main",
+                   "dog",
+                   "_cat",
+                   "Mouse"]
+                  `shouldBe`
+                  [Ident "main",
+                   Ident "dog",
+                   Ident "_cat",
+                   Ident "Mouse"]
 
                 it "Should correctly lex all single character operators" $
-                  concatMap (fromRight [] . tokenize) ["+",
-                                                       "-",
-                                                       "*",
-                                                       "%",
-                                                       "/",
-                                                       "~",
-                                                       "!",
-                                                       ">",
-                                                       "<",
-                                                       "=",
-                                                       "&",
-                                                       "^",
-                                                       "|"]
-                  `shouldBe` [OpTok PlusSign,
-                              OpTok MinusSign,
-                              OpTok Asterisk,
-                              OpTok Percent,
-                              OpTok Backslash,
-                              OpTok Tilde,
-                              OpTok Bang,
-                              OpTok RightArrow,
-                              OpTok LeftArrow,
-                              OpTok EqualSign,
-                              OpTok Ampersand,
-                              OpTok Caret,
-                              OpTok Pipe]
-
+                  concatMap
+                  (fromRight [] . tokenize)
+                  ["+",
+                   "-",
+                   "*",
+                   "%",
+                   "/",
+                   "~",
+                   "!",
+                   ">",
+                   "<",
+                   "=",
+                   "&",
+                   "^",
+                   "|"]
+                  `shouldBe`
+                  [OpTok PlusSign,
+                   OpTok MinusSign,
+                   OpTok Asterisk,
+                   OpTok Percent,
+                   OpTok Backslash,
+                   OpTok Tilde,
+                   OpTok Bang,
+                   OpTok RightArrow,
+                   OpTok LeftArrow,
+                   OpTok EqualSign,
+                   OpTok Ampersand,
+                   OpTok Caret,
+                   OpTok Pipe]
 
                 it "Should correctly lex valid numbers" $
                   concatMap (fromRight [] . tokenize) ["123","1","0"]
