@@ -53,6 +53,10 @@ lexerTest = hspec $ do
                               Keyword Continue]
 
 
+                it "Should correctly lex valid numbers" $
+                  concatMap (fromRight [] . tokenize) ["123","1","0"]
+                  `shouldBe` [ConstInt 123,ConstInt 1,ConstInt 0]
+
                 it "simple token of a single variable" $
                   fromRight [] (tokenize "int a;")
                   `shouldBe` [Keyword Int,Ident "a",SemiColon]
