@@ -13,11 +13,26 @@ import Tokens
 lexerTest :: IO ()
 lexerTest = hspec $ do
         describe "Lex string into tokens" $ do
-                it "Correctly lex all separator characters" $
-                  concatMap (fromRight [] . tokenize) ["(",")","{","}",";",":","?",","]
-                  `shouldBe` [OpenParen,CloseParen,OpenBrace,CloseBrace,SemiColon,Colon,QuestMark,Comma]
+                it "Should correctly lex all separator characters" $
+                  concatMap (fromRight [] . tokenize) ["(",
+                                                       ")",
+                                                       "{",
+                                                       "}",
+                                                       ";",
+                                                       ":",
+                                                       "?",
+                                                       ","]
+                  `shouldBe` [OpenParen,
+                              CloseParen,
+                              OpenBrace,
+                              CloseBrace,
+                              SemiColon,
+                              Colon,
+                              QuestMark,
+                              Comma]
 
-                it "Correctly lex all language keywords" $
+
+                it "Should correctly lex all language keywords" $
                   concatMap (fromRight [] . tokenize) ["int",
                                                        "return",
                                                        "if",
@@ -36,6 +51,7 @@ lexerTest = hspec $ do
                               Keyword Do,
                               Keyword Break,
                               Keyword Continue]
+
 
                 it "simple token of a single variable" $
                   fromRight [] (tokenize "int a;") `shouldBe` [Keyword Int,Ident "a",SemiColon]
