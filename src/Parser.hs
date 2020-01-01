@@ -377,8 +377,14 @@ parseEqualityExp toks = do
 
 parseRelationalExp :: [Token] -> ParserState (Tree, [Token])
 parseRelationalExp toks = do
-        (relaTree, toks') <- parseAdditiveExp toks
-        parseBinaryExp relaTree toks' parseAdditiveExp (Tokens.kind Relational)
+        (relaTree, toks') <- parseBitShiftExp toks
+        parseBinaryExp relaTree toks' parseBitShiftExp (Tokens.kind Relational)
+
+
+parseBitShiftExp :: [Token] -> ParserState (Tree, [Token])
+parseBitShiftExp toks = do
+        (shiftTree, toks') <- parseAdditiveExp toks
+        parseBinaryExp shiftTree toks' parseAdditiveExp (Tokens.kind Shift)
 
 
 parseAdditiveExp :: [Token] -> ParserState (Tree, [Token])

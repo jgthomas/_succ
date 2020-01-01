@@ -17,7 +17,7 @@ import           Error         (CompilerError (GeneratorError, SyntaxError),
 import           GenState      (GenState, runGenState, throwError)
 import qualified GenState      (startState)
 import           GenTokens     (Scope (..))
-import           Operator      (Operator (..), UnaryOp (..))
+import           Operator      (BinaryOp (..), Operator (..), UnaryOp (..))
 import qualified SymTab
 import qualified TypeCheck
 
@@ -190,6 +190,11 @@ genASM (TernaryNode cond pass fails) = do
         falseLab <- SymTab.labelNum
         ASM.ternary testExp true false trueLab falseLab
 
+genASM (BinaryNode left (ConstantNode n) (ShiftOp op)) = do
+        lab1 <- SymTab.labelNum
+        lab2 <- SymTab.labelNum
+        lft  <- genASM left
+        ASM.binary lft (show n) (ShiftOp op) lab1 lab2
 genASM (BinaryNode left right op) = do
         lab1 <- SymTab.labelNum
         lab2 <- SymTab.labelNum

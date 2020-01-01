@@ -38,8 +38,8 @@ module ASM
 
 import Error    (CompilerError (ImpossibleError))
 import GenState (GenState, throwError)
-import Operator (BinaryOp (..), PostOpUnary (..), PreOpUnary (..), Unary (..),
-                 UnaryOp (..))
+import Operator (BinaryOp (..), PostOpUnary (..), PreOpUnary (..), ShiftOp (..),
+                 Unary (..), UnaryOp (..))
 
 
 -- | Output asm for a function
@@ -299,22 +299,31 @@ logNeg = comp (literalValue 0) (reg RAX)
 binary :: String -> String -> BinaryOp -> Int -> Int -> GenState String
 binary load1 load2 binOp lab1 lab2 =
         case binOp of
-             Plus        -> pure $ computeAdd load1 load2
-             Minus       -> pure $ computeSub load1 load2
-             Multiply    -> pure $ computeMul load1 load2
-             Divide      -> pure $ computeDiv load1 load2
-             Modulo      -> pure $ computeMod load1 load2
-             Equal       -> pure $ comparison load1 load2 ++ setBitIf Equ
-             NotEqual    -> pure $ comparison load1 load2 ++ setBitIf NEqu
-             GreaterThan -> pure $ comparison load1 load2 ++ setBitIf GThan
-             LessThan    -> pure $ comparison load1 load2 ++ setBitIf LThan
-             GThanOrEqu  -> pure $ comparison load1 load2 ++ setBitIf GThanE
-             LThanOrEqu  -> pure $ comparison load1 load2 ++ setBitIf LThanE
-             LogicalOR   -> pure $ logicalOR load1 load2 lab1 lab2
-             LogicalAND  -> pure $ logicalAND load1 load2 lab1 lab2
-             BitwiseXOR  -> pure $ computeBitwise load1 load2 xorBits
-             BitwiseAND  -> pure $ computeBitwise load1 load2 andBits
-             BitwiseOR   -> pure $ computeBitwise load1 load2 orBits
+             Plus               -> pure $ computeAdd load1 load2
+             Minus              -> pure $ computeSub load1 load2
+             Multiply           -> pure $ computeMul load1 load2
+             Divide             -> pure $ computeDiv load1 load2
+             Modulo             -> pure $ computeMod load1 load2
+             Equal              -> pure $ comparison load1 load2 ++ setBitIf Equ
+             NotEqual           -> pure $ comparison load1 load2 ++ setBitIf NEqu
+             GreaterThan        -> pure $ comparison load1 load2 ++ setBitIf GThan
+             LessThan           -> pure $ comparison load1 load2 ++ setBitIf LThan
+             GThanOrEqu         -> pure $ comparison load1 load2 ++ setBitIf GThanE
+             LThanOrEqu         -> pure $ comparison load1 load2 ++ setBitIf LThanE
+             LogicalOR          -> pure $ logicalOR load1 load2 lab1 lab2
+             LogicalAND         -> pure $ logicalAND load1 load2 lab1 lab2
+             BitwiseXOR         -> pure $ computeBitwise load1 load2 xorBits
+             BitwiseAND         -> pure $ computeBitwise load1 load2 andBits
+             BitwiseOR          -> pure $ computeBitwise load1 load2 orBits
+             ShiftOp LeftShift  -> pure $ computeShift load1 load2 shiftBitsLeft
+             ShiftOp RightShift -> pure $ computeShift load1 load2 shiftBitsRight
+
+
+computeShift :: String
+             -> String
+             -> (String -> String -> String)
+             -> String
+computeShift load1 n f = load1 ++ f (reg RAX) n
 
 
 computeBitwise :: String
@@ -653,6 +662,12 @@ andBits a b = "and " ++ a ++ ", " ++ b ++ "\n"
 
 orBits :: String -> String -> String
 orBits a b = "or " ++ a ++ ", " ++ b ++ "\n"
+
+shiftBitsLeft :: String -> String -> String
+shiftBitsLeft dest n = "sal " ++ "$" ++ n ++ ", " ++ dest ++ "\n"
+
+shiftBitsRight :: String -> String -> String
+shiftBitsRight dest n = "sar " ++ "$" ++ n ++ ", " ++ dest ++ "\n"
 
 push :: String -> String
 push s = "pushq " ++ s ++ "\n"

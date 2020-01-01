@@ -34,10 +34,10 @@ main = do
         let gccOpts = "gcc -g "
             output  = " -o " ++ dropExtension outfileName
             toMachineCode = gccOpts ++ outfileName ++ output
-            deleteFile    = "rm " ++ outfileName
+            --deleteFile    = "rm " ++ outfileName
 
         _ <- system toMachineCode
-        _ <- system deleteFile
+        --_ <- system deleteFile
         hClose handle
 
 

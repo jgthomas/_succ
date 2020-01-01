@@ -58,6 +58,7 @@ data OpTok = PlusSign
            | AmpEqual
            | CaretEqual
            | PipeEqual
+           | DoubleLeftArrow
            deriving (Show, Eq)
 
 
@@ -72,6 +73,7 @@ data OpTokType = LogicalOR
                | BitwiseXOR
                | BitwiseAND
                | BitwiseOR
+               | Shift
                deriving (Eq)
 
 
@@ -113,3 +115,4 @@ kind tokTyp =
              BitwiseXOR   -> [Caret]
              BitwiseAND   -> [Ampersand]
              BitwiseOR    -> [Pipe]
+             Shift        -> [DoubleLeftArrow]

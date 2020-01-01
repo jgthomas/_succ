@@ -27,7 +27,14 @@ data BinaryOp = Plus
               | BitwiseXOR
               | BitwiseAND
               | BitwiseOR
+              | ShiftOp ShiftOp
               deriving (Show, Eq)
+
+
+data ShiftOp = LeftShift
+             | RightShift
+             deriving (Show, Eq)
+
 
 
 data UnaryOp = Unary Unary
@@ -87,6 +94,7 @@ tokToBinOp tok =
              CaretEqual      -> BitwiseXOR
              AmpEqual        -> BitwiseAND
              PipeEqual       -> BitwiseOR
+             DoubleLeftArrow -> ShiftOp LeftShift
              _               -> undefined
 
 
