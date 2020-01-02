@@ -171,6 +171,18 @@ lexerTest = hspec $ do
                   fromRight [] (tokenize "int a;")
                   `shouldBe` [Keyword Int,Ident "a",SemiColon]
 
+                it "Should correctly lex a simple function" $
+                  fromRight [] (tokenize "int main() { return 2; }")
+                  `shouldBe` [Keyword Int,
+                              Ident "main",
+                              OpenParen,
+                              CloseParen,
+                              OpenBrace,
+                              Keyword Return,
+                              ConstInt 2,
+                              SemiColon,
+                              CloseBrace]
+
         describe "Throw errors on bad input" $ do
                 it "Should throw error for unrecognised character" $
                   fromLeft ImpossibleError (tokenize "$")
