@@ -645,8 +645,7 @@ sub :: String -> String -> String
 sub a b = "subq " ++ a ++ ", " ++ b ++ "\n"
 
 idivq :: String -> String
-idivq target = signExtendRaxRdx
-               ++ "idivq " ++ target ++ "\n"
+idivq target = signExtendRaxRdx ++ "idivq " ++ target ++ "\n"
 
 inc :: String -> String
 inc a = "inc " ++ a ++ "\n"
