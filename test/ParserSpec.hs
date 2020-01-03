@@ -84,6 +84,21 @@ parserTest = hspec $ do
                   `shouldBe`
                   (ProgramNode [FunctionNode IntVar "main" [] (Just [ReturnNode (ConstantNode 2)])])
 
+                it "Should parse valid function definition with parameter" $
+                  fromRight (ProgramNode []) (parse [Keyword Int,
+                                                     Ident "main",
+                                                     OpenParen,
+                                                     Keyword Int,
+                                                     Ident "a",
+                                                     CloseParen,
+                                                     OpenBrace,
+                                                     Keyword Return,
+                                                     Ident "a",
+                                                     SemiColon,
+                                                     CloseBrace])
+                  `shouldBe`
+                  (ProgramNode [FunctionNode IntVar "main" [ParamNode IntVar (VarNode "a")] (Just [ReturnNode (VarNode "a")])])
+
         describe "Throw correct errors" $ do
                 it "Should throw error on invalid variable identifier" $
                   fromLeft ImpossibleError (parse [Keyword Int, OpenBrace, SemiColon])
