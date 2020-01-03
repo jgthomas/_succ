@@ -113,6 +113,21 @@ parserTest = hspec $ do
                   `shouldBe`
                   (ProgramNode [FunctionNode IntVar "main" [] (Just [ReturnNode (UnaryNode (ConstantNode 2) (Unary Negate))])])
 
+                it "Should parse valid function returning a binary node" $
+                  fromRight (ProgramNode []) (parse [Keyword Int,
+                                                     Ident "main",
+                                                     OpenParen,
+                                                     CloseParen,
+                                                     OpenBrace,
+                                                     Keyword Return,
+                                                     ConstInt 2,
+                                                     OpTok PlusSign,
+                                                     ConstInt 2,
+                                                     SemiColon,
+                                                     CloseBrace])
+                  `shouldBe`
+                  (ProgramNode [FunctionNode IntVar "main" [] (Just [ReturnNode (BinaryNode (ConstantNode 2) (ConstantNode 2) Plus)])])
+
         describe "Throw correct errors" $ do
                 it "Should throw error on invalid variable identifier" $
                   fromLeft ImpossibleError (parse [Keyword Int, OpenBrace, SemiColon])
