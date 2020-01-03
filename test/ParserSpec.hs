@@ -63,6 +63,14 @@ parserTest = hspec $ do
                   `shouldBe`
                   (ProgramNode [DeclarationNode "a" IntVar (Just (AssignmentNode "a" (ConstantNode 10) Assignment))])
 
+                it "Should parse valid pointer declaration" $
+                  fromRight (ProgramNode []) (parse [Keyword Int,
+                                                   OpTok Asterisk,
+                                                   Ident "a",
+                                                   SemiColon])
+                  `shouldBe`
+                  (ProgramNode [PointerNode "a" IntPointer Nothing])
+
                 it "Should parse valid function declarations" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
                                                      Ident "cat",
