@@ -17,7 +17,9 @@ parserTest :: IO ()
 parserTest = hspec $ do
         describe "Parse tokens to AST" $ do
                 it "Should parse valid variable declaration" $
-                  fromRight (ProgramNode []) (parse [Keyword Int, Ident "a", SemiColon])
+                  fromRight (ProgramNode []) (parse [Keyword Int,
+                                                     Ident "a",
+                                                     SemiColon])
                   `shouldBe`
                   (ProgramNode [DeclarationNode "a" IntVar Nothing])
 
