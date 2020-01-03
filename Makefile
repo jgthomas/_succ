@@ -15,7 +15,7 @@ test: unit func
 
 
 unit:
-	stack test
+	stack test --coverage
 
 
 func:
