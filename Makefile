@@ -1,7 +1,7 @@
 
 PROJECT=succ
 
-.PHONY: test lint
+.PHONY: test lint clean
 
 
 all: build test lint
@@ -15,7 +15,7 @@ test: unit func
 
 
 unit:
-	stack test --coverage
+	stack test
 
 
 func:
@@ -24,6 +24,15 @@ func:
 
 lint:
 	hlint src/ app/
+
+
+
+coverage: clean
+	stack test --coverage
+
+
+clean:
+	stack clean
 
 
 docs:
