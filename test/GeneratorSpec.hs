@@ -19,7 +19,12 @@ generatorTest = hspec $ do
                   `shouldBe`
                   "2"
 
-                it "Should make asm for valid AST" $
+                it "Should output ASM for null expression" $
+                  fromRight "FAIL" (generate (NullExprNode))
+                  `shouldBe`
+                  ""
+
+                it "Should output ASM for main function" $
                   fromRight "FAIL" (generate
                                     (ProgramNode
                                      [FunctionNode
