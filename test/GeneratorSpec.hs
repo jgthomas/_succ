@@ -14,6 +14,11 @@ import Type
 generatorTest :: IO ()
 generatorTest = hspec $ do
         describe "Build output string from AST" $ do
+                it "Should output ASM for global constant" $
+                  fromRight "FAIL" (generate (ConstantNode 2))
+                  `shouldBe`
+                  "2"
+
                 it "Should make asm for valid AST" $
                   fromRight "FAIL" (generate
                                     (ProgramNode
