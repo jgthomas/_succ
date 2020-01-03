@@ -23,14 +23,6 @@ parserTest = hspec $ do
                   `shouldBe`
                   (ProgramNode [DeclarationNode "a" IntVar Nothing])
 
-                it "Should parse valid pointer declaration" $
-                  fromRight (ProgramNode []) (parse [Keyword Int,
-                                                   OpTok Asterisk,
-                                                   Ident "a",
-                                                   SemiColon])
-                  `shouldBe`
-                  (ProgramNode [PointerNode "a" IntPointer Nothing])
-
                 it "Should parse valid variable assignment" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
                                                      Ident "a",
@@ -39,6 +31,25 @@ parserTest = hspec $ do
                                                      SemiColon])
                   `shouldBe`
                   (ProgramNode [DeclarationNode "a" IntVar (Just (AssignmentNode "a" (ConstantNode 10) Assignment))])
+
+                it "Should parse valid pointer declaration" $
+                  fromRight (ProgramNode []) (parse [Keyword Int,
+                                                     OpTok Asterisk,
+                                                     Ident "a",
+                                                     SemiColon])
+                  `shouldBe`
+                  (ProgramNode [PointerNode "a" IntPointer Nothing])
+
+                it "Should parse valid pointer assignment" $
+                  fromRight (ProgramNode []) (parse [Keyword Int,
+                                                     OpTok Asterisk,
+                                                     Ident "a",
+                                                     OpTok EqualSign,
+                                                     OpTok Ampersand,
+                                                     Ident "b",
+                                                     SemiColon])
+                  `shouldBe`
+                  (ProgramNode [PointerNode "a" IntPointer (Just (AssignmentNode "a" (AddressOfNode "b") Assignment))])
 
                 it "Should parse valid function declaration without parameters" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
