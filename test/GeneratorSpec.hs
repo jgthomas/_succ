@@ -8,6 +8,7 @@ import Test.Hspec
 import AST
 import Error
 import Generator
+import Operator
 import Type
 
 
@@ -31,11 +32,10 @@ generatorTest = hspec $ do
                                       IntVar
                                       "main"
                                       []
-                                      (Just
-                                       [ReturnNode
+                                      (Just [
+                                       ReturnNode
                                         (ConstantNode 2)
-                                       ]
-                                      )
+                                      ])
                                      ]
                                     )
                                    )
@@ -48,6 +48,41 @@ generatorTest = hspec $ do
                            "movq %rsp, %rbp",
                            "pushq %r12",
                            "movq $2, %rax",
+                           "popq %r12",
+                           "movq %rbp, %rsp",
+                           "popq %rbp",
+                           "ret",
+                           "init:",
+                           "jmp init_done"
+                          ]
+
+                it "Should output ASM for main function with unary operator" $
+                  fromRight "FAIL" (generate
+                                    (ProgramNode
+                                     [FunctionNode
+                                      IntVar
+                                      "main"
+                                      []
+                                      (Just [
+                                       ReturnNode
+                                        (UnaryNode
+                                         (ConstantNode 2)
+                                         (Unary Negate)
+                                        )
+                                      ])
+                                     ]
+                                    )
+                                   )
+                  `shouldBe`
+                  unlines [".globl main",
+                           "main:",
+                           "jmp init",
+                           "init_done:",
+                           "pushq %rbp",
+                           "movq %rsp, %rbp",
+                           "pushq %r12",
+                           "movq $2, %rax",
+                           "neg %rax",
                            "popq %r12",
                            "movq %rbp, %rsp",
                            "popq %rbp",
