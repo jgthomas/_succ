@@ -2,7 +2,7 @@
 Module       : SuccState
 Description  : Core compiler state definition
 
-Defines the core monad transformer stack used in the compliler, combining
+Defines the core monad transformer stack used in the compiler, combining
 a State monad with an error type.
 -}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
