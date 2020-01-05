@@ -21,7 +21,13 @@ parserTest = hspec $ do
                                                      Ident "a",
                                                      SemiColon])
                   `shouldBe`
-                  (ProgramNode [DeclarationNode "a" IntVar Nothing])
+                  (ProgramNode
+                   [DeclarationNode
+                    "a"
+                    IntVar
+                    Nothing
+                   ]
+                  )
 
                 it "Should parse valid variable assignment" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
@@ -30,7 +36,19 @@ parserTest = hspec $ do
                                                      ConstInt 10,
                                                      SemiColon])
                   `shouldBe`
-                  (ProgramNode [DeclarationNode "a" IntVar (Just (AssignmentNode "a" (ConstantNode 10) Assignment))])
+                  (ProgramNode
+                   [DeclarationNode
+                    "a"
+                    IntVar
+                    (Just
+                     (AssignmentNode
+                      "a"
+                      (ConstantNode 10)
+                      Assignment
+                     )
+                    )
+                   ]
+                  )
 
                 it "Should parse valid pointer declaration" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
@@ -38,7 +56,13 @@ parserTest = hspec $ do
                                                      Ident "a",
                                                      SemiColon])
                   `shouldBe`
-                  (ProgramNode [PointerNode "a" IntPointer Nothing])
+                  (ProgramNode
+                   [PointerNode
+                    "a"
+                    IntPointer
+                    Nothing
+                   ]
+                  )
 
                 it "Should parse valid pointer assignment" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
@@ -49,7 +73,19 @@ parserTest = hspec $ do
                                                      Ident "b",
                                                      SemiColon])
                   `shouldBe`
-                  (ProgramNode [PointerNode "a" IntPointer (Just (AssignmentNode "a" (AddressOfNode "b") Assignment))])
+                  (ProgramNode
+                   [PointerNode
+                    "a"
+                    IntPointer
+                    (Just
+                     (AssignmentNode
+                      "a"
+                      (AddressOfNode "b")
+                      Assignment
+                     )
+                    )
+                   ]
+                  )
 
                 it "Should parse valid function declaration without parameters" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
@@ -58,7 +94,14 @@ parserTest = hspec $ do
                                                      CloseParen,
                                                      SemiColon])
                   `shouldBe`
-                  (ProgramNode [FunctionNode IntVar "cat" [] Nothing])
+                  (ProgramNode
+                   [FunctionNode
+                    IntVar
+                    "cat"
+                    []
+                    Nothing
+                   ]
+                  )
 
                 it "Should parse valid function declaration with parameters" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
@@ -69,7 +112,17 @@ parserTest = hspec $ do
                                                      CloseParen,
                                                      SemiColon])
                   `shouldBe`
-                  (ProgramNode [FunctionNode IntVar "cat" [ParamNode IntVar (VarNode "a")] Nothing])
+                  (ProgramNode
+                   [FunctionNode
+                    IntVar
+                    "cat"
+                    [ParamNode
+                     IntVar
+                     (VarNode "a")
+                    ]
+                    Nothing
+                   ]
+                  )
 
                 it "Should parse valid function definition" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
@@ -82,7 +135,18 @@ parserTest = hspec $ do
                                                      SemiColon,
                                                      CloseBrace])
                   `shouldBe`
-                  (ProgramNode [FunctionNode IntVar "main" [] (Just [ReturnNode (ConstantNode 2)])])
+                  (ProgramNode
+                   [FunctionNode
+                    IntVar
+                    "main"
+                    []
+                    (Just
+                     [ReturnNode
+                      (ConstantNode 2)
+                     ]
+                    )
+                   ]
+                  )
 
                 it "Should parse valid function definition with parameter" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
@@ -97,7 +161,21 @@ parserTest = hspec $ do
                                                      SemiColon,
                                                      CloseBrace])
                   `shouldBe`
-                  (ProgramNode [FunctionNode IntVar "main" [ParamNode IntVar (VarNode "a")] (Just [ReturnNode (VarNode "a")])])
+                  (ProgramNode
+                   [FunctionNode
+                    IntVar
+                    "main"
+                    [ParamNode
+                     IntVar
+                     (VarNode "a")
+                    ]
+                    (Just
+                     [ReturnNode
+                      (VarNode "a")
+                     ]
+                    )
+                   ]
+                  )
 
                 it "Should parse valid function returning a unary node" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
@@ -111,7 +189,21 @@ parserTest = hspec $ do
                                                      SemiColon,
                                                      CloseBrace])
                   `shouldBe`
-                  (ProgramNode [FunctionNode IntVar "main" [] (Just [ReturnNode (UnaryNode (ConstantNode 2) (Unary Negate))])])
+                  (ProgramNode
+                   [FunctionNode
+                    IntVar
+                    "main"
+                    []
+                    (Just
+                     [ReturnNode
+                      (UnaryNode
+                       (ConstantNode 2)
+                       (Unary Negate)
+                      )
+                     ]
+                    )
+                   ]
+                  )
 
                 it "Should parse valid function returning a binary node" $
                   fromRight (ProgramNode []) (parse [Keyword Int,
@@ -126,7 +218,22 @@ parserTest = hspec $ do
                                                      SemiColon,
                                                      CloseBrace])
                   `shouldBe`
-                  (ProgramNode [FunctionNode IntVar "main" [] (Just [ReturnNode (BinaryNode (ConstantNode 2) (ConstantNode 2) Plus)])])
+                  (ProgramNode
+                   [FunctionNode
+                    IntVar
+                    "main"
+                    []
+                    (Just
+                     [ReturnNode
+                      (BinaryNode
+                       (ConstantNode 2)
+                       (ConstantNode 2)
+                       Plus
+                      )
+                     ]
+                    )
+                   ]
+                  )
 
         describe "Throw correct errors" $ do
                 it "Should throw error on invalid variable identifier" $
