@@ -35,14 +35,12 @@ parseTokens toks = parseTopLevelItems toks
 
 parseTopLevelItems :: [Token] -> ParserState Tree
 parseTopLevelItems [] = ProgramNode . reverse <$> ParState.getState
-parseTopLevelItems toks@(Keyword typ:_)
-        | validType typ = do
-                items         <- ParState.getState
-                (item, toks') <- parseTopLevelItem toks
-                ParState.putState $ ProgramNode (item:items)
-                parseTopLevelItems toks'
-        | otherwise = throwError $ TypeError (InvalidType (Keyword typ))
-parseTopLevelItems (a:_) = throwError $ TypeError (InvalidType a)
+parseTopLevelItems toks@(Keyword _:_) = do
+        items         <- ParState.getState
+        (item, toks') <- parseTopLevelItem toks
+        ParState.putState $ ProgramNode (item:items)
+        parseTopLevelItems toks'
+parseTopLevelItems toks = throwError $ ParserError (TokensError toks)
 
 
 parseTopLevelItem :: [Token] -> ParserState (Tree, [Token])
