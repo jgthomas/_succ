@@ -31,20 +31,13 @@ C goes in, x86-64 assembly code comes out
 * Bitwise complement (~)
 
 **Binary operators**
-* Addition (+)
-* Subtraction (-)
-* Multiplication (*)
-* Division (/)
-* Modulo (%)
-* Equal (==)
-* Not equal (!=)
-* Greater than (>)
-* Less than (<)
-* Greater than or equal (>=)
-* Less than or equal (<=)
-* Logical or (||)
-* Logical and (&&)
-* Assignment (=, +=, -=, *=, /=, %=)
+* Additive (+, -)
+* Multiplicative (*, /, %)
+* Equality (==, !=)
+* Relational (>, <, >=, <=)
+* Logical (&&, ||)
+* Bitwise (^, <<, >>, &, |)
+* Assignment (=, +=, -=, *=, /=, %=, ^=, |=, &=, <<=, >>=)
 
 **Local variables**
 * Declaration (int a)
