@@ -108,7 +108,7 @@ parseFuncName _                  = throwError $ SyntaxError MissingIdentifier
 
 parseFuncParams :: [Token] -> ParserState ([Tree], [Token])
 parseFuncParams (_:OpTok Asterisk:_:rest) = parseParams [] rest
-parseFuncParams (_:Ident _:rest)       = parseParams [] rest
+parseFuncParams (_:Ident _:rest)          = parseParams [] rest
 parseFuncParams toks = throwError $ ParserError (TokensError toks)
 
 
@@ -117,11 +117,9 @@ parseParams prms toks = parsePassIn prms toks parseTheParams
 
 
 parseTheParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseTheParams prms toks@(Keyword typ:_)
-        | validType typ = do
-                (tree, toks') <- parseParam toks
-                parseParams (tree:prms) toks'
-        | otherwise = throwError $ TypeError (InvalidType (Keyword typ))
+parseTheParams prms toks@(Keyword _:_) = do
+        (tree, toks') <- parseParam toks
+        parseParams (tree:prms) toks'
 parseTheParams _ toks = throwError $ ParserError (TokensError toks)
 
 
@@ -553,7 +551,3 @@ parseType toks  = throwError $ ParserError (TokensError toks)
 
 nullExpr :: [Token] -> ParserState (Tree, [Token])
 nullExpr toks = pure (NullExprNode, toks)
-
-
-validType :: Keyword -> Bool
-validType kwd = kwd == Int
