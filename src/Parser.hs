@@ -46,18 +46,51 @@ parseTopLevelItems (a:_) = throwError $ TypeError (InvalidType a)
 
 
 parseTopLevelItem :: [Token] -> ParserState (Tree, [Token])
-parseTopLevelItem []                       = throwError ImpossibleError
-parseTopLevelItem toks@(_:_:_:OpenParen:_) = parseFunction toks
-parseTopLevelItem toks@(_:_:OpenParen:_)   = parseFunction toks
-parseTopLevelItem toks                     = parseDeclaration toks
+parseTopLevelItem []                        = throwError ImpossibleError
+parseTopLevelItem toks@(_:_:_:OpenParen:_)  = parseFunction toks
+parseTopLevelItem toks@(_:_:OpenParen:_)    = parseFunction toks
+parseTopLevelItem toks@(_:Ident _:_)        = parseValueDec toks
+parseTopLevelItem toks@(_:OpTok Asterisk:_) = parsePointerDec toks
+parseTopLevelItem (_:b:_) = throwError $ SyntaxError (InvalidIdentifier b)
+parseTopLevelItem toks    = throwError $ ParserError (TokensError toks)
 
 
-parseDeclaration :: [Token] -> ParserState (Tree, [Token])
-parseDeclaration []  = throwError ImpossibleError
-parseDeclaration [a] = throwError $ ParserError (TokensError [a])
-parseDeclaration toks@(_:Ident _:_)        = parseValueDec toks
-parseDeclaration toks@(_:OpTok Asterisk:_) = parsePointerDec toks
-parseDeclaration (_:b:_) = throwError $ SyntaxError (InvalidIdentifier b)
+parseValueDec :: [Token] -> ParserState (Tree, [Token])
+parseValueDec toks@(_:Ident name:_) = do
+        typ            <- parseType toks
+        toks'          <- consumeTok toks
+        (tree, toks'') <- parseOptAssign toks'
+        pure (DeclarationNode name typ tree, toks'')
+parseValueDec (_:c:_:_) = throwError $ SyntaxError (InvalidIdentifier c)
+parseValueDec toks = throwError $ ParserError (TokensError toks)
+
+
+parsePointerDec :: [Token] -> ParserState (Tree, [Token])
+parsePointerDec toks@(_:_:Ident name:_) = do
+        typ            <- parseType toks
+        toks'          <- consumeNToks 2 toks
+        (tree, toks'') <- parseOptAssign toks'
+        pure (PointerNode name typ tree, toks'')
+parsePointerDec (_:_:c:_) = throwError $ SyntaxError (InvalidIdentifier c)
+parsePointerDec toks = throwError $ ParserError (TokensError toks)
+
+
+parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
+parseOptAssign toks = do
+        (tree, toks') <- parseOptionalAssign toks
+        toks''        <- verifyAndConsume SemiColon toks'
+        pure (tree, toks'')
+
+
+parseOptionalAssign :: [Token] -> ParserState (Maybe Tree, [Token])
+parseOptionalAssign toks@(_:OpTok op:_)
+        | Tokens.isAssign op = do
+                (tree, toks') <- parseExpression toks
+                pure (Just tree, toks')
+        | otherwise = throwError $ SyntaxError (UnexpectedToken (OpTok op))
+parseOptionalAssign toks = do
+        toks' <- consumeTok toks
+        pure (Nothing, toks')
 
 
 parseFunction :: [Token] -> ParserState (Tree, [Token])
@@ -127,10 +160,9 @@ parseBlock stmts toks = do
 
 
 parseBlockItem :: [Token] -> ParserState (Tree, [Token])
-parseBlockItem toks@(Keyword kwd:_)
-        | validType kwd = parseDeclaration toks
-        | otherwise     = parseStatement toks
-parseBlockItem toks = parseStatement toks
+parseBlockItem toks@(Keyword Int:Ident _:_)        = parseValueDec toks
+parseBlockItem toks@(Keyword Int:OpTok Asterisk:_) = parsePointerDec toks
+parseBlockItem toks                                = parseStatement toks
 
 
 parseStatement :: [Token] -> ParserState (Tree, [Token])
@@ -266,44 +298,6 @@ parseReturnStmt toks = do
 
 parseNullStatement :: [Token] -> ParserState (Tree, [Token])
 parseNullStatement toks = pure (NullExprNode, toks)
-
-
-parseValueDec :: [Token] -> ParserState (Tree, [Token])
-parseValueDec toks@(_:Ident name:_) = do
-        typ            <- parseType toks
-        toks'          <- consumeTok toks
-        (tree, toks'') <- parseOptAssign toks'
-        pure (DeclarationNode name typ tree, toks'')
-parseValueDec (_:c:_:_) = throwError $ SyntaxError (InvalidIdentifier c)
-parseValueDec toks = throwError $ ParserError (TokensError toks)
-
-
-parsePointerDec :: [Token] -> ParserState (Tree, [Token])
-parsePointerDec toks@(_:_:Ident name:_) = do
-        typ            <- parseType toks
-        toks'          <- consumeNToks 2 toks
-        (tree, toks'') <- parseOptAssign toks'
-        pure (PointerNode name typ tree, toks'')
-parsePointerDec (_:_:c:_) = throwError $ SyntaxError (InvalidIdentifier c)
-parsePointerDec toks = throwError $ ParserError (TokensError toks)
-
-
-parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
-parseOptAssign toks = do
-        (tree, toks') <- parseOptionalAssign toks
-        toks''        <- verifyAndConsume SemiColon toks'
-        pure (tree, toks'')
-
-
-parseOptionalAssign :: [Token] -> ParserState (Maybe Tree, [Token])
-parseOptionalAssign toks@(_:OpTok op:_)
-        | Tokens.isAssign op = do
-                (tree, toks') <- parseExpression toks
-                pure (Just tree, toks')
-        | otherwise = throwError $ SyntaxError (UnexpectedToken (OpTok op))
-parseOptionalAssign toks = do
-        toks' <- consumeTok toks
-        pure (Nothing, toks')
 
 
 parseExpression :: [Token] -> ParserState (Tree, [Token])
@@ -554,9 +548,9 @@ consumeNToks n toks = do
 
 parseType :: [Token] -> ParserState Type
 parseType (Keyword Int:OpTok Asterisk:_) = pure IntPointer
-parseType (Keyword Int:_)             = pure IntVar
+parseType (Keyword Int:_)                = pure IntVar
 parseType (a:_) = throwError $ TypeError (InvalidType a)
-parseType toks = throwError $ ParserError (TokensError toks)
+parseType toks  = throwError $ ParserError (TokensError toks)
 
 
 nullExpr :: [Token] -> ParserState (Tree, [Token])
