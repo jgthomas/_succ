@@ -12,7 +12,7 @@ C goes in, x86-64 assembly code comes out
 
 **Unit tests** are in this repo's *test* directory
 
-**Functional tests** are in their [own repo](https://github.com/jgthomas/write_a_c_compiler), forked from [here](https://github.com/jgthomas/write_a_c_compiler)
+**Functional tests** are in their [own repo](https://github.com/jgthomas/write_a_c_compiler)
 
 ## supported language elements
 
