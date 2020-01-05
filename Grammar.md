@@ -1,3 +1,5 @@
+## Grammar used by succ
+
 ```
 
 <program> ::= { <function> | <declaration> }
