@@ -8,12 +8,6 @@ Compiling a laughably small subset of C to unoptimised assembly since 2019
 
 C goes in, x86-64 assembly code comes out
 
-## acknowledgements 
-
-[Nora Sandler](https://norasandler.com/2017/11/29/Write-a-Compiler.html), who broke down compilers in a practical way.
-
-[Bartosz Milewski](https://www.schoolofhaskell.com/user/bartosz/basics-of-haskell/4-symbolic-calculator-recursion), who gave me a glimpse into how this might be done in Haskell.
-
 ## testing
 
 **Unit tests** are in this repo's *test* directory
@@ -79,3 +73,9 @@ C goes in, x86-64 assembly code comes out
 * Check sides of assignments match
 * Compare parameters to arguments
 * Check function declaration against return values
+
+## acknowledgements 
+
+[Nora Sandler](https://norasandler.com/2017/11/29/Write-a-Compiler.html), who broke down compilers in a practical way.
+
+[Bartosz Milewski](https://www.schoolofhaskell.com/user/bartosz/basics-of-haskell/4-symbolic-calculator-recursion), who gave me a glimpse into how this might be done in Haskell.
