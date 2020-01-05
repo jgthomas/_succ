@@ -296,22 +296,8 @@ parseNullStatement :: [Token] -> ParserState (Tree, [Token])
 parseNullStatement toks = pure (NullExprNode, toks)
 
 
-parseExpression :: [Token] -> ParserState (Tree, [Token])
-parseExpression toks = do
-        (tree, toks') <- parseTernaryExp toks
-        case toks' of
-             (OpTok op:rest)
-                | Tokens.isAssign op  -> parseAssignExpression tree toks'
-                | Tokens.isPostPos op -> do
-                        let unOp = Operator.tokToPostUnaryOp op
-                        pure (UnaryNode tree unOp, rest)
-                | otherwise ->
-                        throwError $ SyntaxError (UnexpectedToken (OpTok op))
-             _ -> pure (tree, toks')
-
-
-parseAssignExpression :: Tree -> [Token] -> ParserState (Tree, [Token])
-parseAssignExpression tree (OpTok op:rest) = do
+parseAssignment :: Tree -> [Token] -> ParserState (Tree, [Token])
+parseAssignment tree (OpTok op:rest) = do
                    (asgn, toks') <- parseExpression rest
                    let asgnOp = Operator.tokToAssignOp op
                    case tree of
@@ -320,7 +306,21 @@ parseAssignExpression tree (OpTok op:rest) = do
                      (DereferenceNode a) ->
                              pure (AssignDereferenceNode a asgn asgnOp, toks')
                      _ -> throwError $ ParserError (TreeError tree)
-parseAssignExpression _ toks = throwError $ ParserError (TokensError toks)
+parseAssignment _ toks = throwError $ ParserError (TokensError toks)
+
+
+parseExpression :: [Token] -> ParserState (Tree, [Token])
+parseExpression toks = do
+        (tree, toks') <- parseTernaryExp toks
+        case toks' of
+             (OpTok op:rest)
+                | Tokens.isAssign op  -> parseAssignment tree toks'
+                | Tokens.isPostPos op -> do
+                        let unOp = Operator.tokToPostUnaryOp op
+                        pure (UnaryNode tree unOp, rest)
+                | otherwise ->
+                        throwError $ SyntaxError (UnexpectedToken (OpTok op))
+             _ -> pure (tree, toks')
 
 
 parseTernaryExp :: [Token] -> ParserState (Tree, [Token])
