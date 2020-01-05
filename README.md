@@ -20,9 +20,11 @@ C goes in, x86-64 assembly code comes out
 * Return statements (return 1)
 
 **Unary operators**
-* Negation (-)
-* Logical negation (!)
-* Bitwise complement (~)
+* Sign (-, +)
+* Logical (!)
+* Bitwise (~)
+* Prefix (++, --)
+* Postfix (++, --)
 
 **Binary operators**
 * Additive (+, -)
