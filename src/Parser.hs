@@ -55,12 +55,8 @@ parseTopLevelItem toks                     = parseDeclaration toks
 parseDeclaration :: [Token] -> ParserState (Tree, [Token])
 parseDeclaration []  = throwError ImpossibleError
 parseDeclaration [a] = throwError $ ParserError (TokensError [a])
+parseDeclaration toks@(_:Ident _:_)        = parseValueDec toks
 parseDeclaration toks@(_:OpTok Asterisk:_) = parsePointerDec toks
-parseDeclaration toks@(_:Ident name:_) = do
-        varType        <- parseType toks
-        toks'          <- consumeTok toks
-        (tree, toks'') <- parseOptAssign toks'
-        pure (DeclarationNode name varType tree, toks'')
 parseDeclaration (_:b:_) = throwError $ SyntaxError (InvalidIdentifier b)
 
 
@@ -270,6 +266,16 @@ parseReturnStmt toks = do
 
 parseNullStatement :: [Token] -> ParserState (Tree, [Token])
 parseNullStatement toks = pure (NullExprNode, toks)
+
+
+parseValueDec :: [Token] -> ParserState (Tree, [Token])
+parseValueDec toks@(_:Ident name:_) = do
+        typ            <- parseType toks
+        toks'          <- consumeTok toks
+        (tree, toks'') <- parseOptAssign toks'
+        pure (DeclarationNode name typ tree, toks'')
+parseValueDec (_:c:_:_) = throwError $ SyntaxError (InvalidIdentifier c)
+parseValueDec toks = throwError $ ParserError (TokensError toks)
 
 
 parsePointerDec :: [Token] -> ParserState (Tree, [Token])
