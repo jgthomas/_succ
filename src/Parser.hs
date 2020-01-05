@@ -44,11 +44,11 @@ parseTopLevelItems toks = throwError $ ParserError (TokensError toks)
 
 
 parseTopLevelItem :: [Token] -> ParserState (Tree, [Token])
-parseTopLevelItem []                        = throwError ImpossibleError
 parseTopLevelItem toks@(_:_:_:OpenParen:_)  = parseFunction toks
 parseTopLevelItem toks@(_:_:OpenParen:_)    = parseFunction toks
 parseTopLevelItem toks@(_:Ident _:_)        = parseValueDec toks
 parseTopLevelItem toks@(_:OpTok Asterisk:_) = parsePointerDec toks
+parseTopLevelItem []      = throwError ImpossibleError
 parseTopLevelItem (_:b:_) = throwError $ SyntaxError (InvalidIdentifier b)
 parseTopLevelItem toks    = throwError $ ParserError (TokensError toks)
 
