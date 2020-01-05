@@ -1,3 +1,6 @@
+## Grammar used by succ
+
+```
 
 <program> ::= { <function> | <declaration> }
 
@@ -36,14 +39,14 @@
            | <unary-op> <factor>
            | "(" <exp> ")"
            | <function-call>
-           | "&" <id>
 
 <function-call> ::= <id> "(" [ <argument-list> ] ")"
 <argument-list> := <argument> { "," <argument> }
 <argument> ::= <exp>
 
-<unary-op> ::= "-" | "~" | "!"
+<unary-op> ::= "-" | "+" | "~" | "!" | "&" | "*" | "++" | "--"
 
-<assign-op> ::= "=" | "+=" | "-=" | "*=" | "/=" | "%="
+<assign-op> ::= "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "^=" | "|=" | "<<=" | ">>="
 
 <type> ::= <int> | <int*>
+```

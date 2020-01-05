@@ -8,11 +8,11 @@ Compiling a laughably small subset of C to unoptimised assembly since 2019
 
 C goes in, x86-64 assembly code comes out
 
-## acknowledgements 
+## testing
 
-[Nora Sandler](https://norasandler.com/2017/11/29/Write-a-Compiler.html), who broke down compilers in a practical way, and provided an invaluable [test suite](https://github.com/jgthomas/write_a_c_compiler).
+**Unit tests** are in this repo's *test* directory
 
-[Bartosz Milewski](https://www.schoolofhaskell.com/user/bartosz/basics-of-haskell/4-symbolic-calculator-recursion), who gave me a glimpse into how this might be done in Haskell.
+**Functional tests** are in their [own repo](https://github.com/jgthomas/write_a_c_compiler)
 
 ## supported language elements
 
@@ -20,25 +20,20 @@ C goes in, x86-64 assembly code comes out
 * Return statements (return 1)
 
 **Unary operators**
-* Negation (-)
-* Logical negation (!)
-* Bitwise complement (~)
+* Sign (-, +)
+* Logical (!)
+* Bitwise (~)
+* Prefix (++, --)
+* Postfix (++, --)
 
 **Binary operators**
-* Addition (+)
-* Subtraction (-)
-* Multiplication (*)
-* Division (/)
-* Modulo (%)
-* Equal (==)
-* Not equal (!=)
-* Greater than (>)
-* Less than (<)
-* Greater than or equal (>=)
-* Less than or equal (<=)
-* Logical or (||)
-* Logical and (&&)
-* Assignment (=, +=, -=, *=, /=, %=)
+* Additive (+, -)
+* Multiplicative (*, /, %)
+* Equality (==, !=)
+* Relational (>, <, >=, <=)
+* Logical (&&, ||)
+* Bitwise (^, <<, >>, &, |)
+* Assignment (=, +=, -=, *=, /=, %=, ^=, |=, &=, <<=, >>=)
 
 **Local variables**
 * Declaration (int a)
@@ -80,3 +75,9 @@ C goes in, x86-64 assembly code comes out
 * Check sides of assignments match
 * Compare parameters to arguments
 * Check function declaration against return values
+
+## acknowledgements 
+
+[Nora Sandler](https://norasandler.com/2017/11/29/Write-a-Compiler.html), who broke down compilers in a practical way.
+
+[Bartosz Milewski](https://www.schoolofhaskell.com/user/bartosz/basics-of-haskell/4-symbolic-calculator-recursion), who gave me a glimpse into how this might be done in Haskell.
