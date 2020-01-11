@@ -1,5 +1,9 @@
 
-module Runner where
+module Runner
+        (lexString,
+         parseTokens,
+         generateASM
+        ) where
 
 
 import System.Exit (exitFailure)
@@ -25,7 +29,15 @@ generateASM ast = handle $ generate ast
 
 
 handle :: Either CompilerError a -> IO a
-handle (Right out) = pure out
+handle (Right out) = handleSuccess out
 handle (Left err)  = do
-        print err
+        handleError err
         exitFailure
+
+
+handleSuccess :: a -> IO a
+handleSuccess out = pure out
+
+
+handleError :: CompilerError -> IO ()
+handleError err = print err
