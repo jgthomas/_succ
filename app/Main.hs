@@ -15,14 +15,15 @@ import Runner             (compile)
 main :: IO ()
 main = do
         args <- getArgs
+
         let infileName = head args
-        handle   <- openFile infileName ReadMode
-        contents <- hGetContents handle
+            outfileName = dropExtension infileName ++ ".s"
 
-        asm <- compile contents
+        cFile <- openFile infileName ReadMode
+        cCode <- hGetContents cFile
+        asm   <- compile cCode
 
-        let outfileName = dropExtension infileName ++ ".s"
-
+        -- force evaluation before writing to file
         asm `deepseq` writeFile outfileName asm
 
         let gccOpts = "gcc -g "
@@ -32,5 +33,4 @@ main = do
 
         _ <- system toMachineCode
         _ <- system deleteFile
-        hClose handle
-
+        hClose cFile
