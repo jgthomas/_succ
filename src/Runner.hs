@@ -19,19 +19,19 @@ import           Tokens      (Token)
 
 -- | Run the compilation process
 compile :: String -> IO String
-compile c = lexString c >>= parseTokens >>= generateASM
+compile c = tokenize c >>= parse >>= generate
 
 
-lexString :: String -> IO [Token]
-lexString s = handle . Lexer.tokenize $ s
+tokenize :: String -> IO [Token]
+tokenize s = handle . Lexer.tokenize $ s
 
 
-parseTokens :: [Token] -> IO Tree
-parseTokens toks = handle . Parser.parse $ toks
+parse :: [Token] -> IO Tree
+parse toks = handle . Parser.parse $ toks
 
 
-generateASM :: Tree -> IO String
-generateASM ast = handle . Generator.generate $ ast
+generate :: Tree -> IO String
+generate ast = handle . Generator.generate $ ast
 
 
 handle :: Either CompilerError a -> IO a
