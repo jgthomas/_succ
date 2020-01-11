@@ -1,19 +1,15 @@
 
 module Main where
 
+
 import Control.DeepSeq    (deepseq)
 import System.Environment (getArgs)
-import System.Exit        (exitFailure)
 import System.FilePath    (dropExtension)
 import System.IO          (IOMode (ReadMode), hClose, hGetContents, openFile,
                            writeFile)
 import System.Process     (system)
 
-import AST                (Tree)
-import Generator          (generate)
-import Lexer              (tokenize)
-import Parser             (parse)
-import Tokens             (Token)
+import Runner             (generateASM, lexString, parseTokens)
 
 
 main :: IO ()
@@ -24,7 +20,7 @@ main = do
         contents <- hGetContents handle
 
         lexed  <- lexString contents
-        parsed <- newParseTokens lexed
+        parsed <- parseTokens lexed
         asm    <- generateASM parsed
 
         let outfileName = dropExtension infileName ++ ".s"
@@ -40,32 +36,3 @@ main = do
         _ <- system deleteFile
         hClose handle
 
-
-lexString :: String -> IO [Token]
-lexString s = do
-        let lexed = tokenize s
-        case lexed of
-             (Left err)   -> do
-                     print err
-                     exitFailure
-             (Right toks) -> pure toks
-
-
-newParseTokens :: [Token] -> IO Tree
-newParseTokens toks = do
-        let parsed = parse toks
-        case parsed of
-             (Left err) -> do
-                     print err
-                     exitFailure
-             (Right ast) -> pure ast
-
-
-generateASM :: Tree -> IO String
-generateASM ast = do
-        let generated = generate ast
-        case generated of
-             (Left err) -> do
-                     print err
-                     exitFailure
-             (Right asm) -> pure asm
