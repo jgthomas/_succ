@@ -14,10 +14,7 @@ import           Tokens      (Token)
 
 -- | Run the compilation process
 compile :: String -> IO String
-compile c = do
-        toks <- lexString c
-        ast  <- parseTokens toks
-        generateASM ast
+compile c = lexString c >>= parseTokens >>= generateASM
 
 
 lexString :: String -> IO [Token]
