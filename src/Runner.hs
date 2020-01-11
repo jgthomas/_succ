@@ -1,34 +1,35 @@
 
-module Runner
-        (lexString,
-         parseTokens,
-         generateASM
-        ) where
+module Runner (compile) where
 
 
-import System.Exit (exitFailure)
+import           System.Exit (exitFailure)
 
-import AST         (Tree)
-import Error       (CompilerError)
-import Generator   (generate)
-import Lexer       (tokenize)
-import Parser      (parse)
-import Tokens      (Token)
+import           AST         (Tree)
+import           Error       (CompilerError)
+import qualified Generator   (generate)
+import qualified Lexer       (tokenize)
+import qualified Parser      (parse)
+import           Tokens      (Token)
 
 
--- | Run the lexer stage of compilation
+-- | Run the compilation process
+compile :: String -> IO String
+compile c = do
+        toks <- lexString c
+        ast  <- parseTokens toks
+        generateASM ast
+
+
 lexString :: String -> IO [Token]
-lexString s = handle $ tokenize s
+lexString s = handle . Lexer.tokenize $ s
 
 
--- | Run the parser stage of compilation
 parseTokens :: [Token] -> IO Tree
-parseTokens toks = handle $ parse toks
+parseTokens toks = handle . Parser.parse $ toks
 
 
--- | Run the code generation stage of compilation
 generateASM :: Tree -> IO String
-generateASM ast = handle $ generate ast
+generateASM ast = handle . Generator.generate $ ast
 
 
 handle :: Either CompilerError a -> IO a

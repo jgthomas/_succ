@@ -9,7 +9,7 @@ import System.IO          (IOMode (ReadMode), hClose, hGetContents, openFile,
                            writeFile)
 import System.Process     (system)
 
-import Runner             (generateASM, lexString, parseTokens)
+import Runner             (compile)
 
 
 main :: IO ()
@@ -19,9 +19,7 @@ main = do
         handle   <- openFile infileName ReadMode
         contents <- hGetContents handle
 
-        lexed  <- lexString contents
-        parsed <- parseTokens lexed
-        asm    <- generateASM parsed
+        asm <- compile contents
 
         let outfileName = dropExtension infileName ++ ".s"
 
