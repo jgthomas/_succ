@@ -1,4 +1,9 @@
+{-|
+Module       : Runner
+Description  : Run compilation process
 
+Controls the output of the compilation process.
+-}
 module Runner (compile) where
 
 
