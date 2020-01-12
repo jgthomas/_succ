@@ -45,4 +45,11 @@ checkAST WhileNode{} = do
         SymTab.setContinue loopLabel
         SymTab.setBreak testLabel
 
+checkAST DoWhileNode{} = do
+        _         <- SymTab.labelNum
+        contLabel <- SymTab.labelNum
+        testLabel <- SymTab.labelNum
+        SymTab.setContinue contLabel
+        SymTab.setBreak testLabel
+
 checkAST _ = pure ()
