@@ -110,11 +110,35 @@ checkVariableExists tree = throwError $ SyntaxError (Unexpected tree)
 
 checkExists :: Tree -> String -> GenState (Maybe Int, Maybe Int, Maybe String)
 checkExists node varName = do
-        offset  <- SymTab.variableOffset varName
-        argPos  <- SymTab.parameterPosition varName
-        globLab <- SymTab.globalLabel varName
+        (offset, argPos, globLab) <- getVars varName
         case (offset, argPos, globLab) of
              (Nothing, Nothing, Nothing) ->
                      throwError $ SyntaxError (Unrecognised node)
              _ -> pure (offset, argPos, globLab)
+
+
+-- | TODO
+variableExists :: Tree -> GenState ()
+variableExists node@(VarNode a)                   = varExists node a
+variableExists node@(AddressOfNode a)             = varExists node a
+variableExists node@(DereferenceNode a)           = varExists node a
+variableExists node@(PointerNode a _ _)           = varExists node a
+variableExists node@(AssignmentNode a _ _)        = varExists node a
+variableExists node@(AssignDereferenceNode a _ _) = varExists node a
+variableExists tree = throwError $ SyntaxError (Unexpected tree)
+
+
+varExists :: Tree -> String -> GenState ()
+varExists node varName = do
+        (offset, argPos, globLab) <- getVars varName
+        when (isNothing offset && isNothing argPos && isNothing globLab) $
+            throwError $ SyntaxError (Unrecognised node)
+
+
+getVars :: String -> GenState (Maybe Int, Maybe Int, Maybe String)
+getVars varName = do
+        offset  <- SymTab.variableOffset varName
+        argPos  <- SymTab.parameterPosition varName
+        globLab <- SymTab.globalLabel varName
+        pure (offset, argPos, globLab)
 

@@ -103,8 +103,7 @@ checkAST (PointerNode varName typ Nothing) =
 checkAST node@(PointerNode varName typ (Just a)) = do
         checkAST (DeclarationNode varName typ Nothing)
         checkAST a
-        _ <- Valid.checkVariableExists node
-        pure ()
+        Valid.variableExists node
 
 checkAST node@DeclarationNode{} = do
         currScope <- SymTab.getScope
@@ -130,8 +129,7 @@ checkAST node@(AssignmentNode varName value op) = do
 checkAST node@(AssignDereferenceNode varName value op) = do
         TypeCheck.assignment varName value
         checkAssignLocal (DereferenceNode varName) value op
-        _ <- Valid.checkVariableExists node
-        pure ()
+        Valid.variableExists node
 
 checkAST (ExprStmtNode expression) = checkAST expression
 
@@ -165,25 +163,18 @@ checkAST (BinaryNode lft rgt _) = do
 
 checkAST (UnaryNode node@(VarNode _) _) = do
         checkAST node
-        _ <- Valid.checkVariableExists node
-        pure ()
+        Valid.variableExists node
 checkAST (UnaryNode _ unOp@(PreOpUnary _)) =
         throwError $ GeneratorError (OperatorError (UnaryOp unOp))
 checkAST (UnaryNode _ unOp@(PostOpUnary _)) =
         throwError $ GeneratorError (OperatorError (UnaryOp unOp))
 checkAST (UnaryNode tree (Unary _)) = checkAST tree
 
-checkAST node@(VarNode _) = do
-        _ <- Valid.checkVariableExists node
-        pure ()
+checkAST node@(VarNode _) = Valid.variableExists node
 
-checkAST node@(AddressOfNode _) = do
-        _ <- Valid.checkVariableExists node
-        pure ()
+checkAST node@(AddressOfNode _) = Valid.variableExists node
 
-checkAST node@(DereferenceNode _) = do
-        _ <- Valid.checkVariableExists node
-        pure ()
+checkAST node@(DereferenceNode _) = Valid.variableExists node
 
 checkAST NullExprNode = pure ()
 
