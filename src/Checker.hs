@@ -6,10 +6,12 @@ import           Control.Monad (unless, when)
 import           Data.Maybe    (isNothing)
 
 import           AST           (Tree (..))
-import           Error         (CompilerError (SyntaxError), SyntaxError (..))
+import           Error         (CompilerError (GeneratorError, SyntaxError),
+                                GeneratorError (..), SyntaxError (..))
 import           GenState      (GenState, runGenState, throwError)
 import qualified GenState      (startState)
 import           GenTokens     (Scope (..))
+import           Operator      (Operator (..), UnaryOp (..))
 import qualified SymTab
 import qualified TypeCheck
 import qualified Validate      as Valid
@@ -138,9 +140,21 @@ checkAST (TernaryNode cond pass fails) = do
         _ <- SymTab.labelNum
         pure ()
 
-checkAST BinaryNode{} = pure ()
+checkAST (BinaryNode lft rgt _) = do
+        _ <- SymTab.labelNum
+        _ <- SymTab.labelNum
+        checkAST lft
+        checkAST rgt
 
-checkAST UnaryNode{} = pure ()
+checkAST (UnaryNode node@(VarNode _) _) = do
+        checkAST node
+        _ <- Valid.checkVariableExists node
+        pure ()
+checkAST (UnaryNode _ unOp@(PreOpUnary _)) =
+        throwError $ GeneratorError (OperatorError (UnaryOp unOp))
+checkAST (UnaryNode _ unOp@(PostOpUnary _)) =
+        throwError $ GeneratorError (OperatorError (UnaryOp unOp))
+checkAST (UnaryNode tree (Unary _)) = checkAST tree
 
 checkAST node@(VarNode _) = do
         _ <- Valid.checkVariableExists node
