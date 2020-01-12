@@ -11,6 +11,7 @@ import           GenState      (GenState, runGenState, throwError)
 import qualified GenState      (startState)
 import qualified SymTab
 import qualified TypeCheck
+import qualified Validate      as Valid
 
 
 check :: Tree -> Either CompilerError Tree
@@ -75,6 +76,8 @@ checkAST (IfNode test action possElse) = do
                      _ <- SymTab.labelNum
                      pure ()
 
+checkAST (ExprStmtNode expression) = checkAST expression
+
 checkAST ContinueNode = do
         continueLabel <- SymTab.getContinue
         when (isNothing continueLabel) $
@@ -97,6 +100,20 @@ checkAST (TernaryNode cond pass fails) = do
         _ <- SymTab.labelNum
         pure ()
 
-checkAST (ExprStmtNode expression) = checkAST expression
+checkAST node@(VarNode _) = do
+        _ <- Valid.checkVariableExists node
+        pure ()
+
+checkAST node@(AddressOfNode _) = do
+        _ <- Valid.checkVariableExists node
+        pure ()
+
+checkAST node@(DereferenceNode _) = do
+        _ <- Valid.checkVariableExists node
+        pure ()
+
+checkAST NullExprNode = pure ()
+
+checkAST (ConstantNode _) = pure ()
 
 checkAST _ = pure ()
