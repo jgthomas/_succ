@@ -8,7 +8,6 @@ module Generator (generate) where
 
 
 import           Control.Monad (unless)
-import           Data.Maybe    (isNothing)
 
 import qualified ASM
 import           AST           (Tree (..))
@@ -243,25 +242,17 @@ genASM (ConstantNode n) = do
 
 declareGlobal :: Tree -> GenState String
 declareGlobal node@(DeclarationNode name typ toAssign) = do
-        checkIfFunction node
+        Valid.checkIfFunction node
         currLabel <- SymTab.globalLabel name
         case currLabel of
              Just _  -> do
                      TypeCheck.globalDeclaration name typ
                      genAssignment toAssign
              Nothing -> do
-                     globLab <- mkGlobLabel name <$> SymTab.labelNum
+                     globLab <- Valid.mkGlobLabel name <$> SymTab.labelNum
                      SymTab.declareGlobal name typ globLab
                      genAssignment toAssign
 declareGlobal tree = throwError $ SyntaxError (Unexpected tree)
-
-
-checkIfFunction :: Tree -> GenState ()
-checkIfFunction node@(DeclarationNode name _ _) = do
-        paramNum <- SymTab.decParamCount name
-        unless (isNothing paramNum) $
-            throwError $ SyntaxError (DoubleDeclared node)
-checkIfFunction tree = throwError $ SyntaxError (Unexpected tree)
 
 
 genAssignment :: Maybe Tree -> GenState String
@@ -269,8 +260,8 @@ genAssignment Nothing     = ASM.noOutput
 genAssignment (Just tree) = genASM tree
 
 
-mkGlobLabel :: String -> Int -> String
-mkGlobLabel name labnum = "_" ++ name ++ show labnum
+--mkGlobLabel :: String -> Int -> String
+--mkGlobLabel name labnum = "_" ++ name ++ show labnum
 
 
 defineGlobal :: Tree -> GenState String

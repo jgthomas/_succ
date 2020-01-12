@@ -81,3 +81,17 @@ checkArguments :: Maybe Int -> Tree -> GenState ()
 checkArguments (Just n) node@(FuncCallNode _ _) = checkCountsMatch n node
 checkArguments (Just _) tree = throwError $ SyntaxError (Unexpected tree)
 checkArguments Nothing tree  = throwError $ SyntaxError (Undeclared tree)
+
+
+-- | TODO
+checkIfFunction :: Tree -> GenState ()
+checkIfFunction node@(DeclarationNode name _ _) = do
+        paramNum <- SymTab.decParamCount name
+        unless (isNothing paramNum) $
+            throwError $ SyntaxError (DoubleDeclared node)
+checkIfFunction tree = throwError $ SyntaxError (Unexpected tree)
+
+
+-- | TODO
+mkGlobLabel :: String -> Int -> String
+mkGlobLabel name labnum = "_" ++ name ++ show labnum
