@@ -29,6 +29,9 @@ checkAST :: Tree -> GenState ()
 
 checkAST (ProgramNode topLevelItems) = mapM_ checkAST topLevelItems
 
+checkAST (ParamNode typ (VarNode name)) = SymTab.addParameter name typ
+checkAST node@ParamNode{} = throwError $ SyntaxError (Unexpected node)
+
 checkAST node@(FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
         Valid.checkArguments paramCount node
