@@ -3,6 +3,7 @@ module Validate where
 
 
 import           Control.Monad (unless, when)
+import           Data.Maybe    (isNothing)
 
 import           AST           (Tree (..))
 import           Error         (CompilerError (SyntaxError), SyntaxError (..))
@@ -53,3 +54,30 @@ checkIfDefined node@(AssignmentNode name _ _) = do
         when defined $
            throwError $ SyntaxError (DoubleDefined node)
 checkIfDefined tree = throwError $ SyntaxError (Unexpected tree)
+
+
+-- | TODO
+checkIfVariable :: Tree -> GenState ()
+checkIfVariable node@(FunctionNode _ name _ _) = do
+        label <- SymTab.globalLabel name
+        unless (isNothing label) $
+            throwError $ SyntaxError (DoubleDefined node)
+checkIfVariable tree = throwError $ SyntaxError (Unexpected tree)
+
+
+-- | TODO
+checkCountsMatch :: Int -> Tree -> GenState ()
+checkCountsMatch count node@(FunctionNode _ _ paramList _) =
+        when (count /= length paramList) $
+           throwError $ SyntaxError (MisMatch count node)
+checkCountsMatch count node@(FuncCallNode _ argList) =
+        when (count /= length argList) $
+           throwError $ SyntaxError (MisMatch count node)
+checkCountsMatch _ tree = throwError $ SyntaxError (Unexpected tree)
+
+
+-- | TODO
+checkArguments :: Maybe Int -> Tree -> GenState ()
+checkArguments (Just n) node@(FuncCallNode _ _) = checkCountsMatch n node
+checkArguments (Just _) tree = throwError $ SyntaxError (Unexpected tree)
+checkArguments Nothing tree  = throwError $ SyntaxError (Undeclared tree)

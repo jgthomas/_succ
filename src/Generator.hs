@@ -7,7 +7,7 @@ Generates the x86-64 assembly code for a particular abstract syntax tree.
 module Generator (generate) where
 
 
-import           Control.Monad (unless, when)
+import           Control.Monad (unless)
 import           Data.Maybe    (isNothing)
 
 import qualified ASM
@@ -59,7 +59,7 @@ genASM node@(ParamNode _ _) = throwError $ SyntaxError (Unexpected node)
 
 genASM node@(FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
-        checkArguments paramCount node
+        Valid.checkArguments paramCount node
         TypeCheck.typesMatch name argList
         Valid.validateCall node
         argString <- processArgs argList
@@ -306,14 +306,14 @@ globalVarASM lab val = ASM.initializedGlobal lab val
 
 declareFunction :: Tree -> GenState ()
 declareFunction node@(FunctionNode typ funcName paramList _) = do
-        checkIfVariable node
+        Valid.checkIfVariable node
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
              Nothing    -> do
                      SymTab.declareFunction typ funcName (length paramList)
                      processParameters funcName paramList
              Just count -> do
-                     checkCountsMatch count node
+                     Valid.checkCountsMatch count node
                      TypeCheck.typesMatch funcName paramList
                      TypeCheck.funcDeclaration funcName typ
                      SymTab.declareFunction typ funcName (length paramList)
@@ -322,30 +322,6 @@ declareFunction node@(FunctionNode typ funcName paramList _) = do
                         do SymTab.delFuncState funcName
                            processParameters funcName paramList
 declareFunction tree = throwError $ SyntaxError (Unexpected tree)
-
-
-checkIfVariable :: Tree -> GenState ()
-checkIfVariable node@(FunctionNode _ name _ _) = do
-        label <- SymTab.globalLabel name
-        unless (isNothing label) $
-            throwError $ SyntaxError (DoubleDefined node)
-checkIfVariable tree = throwError $ SyntaxError (Unexpected tree)
-
-
-checkCountsMatch :: Int -> Tree -> GenState ()
-checkCountsMatch count node@(FunctionNode _ _ paramList _) =
-        when (count /= length paramList) $
-           throwError $ SyntaxError (MisMatch count node)
-checkCountsMatch count node@(FuncCallNode _ argList) =
-        when (count /= length argList) $
-           throwError $ SyntaxError (MisMatch count node)
-checkCountsMatch _ tree = throwError $ SyntaxError (Unexpected tree)
-
-
-checkArguments :: Maybe Int -> Tree -> GenState ()
-checkArguments (Just n) node@(FuncCallNode _ _) = checkCountsMatch n node
-checkArguments (Just _) tree = throwError $ SyntaxError (Unexpected tree)
-checkArguments Nothing tree  = throwError $ SyntaxError (Undeclared tree)
 
 
 processParameters :: String -> [Tree] -> GenState ()
