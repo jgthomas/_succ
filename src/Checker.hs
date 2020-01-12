@@ -89,6 +89,14 @@ checkAST (ReturnNode tree) = do
         TypeCheck.funcReturn tree
         checkAST tree
 
+checkAST (TernaryNode cond pass fails) = do
+        checkAST cond
+        checkAST pass
+        checkAST fails
+        _ <- SymTab.labelNum
+        _ <- SymTab.labelNum
+        pure ()
+
 checkAST (ExprStmtNode expression) = checkAST expression
 
 checkAST _ = pure ()
