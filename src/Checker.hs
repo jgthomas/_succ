@@ -112,7 +112,20 @@ checkAST node@DeclarationNode{} = do
              Global -> checkDecGlobal node
              Local  -> checkDecLocal node
 
-checkAST AssignmentNode{} = pure ()
+checkAST node@(AssignmentNode varName value _) = do
+        TypeCheck.assignment varName value
+        currScope <- SymTab.getScope
+        case currScope of
+             Global -> checkDefineGlobal node
+             Local  -> do
+                     checkDefineLocal node
+                     (offset, _, globLab) <- Valid.checkVariableExists node
+                     case (offset, globLab) of
+                          (Just _, _) -> do
+                                  _ <- SymTab.stackPointerValue
+                                  pure ()
+                          (_, Just _) -> pure ()
+                          _ -> throwError $ SyntaxError (Undeclared node)
 
 checkAST AssignDereferenceNode{} = pure ()
 
@@ -237,3 +250,28 @@ checkDecLocal node@(DeclarationNode name typ toAssign) = do
              Just val -> checkAST val
              Nothing  -> pure ()
 checkDecLocal tree = throwError $ SyntaxError (Unexpected tree)
+
+
+checkDefineGlobal :: Tree -> GenState ()
+checkDefineGlobal node@(AssignmentNode name _ _) = do
+        Valid.checkIfDefined node
+        label <- SymTab.globalLabel name
+        SymTab.defineGlobal name
+        checkPrevDecGlob label node
+checkDefineGlobal tree = throwError $ SyntaxError (Unexpected tree)
+
+
+checkPrevDecGlob :: Maybe String -> Tree -> GenState ()
+checkPrevDecGlob Nothing node = throwError $ SyntaxError (Undeclared node)
+checkPrevDecGlob (Just _) (AssignmentNode _ node@(ConstantNode _) _)  = checkAST node
+checkPrevDecGlob (Just _) (AssignmentNode _ node@(AddressOfNode _) _) = checkAST node
+checkPrevDecGlob _ (AssignmentNode _ valNode _) =
+        throwError $ SyntaxError (Unexpected valNode)
+checkPrevDecGlob _ tree = throwError $ SyntaxError (Unexpected tree)
+
+
+checkDefineLocal :: Tree -> GenState ()
+checkDefineLocal (AssignmentNode _ valTree Assignment) = checkAST valTree
+checkDefineLocal (AssignmentNode varName valTree (BinaryOp binOp)) =
+                 checkAST (BinaryNode (VarNode varName) valTree binOp)
+checkDefineLocal tree = throwError $ SyntaxError (Unexpected tree)
