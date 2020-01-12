@@ -30,4 +30,19 @@ checkAST (CompoundStmtNode blockItems) = do
         mapM_ checkAST blockItems
         SymTab.closeScope
 
+checkAST ForLoopNode{} = do
+        SymTab.initScope
+        _         <- SymTab.labelNum
+        failLabel <- SymTab.labelNum
+        contLabel <- SymTab.labelNum
+        SymTab.setBreak failLabel
+        SymTab.setContinue contLabel
+        SymTab.closeScope
+
+checkAST WhileNode{} = do
+        loopLabel <- SymTab.labelNum
+        testLabel <- SymTab.labelNum
+        SymTab.setContinue loopLabel
+        SymTab.setBreak testLabel
+
 checkAST _ = pure ()
