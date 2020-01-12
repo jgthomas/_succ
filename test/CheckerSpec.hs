@@ -44,3 +44,28 @@ checkerTest = hspec $ do
                     ])
                    ]
                   )
+
+        describe "Check invalid AST" $
+                it "Should error if return type doesn't match function declaration" $
+                  fromLeft
+                  ImpossibleError
+                  (check
+                   (ProgramNode
+                    [PointerNode
+                     "a"
+                     IntPointer
+                     Nothing,
+                     FunctionNode
+                     IntVar
+                     "dog"
+                     []
+                     (Just
+                      [ReturnNode
+                       (VarNode "a")
+                      ]
+                     )
+                    ]
+                   )
+                  )
+                `shouldBe`
+                TypeError (TypeMismatch [IntVar] [IntPointer])
