@@ -20,6 +20,7 @@ import           GenTokens     (Scope (..))
 import           Operator      (BinaryOp (..), Operator (..), UnaryOp (..))
 import qualified SymTab
 import qualified TypeCheck
+import qualified Validate      as Valid
 
 
 -- | Generate x86-64 asm from AST
@@ -132,7 +133,7 @@ genASM node@(DeclarationNode varName typ value) = do
         case currScope of
              Global -> declareGlobal node
              Local  -> do
-                   checkIfUsedInScope node
+                   Valid.checkIfUsedInScope node
                    offset <- SymTab.addVariable varName typ
                    adjust <- SymTab.stackPointerValue
                    case value of
@@ -420,15 +421,6 @@ buildAssignmentASM varTree valTree (BinaryOp binOp) =
         genASM (BinaryNode varTree valTree binOp)
 buildAssignmentASM _ _ (UnaryOp a) =
         throwError $ GeneratorError (OperatorError (UnaryOp a))
-
-
-checkIfUsedInScope :: Tree -> GenState ()
-checkIfUsedInScope node@(DeclarationNode name _ _) = do
-        localDec <- SymTab.checkVariable name
-        paramDec <- SymTab.parameterDeclared name
-        when (localDec || paramDec) $
-           throwError $ SyntaxError (DoubleDeclared node)
-checkIfUsedInScope tree = throwError $ SyntaxError (Unexpected tree)
 
 
 -- Operators
