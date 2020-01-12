@@ -2,10 +2,13 @@
 module Checker (check) where
 
 
-import           AST      (Tree (..))
-import           Error    (CompilerError)
-import           GenState (GenState, runGenState)
-import qualified GenState (startState)
+import           Control.Monad (when)
+import           Data.Maybe    (isNothing)
+
+import           AST           (Tree (..))
+import           Error         (CompilerError (SyntaxError), SyntaxError (..))
+import           GenState      (GenState, runGenState, throwError)
+import qualified GenState      (startState)
 import qualified SymTab
 
 
@@ -51,5 +54,15 @@ checkAST DoWhileNode{} = do
         testLabel <- SymTab.labelNum
         SymTab.setContinue contLabel
         SymTab.setBreak testLabel
+
+checkAST ContinueNode = do
+        continueLabel <- SymTab.getContinue
+        when (isNothing continueLabel) $
+            throwError $ SyntaxError (Unexpected ContinueNode)
+
+checkAST BreakNode = do
+        breakLabel <- SymTab.getContinue
+        when (isNothing breakLabel) $
+            throwError $ SyntaxError (Unexpected BreakNode)
 
 checkAST _ = pure ()
