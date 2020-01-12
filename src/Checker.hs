@@ -55,6 +55,14 @@ checkAST DoWhileNode{} = do
         SymTab.setContinue contLabel
         SymTab.setBreak testLabel
 
+checkAST (IfNode _ _ possElse) = do
+        _ <- SymTab.labelNum
+        case possElse of
+             Nothing -> pure ()
+             Just _  -> do
+                     _ <- SymTab.labelNum
+                     pure ()
+
 checkAST ContinueNode = do
         continueLabel <- SymTab.getContinue
         when (isNothing continueLabel) $
