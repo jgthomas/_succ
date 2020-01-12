@@ -127,7 +127,11 @@ checkAST node@(AssignmentNode varName value op) = do
                           (_, Just _) -> pure ()
                           _ -> throwError $ SyntaxError (Undeclared node)
 
-checkAST AssignDereferenceNode{} = pure ()
+checkAST node@(AssignDereferenceNode varName value op) = do
+        TypeCheck.assignment varName value
+        checkAssignLocal (DereferenceNode varName) value op
+        _ <- Valid.checkVariableExists node
+        pure ()
 
 checkAST (ExprStmtNode expression) = checkAST expression
 
