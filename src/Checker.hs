@@ -112,13 +112,13 @@ checkAST node@DeclarationNode{} = do
              Global -> checkDecGlobal node
              Local  -> checkDecLocal node
 
-checkAST node@(AssignmentNode varName value _) = do
+checkAST node@(AssignmentNode varName value op) = do
         TypeCheck.assignment varName value
         currScope <- SymTab.getScope
         case currScope of
              Global -> checkDefineGlobal node
              Local  -> do
-                     checkDefineLocal node
+                     checkAssignLocal (VarNode varName) value op
                      (offset, _, globLab) <- Valid.checkVariableExists node
                      case (offset, globLab) of
                           (Just _, _) -> do
@@ -270,8 +270,9 @@ checkPrevDecGlob _ (AssignmentNode _ valNode _) =
 checkPrevDecGlob _ tree = throwError $ SyntaxError (Unexpected tree)
 
 
-checkDefineLocal :: Tree -> GenState ()
-checkDefineLocal (AssignmentNode _ valTree Assignment) = checkAST valTree
-checkDefineLocal (AssignmentNode varName valTree (BinaryOp binOp)) =
-                 checkAST (BinaryNode (VarNode varName) valTree binOp)
-checkDefineLocal tree = throwError $ SyntaxError (Unexpected tree)
+checkAssignLocal :: Tree -> Tree -> Operator -> GenState ()
+checkAssignLocal _ valTree Assignment = checkAST valTree
+checkAssignLocal varTree valTree (BinaryOp binOp) =
+        checkAST (BinaryNode varTree valTree binOp)
+checkAssignLocal _ _ (UnaryOp a) =
+        throwError $ GeneratorError (OperatorError (UnaryOp a))
