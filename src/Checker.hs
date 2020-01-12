@@ -146,8 +146,8 @@ checkAST BreakNode = do
             throwError $ SyntaxError (Unexpected BreakNode)
 
 checkAST (ReturnNode tree) = do
-        TypeCheck.funcReturn tree
         checkAST tree
+        TypeCheck.funcReturn tree
 
 checkAST (TernaryNode cond pass fails) = do
         checkAST cond

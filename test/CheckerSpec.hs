@@ -45,7 +45,7 @@ checkerTest = hspec $ do
                    ]
                   )
 
-        describe "Check invalid AST" $
+        describe "Check invalid AST" $ do
                 it "Should error if return type doesn't match function declaration" $
                   fromLeft
                   ImpossibleError
@@ -67,5 +67,25 @@ checkerTest = hspec $ do
                     ]
                    )
                   )
-                `shouldBe`
-                TypeError (TypeMismatch [IntVar] [IntPointer])
+                  `shouldBe`
+                  TypeError (TypeMismatch [IntVar] [IntPointer])
+
+                it "Should error if returning undeclared variable" $
+                  fromLeft
+                  ImpossibleError
+                  (check
+                   (ProgramNode
+                    [FunctionNode
+                     IntVar
+                     "dog"
+                     []
+                     (Just
+                      [ReturnNode
+                       (VarNode "a")
+                      ]
+                     )
+                    ]
+                   )
+                  )
+                  `shouldBe`
+                  SyntaxError (Unrecognised (VarNode "a"))
