@@ -260,10 +260,6 @@ genAssignment Nothing     = ASM.noOutput
 genAssignment (Just tree) = genASM tree
 
 
---mkGlobLabel :: String -> Int -> String
---mkGlobLabel name labnum = "_" ++ name ++ show labnum
-
-
 defineGlobal :: Tree -> GenState String
 defineGlobal node@(AssignmentNode name _ _) = do
         Valid.checkIfDefined node
