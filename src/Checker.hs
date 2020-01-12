@@ -2,7 +2,7 @@
 module Checker (check) where
 
 
-import           Control.Monad (when)
+import           Control.Monad (unless, when)
 import           Data.Maybe    (isNothing)
 
 import           AST           (Tree (..))
@@ -28,6 +28,15 @@ checker ast = do
 checkAST :: Tree -> GenState ()
 
 checkAST (ProgramNode topLevelItems) = mapM_ checkAST topLevelItems
+
+checkAST node@(FunctionNode _ _ _ Nothing) = checkDecFunc node
+checkAST node@(FunctionNode _ name _ (Just stmts)) = do
+        Valid.checkIfFuncDefined node
+        checkDecFunc node
+        SymTab.initFunction name
+        mapM_ checkAST stmts
+        SymTab.closeFunction
+        SymTab.defineFunction name
 
 checkAST (ParamNode typ (VarNode name)) = SymTab.addParameter name typ
 checkAST node@ParamNode{} = throwError $ SyntaxError (Unexpected node)
@@ -142,6 +151,33 @@ checkAST NullExprNode = pure ()
 checkAST (ConstantNode _) = pure ()
 
 checkAST _ = pure ()
+
+
+checkDecFunc :: Tree -> GenState ()
+checkDecFunc node@(FunctionNode typ funcName paramList _) = do
+        Valid.checkIfVariable node
+        prevParamCount <- SymTab.decParamCount funcName
+        case prevParamCount of
+             Nothing    -> do
+                     SymTab.declareFunction typ funcName (length paramList)
+                     checkParams funcName paramList
+             Just count -> do
+                     Valid.checkCountsMatch count node
+                     TypeCheck.typesMatch funcName paramList
+                     TypeCheck.funcDeclaration funcName typ
+                     SymTab.declareFunction typ funcName (length paramList)
+                     defined <- SymTab.checkFuncDefined funcName
+                     unless defined $
+                        do SymTab.delFuncState funcName
+                           checkParams funcName paramList
+checkDecFunc tree = throwError $ SyntaxError (Unexpected tree)
+
+
+checkParams :: String -> [Tree] -> GenState ()
+checkParams name params = do
+        SymTab.initFunction name
+        mapM_ checkAST params
+        SymTab.closeFunction
 
 
 checkDecGlobal :: Tree -> GenState ()
