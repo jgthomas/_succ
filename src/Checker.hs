@@ -29,6 +29,13 @@ checkAST :: Tree -> GenState ()
 
 checkAST (ProgramNode topLevelItems) = mapM_ checkAST topLevelItems
 
+checkAST node@(FuncCallNode name argList) = do
+        paramCount <- SymTab.decParamCount name
+        Valid.checkArguments paramCount node
+        TypeCheck.typesMatch name argList
+        Valid.validateCall node
+        mapM_ checkAST argList
+
 checkAST (ArgNode arg) = checkAST arg
 
 checkAST (CompoundStmtNode blockItems) = do
