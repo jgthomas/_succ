@@ -44,3 +44,12 @@ checkIfFuncDefined node@(FunctionNode _ name _ _) = do
         when defined $
            throwError $ SyntaxError (DoubleDefined node)
 checkIfFuncDefined tree = throwError $ SyntaxError (Unexpected tree)
+
+
+-- | TODO
+checkIfDefined :: Tree -> GenState ()
+checkIfDefined node@(AssignmentNode name _ _) = do
+        defined <- SymTab.checkVarDefined name
+        when defined $
+           throwError $ SyntaxError (DoubleDefined node)
+checkIfDefined tree = throwError $ SyntaxError (Unexpected tree)

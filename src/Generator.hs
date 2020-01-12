@@ -275,7 +275,7 @@ mkGlobLabel name labnum = "_" ++ name ++ show labnum
 
 defineGlobal :: Tree -> GenState String
 defineGlobal node@(AssignmentNode name _ _) = do
-        checkIfDefined node
+        Valid.checkIfDefined node
         label <- SymTab.globalLabel name
         SymTab.defineGlobal name
         defPrevDecGlob label node
@@ -295,14 +295,6 @@ defPrevDecGlob (Just label) (AssignmentNode _ (AddressOfNode a) _) = do
 defPrevDecGlob _ (AssignmentNode _ valNode _) =
         throwError $ SyntaxError (Unexpected valNode)
 defPrevDecGlob _ tree = throwError $ SyntaxError (Unexpected tree)
-
-
-checkIfDefined :: Tree -> GenState ()
-checkIfDefined node@(AssignmentNode name _ _) = do
-        defined <- SymTab.checkVarDefined name
-        when defined $
-           throwError $ SyntaxError (DoubleDefined node)
-checkIfDefined tree = throwError $ SyntaxError (Unexpected tree)
 
 
 globalVarASM :: String -> String -> GenState String
