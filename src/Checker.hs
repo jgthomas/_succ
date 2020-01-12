@@ -148,12 +148,11 @@ checkAST (ReturnNode tree) = do
         TypeCheck.funcReturn tree
 
 checkAST (TernaryNode cond pass fails) = do
+        _ <- SymTab.labelNum
+        _ <- SymTab.labelNum
         checkAST cond
         checkAST pass
         checkAST fails
-        _ <- SymTab.labelNum
-        _ <- SymTab.labelNum
-        pure ()
 
 checkAST (BinaryNode lft rgt _) = do
         _ <- SymTab.labelNum
