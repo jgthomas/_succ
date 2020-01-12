@@ -1,10 +1,10 @@
 {-|
-Module       : Runner
+Module       : Succ
 Description  : Run compilation process
 
 Controls the output of the compilation process.
 -}
-module Runner (compile) where
+module Succ (compile) where
 
 
 import           System.Exit (exitFailure)

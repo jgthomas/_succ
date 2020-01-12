@@ -9,7 +9,7 @@ import System.IO          (IOMode (ReadMode), hClose, hGetContents, openFile,
                            writeFile)
 import System.Process     (system)
 
-import Runner             (compile)
+import Succ               (compile)
 
 
 main :: IO ()
