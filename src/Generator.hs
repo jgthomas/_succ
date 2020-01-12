@@ -61,7 +61,7 @@ genASM node@(FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
         checkArguments paramCount node
         TypeCheck.typesMatch name argList
-        validateCall node
+        Valid.validateCall node
         argString <- processArgs argList
         ASM.functionCall name argString
 
@@ -379,22 +379,6 @@ processArg :: (Tree, Int) -> GenState String
 processArg (arg, pos) = do
         argASM <- genASM arg
         ASM.passArgument argASM pos
-
-
-validateCall :: Tree -> GenState ()
-validateCall node@(FuncCallNode name _) = do
-        callee <- SymTab.decSeqNumber name
-        caller <- SymTab.currentSeqNumber
-        unless (validSeq callee caller) $
-            throwError $ SyntaxError (InvalidCall node)
-validateCall tree = throwError $ SyntaxError (Unexpected tree)
-
-
-validSeq :: Maybe Int -> Maybe Int -> Bool
-validSeq Nothing Nothing   = False
-validSeq Nothing (Just _)  = False
-validSeq (Just _) Nothing  = False
-validSeq (Just a) (Just b) = a <= b
 
 
 checkIfFuncDefined :: Tree -> GenState ()
