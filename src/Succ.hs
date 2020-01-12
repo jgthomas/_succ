@@ -10,6 +10,7 @@ module Succ (compile) where
 import           System.Exit (exitFailure)
 
 import           AST         (Tree)
+import qualified Checker     (check)
 import           Error       (CompilerError)
 import qualified Generator   (generate)
 import qualified Lexer       (tokenize)
@@ -19,7 +20,7 @@ import           Tokens      (Token)
 
 -- | Run the compilation process
 compile :: String -> IO String
-compile c = tokenize c >>= parse >>= generate
+compile c = tokenize c >>= parse >>= check >>= generate
 
 
 tokenize :: String -> IO [Token]
@@ -28,6 +29,10 @@ tokenize s = handle . Lexer.tokenize $ s
 
 parse :: [Token] -> IO Tree
 parse toks = handle . Parser.parse $ toks
+
+
+check :: Tree -> IO Tree
+check ast = handle . Checker.check $ ast
 
 
 generate :: Tree -> IO String
