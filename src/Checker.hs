@@ -77,6 +77,14 @@ checkAST (IfNode test action possElse) = do
                      _ <- SymTab.labelNum
                      pure ()
 
+checkAST (PointerNode varName typ Nothing) =
+        checkAST (DeclarationNode varName typ Nothing)
+checkAST node@(PointerNode varName typ (Just a)) = do
+        checkAST (DeclarationNode varName typ Nothing)
+        checkAST a
+        _ <- Valid.checkVariableExists node
+        pure ()
+
 checkAST node@DeclarationNode{} = do
         currScope <- SymTab.getScope
         case currScope of
