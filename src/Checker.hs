@@ -10,6 +10,7 @@ import           Error         (CompilerError (SyntaxError), SyntaxError (..))
 import           GenState      (GenState, runGenState, throwError)
 import qualified GenState      (startState)
 import qualified SymTab
+import qualified TypeCheck
 
 
 check :: Tree -> Either CompilerError Tree
@@ -33,33 +34,44 @@ checkAST (CompoundStmtNode blockItems) = do
         mapM_ checkAST blockItems
         SymTab.closeScope
 
-checkAST ForLoopNode{} = do
+checkAST (ForLoopNode ini test iter block) = do
         SymTab.initScope
         _         <- SymTab.labelNum
         failLabel <- SymTab.labelNum
         contLabel <- SymTab.labelNum
         SymTab.setBreak failLabel
         SymTab.setContinue contLabel
+        checkAST ini
+        checkAST test
+        checkAST iter
+        checkAST block
         SymTab.closeScope
 
-checkAST WhileNode{} = do
+checkAST (WhileNode test whileBlock) = do
         loopLabel <- SymTab.labelNum
+        checkAST test
         testLabel <- SymTab.labelNum
+        checkAST whileBlock
         SymTab.setContinue loopLabel
         SymTab.setBreak testLabel
 
-checkAST DoWhileNode{} = do
+checkAST (DoWhileNode block test) = do
         _         <- SymTab.labelNum
         contLabel <- SymTab.labelNum
+        checkAST block
+        checkAST test
         testLabel <- SymTab.labelNum
         SymTab.setContinue contLabel
         SymTab.setBreak testLabel
 
-checkAST (IfNode _ _ possElse) = do
+checkAST (IfNode test action possElse) = do
+        checkAST test
+        checkAST action
         _ <- SymTab.labelNum
         case possElse of
              Nothing -> pure ()
-             Just _  -> do
+             Just e  -> do
+                     checkAST e
                      _ <- SymTab.labelNum
                      pure ()
 
@@ -72,5 +84,11 @@ checkAST BreakNode = do
         breakLabel <- SymTab.getContinue
         when (isNothing breakLabel) $
             throwError $ SyntaxError (Unexpected BreakNode)
+
+checkAST (ReturnNode tree) = do
+        TypeCheck.funcReturn tree
+        checkAST tree
+
+checkAST (ExprStmtNode expression) = checkAST expression
 
 checkAST _ = pure ()
