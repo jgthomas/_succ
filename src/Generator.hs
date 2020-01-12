@@ -42,7 +42,7 @@ genASM node@(FunctionNode _ _ _ Nothing) = do
         declareFunction node
         ASM.noOutput
 genASM node@(FunctionNode _ name _ (Just stmts)) = do
-        checkIfFuncDefined node
+        Valid.checkIfFuncDefined node
         declareFunction node
         SymTab.initFunction name
         statements <- concat <$> mapM genASM stmts
@@ -379,14 +379,6 @@ processArg :: (Tree, Int) -> GenState String
 processArg (arg, pos) = do
         argASM <- genASM arg
         ASM.passArgument argASM pos
-
-
-checkIfFuncDefined :: Tree -> GenState ()
-checkIfFuncDefined node@(FunctionNode _ name _ _) = do
-        defined <- SymTab.checkFuncDefined name
-        when defined $
-           throwError $ SyntaxError (DoubleDefined node)
-checkIfFuncDefined tree = throwError $ SyntaxError (Unexpected tree)
 
 
 -- Variables

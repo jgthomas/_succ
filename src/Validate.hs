@@ -10,6 +10,7 @@ import           GenState      (GenState, throwError)
 import qualified SymTab
 
 
+-- | TODO
 checkIfUsedInScope :: Tree -> GenState ()
 checkIfUsedInScope node@(DeclarationNode name _ _) = do
         localDec <- SymTab.checkVariable name
@@ -19,6 +20,7 @@ checkIfUsedInScope node@(DeclarationNode name _ _) = do
 checkIfUsedInScope tree = throwError $ SyntaxError (Unexpected tree)
 
 
+-- | TODO
 validateCall :: Tree -> GenState ()
 validateCall node@(FuncCallNode name _) = do
         callee <- SymTab.decSeqNumber name
@@ -33,3 +35,12 @@ validSeq Nothing Nothing   = False
 validSeq Nothing (Just _)  = False
 validSeq (Just _) Nothing  = False
 validSeq (Just a) (Just b) = a <= b
+
+
+-- | TODO
+checkIfFuncDefined :: Tree -> GenState ()
+checkIfFuncDefined node@(FunctionNode _ name _ _) = do
+        defined <- SymTab.checkFuncDefined name
+        when defined $
+           throwError $ SyntaxError (DoubleDefined node)
+checkIfFuncDefined tree = throwError $ SyntaxError (Unexpected tree)
