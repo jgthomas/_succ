@@ -154,23 +154,33 @@ checkAST _ = pure ()
 
 
 checkDecFunc :: Tree -> GenState ()
-checkDecFunc node@(FunctionNode typ funcName paramList _) = do
+checkDecFunc node@(FunctionNode _ funcName _ _) = do
         Valid.checkIfVariable node
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
-             Nothing    -> do
-                     SymTab.declareFunction typ funcName (length paramList)
-                     checkParams funcName paramList
-             Just count -> do
-                     Valid.checkCountsMatch count node
-                     TypeCheck.typesMatch funcName paramList
-                     TypeCheck.funcDeclaration funcName typ
-                     SymTab.declareFunction typ funcName (length paramList)
-                     defined <- SymTab.checkFuncDefined funcName
-                     unless defined $
-                        do SymTab.delFuncState funcName
-                           checkParams funcName paramList
+             Nothing -> checkNewFuncDec node
+             Just ns -> checkRepeatFuncDec ns node
 checkDecFunc tree = throwError $ SyntaxError (Unexpected tree)
+
+
+checkNewFuncDec :: Tree -> GenState ()
+checkNewFuncDec (FunctionNode typ funcName paramList _) = do
+        SymTab.declareFunction typ funcName (length paramList)
+        checkParams funcName paramList
+checkNewFuncDec tree = throwError $ SyntaxError (Unexpected tree)
+
+
+checkRepeatFuncDec :: Int -> Tree -> GenState ()
+checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _) = do
+        Valid.checkCountsMatch count node
+        TypeCheck.typesMatch funcName paramList
+        TypeCheck.funcDeclaration funcName typ
+        SymTab.declareFunction typ funcName (length paramList)
+        defined <- SymTab.checkFuncDefined funcName
+        unless defined $
+           do SymTab.delFuncState funcName
+              checkParams funcName paramList
+checkRepeatFuncDec _ tree = throwError $ SyntaxError (Unexpected tree)
 
 
 checkParams :: String -> [Tree] -> GenState ()
