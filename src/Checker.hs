@@ -110,6 +110,10 @@ checkAST node@DeclarationNode{} = do
              Global -> checkDecGlobal node
              Local  -> checkDecLocal node
 
+checkAST AssignmentNode{} = pure ()
+
+checkAST AssignDereferenceNode{} = pure ()
+
 checkAST (ExprStmtNode expression) = checkAST expression
 
 checkAST ContinueNode = do
@@ -134,6 +138,10 @@ checkAST (TernaryNode cond pass fails) = do
         _ <- SymTab.labelNum
         pure ()
 
+checkAST BinaryNode{} = pure ()
+
+checkAST UnaryNode{} = pure ()
+
 checkAST node@(VarNode _) = do
         _ <- Valid.checkVariableExists node
         pure ()
@@ -149,8 +157,6 @@ checkAST node@(DereferenceNode _) = do
 checkAST NullExprNode = pure ()
 
 checkAST (ConstantNode _) = pure ()
-
-checkAST _ = pure ()
 
 
 checkDecFunc :: Tree -> GenState ()
