@@ -94,9 +94,8 @@ checkAST (IfNode test action possElse) = do
         case possElse of
              Nothing -> pure ()
              Just e  -> do
-                     checkAST e
                      _ <- SymTab.labelNum
-                     pure ()
+                     checkAST e
 
 checkAST (PointerNode varName typ Nothing) =
         checkAST (DeclarationNode varName typ Nothing)
