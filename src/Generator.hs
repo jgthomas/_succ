@@ -121,7 +121,7 @@ genASM (PointerNode varName typ Nothing) =
 genASM node@(PointerNode varName typ (Just a)) = do
         pointerASM <- genASM (DeclarationNode varName typ Nothing)
         value      <- genASM a
-        (offset, _, globLab) <- checkVariableExists varName
+        (offset, _, globLab) <- Valid.checkVariableExists node
         case (offset, globLab) of
              (Just off, _) -> ASM.varAddressStore (pointerASM ++ value) off
              (_, Just _)   -> pure $ pointerASM ++ value
@@ -146,7 +146,7 @@ genASM node@(AssignmentNode varName value op) = do
              Global -> defineGlobal node
              Local  -> do
                      assign <- buildAssignmentASM (VarNode varName) value op
-                     (offset, _, globLab) <- checkVariableExists varName
+                     (offset, _, globLab) <- Valid.checkVariableExists node
                      case (offset, globLab) of
                           (Just off, _) -> do
                                   adj <- SymTab.stackPointerValue
@@ -157,7 +157,7 @@ genASM node@(AssignmentNode varName value op) = do
 genASM node@(AssignDereferenceNode varName value op) = do
         TypeCheck.assignment varName value
         assign <- buildAssignmentASM (DereferenceNode varName) value op
-        (offset, argPos, globLab) <- checkVariableExists varName
+        (offset, argPos, globLab) <- Valid.checkVariableExists node
         case (offset, argPos, globLab) of
              (Nothing, Nothing, Nothing) ->
                      throwError $ SyntaxError (Undeclared node)
@@ -198,7 +198,7 @@ genASM node@(BinaryNode _ right _) = do
 
 genASM (UnaryNode (VarNode a) op) = do
         unaryASM      <- genASM (VarNode a)
-        (off, _, lab) <- checkVariableExists a
+        (off, _, lab) <- Valid.checkVariableExists (VarNode a)
         ASM.unary unaryASM op off lab
 genASM (UnaryNode _ unOp@(PreOpUnary _)) =
         throwError $ GeneratorError (OperatorError (UnaryOp unOp))
@@ -208,22 +208,22 @@ genASM (UnaryNode tree (Unary op)) = do
         unode <- genASM tree
         ASM.unary unode (Unary op) Nothing Nothing
 
-genASM node@(VarNode varName) = do
-        (offset, argPos, globLab) <- checkVariableExists varName
+genASM node@(VarNode _) = do
+        (offset, argPos, globLab) <- Valid.checkVariableExists node
         case (offset, argPos, globLab) of
              (Nothing, Nothing, Nothing) ->
                      throwError $ SyntaxError (Unrecognised node)
              _ -> ASM.loadVariable offset argPos globLab
 
-genASM node@(AddressOfNode varName) = do
-        (offset, _, globLab) <- checkVariableExists varName
+genASM node@(AddressOfNode _) = do
+        (offset, _, globLab) <- Valid.checkVariableExists node
         case (offset, globLab) of
              (Nothing, Nothing) ->
                      throwError $ SyntaxError (Unrecognised node)
              _ -> ASM.addressOf offset globLab
 
-genASM node@(DereferenceNode varName) = do
-        (offset, argPos, globLab) <- checkVariableExists varName
+genASM node@(DereferenceNode _) = do
+        (offset, argPos, globLab) <- Valid.checkVariableExists node
         case (offset, argPos, globLab) of
              (Nothing, Nothing, Nothing) ->
                      throwError $ SyntaxError (Unrecognised node)
@@ -341,14 +341,6 @@ processArg (arg, pos) = do
 
 
 -- Variables
-
-checkVariableExists :: String -> GenState (Maybe Int, Maybe Int, Maybe String)
-checkVariableExists varName = do
-        offset  <- SymTab.variableOffset varName
-        argPos  <- SymTab.parameterPosition varName
-        globLab <- SymTab.globalLabel varName
-        pure (offset, argPos, globLab)
-
 
 buildAssignmentASM :: Tree -> Tree -> Operator -> GenState String
 buildAssignmentASM _ valTree Assignment = genASM valTree
