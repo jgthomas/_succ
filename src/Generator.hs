@@ -150,14 +150,11 @@ genASM node@(AssignmentNode varName value op) = do
                           (_, Just lab) -> ASM.storeGlobal assign lab
                           _ -> throwError $ SyntaxError (Undeclared node)
 
-genASM node@(AssignDereferenceNode varName value op) = do
+genASM (AssignDereferenceNode varName value op) = do
         TypeCheck.assignment varName value
         assign <- buildAssignmentASM (DereferenceNode varName) value op
         (offset, argPos, globLab) <- Valid.getVariables varName
-        case (offset, argPos, globLab) of
-             (Nothing, Nothing, Nothing) ->
-                     throwError $ SyntaxError (Undeclared node)
-             _ -> ASM.derefStore assign offset argPos globLab
+        ASM.derefStore assign offset argPos globLab
 
 genASM (ExprStmtNode expression) = genASM expression
 
