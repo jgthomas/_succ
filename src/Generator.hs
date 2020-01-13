@@ -20,7 +20,6 @@ import           GenTokens           (Scope (..))
 import           Operator            (BinaryOp (..), Operator (..),
                                       UnaryOp (..))
 import qualified SymTab
-import qualified TypeCheck
 import qualified Validate            as Valid
 
 
@@ -136,7 +135,6 @@ genASM node@(DeclarationNode varName typ value) = do
                         Nothing  -> ASM.decNoAssign offset adjust
 
 genASM node@(AssignmentNode varName value op) = do
-        TypeCheck.assignment varName value
         currScope <- SymTab.getScope
         case currScope of
              Global -> defineGlobal node
@@ -225,9 +223,7 @@ declareGlobal node@(DeclarationNode name typ toAssign) = do
         Valid.checkIfFunction node
         currLabel <- SymTab.globalLabel name
         case currLabel of
-             Just _  -> do
-                     TypeCheck.globalDeclaration name typ
-                     genAssignment toAssign
+             Just _  -> genAssignment toAssign
              Nothing -> do
                      globLab <- Valid.mkGlobLabel name <$> SymTab.labelNum
                      SymTab.declareGlobal name typ globLab
@@ -281,8 +277,6 @@ declareFunction node@(FunctionNode typ funcName paramList _) = do
                      processParameters funcName paramList
              Just count -> do
                      Valid.checkCountsMatch count node
-                     TypeCheck.typesMatch funcName paramList
-                     TypeCheck.funcDeclaration funcName typ
                      SymTab.declareFunction typ funcName (length paramList)
                      defined <- SymTab.checkFuncDefined funcName
                      unless defined $
