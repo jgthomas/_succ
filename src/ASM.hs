@@ -73,8 +73,8 @@ returnStatement =
 
 
 -- | Output asm for a return value
-returnValue :: String -> GenState String
-returnValue rtn = pure $ rtn ++ returnStatement
+returnValue :: String -> String
+returnValue rtn = rtn ++ returnStatement
 
 
 saveBasePointer :: String

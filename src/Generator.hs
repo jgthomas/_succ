@@ -177,10 +177,7 @@ genASM BreakNode = do
              Just target -> ASM.setGotoPoint target
              Nothing     -> throwError $ SyntaxError (Unexpected BreakNode)
 
-genASM (ReturnNode tree) = do
-        TypeCheck.funcReturn tree
-        rtn <- genASM tree
-        ASM.returnValue rtn
+genASM (ReturnNode tree) = ASM.returnValue <$> genASM tree
 
 genASM (TernaryNode cond pass fails) = do
         testExp  <- genASM cond
