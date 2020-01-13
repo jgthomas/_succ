@@ -56,13 +56,7 @@ genASM (ParamNode typ (VarNode name)) = do
         ASM.noOutput
 genASM node@(ParamNode _ _) = throwError $ SyntaxError (Unexpected node)
 
-genASM node@(FuncCallNode name argList) = do
-        paramCount <- SymTab.decParamCount name
-        Valid.checkArguments paramCount node
-        TypeCheck.typesMatch name argList
-        Valid.validateCall node
-        argString <- processArgs argList
-        ASM.functionCall name argString
+genASM (FuncCallNode name args) = ASM.functionCall name <$> processArgs args
 
 genASM (ArgNode arg) = genASM arg
 

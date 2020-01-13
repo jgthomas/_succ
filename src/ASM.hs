@@ -88,8 +88,8 @@ restoreBasePointer = move (reg RBP) (reg RSP)
 
 
 -- | Output asm for a function call
-functionCall :: String -> String -> GenState String
-functionCall name args = pure $
+functionCall :: String -> String -> String
+functionCall name args =
         saveCallerRegisters
         ++ args
         ++ makeFunctionCall name
