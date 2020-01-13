@@ -151,7 +151,6 @@ genASM node@(AssignmentNode varName value op) = do
                           _ -> throwError $ SyntaxError (Undeclared node)
 
 genASM (AssignDereferenceNode varName value op) = do
-        TypeCheck.assignment varName value
         assign <- buildAssignmentASM (DereferenceNode varName) value op
         (offset, argPos, globLab) <- Valid.getVariables varName
         ASM.derefStore assign offset argPos globLab
