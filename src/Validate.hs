@@ -110,7 +110,7 @@ checkVariableExists tree = throwError $ SyntaxError (Unexpected tree)
 
 checkExists :: Tree -> String -> GenState (Maybe Int, Maybe Int, Maybe String)
 checkExists node varName = do
-        (offset, argPos, globLab) <- getVars varName
+        (offset, argPos, globLab) <- getVariables varName
         case (offset, argPos, globLab) of
              (Nothing, Nothing, Nothing) ->
                      throwError $ SyntaxError (Unrecognised node)
@@ -130,15 +130,15 @@ variableExists tree = throwError $ SyntaxError (Unexpected tree)
 
 varExists :: Tree -> String -> GenState ()
 varExists node varName = do
-        (offset, argPos, globLab) <- getVars varName
+        (offset, argPos, globLab) <- getVariables varName
         when (isNothing offset && isNothing argPos && isNothing globLab) $
             throwError $ SyntaxError (Unrecognised node)
 
 
-getVars :: String -> GenState (Maybe Int, Maybe Int, Maybe String)
-getVars varName = do
+-- | TODO
+getVariables :: String -> GenState (Maybe Int, Maybe Int, Maybe String)
+getVariables varName = do
         offset  <- SymTab.variableOffset varName
         argPos  <- SymTab.parameterPosition varName
         globLab <- SymTab.globalLabel varName
         pure (offset, argPos, globLab)
-
