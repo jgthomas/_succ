@@ -201,26 +201,17 @@ genASM (UnaryNode tree (Unary op)) = do
         unode <- genASM tree
         ASM.unary unode (Unary op) Nothing Nothing
 
-genASM node@(VarNode name) = do
+genASM (VarNode name) = do
         (offset, argPos, globLab) <- Valid.getVariables name
-        case (offset, argPos, globLab) of
-             (Nothing, Nothing, Nothing) ->
-                     throwError $ SyntaxError (Unrecognised node)
-             _ -> ASM.loadVariable offset argPos globLab
+        ASM.loadVariable offset argPos globLab
 
-genASM node@(AddressOfNode name) = do
+genASM (AddressOfNode name) = do
         (offset, _, globLab) <- Valid.getVariables name
-        case (offset, globLab) of
-             (Nothing, Nothing) ->
-                     throwError $ SyntaxError (Unrecognised node)
-             _ -> ASM.addressOf offset globLab
+        ASM.addressOf offset globLab
 
-genASM node@(DereferenceNode name) = do
+genASM (DereferenceNode name) = do
         (offset, argPos, globLab) <- Valid.getVariables name
-        case (offset, argPos, globLab) of
-             (Nothing, Nothing, Nothing) ->
-                     throwError $ SyntaxError (Unrecognised node)
-             _ -> ASM.derefLoad offset argPos globLab
+        ASM.derefLoad offset argPos globLab
 
 genASM NullExprNode = ASM.noOutput
 
