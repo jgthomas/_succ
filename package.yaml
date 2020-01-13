@@ -26,6 +26,7 @@ dependencies:
 - transformers
 - mtl
 - deepseq
+- extra
 
 library:
   source-dirs: src

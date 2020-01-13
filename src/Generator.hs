@@ -7,19 +7,21 @@ Generates the x86-64 assembly code for a particular abstract syntax tree.
 module Generator (generate) where
 
 
-import           Control.Monad (unless)
+import           Control.Monad       (unless)
+import           Control.Monad.Extra (concatMapM)
 
 import qualified ASM
-import           AST           (Tree (..))
-import           Error         (CompilerError (GeneratorError, SyntaxError),
-                                GeneratorError (..), SyntaxError (..))
-import           GenState      (GenState, runGenState, throwError)
-import qualified GenState      (startState)
-import           GenTokens     (Scope (..))
-import           Operator      (BinaryOp (..), Operator (..), UnaryOp (..))
+import           AST                 (Tree (..))
+import           Error               (CompilerError (GeneratorError, SyntaxError),
+                                      GeneratorError (..), SyntaxError (..))
+import           GenState            (GenState, runGenState, throwError)
+import qualified GenState            (startState)
+import           GenTokens           (Scope (..))
+import           Operator            (BinaryOp (..), Operator (..),
+                                      UnaryOp (..))
 import qualified SymTab
 import qualified TypeCheck
-import qualified Validate      as Valid
+import qualified Validate            as Valid
 
 
 -- | Generate x86-64 asm from AST
@@ -30,9 +32,9 @@ generate ast = runGenState genASM ast GenState.startState
 genASM :: Tree -> GenState String
 
 genASM (ProgramNode topLevelItems) = do
-        text  <- concat <$> mapM genASM topLevelItems
+        text  <- concatMapM genASM topLevelItems
         undef <- SymTab.getUndefined
-        bss   <- concat <$> mapM ASM.uninitializedGlobal undef
+        bss   <- concatMapM ASM.uninitializedGlobal undef
         toIni <- concat <$> SymTab.getAllForInit
         doIni <- ASM.outputInit toIni
         pure $ text ++ bss ++ doIni
