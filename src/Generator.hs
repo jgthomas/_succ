@@ -263,19 +263,29 @@ globalVarASM lab val = ASM.initializedGlobal lab val
 -- Functions / function calls
 
 declareFunction :: Tree -> GenState ()
-declareFunction (FunctionNode typ funcName paramList _) = do
+declareFunction node@(FunctionNode _ funcName _ _) = do
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
-             Nothing -> do
-                     SymTab.declareFunction typ funcName (length paramList)
-                     processParameters funcName paramList
-             Just _  -> do
-                     SymTab.declareFunction typ funcName (length paramList)
-                     defined <- SymTab.checkFuncDefined funcName
-                     unless defined $
-                        do SymTab.delFuncState funcName
-                           processParameters funcName paramList
+             Nothing -> declareNewFunction node
+             Just _  -> declareRepeatFunction node
 declareFunction tree = throwError $ SyntaxError (Unexpected tree)
+
+
+declareNewFunction :: Tree -> GenState ()
+declareNewFunction (FunctionNode typ funcName paramList _) = do
+        SymTab.declareFunction typ funcName (length paramList)
+        processParameters funcName paramList
+declareNewFunction tree = throwError $ SyntaxError (Unexpected tree)
+
+
+declareRepeatFunction :: Tree -> GenState ()
+declareRepeatFunction (FunctionNode typ funcName paramList _) = do
+        SymTab.declareFunction typ funcName (length paramList)
+        defined <- SymTab.checkFuncDefined funcName
+        unless defined $
+           do SymTab.delFuncState funcName
+              processParameters funcName paramList
+declareRepeatFunction tree = throwError $ SyntaxError (Unexpected tree)
 
 
 processParameters :: String -> [Tree] -> GenState ()
