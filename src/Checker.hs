@@ -116,8 +116,8 @@ checkAST node@(PointerNode varName typ (Just a)) = do
 checkAST node@DeclarationNode{} = do
         currScope <- SymTab.getScope
         case currScope of
-             Global -> checkDecGlobal node
-             Local  -> checkDecLocal node
+             Global -> checkDeclareGlobal node
+             Local  -> checkDeclareLocal node
 
 checkAST node@(AssignmentNode varName value op) = do
         TypeCheck.assignment varName value
@@ -219,8 +219,8 @@ checkParams name params = do
         SymTab.closeFunction
 
 
-checkDecGlobal :: Tree -> GenState ()
-checkDecGlobal node@(DeclarationNode name typ toAssign) = do
+checkDeclareGlobal :: Tree -> GenState ()
+checkDeclareGlobal node@(DeclarationNode name typ toAssign) = do
         ScopeCheck.checkIfFunction node
         currLabel <- SymTab.globalLabel name
         case currLabel of
@@ -229,7 +229,7 @@ checkDecGlobal node@(DeclarationNode name typ toAssign) = do
                      globLab <- SymTab.mkGlobLabel name
                      SymTab.declareGlobal name typ globLab
                      checkAssignment toAssign
-checkDecGlobal tree = throwError $ SyntaxError (Unexpected tree)
+checkDeclareGlobal tree = throwError $ SyntaxError (Unexpected tree)
 
 
 checkAssignment :: Maybe Tree -> GenState ()
@@ -237,15 +237,15 @@ checkAssignment Nothing  = pure ()
 checkAssignment (Just t) = checkAST t
 
 
-checkDecLocal :: Tree -> GenState ()
-checkDecLocal node@(DeclarationNode name typ toAssign) = do
+checkDeclareLocal :: Tree -> GenState ()
+checkDeclareLocal node@(DeclarationNode name typ toAssign) = do
         ScopeCheck.checkIfUsedInScope node
         _ <- SymTab.addVariable name typ
         _ <- SymTab.stackPointerValue
         case toAssign of
              Just val -> checkAST val
              Nothing  -> pure ()
-checkDecLocal tree = throwError $ SyntaxError (Unexpected tree)
+checkDeclareLocal tree = throwError $ SyntaxError (Unexpected tree)
 
 
 checkDefineGlobal :: Tree -> GenState ()
