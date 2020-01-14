@@ -31,7 +31,8 @@ checkAST :: Tree -> GenState ()
 
 checkAST (ProgramNode topLevelItems) = mapM_ checkAST topLevelItems
 
-checkAST node@(FunctionNode _ _ _ Nothing) = checkDecFunc node
+checkAST node@(FunctionNode _ _ _ Nothing) =
+        checkDecFunc node
 checkAST node@(FunctionNode _ name _ (Just stmts)) = do
         ScopeCheck.checkIfFuncDefined node
         checkDecFunc node
@@ -40,8 +41,10 @@ checkAST node@(FunctionNode _ name _ (Just stmts)) = do
         SymTab.closeFunction
         SymTab.defineFunction name
 
-checkAST (ParamNode typ (VarNode name)) = SymTab.addParameter name typ
-checkAST node@ParamNode{} = throwError $ SyntaxError (Unexpected node)
+checkAST (ParamNode typ (VarNode name)) =
+        SymTab.addParameter name typ
+checkAST node@ParamNode{} =
+        throwError $ SyntaxError (Unexpected node)
 
 checkAST node@(FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
@@ -101,8 +104,8 @@ checkAST (PointerNode varName typ Nothing) =
         checkAST (DeclarationNode varName typ Nothing)
 checkAST node@(PointerNode varName typ (Just a)) = do
         checkAST (DeclarationNode varName typ Nothing)
-        checkAST a
         ScopeCheck.variableExists node
+        checkAST a
 
 checkAST node@DeclarationNode{} = do
         currScope <- SymTab.getScope
