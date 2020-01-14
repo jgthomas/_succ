@@ -1,4 +1,9 @@
+{-|
+Module       : ScopeCheck
+Description  : Checks for scope errors
 
+Checks for scope errors in variables and function calls
+-}
 module ScopeCheck where
 
 
@@ -11,7 +16,7 @@ import           GenState      (GenState, throwError)
 import qualified SymTab
 
 
--- | TODO
+-- | Check if variable name exists in current scope
 checkIfUsedInScope :: Tree -> GenState ()
 checkIfUsedInScope node@(DeclarationNode name _ _) = do
         localDec <- SymTab.checkVariable name
@@ -21,7 +26,7 @@ checkIfUsedInScope node@(DeclarationNode name _ _) = do
 checkIfUsedInScope tree = throwError $ SyntaxError (Unexpected tree)
 
 
--- | TODO
+-- | Validate a function call sequence
 validateCall :: Tree -> GenState ()
 validateCall node@(FuncCallNode name _) = do
         callee <- SymTab.decSeqNumber name
@@ -38,7 +43,7 @@ validSeq (Just _) Nothing  = False
 validSeq (Just a) (Just b) = a <= b
 
 
--- | TODO
+-- | Check if a function is already defined
 checkIfFuncDefined :: Tree -> GenState ()
 checkIfFuncDefined node@(FunctionNode _ name _ _) = do
         defined <- SymTab.checkFuncDefined name
@@ -47,7 +52,7 @@ checkIfFuncDefined node@(FunctionNode _ name _ _) = do
 checkIfFuncDefined tree = throwError $ SyntaxError (Unexpected tree)
 
 
--- | TODO
+-- | Check if a variable has been defined
 checkIfDefined :: Tree -> GenState ()
 checkIfDefined node@(AssignmentNode name _ _) = do
         defined <- SymTab.checkVarDefined name
@@ -56,7 +61,7 @@ checkIfDefined node@(AssignmentNode name _ _) = do
 checkIfDefined tree = throwError $ SyntaxError (Unexpected tree)
 
 
--- | TODO
+-- | Check if an identifier is a variable
 checkIfVariable :: Tree -> GenState ()
 checkIfVariable node@(FunctionNode _ name _ _) = do
         label <- SymTab.globalLabel name
@@ -65,7 +70,7 @@ checkIfVariable node@(FunctionNode _ name _ _) = do
 checkIfVariable tree = throwError $ SyntaxError (Unexpected tree)
 
 
--- | TODO
+-- | Check parameter counts match in two function declarations
 checkCountsMatch :: Int -> Tree -> GenState ()
 checkCountsMatch count node@(FunctionNode _ _ paramList _) =
         when (count /= length paramList) $
@@ -76,14 +81,14 @@ checkCountsMatch count node@(FuncCallNode _ argList) =
 checkCountsMatch _ tree = throwError $ SyntaxError (Unexpected tree)
 
 
--- | TODO
+-- | Check argument counts match in two function calls
 checkArguments :: Maybe Int -> Tree -> GenState ()
 checkArguments (Just n) node@(FuncCallNode _ _) = checkCountsMatch n node
 checkArguments (Just _) tree = throwError $ SyntaxError (Unexpected tree)
 checkArguments Nothing tree  = throwError $ SyntaxError (Undeclared tree)
 
 
--- | TODO
+-- | Check if an identifier is a function
 checkIfFunction :: Tree -> GenState ()
 checkIfFunction node@(DeclarationNode name _ _) = do
         paramNum <- SymTab.decParamCount name
@@ -92,7 +97,7 @@ checkIfFunction node@(DeclarationNode name _ _) = do
 checkIfFunction tree = throwError $ SyntaxError (Unexpected tree)
 
 
--- | TODO
+-- | Check an identifier is linked to real variable
 variableExists :: Tree -> GenState ()
 variableExists node@(VarNode a)                   = varExists node a
 variableExists node@(AddressOfNode a)             = varExists node a
