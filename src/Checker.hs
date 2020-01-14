@@ -12,9 +12,9 @@ import           GenState      (GenState, runGenState, throwError)
 import qualified GenState      (startState)
 import           GenTokens     (Scope (..))
 import           Operator      (Operator (..), UnaryOp (..))
+import qualified ScopeCheck
 import qualified SymTab
 import qualified TypeCheck
-import qualified Validate      as Valid
 
 
 check :: Tree -> Either CompilerError Tree
@@ -33,7 +33,7 @@ checkAST (ProgramNode topLevelItems) = mapM_ checkAST topLevelItems
 
 checkAST node@(FunctionNode _ _ _ Nothing) = checkDecFunc node
 checkAST node@(FunctionNode _ name _ (Just stmts)) = do
-        Valid.checkIfFuncDefined node
+        ScopeCheck.checkIfFuncDefined node
         checkDecFunc node
         SymTab.initFunction name
         mapM_ checkAST stmts
@@ -45,9 +45,9 @@ checkAST node@ParamNode{} = throwError $ SyntaxError (Unexpected node)
 
 checkAST node@(FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
-        Valid.checkArguments paramCount node
+        ScopeCheck.checkArguments paramCount node
         TypeCheck.typesMatch name argList
-        Valid.validateCall node
+        ScopeCheck.validateCall node
         mapM_ checkAST argList
 
 checkAST (ArgNode arg) = checkAST arg
@@ -102,7 +102,7 @@ checkAST (PointerNode varName typ Nothing) =
 checkAST node@(PointerNode varName typ (Just a)) = do
         checkAST (DeclarationNode varName typ Nothing)
         checkAST a
-        Valid.variableExists node
+        ScopeCheck.variableExists node
 
 checkAST node@DeclarationNode{} = do
         currScope <- SymTab.getScope
@@ -128,7 +128,7 @@ checkAST node@(AssignmentNode varName value op) = do
 checkAST node@(AssignDereferenceNode varName value op) = do
         TypeCheck.assignment varName value
         checkAssignLocal (DereferenceNode varName) value op
-        Valid.variableExists node
+        ScopeCheck.variableExists node
 
 checkAST (ExprStmtNode expression) = checkAST expression
 
@@ -161,18 +161,18 @@ checkAST (BinaryNode lft rgt _) = do
 
 checkAST (UnaryNode node@(VarNode _) _) = do
         checkAST node
-        Valid.variableExists node
+        ScopeCheck.variableExists node
 checkAST (UnaryNode _ unOp@(PreOpUnary _)) =
         throwError $ GeneratorError (OperatorError (UnaryOp unOp))
 checkAST (UnaryNode _ unOp@(PostOpUnary _)) =
         throwError $ GeneratorError (OperatorError (UnaryOp unOp))
 checkAST (UnaryNode tree (Unary _)) = checkAST tree
 
-checkAST node@(VarNode _) = Valid.variableExists node
+checkAST node@(VarNode _) = ScopeCheck.variableExists node
 
-checkAST node@(AddressOfNode _) = Valid.variableExists node
+checkAST node@(AddressOfNode _) = ScopeCheck.variableExists node
 
-checkAST node@(DereferenceNode _) = Valid.variableExists node
+checkAST node@(DereferenceNode _) = ScopeCheck.variableExists node
 
 checkAST NullExprNode = pure ()
 
@@ -181,7 +181,7 @@ checkAST (ConstantNode _) = pure ()
 
 checkDecFunc :: Tree -> GenState ()
 checkDecFunc node@(FunctionNode _ funcName _ _) = do
-        Valid.checkIfVariable node
+        ScopeCheck.checkIfVariable node
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
              Nothing -> checkNewFuncDec node
@@ -198,7 +198,7 @@ checkNewFuncDec tree = throwError $ SyntaxError (Unexpected tree)
 
 checkRepeatFuncDec :: Int -> Tree -> GenState ()
 checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _) = do
-        Valid.checkCountsMatch count node
+        ScopeCheck.checkCountsMatch count node
         TypeCheck.typesMatch funcName paramList
         TypeCheck.funcDeclaration funcName typ
         SymTab.declareFunction typ funcName (length paramList)
@@ -218,7 +218,7 @@ checkParams name params = do
 
 checkDecGlobal :: Tree -> GenState ()
 checkDecGlobal node@(DeclarationNode name typ toAssign) = do
-        Valid.checkIfFunction node
+        ScopeCheck.checkIfFunction node
         currLabel <- SymTab.globalLabel name
         case currLabel of
              Just _  -> TypeCheck.globalDeclaration name typ
@@ -236,7 +236,7 @@ checkAssignment (Just t) = checkAST t
 
 checkDecLocal :: Tree -> GenState ()
 checkDecLocal node@(DeclarationNode name typ toAssign) = do
-        Valid.checkIfUsedInScope node
+        ScopeCheck.checkIfUsedInScope node
         _ <- SymTab.addVariable name typ
         _ <- SymTab.stackPointerValue
         case toAssign of
@@ -247,7 +247,7 @@ checkDecLocal tree = throwError $ SyntaxError (Unexpected tree)
 
 checkDefineGlobal :: Tree -> GenState ()
 checkDefineGlobal node@(AssignmentNode name _ _) = do
-        Valid.checkIfDefined node
+        ScopeCheck.checkIfDefined node
         label <- SymTab.globalLabel name
         SymTab.defineGlobal name
         checkPrevDecGlob label node

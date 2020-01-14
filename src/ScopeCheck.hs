@@ -1,5 +1,5 @@
 
-module Validate where
+module ScopeCheck where
 
 
 import           Control.Monad (unless, when)
