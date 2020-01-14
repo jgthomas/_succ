@@ -266,9 +266,7 @@ defineLocal node@(AssignmentNode varName value op) = do
         assign <- buildAssignmentASM (VarNode varName) value op
         (offset, _, globLab) <- SymTab.getVariables varName
         case (offset, globLab) of
-             (Just off, _) -> do
-                     adj <- SymTab.stackPointerValue
-                     ASM.assign assign off adj
+             (Just off, _) -> ASM.assign assign off <$> SymTab.stackPointerValue
              (_, Just lab) -> ASM.storeGlobal assign lab
              _ -> throwError $ SyntaxError (Undeclared node)
 defineLocal tree = throwError $ SyntaxError (Unexpected tree)

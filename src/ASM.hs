@@ -104,8 +104,8 @@ decNoAssign off adj = pure $
 
 
 -- | Output asm for an assignment
-assign :: String -> Int -> Int -> GenState String
-assign toAssign off adj = pure $
+assign :: String -> Int -> Int -> String
+assign toAssign off adj =
         toAssign
         ++ declare off adj
 
