@@ -20,7 +20,6 @@ import           GenTokens           (Scope (..))
 import           Operator            (BinaryOp (..), Operator (..),
                                       UnaryOp (..))
 import qualified SymTab
-import qualified Validate            as Valid
 
 
 -- | Generate x86-64 asm from AST
@@ -42,7 +41,6 @@ genASM node@(FunctionNode _ _ _ Nothing) = do
         declareFunction node
         ASM.noOutput
 genASM node@(FunctionNode _ name _ (Just stmts)) = do
-        Valid.checkIfFuncDefined node
         declareFunction node
         SymTab.initFunction name
         statements <- concat <$> mapM genASM stmts
@@ -127,7 +125,6 @@ genASM node@(DeclarationNode varName typ value) = do
         case currScope of
              Global -> declareGlobal node
              Local  -> do
-                   Valid.checkIfUsedInScope node
                    offset <- SymTab.addVariable varName typ
                    adjust <- SymTab.stackPointerValue
                    case value of
@@ -219,8 +216,7 @@ genASM (ConstantNode n) = do
 -- Global variables
 
 declareGlobal :: Tree -> GenState String
-declareGlobal node@(DeclarationNode name typ toAssign) = do
-        Valid.checkIfFunction node
+declareGlobal (DeclarationNode name typ toAssign) = do
         currLabel <- SymTab.globalLabel name
         case currLabel of
              Just _  -> genAssignment toAssign
@@ -238,7 +234,6 @@ genAssignment (Just tree) = genASM tree
 
 defineGlobal :: Tree -> GenState String
 defineGlobal node@(AssignmentNode name _ _) = do
-        Valid.checkIfDefined node
         label <- SymTab.globalLabel name
         SymTab.defineGlobal name
         defPrevDecGlob label node
@@ -268,15 +263,13 @@ globalVarASM lab val = ASM.initializedGlobal lab val
 -- Functions / function calls
 
 declareFunction :: Tree -> GenState ()
-declareFunction node@(FunctionNode typ funcName paramList _) = do
-        Valid.checkIfVariable node
+declareFunction (FunctionNode typ funcName paramList _) = do
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
-             Nothing    -> do
+             Nothing -> do
                      SymTab.declareFunction typ funcName (length paramList)
                      processParameters funcName paramList
-             Just count -> do
-                     Valid.checkCountsMatch count node
+             Just _  -> do
                      SymTab.declareFunction typ funcName (length paramList)
                      defined <- SymTab.checkFuncDefined funcName
                      unless defined $
