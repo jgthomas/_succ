@@ -225,7 +225,7 @@ declareGlobal node@(DeclarationNode name typ toAssign) = do
         case currLabel of
              Just _  -> genAssignment toAssign
              Nothing -> do
-                     globLab <- Valid.mkGlobLabel name <$> SymTab.labelNum
+                     globLab <- SymTab.mkGlobLabel name
                      SymTab.declareGlobal name typ globLab
                      genAssignment toAssign
 declareGlobal tree = throwError $ SyntaxError (Unexpected tree)

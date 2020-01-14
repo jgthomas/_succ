@@ -93,11 +93,6 @@ checkIfFunction tree = throwError $ SyntaxError (Unexpected tree)
 
 
 -- | TODO
-mkGlobLabel :: String -> Int -> String
-mkGlobLabel name labnum = "_" ++ name ++ show labnum
-
-
--- | TODO
 getVariables :: String -> GenState (Maybe Int, Maybe Int, Maybe String)
 getVariables varName = do
         offset  <- SymTab.variableOffset varName

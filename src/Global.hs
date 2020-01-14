@@ -19,7 +19,8 @@ module Global
          getUndefined,
          storeForInit,
          getAllForInit,
-         defineGlobal
+         defineGlobal,
+         mkGlobLabel
         ) where
 
 
@@ -28,7 +29,7 @@ import qualified Data.Set    as S
 
 import qualified FrameStack  (currentFunc)
 import           GenState    (GenState)
-import qualified GenState    (getGlobalScope, putGlobalScope)
+import qualified GenState    (getGlobalScope, labelNum, putGlobalScope)
 import           GlobalScope (GlobalScope (..), GlobalVar (..))
 import qualified GlobalScope (mkGloVar)
 import           Type        (Type)
@@ -136,6 +137,13 @@ storeForInit code = do
 -- | Get list of all stored initilisation ASM code
 getAllForInit :: GenState [String]
 getAllForInit = varsToInit <$> GenState.getGlobalScope
+
+
+-- | TODO
+mkGlobLabel :: String -> GenState String
+mkGlobLabel name = do
+        labnum <- GenState.labelNum
+        pure $ "_" ++ name ++ show labnum
 
 
 lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> GenState (Maybe a)
