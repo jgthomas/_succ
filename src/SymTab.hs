@@ -9,11 +9,21 @@ module SymTab
         (module FrameStack,
          module Global,
          module Local,
-         module GenState
+         module GenState,
+         getVariables
         ) where
 
 
 import FrameStack (getScope)
-import GenState   (labelNum)
+import GenState   (GenState, labelNum)
 import Global     hiding (declaredFuncType, globalType)
 import Local      hiding (allTypes, parameterType, variableType)
+
+
+-- | TODO
+getVariables :: String -> GenState (Maybe Int, Maybe Int, Maybe String)
+getVariables varName = do
+        offset  <- Local.variableOffset varName
+        argPos  <- Local.parameterPosition varName
+        globLab <- Global.globalLabel varName
+        pure (offset, argPos, globLab)

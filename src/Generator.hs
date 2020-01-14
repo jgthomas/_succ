@@ -116,7 +116,7 @@ genASM (PointerNode varName typ Nothing) =
 genASM node@(PointerNode varName typ (Just a)) = do
         pointerASM <- genASM (DeclarationNode varName typ Nothing)
         value      <- genASM a
-        (offset, _, globLab) <- Valid.getVariables varName
+        (offset, _, globLab) <- SymTab.getVariables varName
         case (offset, globLab) of
              (Just off, _) -> ASM.varAddressStore (pointerASM ++ value) off
              (_, Just _)   -> pure $ pointerASM ++ value
@@ -140,7 +140,7 @@ genASM node@(AssignmentNode varName value op) = do
              Global -> defineGlobal node
              Local  -> do
                      assign <- buildAssignmentASM (VarNode varName) value op
-                     (offset, _, globLab) <- Valid.getVariables varName
+                     (offset, _, globLab) <- SymTab.getVariables varName
                      case (offset, globLab) of
                           (Just off, _) -> do
                                   adj <- SymTab.stackPointerValue
@@ -150,7 +150,7 @@ genASM node@(AssignmentNode varName value op) = do
 
 genASM (AssignDereferenceNode varName value op) = do
         assign <- buildAssignmentASM (DereferenceNode varName) value op
-        (offset, argPos, globLab) <- Valid.getVariables varName
+        (offset, argPos, globLab) <- SymTab.getVariables varName
         ASM.derefStore assign offset argPos globLab
 
 genASM (ExprStmtNode expression) = genASM expression
@@ -185,7 +185,7 @@ genASM node@(BinaryNode _ right _) = do
 
 genASM (UnaryNode (VarNode a) op) = do
         unaryASM      <- genASM (VarNode a)
-        (off, _, lab) <- Valid.getVariables a
+        (off, _, lab) <- SymTab.getVariables a
         ASM.unary unaryASM op off lab
 genASM (UnaryNode _ unOp@(PreOpUnary _)) =
         throwError $ GeneratorError (OperatorError (UnaryOp unOp))
@@ -196,15 +196,15 @@ genASM (UnaryNode tree (Unary op)) = do
         ASM.unary unode (Unary op) Nothing Nothing
 
 genASM (VarNode name) = do
-        (offset, argPos, globLab) <- Valid.getVariables name
+        (offset, argPos, globLab) <- SymTab.getVariables name
         ASM.loadVariable offset argPos globLab
 
 genASM (AddressOfNode name) = do
-        (offset, _, globLab) <- Valid.getVariables name
+        (offset, _, globLab) <- SymTab.getVariables name
         ASM.addressOf offset globLab
 
 genASM (DereferenceNode name) = do
-        (offset, argPos, globLab) <- Valid.getVariables name
+        (offset, argPos, globLab) <- SymTab.getVariables name
         ASM.derefLoad offset argPos globLab
 
 genASM NullExprNode = ASM.noOutput

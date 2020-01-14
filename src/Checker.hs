@@ -117,7 +117,7 @@ checkAST node@(AssignmentNode varName value op) = do
              Global -> checkDefineGlobal node
              Local  -> do
                      checkAssignLocal (VarNode varName) value op
-                     (offset, _, globLab) <- Valid.getVariables varName
+                     (offset, _, globLab) <- SymTab.getVariables varName
                      case (offset, globLab) of
                           (Just _, _) -> do
                                   _ <- SymTab.stackPointerValue
