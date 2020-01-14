@@ -53,9 +53,11 @@ genASM node@(FunctionNode _ name _ (Just stmts)) = do
 genASM (ParamNode typ (VarNode name)) = do
         SymTab.addParameter name typ
         ASM.noOutput
-genASM node@(ParamNode _ _) = throwError $ SyntaxError (Unexpected node)
+genASM node@(ParamNode _ _) =
+        throwError $ SyntaxError (Unexpected node)
 
-genASM (FuncCallNode name args) = ASM.functionCall name <$> processArgs args
+genASM (FuncCallNode name args) =
+        ASM.functionCall name <$> processArgs args
 
 genASM (ArgNode arg) = genASM arg
 
