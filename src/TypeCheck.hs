@@ -20,8 +20,8 @@ import           Error         (CompilerError (ImpossibleError, TypeError),
 import qualified FrameStack    (currentFunc, getScope)
 import           GenState      (GenState, throwError)
 import           GenTokens     (Scope (..))
-import           Global        (declaredFuncType, globalType)
-import           Local         (allTypes, parameterType, variableType)
+import qualified Global        (declaredFuncType, globalType)
+import qualified Local         (allTypes, parameterType, variableType)
 import           Type          (Type (..))
 
 
@@ -67,7 +67,7 @@ funcReturn retVal = do
 
 passedTypes :: String -> [Tree] -> GenState ([Type], [Type])
 passedTypes name treeList = do
-        currTypes <- allTypes name
+        currTypes <- Local.allTypes name
         newTypes  <- mapM getType treeList
         pure (currTypes, newTypes)
 
@@ -99,15 +99,15 @@ getVariableType name = do
         case currScope of
              Local  -> checkAllVariableTypes name
              Global -> do
-                     typG <- globalType name
+                     typG <- Global.globalType name
                      extractType name typG
 
 
 checkAllVariableTypes :: String -> GenState Type
 checkAllVariableTypes name = do
-        typL <- variableType name
-        typP <- parameterType name
-        typG <- globalType name
+        typL <- Local.variableType name
+        typP <- Local.parameterType name
+        typG <- Global.globalType name
         typ  <- varType typL typP typG
         extractType name typ
 
@@ -164,7 +164,7 @@ permitted typ =
 
 getFuncType :: String -> GenState Type
 getFuncType name = do
-        oldTyp <- declaredFuncType name
+        oldTyp <- Global.declaredFuncType name
         extractType name oldTyp
 
 
