@@ -1,4 +1,9 @@
+{-|
+Module       : Checker
+Description  : Check AST for errors
 
+Checks the AST for scope, type and other errors
+-}
 module Checker (check) where
 
 
@@ -17,6 +22,7 @@ import qualified SymTab
 import qualified TypeCheck
 
 
+-- | Check an AST for errors
 check :: Tree -> Either CompilerError Tree
 check ast = runGenState checker ast GenState.startState
 
