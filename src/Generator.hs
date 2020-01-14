@@ -120,16 +120,11 @@ genASM node@(PointerNode varName typ (Just a)) = do
              (_, Just _)   -> pure $ pointerASM ++ value
              _             -> throwError $ SyntaxError (Unrecognised node)
 
-genASM node@(DeclarationNode varName typ value) = do
+genASM node@DeclarationNode{} = do
         currScope <- SymTab.getScope
         case currScope of
              Global -> declareGlobal node
-             Local  -> do
-                   offset <- SymTab.addVariable varName typ
-                   adjust <- SymTab.stackPointerValue
-                   case value of
-                        Just val -> genASM val
-                        Nothing  -> ASM.decNoAssign offset adjust
+             Local  -> declareLocal node
 
 genASM node@(AssignmentNode varName value op) = do
         currScope <- SymTab.getScope
@@ -258,6 +253,16 @@ defPrevDecGlob _ tree = throwError $ SyntaxError (Unexpected tree)
 globalVarASM :: String -> String -> GenState String
 globalVarASM lab "0" = ASM.uninitializedGlobal lab
 globalVarASM lab val = ASM.initializedGlobal lab val
+
+
+declareLocal :: Tree -> GenState String
+declareLocal (DeclarationNode varName typ value) = do
+        offset <- SymTab.addVariable varName typ
+        adjust <- SymTab.stackPointerValue
+        case value of
+             Just val -> genASM val
+             Nothing  -> ASM.decNoAssign offset adjust
+declareLocal tree = throwError $ SyntaxError (Unexpected tree)
 
 
 -- Functions / function calls
