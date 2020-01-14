@@ -4,7 +4,17 @@ Description  : Checks for scope errors
 
 Checks for scope errors in variables and function calls
 -}
-module ScopeCheck where
+module ScopeCheck
+        (checkIfUsedInScope,
+         validateCall,
+         checkIfFuncDefined,
+         checkIfDefined,
+         checkIfVariable,
+         checkCountsMatch,
+         checkArguments,
+         checkIfFunction,
+         variableExists
+        ) where
 
 
 import           Control.Monad (unless, when)
