@@ -206,9 +206,9 @@ checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _) = do
         TypeCheck.funcDeclaration funcName typ
         SymTab.declareFunction typ funcName (length paramList)
         defined <- SymTab.checkFuncDefined funcName
-        unless defined $
-           do SymTab.delFuncState funcName
-              checkParams funcName paramList
+        unless defined $ do
+            SymTab.delFuncState funcName
+            checkParams funcName paramList
 checkRepeatFuncDec _ tree = throwError $ SyntaxError (Unexpected tree)
 
 
