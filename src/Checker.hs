@@ -116,19 +116,13 @@ checkAST node@(AssignmentNode varName value op) = do
         case currScope of
              Global -> checkDefineGlobal node
              Local  -> do
+                     ScopeCheck.variableExists node
                      checkAssignLocal (VarNode varName) value op
-                     (offset, _, globLab) <- SymTab.getVariables varName
-                     case (offset, globLab) of
-                          (Just _, _) -> do
-                                  _ <- SymTab.stackPointerValue
-                                  pure ()
-                          (_, Just _) -> pure ()
-                          _ -> throwError $ SyntaxError (Undeclared node)
 
 checkAST node@(AssignDereferenceNode varName value op) = do
+        ScopeCheck.variableExists node
         TypeCheck.assignment varName value
         checkAssignLocal (DereferenceNode varName) value op
-        ScopeCheck.variableExists node
 
 checkAST (ExprStmtNode expression) = checkAST expression
 
