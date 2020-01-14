@@ -126,19 +126,11 @@ genASM node@DeclarationNode{} = do
              Global -> declareGlobal node
              Local  -> declareLocal node
 
-genASM node@(AssignmentNode varName value op) = do
+genASM node@AssignmentNode{} = do
         currScope <- SymTab.getScope
         case currScope of
              Global -> defineGlobal node
-             Local  -> do
-                     assign <- buildAssignmentASM (VarNode varName) value op
-                     (offset, _, globLab) <- SymTab.getVariables varName
-                     case (offset, globLab) of
-                          (Just off, _) -> do
-                                  adj <- SymTab.stackPointerValue
-                                  ASM.assign assign off adj
-                          (_, Just lab) -> ASM.storeGlobal assign lab
-                          _ -> throwError $ SyntaxError (Undeclared node)
+             Local  -> defineLocal node
 
 genASM (AssignDereferenceNode varName value op) = do
         assign <- buildAssignmentASM (DereferenceNode varName) value op
@@ -255,6 +247,8 @@ globalVarASM lab "0" = ASM.uninitializedGlobal lab
 globalVarASM lab val = ASM.initializedGlobal lab val
 
 
+-- Local variables
+
 declareLocal :: Tree -> GenState String
 declareLocal (DeclarationNode varName typ value) = do
         offset <- SymTab.addVariable varName typ
@@ -263,6 +257,19 @@ declareLocal (DeclarationNode varName typ value) = do
              Just val -> genASM val
              Nothing  -> ASM.decNoAssign offset adjust
 declareLocal tree = throwError $ SyntaxError (Unexpected tree)
+
+
+defineLocal :: Tree -> GenState String
+defineLocal node@(AssignmentNode varName value op) = do
+        assign <- buildAssignmentASM (VarNode varName) value op
+        (offset, _, globLab) <- SymTab.getVariables varName
+        case (offset, globLab) of
+             (Just off, _) -> do
+                     adj <- SymTab.stackPointerValue
+                     ASM.assign assign off adj
+             (_, Just lab) -> ASM.storeGlobal assign lab
+             _ -> throwError $ SyntaxError (Undeclared node)
+defineLocal tree = throwError $ SyntaxError (Unexpected tree)
 
 
 -- Functions / function calls
