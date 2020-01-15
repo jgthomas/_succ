@@ -42,7 +42,7 @@ genASM node@(FunctionNode _ _ _ Nothing) = do
 genASM node@(FunctionNode _ name _ (Just stmts)) = do
         declareFunction node
         SymTab.initFunction name
-        statements <- concat <$> mapM genASM stmts
+        statements <- concatMapM genASM stmts
         SymTab.closeFunction
         SymTab.defineFunction name
         if hasReturn stmts || name /= "main"
