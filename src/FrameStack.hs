@@ -8,8 +8,8 @@ module FrameStack
         (currentFunc,
          getScope,
          popFunc,
-         pushFunc)
-        where
+         pushFunc
+        ) where
 
 
 import           GenState  (GenState)
