@@ -38,10 +38,10 @@ checkAST :: Tree -> GenState ()
 checkAST (ProgramNode topLevelItems) = mapM_ checkAST topLevelItems
 
 checkAST node@(FunctionNode _ _ _ Nothing) =
-        checkDecFunc node
+        checkFuncDec node
 checkAST node@(FunctionNode _ name _ (Just stmts)) = do
         ScopeCheck.checkIfFuncDefined node
-        checkDecFunc node
+        checkFuncDec node
         SymTab.initFunction name
         mapM_ checkAST stmts
         SymTab.closeFunction
@@ -182,14 +182,14 @@ checkAST NullExprNode = pure ()
 checkAST (ConstantNode _) = pure ()
 
 
-checkDecFunc :: Tree -> GenState ()
-checkDecFunc node@(FunctionNode _ funcName _ _) = do
+checkFuncDec :: Tree -> GenState ()
+checkFuncDec node@(FunctionNode _ funcName _ _) = do
         ScopeCheck.checkIfVariable node
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
              Nothing -> checkNewFuncDec node
              Just ns -> checkRepeatFuncDec ns node
-checkDecFunc tree = throwError $ SyntaxError (Unexpected tree)
+checkFuncDec tree = throwError $ SyntaxError (Unexpected tree)
 
 
 checkNewFuncDec :: Tree -> GenState ()

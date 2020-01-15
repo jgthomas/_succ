@@ -316,7 +316,7 @@ hasReturn items =
 
 
 processArgs :: [Tree] -> GenState String
-processArgs args = concat <$> mapM processArg (zip args [0..])
+processArgs args = concatMapM processArg (zip args [0..])
 
 
 processArg :: (Tree, Int) -> GenState String
