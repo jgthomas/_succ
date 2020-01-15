@@ -33,9 +33,8 @@ genASM (ProgramNode topLevelItems) = do
         text  <- concatMapM genASM topLevelItems
         undef <- SymTab.getUndefined
         bss   <- concatMapM ASM.uninitializedGlobal undef
-        toIni <- concat <$> SymTab.getAllForInit
-        doIni <- ASM.outputInit toIni
-        pure $ text ++ bss ++ doIni
+        toIni <- ASM.outputInit . concat <$> SymTab.getAllForInit
+        pure $ text ++ bss ++ toIni
 
 genASM node@(FunctionNode _ _ _ Nothing) = do
         declareFunction node
