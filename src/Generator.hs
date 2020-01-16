@@ -17,8 +17,7 @@ import           Error               (CompilerError (GeneratorError, SyntaxError
 import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (startState)
 import           GenTokens           (Scope (..))
-import           Operator            (BinaryOp (..), Operator (..),
-                                      UnaryOp (..))
+import           Operator            (BinaryOp (..), Operator (..))
 import qualified SymTab
 
 
@@ -172,13 +171,9 @@ genASM (UnaryNode (VarNode a) op) = do
         unaryASM      <- genASM (VarNode a)
         (off, _, lab) <- SymTab.getVariables a
         ASM.unary unaryASM op off lab
-genASM (UnaryNode _ unOp@(PreOpUnary _)) =
-        throwError $ GeneratorError (OperatorError (UnaryOp unOp))
-genASM (UnaryNode _ unOp@(PostOpUnary _)) =
-        throwError $ GeneratorError (OperatorError (UnaryOp unOp))
-genASM (UnaryNode tree (Unary op)) = do
+genASM (UnaryNode tree  op) = do
         unode <- genASM tree
-        ASM.unary unode (Unary op) Nothing Nothing
+        ASM.unary unode op Nothing Nothing
 
 genASM (VarNode name) = do
         (offset, argPos, globLab) <- SymTab.getVariables name
