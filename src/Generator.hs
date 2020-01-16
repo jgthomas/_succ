@@ -9,6 +9,7 @@ module Generator (generate) where
 
 import           Control.Monad       (unless)
 import           Control.Monad.Extra (concatMapM)
+import           Data.Maybe          (fromMaybe)
 
 import qualified ASM
 import           AST                 (Tree (..))
@@ -139,17 +140,9 @@ genASM (AssignDereferenceNode varName value op) = do
 
 genASM (ExprStmtNode expression) = genASM expression
 
-genASM ContinueNode = do
-        continueLabel <- SymTab.getContinue
-        case continueLabel of
-             Just target -> ASM.setGotoPoint target
-             Nothing     -> throwError $ SyntaxError (Unexpected ContinueNode)
+genASM ContinueNode = ASM.setGotoPoint . fromMaybe (-1) <$> SymTab.getContinue
 
-genASM BreakNode = do
-        breakLabel <- SymTab.getBreak
-        case breakLabel of
-             Just target -> ASM.setGotoPoint target
-             Nothing     -> throwError $ SyntaxError (Unexpected BreakNode)
+genASM BreakNode = ASM.setGotoPoint . fromMaybe (-1) <$> SymTab.getBreak
 
 genASM (ReturnNode tree) = ASM.returnValue <$> genASM tree
 

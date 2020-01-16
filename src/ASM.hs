@@ -117,8 +117,8 @@ declare off adj =
 
 
 -- | Output asm for jump
-setGotoPoint :: Int -> GenState String
-setGotoPoint target = pure $ emitJump JMP target
+setGotoPoint :: Int -> String
+setGotoPoint target = emitJump JMP target
 
 
 -- | Load a variable value
