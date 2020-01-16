@@ -20,7 +20,7 @@ import Global     hiding (declaredFuncType, globalType)
 import Local      hiding (allTypes, parameterType, variableType)
 
 
--- | TODO
+-- | Check all variable types for the supplied identifier
 getVariables :: String -> GenState (Maybe Int, Maybe Int, Maybe String)
 getVariables varName = do
         offset  <- Local.variableOffset varName
