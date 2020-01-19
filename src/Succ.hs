@@ -15,6 +15,7 @@ import           Error       (CompilerError)
 import qualified Generator   (generate)
 import qualified Lexer       (tokenize)
 import qualified Parser      (parse)
+import           PrintError  (printError)
 import           Tokens      (Token)
 
 
@@ -51,4 +52,4 @@ handleSuccess out = pure out
 
 
 handleError :: CompilerError -> IO ()
-handleError err = print err
+handleError err = printError err
