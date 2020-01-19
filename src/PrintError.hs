@@ -15,7 +15,19 @@ printError ImpossibleError      = printImpossibleError
 
 
 printLexerError :: LexerError -> IO ()
-printLexerError err = print err
+printLexerError err =
+        case err of
+             UnexpectedInput str -> printLexerUnexpected str
+             EmptyInput          -> putStr "Empty input file"
+
+
+printLexerUnexpected :: String -> IO ()
+printLexerUnexpected str =
+        case str of
+             []    -> putStrLn $ msg ++ "Empty file"
+             [c]   -> putStrLn $ msg ++ "'" ++ [c] ++ "'"
+             (c:_) -> putStrLn $ msg ++ "'" ++ [c] ++ "'"
+        where msg = "Unexpected input: "
 
 
 printParserError :: ParserError -> IO ()

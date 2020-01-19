@@ -186,7 +186,7 @@ lexerTest = hspec $ do
         describe "Throw errors on bad input" $ do
                 it "Should throw error for unrecognised character" $
                   fromLeft ImpossibleError (tokenize "$")
-                  `shouldBe` LexerError (BadInput "$")
+                  `shouldBe` LexerError (UnexpectedInput "$")
 
                 it "Should throw error for empty input" $
                   fromLeft ImpossibleError (tokenize "")
