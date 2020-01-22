@@ -5,13 +5,17 @@ module Lexed
          tokState,
          posState,
          incLineNum,
-         addToken
+         addToken,
+         runSuccState,
+         throwError,
+         runLexState
         ) where
 
 
 import           Data.Map  as M
 
-import           SuccState (SuccStateM)
+import           Error     (CompilerError)
+import           SuccState (SuccStateM, runSuccState, throwError)
 import qualified SuccState (getState, putState)
 import           Tokens    (Token)
 
@@ -60,3 +64,7 @@ getState :: (Lexed -> [a]) -> LexerState [a]
 getState f = do
         state <- SuccState.getState
         pure . reverse . f $ state
+
+
+runLexState :: (t -> SuccStateM s a) -> t -> s -> Either CompilerError a
+runLexState f t s = SuccState.runSuccState f t s
