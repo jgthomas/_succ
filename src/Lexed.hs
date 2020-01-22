@@ -1,14 +1,17 @@
 
 module Lexed
         (lineMap,
-         mkLexed,
+         mkLexerState,
          tokState,
          posState,
          incLineNum,
          addToken,
          runSuccState,
          throwError,
-         runLexState
+         runLexState,
+         getState,
+         Lexed,
+         LexerState
         ) where
 
 
@@ -30,8 +33,8 @@ data Lexed = Lexed { lineNum :: Int
            deriving (Show)
 
 
-mkLexed :: String -> Lexed
-mkLexed cs = Lexed 0 (toLines cs) [] []
+mkLexerState :: String -> Lexed
+mkLexerState cs = Lexed 0 (toLines cs) [] []
 
 
 toLines :: String -> M.Map Int String
@@ -53,17 +56,21 @@ addToken tok = do
 
 
 tokState :: LexerState [Token]
-tokState = getState tokList
+tokState = getPartState tokList
 
 
 posState :: LexerState [Int]
-posState = getState posList
+posState = getPartState posList
 
 
-getState :: (Lexed -> [a]) -> LexerState [a]
-getState f = do
+getPartState :: (Lexed -> [a]) -> LexerState [a]
+getPartState f = do
         state <- SuccState.getState
         pure . reverse . f $ state
+
+
+getState :: LexerState Lexed
+getState = SuccState.getState
 
 
 runLexState :: (t -> SuccStateM s a) -> t -> s -> Either CompilerError a
