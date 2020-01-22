@@ -1,10 +1,9 @@
 
 module Lexed
-        (Lexed(lineNum, lineMap, tokPos),
+        (lineMap,
          mkLexed,
-         tokenState,
+         tokState,
          posState,
-         getState,
          incLineNum,
          addToken
         ) where
@@ -22,28 +21,17 @@ type LexerState = SuccStateM Lexed
 
 data Lexed = Lexed { lineNum :: Int
                    , lineMap :: M.Map Int String
-                   , tokPos  :: [(Int, Token)] }
+                   , tokList :: [Token]
+                   , posList :: [Int] }
            deriving (Show)
 
 
 mkLexed :: String -> Lexed
-mkLexed cs = Lexed 0 (toLines cs) []
+mkLexed cs = Lexed 0 (toLines cs) [] []
 
 
 toLines :: String -> M.Map Int String
 toLines cs = M.fromList $ zip [0..] $ lines cs
-
-
-tokenState :: LexerState [Token]
-tokenState = reverse . snd <$> splitState
-
-
-posState :: LexerState [Int]
-posState = reverse . fst <$> splitState
-
-
-splitState :: LexerState ([Int], [Token])
-splitState = unzip . tokPos <$> SuccState.getState
 
 
 incLineNum :: LexerState ()
@@ -55,9 +43,20 @@ incLineNum = do
 addToken :: Token -> LexerState ()
 addToken tok = do
         state <- SuccState.getState
-        SuccState.putState $ state { tokPos = (lineNum state, tok):tokPos state }
-        incLineNum
+        let state'  = state { tokList = tok:tokList state }
+            state'' = state' { posList = lineNum state':posList state' }
+        SuccState.putState state''
 
 
-getState :: LexerState [(Int, Token)]
-getState = tokPos <$> SuccState.getState
+tokState :: LexerState [Token]
+tokState = getState tokList
+
+
+posState :: LexerState [Int]
+posState = getState posList
+
+
+getState :: (Lexed -> [a]) -> LexerState [a]
+getState f = do
+        state <- SuccState.getState
+        pure . reverse . f $ state
