@@ -20,12 +20,11 @@ import qualified PrintError  (printError)
 -- | Run the compilation process
 compile :: String -> IO String
 compile c = do
-        lexed   <- handle . Lexer.tokenize $ c
-        parsed  <- handle . Parser.parse $ lexed
-        checked <- handle . Checker.check $ parsed
-        handle . Generator.generate $ checked
-        where
-                handle = handler c
+        toks <- handle . Lexer.tokenize $ c
+        ast  <- handle . Parser.parse $ toks
+        ast' <- handle . Checker.check $ ast
+        handle . Generator.generate $ ast'
+        where handle = handler c
 
 
 handler :: String -> Either CompilerError a -> IO a
