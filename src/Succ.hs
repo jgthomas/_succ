@@ -30,6 +30,6 @@ compile c = do
 
 handler :: String -> Either CompilerError a -> IO a
 handler _ (Right out) = pure out
-handler s (Left err)  = do
-        PrintError.printError s err
+handler c (Left err)  = do
+        PrintError.printError c err
         exitFailure
