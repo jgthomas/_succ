@@ -1,10 +1,16 @@
+{-|
+Module       : PrintError
+Description  : Output error messages
 
+Create and format error messages with associated code sections
+-}
 module PrintError (printError) where
 
 
 import Error
 
 
+-- | Print error message with relevant section of code
 printError :: String -> CompilerError -> IO ()
 printError input err = do
         putStrLn input
