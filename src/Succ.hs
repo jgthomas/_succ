@@ -24,7 +24,8 @@ compile c = do
         ast  <- handle . Parser.parse $ toks
         ast' <- handle . Checker.check $ ast
         handle . Generator.generate $ ast'
-        where handle = handler c
+        where
+                handle = handler c
 
 
 handler :: String -> Either CompilerError a -> IO a

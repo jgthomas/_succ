@@ -7,7 +7,7 @@ import Error
 
 printError :: String -> CompilerError -> IO ()
 printError input err = do
-        putStr input
+        putStrLn input
         printErrorType err
 
 
