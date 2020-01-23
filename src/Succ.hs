@@ -20,16 +20,16 @@ import qualified PrintError  (printError)
 -- | Run the compilation process
 compile :: String -> IO String
 compile c = do
-        toks <- handle . Lexer.tokenize $ c
-        ast  <- handle . Parser.parse $ toks
-        ast' <- handle . Checker.check $ ast
-        handle . Generator.generate $ ast'
+        toks <- errorHandler . Lexer.tokenize $ c
+        ast  <- errorHandler . Parser.parse $ toks
+        ast' <- errorHandler . Checker.check $ ast
+        errorHandler . Generator.generate $ ast'
         where
-                handle = handler c
+                errorHandler = handleError c
 
 
-handler :: String -> Either CompilerError a -> IO a
-handler _ (Right out) = pure out
-handler c (Left err)  = do
+handleError :: String -> Either CompilerError a -> IO a
+handleError _ (Right out) = pure out
+handleError c (Left err)  = do
         PrintError.printError c err
         exitFailure
