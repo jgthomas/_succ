@@ -28,16 +28,7 @@ compile c = do
 
 
 handler :: String -> Either CompilerError a -> IO a
-handler _ (Right out) = handleSuccess out
+handler _ (Right out) = pure out
 handler s (Left err)  = do
-        putStr s
-        handleError err
+        PrintError.printError s err
         exitFailure
-
-
-handleSuccess :: a -> IO a
-handleSuccess out = pure out
-
-
-handleError :: CompilerError -> IO ()
-handleError err = PrintError.printError err

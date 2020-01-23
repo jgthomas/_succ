@@ -5,13 +5,19 @@ module PrintError (printError) where
 import Error
 
 
-printError :: CompilerError -> IO ()
-printError (LexerError err)     = printLexerError err
-printError (ParserError err)    = printParserError err
-printError (GeneratorError err) = printGeneratorError err
-printError (SyntaxError err)    = printSyntaxError err
-printError (TypeError err)      = printTypeError err
-printError ImpossibleError      = printImpossibleError
+printError :: String -> CompilerError -> IO ()
+printError input err = do
+        putStr input
+        printErrorType err
+
+
+printErrorType :: CompilerError -> IO ()
+printErrorType (LexerError err)     = printLexerError err
+printErrorType (ParserError err)    = printParserError err
+printErrorType (GeneratorError err) = printGeneratorError err
+printErrorType (SyntaxError err)    = printSyntaxError err
+printErrorType (TypeError err)      = printTypeError err
+printErrorType ImpossibleError      = printImpossibleError
 
 
 printLexerError :: LexerError -> IO ()
