@@ -24,11 +24,10 @@ data PrintRange = All
 -- | Print error message with relevant section of code
 printError :: String -> CompilerError -> IO ()
 printError input err = do
-        printSourceLines range (toLineMap input)
+        printSource input range (toLineMap input)
         putStrLn errMsg
         where
                 (errMsg, range) = errorMsg err
-                printSourceLines = printSource input
 
 
 printSource :: String -> PrintRange -> M.Map Int String -> IO ()
