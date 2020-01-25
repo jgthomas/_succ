@@ -42,16 +42,16 @@ printSourceLineRange input n m =
         printRange $ printSourceLine (toLineMap input) <$> [n..m]
 
 
+printRange :: [IO ()] -> IO ()
+printRange = foldr (>>) (pure ())
+
+
 printSourceLine :: M.Map Int String -> Int -> IO ()
 printSourceLine lineMap n =
         unless (isNothing line) $
             putStrLn $ fromMaybe "" line
         where
                 line = M.lookup n lineMap
-
-
-printRange :: [IO ()] -> IO ()
-printRange = foldr (>>) (pure ())
 
 
 errorMsg :: CompilerError -> (String, PrintRange)
