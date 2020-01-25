@@ -7,7 +7,9 @@ Create and format error messages with associated code sections
 module PrintError (printError) where
 
 
-import Data.Map as M (Map, fromList, lookup)
+import Control.Monad (unless)
+import Data.Map      as M (Map, fromList, lookup)
+import Data.Maybe    (fromMaybe, isNothing)
 
 import Error
 
@@ -37,11 +39,11 @@ printSource _ None _              = pure ()
 
 
 printSourceLine :: M.Map Int String -> Int -> IO ()
-printSourceLine lineMap n = do
-        let line = M.lookup n lineMap
-        case line of
-             Just l  -> putStrLn l
-             Nothing -> pure ()
+printSourceLine lineMap n =
+        unless (isNothing line) $
+            putStrLn $ fromMaybe "" line
+        where
+                line = M.lookup n lineMap
 
 
 printSourceLineRange :: M.Map Int String -> Int -> Int -> IO ()
