@@ -14,49 +14,50 @@ import Error
 printError :: String -> CompilerError -> IO ()
 printError input err = do
         putStrLn input
-        printErrorType err
+        putStrLn . errorMsg $ err
 
 
-printErrorType :: CompilerError -> IO ()
-printErrorType (LexerError err)     = printLexerError err
-printErrorType (ParserError err)    = printParserError err
-printErrorType (GeneratorError err) = printGeneratorError err
-printErrorType (SyntaxError err)    = printSyntaxError err
-printErrorType (TypeError err)      = printTypeError err
-printErrorType ImpossibleError      = printImpossibleError
+
+errorMsg :: CompilerError -> String
+errorMsg (LexerError err)     = lexerErrorMsg err
+errorMsg (ParserError err)    = parserErrorMsg err
+errorMsg (GeneratorError err) = generatorErrorMsg err
+errorMsg (SyntaxError err)    = syntaxErrorMsg err
+errorMsg (TypeError err)      = typeErrorMsg err
+errorMsg ImpossibleError      = impossibleErrorMsg
 
 
-printLexerError :: LexerError -> IO ()
-printLexerError err =
+lexerErrorMsg :: LexerError -> String
+lexerErrorMsg err =
         case err of
-             UnexpectedInput str -> printLexerUnexpected str
-             EmptyInput          -> putStr "Empty input file"
+             UnexpectedInput str -> lexerUnexpectedMsg str
+             EmptyInput          -> "Empty input file"
 
 
-printLexerUnexpected :: String -> IO ()
-printLexerUnexpected str =
+lexerUnexpectedMsg :: String -> String
+lexerUnexpectedMsg str =
         case str of
-             []    -> putStrLn $ msg ++ "Empty file"
-             [c]   -> putStrLn $ msg ++ "'" ++ [c] ++ "'"
-             (c:_) -> putStrLn $ msg ++ "'" ++ [c] ++ "'"
+             []    -> msg ++ "Empty file"
+             [c]   -> msg ++ "'" ++ [c] ++ "'"
+             (c:_) -> msg ++ "'" ++ [c] ++ "'"
         where msg = "Unexpected input: "
 
 
-printParserError :: ParserError -> IO ()
-printParserError err = print err
+parserErrorMsg :: ParserError -> String
+parserErrorMsg err = show err
 
 
-printGeneratorError :: GeneratorError -> IO ()
-printGeneratorError err = print err
+generatorErrorMsg :: GeneratorError -> String
+generatorErrorMsg err = show err
 
 
-printSyntaxError :: SyntaxError -> IO ()
-printSyntaxError err = print err
+syntaxErrorMsg :: SyntaxError -> String
+syntaxErrorMsg err = show err
 
 
-printTypeError :: TypeError -> IO ()
-printTypeError err = print err
+typeErrorMsg :: TypeError -> String
+typeErrorMsg err = show err
 
 
-printImpossibleError :: IO ()
-printImpossibleError = print "Something went wrong!"
+impossibleErrorMsg :: String
+impossibleErrorMsg = "Something unexpected went wrong, you are on your own!"
