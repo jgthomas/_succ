@@ -7,7 +7,7 @@ Create and format error messages with associated code sections
 module PrintError (printError) where
 
 
-import Data.Map as M
+import Data.Map as M (Map, elems, lookup)
 
 import Error
 
@@ -47,11 +47,11 @@ printSourceLine lineMap n = do
 
 
 printSourceLineRange :: M.Map Int String -> Int -> Int -> IO ()
-printSourceLineRange lineMap n m
-        | n > m = pure ()
-        | otherwise = do
-                printSourceLine lineMap n
-                printSourceLineRange lineMap (succ n) m
+printSourceLineRange lineMap n m = printRange $ printSourceLine lineMap <$> [n..m]
+
+
+printRange :: [IO ()] -> IO ()
+printRange = foldr (>>) (pure ())
 
 
 errorMsg :: CompilerError -> (String, PrintRange)
@@ -88,7 +88,7 @@ generatorErrorMsg err = (show err, All)
 
 
 syntaxErrorMsg :: SyntaxError -> (String, PrintRange)
-syntaxErrorMsg err = (show err, Range 2 4)
+syntaxErrorMsg err = (show err, All)
 
 
 typeErrorMsg :: TypeError -> (String, PrintRange)
