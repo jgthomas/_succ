@@ -7,7 +7,7 @@ Create and format error messages with associated code sections
 module PrintError (printError) where
 
 
-import Data.Map as M (Map, elems, lookup)
+import Data.Map as M (Map, fromList, lookup)
 
 import Error
 
@@ -20,22 +20,20 @@ data PrintRange = All
 
 
 -- | Print error message with relevant section of code
-printError :: M.Map Int String -> CompilerError -> IO ()
-printError lineMap err = do
+printError :: String -> CompilerError -> IO ()
+printError input err = do
         let (errMsg, range) = errorMsg err
-        printSource range lineMap
+        printSourceLines range $ toLineMap input
         putStrLn errMsg
+        where
+                printSourceLines = printSource input
 
 
-printSource :: PrintRange -> M.Map Int String -> IO ()
-printSource All lineMap         = printAllSourceLines lineMap
-printSource (Exact n) lineMap   = printSourceLine lineMap n
-printSource (Range n m) lineMap = printSourceLineRange lineMap n m
-printSource None _              = pure ()
-
-
-printAllSourceLines :: M.Map Int String -> IO ()
-printAllSourceLines lineMap = putStrLn . unlines . M.elems $ lineMap
+printSource :: String -> PrintRange -> M.Map Int String -> IO ()
+printSource input All _           = putStrLn input
+printSource _ (Exact n) lineMap   = printSourceLine lineMap n
+printSource _ (Range n m) lineMap = printSourceLineRange lineMap n m
+printSource _ None _              = pure ()
 
 
 printSourceLine :: M.Map Int String -> Int -> IO ()
@@ -97,3 +95,7 @@ typeErrorMsg err = (show err, All)
 
 impossibleErrorMsg :: (String, PrintRange)
 impossibleErrorMsg = ("Something unexpected went wrong, you are on your own!", None)
+
+
+toLineMap :: String -> M.Map Int String
+toLineMap input = M.fromList $ zip [1..] $ lines input

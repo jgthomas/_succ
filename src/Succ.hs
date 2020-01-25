@@ -7,8 +7,6 @@ Controls the output of the compilation process.
 module Succ (compile) where
 
 
-import           Data.Map    as M
-
 import           System.Exit (exitFailure)
 
 import qualified Checker     (check)
@@ -27,15 +25,11 @@ compile input = do
         ast' <- errorHandler . Checker.check $ ast
         errorHandler . Generator.generate $ ast'
         where
-                errorHandler = handleError $ toLineMap input
+                errorHandler = handleError input
 
 
-handleError :: M.Map Int String -> Either CompilerError a -> IO a
+handleError :: String -> Either CompilerError a -> IO a
 handleError _ (Right out) = pure out
-handleError lineMap (Left err)  = do
-        PrintError.printError lineMap err
+handleError input (Left err)  = do
+        PrintError.printError input err
         exitFailure
-
-
-toLineMap :: String -> M.Map Int String
-toLineMap input = M.fromList $ zip [1..] $ lines input
