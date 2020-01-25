@@ -24,17 +24,22 @@ data PrintRange = All
 -- | Print error message with relevant section of code
 printError :: String -> CompilerError -> IO ()
 printError input err = do
-        printSource input range (toLineMap input)
+        printSource range input
         putStrLn errMsg
         where
                 (errMsg, range) = errorMsg err
 
 
-printSource :: String -> PrintRange -> M.Map Int String -> IO ()
-printSource input All _           = putStrLn input
-printSource _ (Exact n) lineMap   = printSourceLine lineMap n
-printSource _ (Range n m) lineMap = printSourceLineRange lineMap n m
-printSource _ None _              = pure ()
+printSource :: PrintRange -> String -> IO ()
+printSource All input         = putStrLn input
+printSource (Range n m) input = printSourceLineRange input n m
+printSource (Exact n) input   = printSourceLine (toLineMap input) n
+printSource None _            = pure ()
+
+
+printSourceLineRange :: String -> Int -> Int -> IO ()
+printSourceLineRange input n m =
+        printRange $ printSourceLine (toLineMap input) <$> [n..m]
 
 
 printSourceLine :: M.Map Int String -> Int -> IO ()
@@ -43,10 +48,6 @@ printSourceLine lineMap n =
             putStrLn $ fromMaybe "" line
         where
                 line = M.lookup n lineMap
-
-
-printSourceLineRange :: M.Map Int String -> Int -> Int -> IO ()
-printSourceLineRange lineMap n m = printRange $ printSourceLine lineMap <$> [n..m]
 
 
 printRange :: [IO ()] -> IO ()
