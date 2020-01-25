@@ -7,15 +7,20 @@ Create and format error messages with associated code sections
 module PrintError (printError) where
 
 
+import Data.Map as M
+
 import Error
 
 
 -- | Print error message with relevant section of code
-printError :: String -> CompilerError -> IO ()
-printError input err = do
-        putStrLn input
+printError :: M.Map Int String -> CompilerError -> IO ()
+printError lineMap err = do
+        printSourceLines lineMap
         putStrLn . errorMsg $ err
 
+
+printSourceLines :: M.Map Int String -> IO ()
+printSourceLines lineMap = putStrLn . unlines . M.elems $ lineMap
 
 
 errorMsg :: CompilerError -> String
