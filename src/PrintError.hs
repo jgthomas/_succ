@@ -39,11 +39,7 @@ printSource None _            = pure ()
 
 printSourceLineRange :: String -> Int -> Int -> IO ()
 printSourceLineRange input n m =
-        printRange $ printSourceLine (toLineMap input) <$> [n..m]
-
-
-printRange :: [IO ()] -> IO ()
-printRange = foldr (>>) (pure ())
+        foldr (>>) (pure ()) $ printSourceLine (toLineMap input) <$> [n..m]
 
 
 printSourceLine :: M.Map Int String -> Int -> IO ()
