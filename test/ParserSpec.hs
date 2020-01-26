@@ -7,10 +7,15 @@ import Test.Hspec
 
 import AST
 import Error
+import LexDat
 import Operator
 import Parser
 import Tokens
 import Type
+
+
+mkLexDat :: Token -> LexDat
+mkLexDat tok = LexDat tok 0
 
 
 parserTest :: IO ()
@@ -20,9 +25,11 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   [Keyword Int,
-                    Ident "a",
-                    SemiColon]
+                   (map mkLexDat
+                    [Keyword Int,
+                     Ident "a",
+                     SemiColon]
+                   )
                   )
                   `shouldBe`
                   (ProgramNode
@@ -37,11 +44,13 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   [Keyword Int,
-                    Ident "a",
-                    OpTok EqualSign,
-                    ConstInt 10,
-                    SemiColon]
+                   (map mkLexDat
+                    [Keyword Int,
+                     Ident "a",
+                     OpTok EqualSign,
+                     ConstInt 10,
+                     SemiColon]
+                   )
                   )
                   `shouldBe`
                   (ProgramNode
@@ -62,10 +71,12 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   [Keyword Int,
-                    OpTok Asterisk,
-                    Ident "a",
-                    SemiColon]
+                   (map mkLexDat
+                    [Keyword Int,
+                     OpTok Asterisk,
+                     Ident "a",
+                     SemiColon]
+                   )
                   )
                   `shouldBe`
                   (ProgramNode
@@ -80,13 +91,15 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   [Keyword Int,
-                    OpTok Asterisk,
-                    Ident "a",
-                    OpTok EqualSign,
-                    OpTok Ampersand,
-                    Ident "b",
-                    SemiColon]
+                   (map mkLexDat
+                    [Keyword Int,
+                     OpTok Asterisk,
+                     Ident "a",
+                     OpTok EqualSign,
+                     OpTok Ampersand,
+                     Ident "b",
+                     SemiColon]
+                   )
                   )
                   `shouldBe`
                   (ProgramNode
@@ -107,11 +120,13 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   [Keyword Int,
-                    Ident "cat",
-                    OpenParen,
-                    CloseParen,
-                    SemiColon]
+                   (map mkLexDat
+                    [Keyword Int,
+                     Ident "cat",
+                     OpenParen,
+                     CloseParen,
+                     SemiColon]
+                   )
                   )
                   `shouldBe`
                   (ProgramNode
@@ -127,13 +142,15 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   [Keyword Int,
-                    Ident "cat",
-                    OpenParen,
-                    Keyword Int,
-                    Ident "a",
-                    CloseParen,
-                    SemiColon]
+                   (map mkLexDat
+                    [Keyword Int,
+                     Ident "cat",
+                     OpenParen,
+                     Keyword Int,
+                     Ident "a",
+                     CloseParen,
+                     SemiColon]
+                   )
                   )
                   `shouldBe`
                   (ProgramNode
@@ -152,15 +169,17 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   [Keyword Int,
-                    Ident "main",
-                    OpenParen,
-                    CloseParen,
-                    OpenBrace,
-                    Keyword Return,
-                    ConstInt 2,
-                    SemiColon,
-                    CloseBrace]
+                   (map mkLexDat
+                    [Keyword Int,
+                     Ident "main",
+                     OpenParen,
+                     CloseParen,
+                     OpenBrace,
+                     Keyword Return,
+                     ConstInt 2,
+                     SemiColon,
+                     CloseBrace]
+                   )
                   )
                   `shouldBe`
                   (ProgramNode
@@ -180,17 +199,19 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   [Keyword Int,
-                    Ident "main",
-                    OpenParen,
-                    Keyword Int,
-                    Ident "a",
-                    CloseParen,
-                    OpenBrace,
-                    Keyword Return,
-                    Ident "a",
-                    SemiColon,
-                    CloseBrace]
+                   (map mkLexDat
+                    [Keyword Int,
+                     Ident "main",
+                     OpenParen,
+                     Keyword Int,
+                     Ident "a",
+                     CloseParen,
+                     OpenBrace,
+                     Keyword Return,
+                     Ident "a",
+                     SemiColon,
+                     CloseBrace]
+                   )
                   )
                   `shouldBe`
                   (ProgramNode
@@ -213,16 +234,18 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   [Keyword Int,
-                    Ident "main",
-                    OpenParen,
-                    CloseParen,
-                    OpenBrace,
-                    Keyword Return,
-                    OpTok MinusSign,
-                    ConstInt 2,
-                    SemiColon,
-                    CloseBrace]
+                   (map mkLexDat
+                    [Keyword Int,
+                     Ident "main",
+                     OpenParen,
+                     CloseParen,
+                     OpenBrace,
+                     Keyword Return,
+                     OpTok MinusSign,
+                     ConstInt 2,
+                     SemiColon,
+                     CloseBrace]
+                   )
                   )
                   `shouldBe`
                   (ProgramNode
@@ -245,17 +268,19 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   [Keyword Int,
-                    Ident "main",
-                    OpenParen,
-                    CloseParen,
-                    OpenBrace,
-                    Keyword Return,
-                    ConstInt 2,
-                    OpTok PlusSign,
-                    ConstInt 2,
-                    SemiColon,
-                    CloseBrace]
+                   (map mkLexDat
+                    [Keyword Int,
+                     Ident "main",
+                     OpenParen,
+                     CloseParen,
+                     OpenBrace,
+                     Keyword Return,
+                     ConstInt 2,
+                     OpTok PlusSign,
+                     ConstInt 2,
+                     SemiColon,
+                     CloseBrace]
+                   )
                   )
                   `shouldBe`
                   (ProgramNode
@@ -279,27 +304,33 @@ parserTest = hspec $ do
                 it "Should throw error on invalid variable identifier" $
                   fromLeft
                   ImpossibleError
-                  (parse [Keyword Int, OpenBrace, SemiColon])
+                  (parse
+                   (map mkLexDat [Keyword Int, OpenBrace, SemiColon])
+                  )
                   `shouldBe`
-                  (SyntaxError (InvalidIdentifier OpenBrace))
+                  (SyntaxError (NonValidIdentifier (LexDat{tok=OpenBrace,line=0})))
 
                 it "Should throw error on empty input" $
                   fromLeft
                   ImpossibleError
                   (parse [])
                   `shouldBe`
-                  ParserError (TokensError [])
+                  ParserError (LexDataError [])
 
                 it "Should throw error on invalid type" $
                   fromLeft
                   ImpossibleError
-                  (parse [Keyword Break, Ident "a", SemiColon])
+                  (parse
+                   (map mkLexDat [Keyword Break, Ident "a", SemiColon])
+                  )
                   `shouldBe`
-                  (TypeError (InvalidType  (Keyword Break)))
+                  (TypeError (BadType  (LexDat{tok=Keyword Break,line=0})))
 
                 it "Should throw error if semicolon not final token" $
                   fromLeft
                   ImpossibleError
-                  (parse [Keyword Int, Ident "a", Comma])
+                  (parse
+                   (map mkLexDat [Keyword Int, Ident "a", Comma])
+                  )
                   `shouldBe`
                   SyntaxError (MissingToken SemiColon)
