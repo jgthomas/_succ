@@ -12,31 +12,34 @@ import           Data.Char (isAlpha, isDigit, isSpace)
 
 import           Error     (CompilerError (ImpossibleError, LexerError),
                             LexerError (..))
+import           LexDat    (LexDat)
 import           LexState  (LexerState, runLexState, throwError)
-import qualified LexState  (getState, putState, startState)
+import qualified LexState  (addToken, getState, incLineNum, startState)
 import           Tokens    (Keyword (..), OpTok (..), Token (..))
 
 
 -- | Convert a string representing a C program to a list of tokens
-tokenize :: String -> Either CompilerError [Token]
+tokenize :: String -> Either CompilerError [LexDat]
 tokenize input = runLexState lexer input LexState.startState
 
 
-lexer :: String -> LexerState [Token]
+lexer :: String -> LexerState [LexDat]
 lexer []    = throwError (LexerError EmptyInput)
 lexer input = lexInput input
 
 
-lexInput :: String -> LexerState [Token]
+lexInput :: String -> LexerState [LexDat]
 lexInput [] = do
         lexOut <- LexState.getState
         pure . reverse $ lexOut
 lexInput input@(c:cs)
+        | c == '\n' = do
+                LexState.incLineNum
+                lexInput cs
         | isSpace c = lexInput cs
         | otherwise = do
-                lexOut <- LexState.getState
                 (tok, input') <- lexToken input
-                LexState.putState (tok:lexOut)
+                LexState.addToken tok
                 lexInput input'
 
 

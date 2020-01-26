@@ -3,6 +3,7 @@ module Error where
 
 
 import AST      (Tree)
+import LexDat   (LexDat)
 import Operator (Operator)
 import Tokens   (Keyword, OpTok, Token)
 import Type     (Type)
@@ -24,6 +25,7 @@ data LexerError = EmptyInput
 
 data ParserError = TreeError Tree
                  | TokensError [Token]
+                 | LexDataError [LexDat]
                  deriving (Show, Eq)
 
 
@@ -34,8 +36,10 @@ data GeneratorError = NoStateFound String
 
 
 data SyntaxError = InvalidIdentifier Token
+                 | NonValidIdentifier LexDat
                  | MissingToken Token
                  | UnexpectedToken Token
+                 | UnexpectedLexDat LexDat
                  | MissingIdentifier
                  | MissingKeyword Keyword
                  | Undeclared Tree
@@ -51,6 +55,7 @@ data SyntaxError = InvalidIdentifier Token
 
 
 data TypeError = InvalidType Token | Type
+               | BadType LexDat
                | TypeMismatch [Type] [Type]
                | MissingType String
                | UnexpectedType Type

@@ -13,6 +13,7 @@ import           Control.Monad (unless)
 import           AST           (Tree (..))
 import           Error         (CompilerError (..), ParserError (..),
                                 SyntaxError (..), TypeError (..))
+import           LexDat        (LexDat (..))
 import qualified Operator      (tokToAssignOp, tokToBinOp, tokToPostUnaryOp,
                                 tokToUnaryOp)
 import           ParState      (ParserState, runParState, throwError)
@@ -24,156 +25,158 @@ import           Type          (Type (..))
 
 
 -- | Convert a list of tokens into an AST
-parse :: [Token] -> Either CompilerError Tree
-parse toks = runParState parseTokens toks ParState.startState
+parse :: [LexDat] -> Either CompilerError Tree
+parse lexData = runParState parseTokens lexData ParState.startState
 
 
-parseTokens :: [Token] -> ParserState Tree
-parseTokens []   = throwError $ ParserError (TokensError [])
-parseTokens toks = parseTopLevelItems toks
+parseTokens :: [LexDat] -> ParserState Tree
+parseTokens []      = throwError $ ParserError (LexDataError [])
+parseTokens lexData = parseTopLevelItems lexData
 
 
-parseTopLevelItems :: [Token] -> ParserState Tree
+parseTopLevelItems :: [LexDat] -> ParserState Tree
 parseTopLevelItems [] = ProgramNode . reverse <$> ParState.getState
-parseTopLevelItems toks@(Keyword _:_) = do
-        items         <- ParState.getState
-        (item, toks') <- parseTopLevelItem toks
+parseTopLevelItems lexData@(LexDat{tok=Keyword _}:_) = do
+        items            <- ParState.getState
+        (item, lexData') <- parseTopLevelItem lexData
         ParState.putState $ ProgramNode (item:items)
-        parseTopLevelItems toks'
-parseTopLevelItems toks = throwError $ ParserError (TokensError toks)
+        parseTopLevelItems lexData'
+parseTopLevelItems lexData = throwError $ ParserError (LexDataError lexData)
 
 
-parseTopLevelItem :: [Token] -> ParserState (Tree, [Token])
-parseTopLevelItem toks@(_:_:_:OpenParen:_)  = parseFunction toks
-parseTopLevelItem toks@(_:_:OpenParen:_)    = parseFunction toks
-parseTopLevelItem toks@(_:Ident _:_)        = parseValueDec toks
-parseTopLevelItem toks@(_:OpTok Asterisk:_) = parsePointerDec toks
+parseTopLevelItem :: [LexDat] -> ParserState (Tree, [LexDat])
+parseTopLevelItem lexData@(_:_:_:LexDat{tok=OpenParen}:_)  = parseFunction lexData
+parseTopLevelItem lexData@(_:_:LexDat{tok=OpenParen}:_)    = parseFunction lexData
+parseTopLevelItem lexData@(_:LexDat{tok=Ident _}:_)        = parseValueDec lexData
+parseTopLevelItem lexData@(_:LexDat{tok=OpTok Asterisk}:_) = parsePointerDec lexData
 parseTopLevelItem []      = throwError ImpossibleError
-parseTopLevelItem (_:b:_) = throwError $ SyntaxError (InvalidIdentifier b)
-parseTopLevelItem toks    = throwError $ ParserError (TokensError toks)
+parseTopLevelItem (_:b:_) = throwError $ SyntaxError (NonValidIdentifier b)
+parseTopLevelItem lexData = throwError $ ParserError (LexDataError lexData)
 
 
-parseValueDec :: [Token] -> ParserState (Tree, [Token])
-parseValueDec toks@(_:Ident name:_) = do
-        typ            <- parseType toks
-        toks'          <- consumeTok toks
-        (tree, toks'') <- parseOptAssign toks'
-        pure (DeclarationNode name typ tree, toks'')
-parseValueDec (_:c:_:_) = throwError $ SyntaxError (InvalidIdentifier c)
-parseValueDec toks = throwError $ ParserError (TokensError toks)
+parseValueDec :: [LexDat] -> ParserState (Tree, [LexDat])
+parseValueDec lexData@(_:LexDat{tok=Ident name}:_) = do
+        typ               <- parseType lexData
+        lexData'          <- consumeTok lexData
+        (tree, lexData'') <- parseOptAssign lexData'
+        pure (DeclarationNode name typ tree, lexData'')
+parseValueDec (_:c:_:_) = throwError $ SyntaxError (NonValidIdentifier c)
+parseValueDec lexData   = throwError $ ParserError (LexDataError lexData)
 
 
-parsePointerDec :: [Token] -> ParserState (Tree, [Token])
-parsePointerDec toks@(_:_:Ident name:_) = do
-        typ            <- parseType toks
-        toks'          <- consumeNToks 2 toks
-        (tree, toks'') <- parseOptAssign toks'
-        pure (PointerNode name typ tree, toks'')
-parsePointerDec (_:_:c:_) = throwError $ SyntaxError (InvalidIdentifier c)
-parsePointerDec toks = throwError $ ParserError (TokensError toks)
+parsePointerDec :: [LexDat] -> ParserState (Tree, [LexDat])
+parsePointerDec lexData@(_:_:LexDat{tok=Ident name}:_) = do
+        typ               <- parseType lexData
+        lexData'          <- consumeNToks 2 lexData
+        (tree, lexData'') <- parseOptAssign lexData'
+        pure (PointerNode name typ tree, lexData'')
+parsePointerDec (_:_:c:_) = throwError $ SyntaxError (NonValidIdentifier c)
+parsePointerDec lexData   = throwError $ ParserError (LexDataError lexData)
 
 
-parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
-parseOptAssign toks = do
-        (tree, toks') <- parseOptionalAssign toks
-        toks''        <- verifyAndConsume SemiColon toks'
-        pure (tree, toks'')
+parseOptAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
+parseOptAssign lexData = do
+        (tree, lexData') <- parseOptionalAssign lexData
+        lexData''        <- verifyAndConsume SemiColon lexData'
+        pure (tree, lexData'')
 
 
-parseOptionalAssign :: [Token] -> ParserState (Maybe Tree, [Token])
-parseOptionalAssign toks@(_:OpTok op:_)
+parseOptionalAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
+parseOptionalAssign lexData@(_:LexDat{tok=OpTok op}:_)
         | Tokens.isAssign op = do
-                (tree, toks') <- parseExpression toks
-                pure (Just tree, toks')
+                (tree, lexData') <- parseExpression lexData
+                pure (Just tree, lexData')
         | otherwise = throwError $ SyntaxError (UnexpectedToken (OpTok op))
-parseOptionalAssign toks = do
-        toks' <- consumeTok toks
-        pure (Nothing, toks')
+parseOptionalAssign lexData = do
+        lexData' <- consumeTok lexData
+        pure (Nothing, lexData')
 
 
-parseFunction :: [Token] -> ParserState (Tree, [Token])
-parseFunction toks = do
-        typ             <- parseType toks
-        name            <- parseFuncName toks
-        (params, toks') <- parseFuncParams toks
-        (items, toks'') <- parseFuncBlockItems [] toks'
-        pure (FunctionNode typ name params items, toks'')
+parseFunction :: [LexDat] -> ParserState (Tree, [LexDat])
+parseFunction lexData = do
+        typ             <- parseType lexData
+        name            <- parseFuncName lexData
+        (params, lexData') <- parseFuncParams lexData
+        (items, lexData'') <- parseFuncBlockItems [] lexData'
+        pure (FunctionNode typ name params items, lexData'')
 
 
-parseFuncName :: [Token] -> ParserState String
-parseFuncName (_:Ident name:_)   = pure name
-parseFuncName (_:_:Ident name:_) = pure name
-parseFuncName _                  = throwError $ SyntaxError MissingIdentifier
+parseFuncName :: [LexDat] -> ParserState String
+parseFuncName (_:LexDat{tok=Ident name}:_)   = pure name
+parseFuncName (_:_:LexDat{tok=Ident name}:_) = pure name
+parseFuncName _ = throwError $ SyntaxError MissingIdentifier
 
 
-parseFuncParams :: [Token] -> ParserState ([Tree], [Token])
-parseFuncParams (_:OpTok Asterisk:_:rest) = parseParams [] rest
-parseFuncParams (_:Ident _:rest)          = parseParams [] rest
-parseFuncParams toks = throwError $ ParserError (TokensError toks)
+parseFuncParams :: [LexDat] -> ParserState ([Tree], [LexDat])
+parseFuncParams (_:LexDat{tok=OpTok Asterisk}:_:rest) = parseParams [] rest
+parseFuncParams (_:LexDat{tok=Ident _}:rest)          = parseParams [] rest
+parseFuncParams lexData = throwError $ ParserError (LexDataError lexData)
 
 
-parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseParams prms toks = parsePassIn prms toks parseTheParams
+parseParams :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
+parseParams prms lexData = parsePassIn prms lexData parseTheParams
 
 
-parseTheParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseTheParams prms toks@(Keyword _:_) = do
-        (tree, toks') <- parseParam toks
-        parseParams (tree:prms) toks'
-parseTheParams _ toks = throwError $ ParserError (TokensError toks)
+parseTheParams :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
+parseTheParams prms lexData@(LexDat{tok=Keyword _}:_) = do
+        (tree, lexData') <- parseParam lexData
+        parseParams (tree:prms) lexData'
+parseTheParams _ lexData = throwError $ ParserError (LexDataError lexData)
 
 
-parseParam :: [Token] -> ParserState (Tree, [Token])
-parseParam toks = do
-        typ            <- parseType toks
-        toks'          <- consumeTok toks
-        (tree, toks'') <- parseParamValue toks'
+parseParam :: [LexDat] -> ParserState (Tree, [LexDat])
+parseParam lexData = do
+        typ            <- parseType lexData
+        lexData'          <- consumeTok lexData
+        (tree, lexData'') <- parseParamValue lexData'
         case tree of
-             VarNode _ -> pure (ParamNode typ tree, toks'')
+             VarNode _ -> pure (ParamNode typ tree, lexData'')
              _         -> throwError $ ParserError (TreeError tree)
 
 
-parseParamValue :: [Token] -> ParserState (Tree, [Token])
-parseParamValue (OpTok Asterisk:rest) = parseExpression rest
-parseParamValue toks@(Ident _:_)   = parseExpression toks
-parseParamValue toks = throwError $ ParserError (TokensError toks)
+parseParamValue :: [LexDat] -> ParserState (Tree, [LexDat])
+parseParamValue (LexDat{tok=OpTok Asterisk}:rest) = parseExpression rest
+parseParamValue lexData@(LexDat{tok=Ident _}:_)   = parseExpression lexData
+parseParamValue lexData = throwError $ ParserError (LexDataError lexData)
 
 
-parseFuncBlockItems :: [Tree] -> [Token] -> ParserState (Maybe [Tree], [Token])
-parseFuncBlockItems _ (SemiColon:rest) = pure (Nothing, rest)
-parseFuncBlockItems stmts (OpenBrace:rest) = do
-        (tree, toks') <- parseBlock stmts rest
-        toks''        <- verifyAndConsume CloseBrace toks'
-        pure (Just tree, toks'')
-parseFuncBlockItems _ toks = throwError $ ParserError (TokensError toks)
+parseFuncBlockItems :: [Tree] -> [LexDat] -> ParserState (Maybe [Tree], [LexDat])
+parseFuncBlockItems _ (LexDat{tok=SemiColon}:rest) = pure (Nothing, rest)
+parseFuncBlockItems stmts (LexDat{tok=OpenBrace}:rest) = do
+        (tree, lexData') <- parseBlock stmts rest
+        lexData''        <- verifyAndConsume CloseBrace lexData'
+        pure (Just tree, lexData'')
+parseFuncBlockItems _ lexData = throwError $ ParserError (LexDataError lexData)
 
 
-parseBlock :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseBlock stmts toks@(CloseBrace:_) = pure (reverse stmts, toks)
-parseBlock stmts toks = do
-        (tree, toks') <- parseBlockItem toks
-        parseBlock (tree:stmts) toks'
+parseBlock :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
+parseBlock stmts lexData@(LexDat{tok=CloseBrace}:_) = pure (reverse stmts, lexData)
+parseBlock stmts lexData = do
+        (tree, lexData') <- parseBlockItem lexData
+        parseBlock (tree:stmts) lexData'
 
 
-parseBlockItem :: [Token] -> ParserState (Tree, [Token])
-parseBlockItem toks@(Keyword Int:Ident _:_)        = parseValueDec toks
-parseBlockItem toks@(Keyword Int:OpTok Asterisk:_) = parsePointerDec toks
-parseBlockItem toks                                = parseStatement toks
+parseBlockItem :: [LexDat] -> ParserState (Tree, [LexDat])
+parseBlockItem lexData@(LexDat{tok=Keyword Int}:LexDat{tok=Ident _}:_) =
+        parseValueDec lexData
+parseBlockItem lexData@(LexDat{tok=Keyword Int}:LexDat{tok=OpTok Asterisk}:_) =
+        parsePointerDec lexData
+parseBlockItem lexData = parseStatement lexData
 
 
-parseStatement :: [Token] -> ParserState (Tree, [Token])
-parseStatement [] = throwError $ ParserError (TokensError [])
-parseStatement toks@(first:rest) =
+parseStatement :: [LexDat] -> ParserState (Tree, [LexDat])
+parseStatement [] = throwError $ ParserError (LexDataError [])
+parseStatement lexData@(first:rest) =
         case first of
-             Keyword Return   -> parseReturnStmt rest
-             Keyword If       -> parseIfStatement rest
-             Keyword While    -> parseWhileStatement rest
-             Keyword Do       -> parseDoWhile rest
-             Keyword For      -> parseForLoop rest
-             Keyword Break    -> parseBreak rest
-             Keyword Continue -> parseContinue rest
-             OpenBrace        -> parseCompoundStmt rest
-             _                -> parseExprStatement toks
+             LexDat{tok=Keyword Return}   -> parseReturnStmt rest
+             LexDat{tok=Keyword If}       -> parseIfStatement rest
+             LexDat{tok=Keyword While}    -> parseWhileStatement rest
+             LexDat{tok=Keyword Do}       -> parseDoWhile rest
+             LexDat{tok=Keyword For}      -> parseForLoop rest
+             LexDat{tok=Keyword Break}    -> parseBreak rest
+             LexDat{tok=Keyword Continue} -> parseContinue rest
+             LexDat{tok=OpenBrace}        -> parseCompoundStmt rest
+             _                            -> parseExprStatement lexData
 
 
 {-
@@ -186,339 +189,342 @@ parseStatement toks@(first:rest) =
 - function calls:          dog(8);
 -
 -}
-parseExprStatement :: [Token] -> ParserState (Tree, [Token])
-parseExprStatement (SemiColon:rest) = parseNullStatement rest
-parseExprStatement toks = do
-        (tree, toks') <- parseExpression toks
-        toks''        <- verifyAndConsume SemiColon toks'
-        pure (ExprStmtNode tree, toks'')
+parseExprStatement :: [LexDat] -> ParserState (Tree, [LexDat])
+parseExprStatement (LexDat{tok=SemiColon}:rest) = parseNullStatement rest
+parseExprStatement lexData = do
+        (tree, lexData') <- parseExpression lexData
+        lexData''        <- verifyAndConsume SemiColon lexData'
+        pure (ExprStmtNode tree, lexData'')
 
 
-parseBreak :: [Token] -> ParserState (Tree, [Token])
-parseBreak (SemiColon:rest) = pure (BreakNode, rest)
+parseBreak :: [LexDat] -> ParserState (Tree, [LexDat])
+parseBreak (LexDat{tok=SemiColon}:rest) = pure (BreakNode, rest)
 parseBreak _ = throwError $ SyntaxError (MissingToken SemiColon)
 
 
-parseContinue :: [Token] -> ParserState (Tree, [Token])
-parseContinue (SemiColon:rest) = pure (ContinueNode, rest)
+parseContinue :: [LexDat] -> ParserState (Tree, [LexDat])
+parseContinue (LexDat{tok=SemiColon}:rest) = pure (ContinueNode, rest)
 parseContinue _ = throwError $ SyntaxError (MissingToken SemiColon)
 
 
-parseCompoundStmt :: [Token] -> ParserState (Tree, [Token])
-parseCompoundStmt toks = do
-        (items, toks') <- parseBlock [] toks
-        toks''         <- verifyAndConsume CloseBrace toks'
-        pure (CompoundStmtNode items, toks'')
+parseCompoundStmt :: [LexDat] -> ParserState (Tree, [LexDat])
+parseCompoundStmt lexData = do
+        (items, lexData') <- parseBlock [] lexData
+        lexData''         <- verifyAndConsume CloseBrace lexData'
+        pure (CompoundStmtNode items, lexData'')
 
 
-parseForLoop :: [Token] -> ParserState (Tree, [Token])
-parseForLoop toks = do
-        toks'               <- verifyAndConsume OpenParen toks
-        (ini, toks'')       <- parseBlockItem toks'
-        (test, toks''')     <- parseExprStatement toks''
-        (change, toks'''')  <- parsePostExp toks'''
-        toks'''''           <- verifyAndConsume CloseParen toks''''
-        (stmts, toks'''''') <- parseStatement toks'''''
+parseForLoop :: [LexDat] -> ParserState (Tree, [LexDat])
+parseForLoop lexData = do
+        lexData'               <- verifyAndConsume OpenParen lexData
+        (ini, lexData'')       <- parseBlockItem lexData'
+        (test, lexData''')     <- parseExprStatement lexData''
+        (change, lexData'''')  <- parsePostExp lexData'''
+        lexData'''''           <- verifyAndConsume CloseParen lexData''''
+        (stmts, lexData'''''') <- parseStatement lexData'''''
         if test == NullExprNode
-           then pure (ForLoopNode ini (ConstantNode 1) change stmts, toks'''''')
-           else pure (ForLoopNode ini test change stmts, toks'''''')
+           then pure (ForLoopNode ini (ConstantNode 1) change stmts, lexData'''''')
+           else pure (ForLoopNode ini test change stmts, lexData'''''')
 
 
-parsePostExp :: [Token] -> ParserState (Tree, [Token])
-parsePostExp toks = do
-        (tree, toks') <- parseForLoopPostExp toks
-        nextTokIsNot SemiColon toks'
-        pure (tree, toks')
+parsePostExp :: [LexDat] -> ParserState (Tree, [LexDat])
+parsePostExp lexData = do
+        (tree, lexData') <- parseForLoopPostExp lexData
+        nextTokIsNot SemiColon lexData'
+        pure (tree, lexData')
 
 
-parseForLoopPostExp :: [Token] -> ParserState (Tree, [Token])
-parseForLoopPostExp (SemiColon:_) =
+parseForLoopPostExp :: [LexDat] -> ParserState (Tree, [LexDat])
+parseForLoopPostExp (LexDat{tok=SemiColon}:_) =
         throwError $ SyntaxError (UnexpectedToken SemiColon)
-parseForLoopPostExp toks@(CloseParen:_) = nullExpr toks
-parseForLoopPostExp toks                = parseExpression toks
+parseForLoopPostExp lexData@(LexDat{tok=CloseParen}:_) =
+        nullExpr lexData
+parseForLoopPostExp lexData = parseExpression lexData
 
 
-parseDoWhile :: [Token] -> ParserState (Tree, [Token])
-parseDoWhile toks@(OpenBrace:_) = do
-        (stmts, toks') <- parseStatement toks
-        case toks' of
-             (Keyword While:OpenParen:rest) -> do
-                     (test, toks'') <- parseExpression rest
-                     toks'''        <- verifyAndConsume CloseParen toks''
-                     toks''''       <- verifyAndConsume SemiColon toks'''
-                     pure (DoWhileNode stmts test, toks'''')
-             (_:OpenParen:_) ->
+parseDoWhile :: [LexDat] -> ParserState (Tree, [LexDat])
+parseDoWhile lexData@(LexDat{tok=OpenBrace}:_) = do
+        (stmts, lexData') <- parseStatement lexData
+        case lexData' of
+             (LexDat{tok=Keyword While}:LexDat{tok=OpenParen}:rest) -> do
+                     (test, lexData'') <- parseExpression rest
+                     lexData'''        <- verifyAndConsume CloseParen lexData''
+                     lexData''''       <- verifyAndConsume SemiColon lexData'''
+                     pure (DoWhileNode stmts test, lexData'''')
+             (_:LexDat{tok=OpenParen}:_) ->
                      throwError $ SyntaxError (MissingKeyword While)
-             (Keyword While:_:_) ->
+             (LexDat{tok=Keyword While}:_:_) ->
                      throwError $ SyntaxError (MissingToken OpenParen)
-             _ -> throwError $ ParserError (TokensError toks')
+             _ -> throwError $ ParserError (LexDataError lexData')
 parseDoWhile _ = throwError $ SyntaxError (MissingToken OpenBrace)
 
 
-parseWhileStatement :: [Token] -> ParserState (Tree, [Token])
-parseWhileStatement toks = do
-        (test, toks')   <- parseConditionalParen toks
-        (stmts, toks'') <- parseStatement toks'
-        pure (WhileNode test stmts, toks'')
+parseWhileStatement :: [LexDat] -> ParserState (Tree, [LexDat])
+parseWhileStatement lexData = do
+        (test, lexData')   <- parseConditionalParen lexData
+        (stmts, lexData'') <- parseStatement lexData'
+        pure (WhileNode test stmts, lexData'')
 
 
-parseIfStatement :: [Token] -> ParserState (Tree, [Token])
-parseIfStatement toks = do
-        (test, toks')       <- parseConditionalParen toks
-        (stmts, toks'')     <- parseStatement toks'
-        (possElse, toks''') <- parseOptionalElse toks''
-        pure (IfNode test stmts possElse, toks''')
+parseIfStatement :: [LexDat] -> ParserState (Tree, [LexDat])
+parseIfStatement lexData = do
+        (test, lexData')       <- parseConditionalParen lexData
+        (stmts, lexData'')     <- parseStatement lexData'
+        (possElse, lexData''') <- parseOptionalElse lexData''
+        pure (IfNode test stmts possElse, lexData''')
 
 
-parseConditionalParen :: [Token] -> ParserState (Tree, [Token])
-parseConditionalParen toks = do
-        toks'             <- verifyAndConsume OpenParen toks
-        (test, toks'')    <- parseExpression toks'
-        toks'''           <- verifyAndConsume CloseParen toks''
-        pure (test, toks''')
+parseConditionalParen :: [LexDat] -> ParserState (Tree, [LexDat])
+parseConditionalParen lexData = do
+        lexData'             <- verifyAndConsume OpenParen lexData
+        (test, lexData'')    <- parseExpression lexData'
+        lexData'''           <- verifyAndConsume CloseParen lexData''
+        pure (test, lexData''')
 
 
-parseOptionalElse :: [Token] -> ParserState (Maybe Tree, [Token])
-parseOptionalElse (Keyword Else:rest) = do
-        (tree, toks') <- parseStatement rest
-        pure (Just tree, toks')
-parseOptionalElse toks = pure (Nothing, toks)
+parseOptionalElse :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
+parseOptionalElse (LexDat{tok=Keyword Else}:rest) = do
+        (tree, lexData') <- parseStatement rest
+        pure (Just tree, lexData')
+parseOptionalElse lexData = pure (Nothing, lexData)
 
 
-parseReturnStmt :: [Token] -> ParserState (Tree, [Token])
-parseReturnStmt toks = do
-        (tree, toks') <- parseExpression toks
-        toks''        <- verifyAndConsume SemiColon toks'
-        pure (ReturnNode tree, toks'')
+parseReturnStmt :: [LexDat] -> ParserState (Tree, [LexDat])
+parseReturnStmt lexData = do
+        (tree, lexData') <- parseExpression lexData
+        lexData''        <- verifyAndConsume SemiColon lexData'
+        pure (ReturnNode tree, lexData'')
 
 
-parseNullStatement :: [Token] -> ParserState (Tree, [Token])
-parseNullStatement toks = pure (NullExprNode, toks)
+parseNullStatement :: [LexDat] -> ParserState (Tree, [LexDat])
+parseNullStatement lexData = pure (NullExprNode, lexData)
 
 
-parseAssignment :: Tree -> [Token] -> ParserState (Tree, [Token])
-parseAssignment tree (OpTok op:rest) = do
-                   (asgn, toks') <- parseExpression rest
+parseAssignment :: Tree -> [LexDat] -> ParserState (Tree, [LexDat])
+parseAssignment tree (LexDat{tok=OpTok op}:rest) = do
+                   (asgn, lexData') <- parseExpression rest
                    let asgnOp = Operator.tokToAssignOp op
                    case tree of
                      (VarNode a) ->
-                             pure (AssignmentNode a asgn asgnOp, toks')
+                             pure (AssignmentNode a asgn asgnOp, lexData')
                      (DereferenceNode a) ->
-                             pure (AssignDereferenceNode a asgn asgnOp, toks')
+                             pure (AssignDereferenceNode a asgn asgnOp, lexData')
                      _ -> throwError $ ParserError (TreeError tree)
-parseAssignment _ toks = throwError $ ParserError (TokensError toks)
+parseAssignment _ lexData = throwError $ ParserError (LexDataError lexData)
 
 
-parseExpression :: [Token] -> ParserState (Tree, [Token])
-parseExpression toks = do
-        (tree, toks') <- parseTernaryExp toks
-        case toks' of
-             (OpTok op:rest)
-                | Tokens.isAssign op  -> parseAssignment tree toks'
+parseExpression :: [LexDat] -> ParserState (Tree, [LexDat])
+parseExpression lexData = do
+        (tree, lexData') <- parseTernaryExp lexData
+        case lexData' of
+             (LexDat{tok=OpTok op}:rest)
+                | Tokens.isAssign op  -> parseAssignment tree lexData'
                 | Tokens.isPostPos op -> do
                         let unOp = Operator.tokToPostUnaryOp op
                         pure (UnaryNode tree unOp, rest)
                 | otherwise ->
                         throwError $ SyntaxError (UnexpectedToken (OpTok op))
-             _ -> pure (tree, toks')
+             _ -> pure (tree, lexData')
 
 
-parseTernaryExp :: [Token] -> ParserState (Tree, [Token])
-parseTernaryExp toks = do
-        (cond, toks') <- parseLogicalOrExp toks
-        case toks' of
-             (QuestMark:rest) -> do
-                     (expr1, toks'')   <- parseExpression rest
-                     toks'''           <- verifyAndConsume Colon toks''
-                     (expr2, toks'''') <- parseTernaryExp toks'''
-                     pure (TernaryNode cond expr1 expr2, toks'''')
-             _ -> pure (cond, toks')
+parseTernaryExp :: [LexDat] -> ParserState (Tree, [LexDat])
+parseTernaryExp lexData = do
+        (cond, lexData') <- parseLogicalOrExp lexData
+        case lexData' of
+             (LexDat{tok=QuestMark}:rest) -> do
+                     (expr1, lexData'')   <- parseExpression rest
+                     lexData'''           <- verifyAndConsume Colon lexData''
+                     (expr2, lexData'''') <- parseTernaryExp lexData'''
+                     pure (TernaryNode cond expr1 expr2, lexData'''')
+             _ -> pure (cond, lexData')
 
 
-parseLogicalOrExp :: [Token] -> ParserState (Tree, [Token])
-parseLogicalOrExp toks = do
-        (orTree, toks') <- parseLogicalAndExp toks
-        parseBinaryExp orTree toks' parseLogicalAndExp (Tokens.kind LogicalOR)
+parseLogicalOrExp :: [LexDat] -> ParserState (Tree, [LexDat])
+parseLogicalOrExp lexData = do
+        (orTree, lexData') <- parseLogicalAndExp lexData
+        parseBinaryExp orTree lexData' parseLogicalAndExp (Tokens.kind LogicalOR)
 
 
-parseLogicalAndExp :: [Token] -> ParserState (Tree, [Token])
-parseLogicalAndExp toks = do
-        (andTree, toks') <- parseBitwiseOR toks
-        parseBinaryExp andTree toks' parseBitwiseOR (Tokens.kind LogicalAND)
+parseLogicalAndExp :: [LexDat] -> ParserState (Tree, [LexDat])
+parseLogicalAndExp lexData = do
+        (andTree, lexData') <- parseBitwiseOR lexData
+        parseBinaryExp andTree lexData' parseBitwiseOR (Tokens.kind LogicalAND)
 
 
-parseBitwiseOR :: [Token] -> ParserState (Tree, [Token])
-parseBitwiseOR toks = do
-        (orTree, toks') <- parseBitwiseXOR toks
-        parseBinaryExp orTree toks' parseBitwiseXOR (Tokens.kind BitwiseOR)
+parseBitwiseOR :: [LexDat] -> ParserState (Tree, [LexDat])
+parseBitwiseOR lexData = do
+        (orTree, lexData') <- parseBitwiseXOR lexData
+        parseBinaryExp orTree lexData' parseBitwiseXOR (Tokens.kind BitwiseOR)
 
 
-parseBitwiseXOR :: [Token] -> ParserState (Tree, [Token])
-parseBitwiseXOR toks = do
-        (xorTree, toks') <- parseBitwiseAND toks
-        parseBinaryExp xorTree toks' parseBitwiseAND (Tokens.kind BitwiseXOR)
+parseBitwiseXOR :: [LexDat] -> ParserState (Tree, [LexDat])
+parseBitwiseXOR lexData = do
+        (xorTree, lexData') <- parseBitwiseAND lexData
+        parseBinaryExp xorTree lexData' parseBitwiseAND (Tokens.kind BitwiseXOR)
 
 
-parseBitwiseAND :: [Token] -> ParserState (Tree, [Token])
-parseBitwiseAND toks = do
-        (andTree, toks') <- parseEqualityExp toks
-        parseBinaryExp andTree toks' parseEqualityExp (Tokens.kind BitwiseAND)
+parseBitwiseAND :: [LexDat] -> ParserState (Tree, [LexDat])
+parseBitwiseAND lexData = do
+        (andTree, lexData') <- parseEqualityExp lexData
+        parseBinaryExp andTree lexData' parseEqualityExp (Tokens.kind BitwiseAND)
 
 
-parseEqualityExp :: [Token] -> ParserState (Tree, [Token])
-parseEqualityExp toks = do
-        (equTree, toks') <- parseRelationalExp toks
-        parseBinaryExp equTree toks' parseRelationalExp (Tokens.kind Equality)
+parseEqualityExp :: [LexDat] -> ParserState (Tree, [LexDat])
+parseEqualityExp lexData = do
+        (equTree, lexData') <- parseRelationalExp lexData
+        parseBinaryExp equTree lexData' parseRelationalExp (Tokens.kind Equality)
 
 
-parseRelationalExp :: [Token] -> ParserState (Tree, [Token])
-parseRelationalExp toks = do
-        (relaTree, toks') <- parseBitShiftExp toks
-        parseBinaryExp relaTree toks' parseBitShiftExp (Tokens.kind Relational)
+parseRelationalExp :: [LexDat] -> ParserState (Tree, [LexDat])
+parseRelationalExp lexData = do
+        (relaTree, lexData') <- parseBitShiftExp lexData
+        parseBinaryExp relaTree lexData' parseBitShiftExp (Tokens.kind Relational)
 
 
-parseBitShiftExp :: [Token] -> ParserState (Tree, [Token])
-parseBitShiftExp toks = do
-        (shiftTree, toks') <- parseAdditiveExp toks
-        parseBinaryExp shiftTree toks' parseAdditiveExp (Tokens.kind Shift)
+parseBitShiftExp :: [LexDat] -> ParserState (Tree, [LexDat])
+parseBitShiftExp lexData = do
+        (shiftTree, lexData') <- parseAdditiveExp lexData
+        parseBinaryExp shiftTree lexData' parseAdditiveExp (Tokens.kind Shift)
 
 
-parseAdditiveExp :: [Token] -> ParserState (Tree, [Token])
-parseAdditiveExp toks = do
-        (termTree, toks') <- parseTerm toks
-        parseBinaryExp termTree toks' parseTerm (Tokens.kind Term)
+parseAdditiveExp :: [LexDat] -> ParserState (Tree, [LexDat])
+parseAdditiveExp lexData = do
+        (termTree, lexData') <- parseTerm lexData
+        parseBinaryExp termTree lexData' parseTerm (Tokens.kind Term)
 
 
-parseTerm :: [Token] -> ParserState (Tree, [Token])
-parseTerm toks = do
-        (facTree, toks') <- parseFactor toks
-        parseBinaryExp facTree toks' parseFactor (Tokens.kind Factor)
+parseTerm :: [LexDat] -> ParserState (Tree, [LexDat])
+parseTerm lexData = do
+        (facTree, lexData') <- parseFactor lexData
+        parseBinaryExp facTree lexData' parseFactor (Tokens.kind Factor)
 
 
-parseFactor :: [Token] -> ParserState (Tree, [Token])
-parseFactor [] = throwError $ ParserError (TokensError [])
-parseFactor toks@(next:rest) =
+parseFactor :: [LexDat] -> ParserState (Tree, [LexDat])
+parseFactor [] = throwError $ ParserError (LexDataError [])
+parseFactor lexData@(next:rest) =
         case next of
-             SemiColon          -> pure (NullExprNode, rest)
-             (ConstInt n)       -> pure (ConstantNode n, rest)
-             (Ident _)          -> parseIdent toks
-             (OpTok Ampersand)  -> parseAddressOf rest
-             (OpTok Asterisk)   -> parseDereference rest
-             (OpTok MinusSign)  -> parseUnary toks
-             (OpTok Tilde)      -> parseUnary toks
-             (OpTok Bang)       -> parseUnary toks
-             (OpTok PlusPlus)   -> parseUnary toks
-             (OpTok MinusMinus) -> parseUnary toks
-             (OpTok PlusSign)   -> parseUnary toks
-             OpenParen          -> parseParenExp rest
-             _                  -> throwError $ ParserError (TokensError toks)
+             LexDat{tok=SemiColon}        -> pure (NullExprNode, rest)
+             LexDat{tok=ConstInt n}       -> pure (ConstantNode n, rest)
+             LexDat{tok=Ident _}          -> parseIdent lexData
+             LexDat{tok=OpTok Ampersand}  -> parseAddressOf rest
+             LexDat{tok=OpTok Asterisk}   -> parseDereference rest
+             LexDat{tok=OpTok MinusSign}  -> parseUnary lexData
+             LexDat{tok=OpTok Tilde}      -> parseUnary lexData
+             LexDat{tok=OpTok Bang}       -> parseUnary lexData
+             LexDat{tok=OpTok PlusPlus}   -> parseUnary lexData
+             LexDat{tok=OpTok MinusMinus} -> parseUnary lexData
+             LexDat{tok=OpTok PlusSign}   -> parseUnary lexData
+             LexDat{tok=OpenParen}        -> parseParenExp rest
+             _ -> throwError $ ParserError (LexDataError lexData)
 
 
-parseUnary :: [Token] -> ParserState (Tree, [Token])
-parseUnary (OpTok op:rest) = do
-        (tree, toks') <- parseFactor rest
+parseUnary :: [LexDat] -> ParserState (Tree, [LexDat])
+parseUnary (LexDat{tok=OpTok op}:rest) = do
+        (tree, lexData') <- parseFactor rest
         let unOp = Operator.tokToUnaryOp op
-        pure (UnaryNode tree unOp, toks')
-parseUnary toks = throwError $ ParserError (TokensError toks)
+        pure (UnaryNode tree unOp, lexData')
+parseUnary lexData = throwError $ ParserError (LexDataError lexData)
 
 
-parseIdent :: [Token] -> ParserState (Tree, [Token])
-parseIdent toks@(Ident _:OpenParen:_) = parseFuncCall toks
-parseIdent (Ident a:rest)             = pure (VarNode a, rest)
-parseIdent (a:_) = throwError $ SyntaxError (UnexpectedToken a)
-parseIdent toks  = throwError $ ParserError (TokensError toks)
+parseIdent :: [LexDat] -> ParserState (Tree, [LexDat])
+parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenParen}:_) =
+        parseFuncCall lexData
+parseIdent (LexDat{tok=Ident a}:rest) = pure (VarNode a, rest)
+parseIdent (a:_) = throwError $ SyntaxError (UnexpectedLexDat a)
+parseIdent lexData  = throwError $ ParserError (LexDataError lexData)
 
 
-parseParenExp :: [Token] -> ParserState (Tree, [Token])
-parseParenExp toks = do
-        (tree, toks') <- parseExpression toks
-        toks''        <- verifyAndConsume CloseParen toks'
-        pure (tree, toks'')
+parseParenExp :: [LexDat] -> ParserState (Tree, [LexDat])
+parseParenExp lexData = do
+        (tree, lexData') <- parseExpression lexData
+        lexData''        <- verifyAndConsume CloseParen lexData'
+        pure (tree, lexData'')
 
 
-parseAddressOf :: [Token] -> ParserState (Tree, [Token])
-parseAddressOf (Ident n:rest) = pure (AddressOfNode n, rest)
-parseAddressOf (a:_)          = throwError $ SyntaxError (InvalidIdentifier a)
-parseAddressOf toks           = throwError $ ParserError (TokensError toks)
+parseAddressOf :: [LexDat] -> ParserState (Tree, [LexDat])
+parseAddressOf (LexDat{tok=Ident n}:rest) = pure (AddressOfNode n, rest)
+parseAddressOf (a:_)   = throwError $ SyntaxError (NonValidIdentifier a)
+parseAddressOf lexData = throwError $ ParserError (LexDataError lexData)
 
 
-parseDereference :: [Token] -> ParserState (Tree, [Token])
-parseDereference (Ident n:rest) = pure (DereferenceNode n, rest)
-parseDereference (a:_) = throwError $ SyntaxError (InvalidIdentifier a)
-parseDereference toks = throwError $ ParserError (TokensError toks)
+parseDereference :: [LexDat] -> ParserState (Tree, [LexDat])
+parseDereference (LexDat{tok=Ident n}:rest) = pure (DereferenceNode n, rest)
+parseDereference (a:_)   = throwError $ SyntaxError (NonValidIdentifier a)
+parseDereference lexData = throwError $ ParserError (LexDataError lexData)
 
 
-parseFuncCall :: [Token] -> ParserState (Tree, [Token])
-parseFuncCall toks@(Ident a:OpenParen:_) = do
-        toks'          <- consumeTok toks
-        (tree, toks'') <- parseArgs [] toks'
-        pure (FuncCallNode a tree, toks'')
-parseFuncCall (Ident _:_:_) =
+parseFuncCall :: [LexDat] -> ParserState (Tree, [LexDat])
+parseFuncCall lexData@(LexDat{tok=Ident a}:LexDat{tok=OpenParen}:_) = do
+        lexData'          <- consumeTok lexData
+        (tree, lexData'') <- parseArgs [] lexData'
+        pure (FuncCallNode a tree, lexData'')
+parseFuncCall (LexDat{tok=Ident _}:_:_) =
         throwError $ SyntaxError (MissingToken OpenParen)
-parseFuncCall (a:OpenParen:_) =
-        throwError $ SyntaxError (InvalidIdentifier a)
+parseFuncCall (a:LexDat{tok=OpenParen}:_) =
+        throwError $ SyntaxError (NonValidIdentifier a)
 parseFuncCall (a:_:_) =
-        throwError $ SyntaxError (UnexpectedToken a)
-parseFuncCall toks =
-        throwError $ ParserError (TokensError toks)
+        throwError $ SyntaxError (UnexpectedLexDat a)
+parseFuncCall lexData =
+        throwError $ ParserError (LexDataError lexData)
 
 
-parseArgs :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseArgs args toks = parsePassIn args toks parseTheArgs
+parseArgs :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
+parseArgs args lexData = parsePassIn args lexData parseTheArgs
 
 
-parseTheArgs :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseTheArgs as toks = do
-        (tree, toks') <- parseExpression toks
-        parseArgs (tree:as) toks'
+parseTheArgs :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
+parseTheArgs as lexData = do
+        (tree, lexData') <- parseExpression lexData
+        parseArgs (tree:as) lexData'
 
 
 parsePassIn :: [Tree]
-            -> [Token]
-            -> ([Tree] -> [Token] -> ParserState ([Tree], [Token]))
-            -> ParserState ([Tree], [Token])
-parsePassIn _ [] _ = throwError $ ParserError (TokensError [])
-parsePassIn xs (OpenParen:CloseParen:rest) _ = pure (xs, rest)
-parsePassIn xs (CloseParen:rest) _           = pure (reverse xs, rest)
-parsePassIn _ (Comma:CloseParen:_) _ =
+            -> [LexDat]
+            -> ([Tree] -> [LexDat] -> ParserState ([Tree], [LexDat]))
+            -> ParserState ([Tree], [LexDat])
+parsePassIn _ [] _ = throwError $ ParserError (LexDataError [])
+parsePassIn xs (LexDat{tok=OpenParen}:LexDat{tok=CloseParen}:rest) _ =
+        pure (xs, rest)
+parsePassIn xs (LexDat{tok=CloseParen}:rest) _ = pure (reverse xs, rest)
+parsePassIn _ (LexDat{tok=Comma}:LexDat{tok=CloseParen}:_) _ =
         throwError $ SyntaxError (UnexpectedToken Comma)
-parsePassIn xs (OpenParen:rest) f = f xs rest
-parsePassIn xs (Comma:rest) f     = f xs rest
-parsePassIn _ (a:_) _ = throwError $ SyntaxError (UnexpectedToken a)
+parsePassIn xs (LexDat{tok=OpenParen}:rest) f = f xs rest
+parsePassIn xs (LexDat{tok=Comma}:rest) f     = f xs rest
+parsePassIn _ (a:_) _ = throwError $ SyntaxError (UnexpectedLexDat a)
 
 
 parseBinaryExp :: Tree
-               -> [Token]
-               -> ([Token] -> ParserState (Tree, [Token]))
+               -> [LexDat]
+               -> ([LexDat] -> ParserState (Tree, [LexDat]))
                -> [OpTok]
-               -> ParserState (Tree, [Token])
-parseBinaryExp _ [] _ _ = throwError $ ParserError (TokensError [])
+               -> ParserState (Tree, [LexDat])
+parseBinaryExp _ [] _ _ = throwError $ ParserError (LexDataError [])
 parseBinaryExp _ _ _ [] = throwError ImpossibleError
-parseBinaryExp tree toks@(OpTok op:rest) f ops
+parseBinaryExp tree lexData@(LexDat{tok=OpTok op}:rest) f ops
         | op `elem` ops = do
-                (ntree, toks'') <- f rest
+                (ntree, lexData'') <- f rest
                 let binOp = Operator.tokToBinOp op
-                parseBinaryExp (BinaryNode tree ntree binOp) toks'' f ops
-        | otherwise = pure (tree, toks)
-parseBinaryExp tree toks _ _ = pure (tree, toks)
+                parseBinaryExp (BinaryNode tree ntree binOp) lexData'' f ops
+        | otherwise = pure (tree, lexData)
+parseBinaryExp tree lexData _ _ = pure (tree, lexData)
 
 
-verifyAndConsume :: Token -> [Token] -> ParserState [Token]
-verifyAndConsume t toks = do
-        nextTokIs t toks
-        consumeTok toks
+verifyAndConsume :: Token -> [LexDat] -> ParserState [LexDat]
+verifyAndConsume t lexData = do
+        nextTokIs t lexData
+        consumeTok lexData
 
 
-nextTokIs :: Token -> [Token] -> ParserState ()
+nextTokIs :: Token -> [LexDat] -> ParserState ()
 nextTokIs t []    = throwError $ SyntaxError (MissingToken t)
-nextTokIs t [a]   = isTok t a
-nextTokIs t (a:_) = isTok t a
+nextTokIs t [a]   = isTok t $ tok a
+nextTokIs t (a:_) = isTok t $ tok a
 
 
-nextTokIsNot :: Token -> [Token] -> ParserState ()
-nextTokIsNot _ []    = throwError $ ParserError (TokensError [])
-nextTokIsNot t [a]   = isNotTok t a
-nextTokIsNot t (a:_) = isNotTok t a
+nextTokIsNot :: Token -> [LexDat] -> ParserState ()
+nextTokIsNot _ []    = throwError $ ParserError (LexDataError [])
+nextTokIsNot t [a]   = isNotTok t $ tok a
+nextTokIsNot t (a:_) = isNotTok t $ tok a
 
 
 isTok :: Token -> Token -> ParserState ()
@@ -529,25 +535,26 @@ isNotTok :: Token -> Token -> ParserState ()
 isNotTok t a = unless ( t /= a) $ throwError $ SyntaxError (UnexpectedToken a)
 
 
-consumeTok :: [Token] -> ParserState [Token]
-consumeTok []       = throwError $ ParserError (TokensError [])
-consumeTok [_]      = pure []
-consumeTok (_:toks) = pure toks
+consumeTok :: [LexDat] -> ParserState [LexDat]
+consumeTok []          = throwError $ ParserError (LexDataError [])
+consumeTok [_]         = pure []
+consumeTok (_:lexData) = pure lexData
 
 
-consumeNToks :: Int -> [Token] -> ParserState [Token]
-consumeNToks 0 toks = pure toks
-consumeNToks n toks = do
-        toks' <- consumeTok toks
-        consumeNToks (pred n) toks'
+consumeNToks :: Int -> [LexDat] -> ParserState [LexDat]
+consumeNToks 0 lexData = pure lexData
+consumeNToks n lexData = do
+        lexData' <- consumeTok lexData
+        consumeNToks (pred n) lexData'
 
 
-parseType :: [Token] -> ParserState Type
-parseType (Keyword Int:OpTok Asterisk:_) = pure IntPointer
-parseType (Keyword Int:_)                = pure IntVar
-parseType (a:_) = throwError $ TypeError (InvalidType a)
-parseType toks  = throwError $ ParserError (TokensError toks)
+parseType :: [LexDat] -> ParserState Type
+parseType (LexDat{tok=Keyword Int}:LexDat{tok=OpTok Asterisk}:_) =
+        pure IntPointer
+parseType (LexDat{tok=Keyword Int}:_) = pure IntVar
+parseType (a:_) = throwError $ TypeError (BadType a)
+parseType lexData  = throwError $ ParserError (LexDataError lexData)
 
 
-nullExpr :: [Token] -> ParserState (Tree, [Token])
-nullExpr toks = pure (NullExprNode, toks)
+nullExpr :: [LexDat] -> ParserState (Tree, [LexDat])
+nullExpr lexData = pure (NullExprNode, lexData)
