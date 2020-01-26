@@ -333,4 +333,4 @@ parserTest = hspec $ do
                    (map mkLexDat [Keyword Int, Ident "a", Comma])
                   )
                   `shouldBe`
-                  SyntaxError (MissingToken SemiColon)
+                  SyntaxError (MissingToken SemiColon (mkLexDat Comma))

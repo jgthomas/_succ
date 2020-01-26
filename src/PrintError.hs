@@ -12,6 +12,7 @@ import Data.Map      as M (Map, fromList, lookup)
 import Data.Maybe    (fromMaybe, isNothing)
 
 import Error
+import LexDat        (LexDat (..))
 
 
 data PrintRange = All
@@ -44,10 +45,10 @@ printSourceLineRange input n m =
 
 printSourceLine :: M.Map Int String -> Int -> IO ()
 printSourceLine lineMap n =
-        unless (isNothing line) $
-            putStrLn $ fromMaybe "" line
+        unless (isNothing sourceLine) $
+            putStrLn $ fromMaybe "" sourceLine
         where
-                line = M.lookup n lineMap
+                sourceLine = M.lookup n lineMap
 
 
 errorMsg :: CompilerError -> (String, PrintRange)
@@ -76,7 +77,12 @@ lexerUnexpectedMsg str =
 
 
 parserErrorMsg :: ParserError -> (String, PrintRange)
-parserErrorMsg err = (show err, All)
+parserErrorMsg err@(TreeError _)     = (show err, All)
+parserErrorMsg err@(LexDataError []) = (show err, All)
+parserErrorMsg (LexDataError (d:_))  = (msg, Exact $ line d)
+        where msg = "Unexpected input: "
+                    ++ show (tok d)
+                    ++ buildLineMsg (line d)
 
 
 generatorErrorMsg :: GeneratorError -> (String, PrintRange)
@@ -84,6 +90,12 @@ generatorErrorMsg err = (show err, All)
 
 
 syntaxErrorMsg :: SyntaxError -> (String, PrintRange)
+syntaxErrorMsg (MissingToken t d) = (msg, Exact $ line d)
+        where msg = "Unexpected character: "
+                    ++ show (tok d)
+                    ++ " Expected: "
+                    ++ show t
+                    ++ buildLineMsg (line d)
 syntaxErrorMsg err = (show err, All)
 
 
@@ -97,3 +109,7 @@ impossibleErrorMsg = ("Something unexpected went wrong, you are on your own!", N
 
 toLineMap :: String -> M.Map Int String
 toLineMap input = M.fromList $ zip [1..] $ lines input
+
+
+buildLineMsg :: Int -> String
+buildLineMsg n = " : Line " ++ show n

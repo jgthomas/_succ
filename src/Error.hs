@@ -36,7 +36,7 @@ data GeneratorError = NoStateFound String
 
 data SyntaxError = InvalidIdentifier Token
                  | NonValidIdentifier LexDat
-                 | MissingToken Token
+                 | MissingToken Token LexDat
                  | UnexpectedToken Token
                  | UnexpectedLexDat LexDat
                  | MissingIdentifier

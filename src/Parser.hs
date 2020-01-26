@@ -199,12 +199,14 @@ parseExprStatement lexData = do
 
 parseBreak :: [LexDat] -> ParserState (Tree, [LexDat])
 parseBreak (LexDat{tok=SemiColon}:rest) = pure (BreakNode, rest)
-parseBreak _ = throwError $ SyntaxError (MissingToken SemiColon)
+parseBreak (d:_) = throwError $ SyntaxError (MissingToken SemiColon d)
+parseBreak [] = throwError $ ParserError (LexDataError [])
 
 
 parseContinue :: [LexDat] -> ParserState (Tree, [LexDat])
 parseContinue (LexDat{tok=SemiColon}:rest) = pure (ContinueNode, rest)
-parseContinue _ = throwError $ SyntaxError (MissingToken SemiColon)
+parseContinue (d:_) = throwError $ SyntaxError (MissingToken SemiColon d)
+parseContinue [] = throwError $ ParserError (LexDataError [])
 
 
 parseCompoundStmt :: [LexDat] -> ParserState (Tree, [LexDat])
@@ -253,10 +255,11 @@ parseDoWhile lexData@(LexDat{tok=OpenBrace}:_) = do
                      pure (DoWhileNode stmts test, lexData'''')
              (_:LexDat{tok=OpenParen}:_) ->
                      throwError $ SyntaxError (MissingKeyword While)
-             (LexDat{tok=Keyword While}:_:_) ->
-                     throwError $ SyntaxError (MissingToken OpenParen)
+             (d@LexDat{tok=Keyword While}:_:_) ->
+                     throwError $ SyntaxError (MissingToken OpenParen d)
              _ -> throwError $ ParserError (LexDataError lexData')
-parseDoWhile _ = throwError $ SyntaxError (MissingToken OpenBrace)
+parseDoWhile (d:_) = throwError $ SyntaxError (MissingToken OpenBrace d)
+parseDoWhile [] = throwError $ ParserError (LexDataError [])
 
 
 parseWhileStatement :: [LexDat] -> ParserState (Tree, [LexDat])
@@ -458,8 +461,8 @@ parseFuncCall lexData@(LexDat{tok=Ident a}:LexDat{tok=OpenParen}:_) = do
         lexData'          <- consumeTok lexData
         (tree, lexData'') <- parseArgs [] lexData'
         pure (FuncCallNode a tree, lexData'')
-parseFuncCall (LexDat{tok=Ident _}:_:_) =
-        throwError $ SyntaxError (MissingToken OpenParen)
+parseFuncCall (d@LexDat{tok=Ident _}:_:_) =
+        throwError $ SyntaxError (MissingToken OpenParen d)
 parseFuncCall (a:LexDat{tok=OpenParen}:_) =
         throwError $ SyntaxError (NonValidIdentifier a)
 parseFuncCall (a:_:_) =
@@ -516,23 +519,23 @@ verifyAndConsume t lexData = do
 
 
 nextTokIs :: Token -> [LexDat] -> ParserState ()
-nextTokIs t []    = throwError $ SyntaxError (MissingToken t)
-nextTokIs t [a]   = isTok t $ tok a
-nextTokIs t (a:_) = isTok t $ tok a
+nextTokIs _ []    = throwError $ ParserError (LexDataError [])
+nextTokIs t [a]   = isTok t a
+nextTokIs t (a:_) = isTok t a
 
 
 nextTokIsNot :: Token -> [LexDat] -> ParserState ()
 nextTokIsNot _ []    = throwError $ ParserError (LexDataError [])
-nextTokIsNot t [a]   = isNotTok t $ tok a
-nextTokIsNot t (a:_) = isNotTok t $ tok a
+nextTokIsNot t [a]   = isNotTok t a
+nextTokIsNot t (a:_) = isNotTok t a
 
 
-isTok :: Token -> Token -> ParserState ()
-isTok t a = unless (t == a) $ throwError $ SyntaxError (MissingToken t)
+isTok :: Token -> LexDat -> ParserState ()
+isTok t a = unless (t == tok a) $ throwError $ SyntaxError (MissingToken t a)
 
 
-isNotTok :: Token -> Token -> ParserState ()
-isNotTok t a = unless ( t /= a) $ throwError $ SyntaxError (UnexpectedToken a)
+isNotTok :: Token -> LexDat -> ParserState ()
+isNotTok t a = unless ( t /= tok a) $ throwError $ SyntaxError (UnexpectedToken (tok a))
 
 
 consumeTok :: [LexDat] -> ParserState [LexDat]
