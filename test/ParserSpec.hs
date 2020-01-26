@@ -324,7 +324,7 @@ parserTest = hspec $ do
                    (map mkLexDat [Keyword Break, Ident "a", SemiColon])
                   )
                   `shouldBe`
-                  (TypeError (BadType  (LexDat{tok=Keyword Break,line=0})))
+                  (SyntaxError (BadType  (LexDat{tok=Keyword Break,line=0})))
 
                 it "Should throw error if semicolon not final token" $
                   fromLeft

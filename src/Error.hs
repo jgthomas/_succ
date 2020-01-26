@@ -39,6 +39,7 @@ data SyntaxError = NonValidIdentifier LexDat
                  | MissingToken Token LexDat
                  | UnexpectedLexDat LexDat
                  | MissingKeyword Keyword LexDat
+                 | BadType LexDat
                  deriving (Show, Eq)
 
 
@@ -54,7 +55,6 @@ data ScopeError = UndeclaredNode Tree
 
 
 data TypeError = InvalidType Token | Type
-               | BadType LexDat
                | TypeMismatch [Type] [Type]
                | MissingType String
                | UnexpectedType Type

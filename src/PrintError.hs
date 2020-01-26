@@ -79,7 +79,7 @@ lexerUnexpectedMsg str =
 
 parserErrorMsg :: ParserError -> (String, PrintRange)
 parserErrorMsg err@(TreeError _) = (show err, All)
-parserErrorMsg (LexDataError []) = (msg, All)
+parserErrorMsg (LexDataError []) = (msg, None)
         where msg = "Empty input from lexer"
 parserErrorMsg (LexDataError (d:_))  = (msg, Exact $ line d)
         where msg = "Unexpected input: "
@@ -97,6 +97,10 @@ syntaxErrorMsg (MissingToken t d) = (msg, Exact $ line d)
                     ++ show (tok d)
                     ++ " Expected: "
                     ++ show t
+                    ++ buildLineMsg (line d)
+syntaxErrorMsg (BadType d) = (msg, Exact $ line d)
+        where msg = "Invalid type identifier: "
+                    ++ show (tok d)
                     ++ buildLineMsg (line d)
 syntaxErrorMsg err = (show err, All)
 

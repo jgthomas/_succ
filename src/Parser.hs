@@ -11,8 +11,8 @@ module Parser (parse) where
 import           Control.Monad (unless)
 
 import           AST           (Tree (..))
-import           Error         (CompilerError (..), ParserError (..),
-                                SyntaxError (..), TypeError (..))
+import           Error         (CompilerError (ImpossibleError, ParserError, SyntaxError),
+                                ParserError (..), SyntaxError (..))
 import           LexDat        (LexDat (..))
 import qualified Operator      (tokToAssignOp, tokToBinOp, tokToPostUnaryOp,
                                 tokToUnaryOp)
@@ -556,7 +556,7 @@ parseType :: [LexDat] -> ParserState Type
 parseType (LexDat{tok=Keyword Int}:LexDat{tok=OpTok Asterisk}:_) =
         pure IntPointer
 parseType (LexDat{tok=Keyword Int}:_) = pure IntVar
-parseType (a:_) = throwError $ TypeError (BadType a)
+parseType (a:_) = throwError $ SyntaxError (BadType a)
 parseType lexData  = throwError $ ParserError (LexDataError lexData)
 
 
