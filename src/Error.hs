@@ -5,7 +5,7 @@ module Error where
 import AST      (Tree)
 import LexDat   (LexDat)
 import Operator (Operator)
-import Tokens   (Keyword, OpTok, Token)
+import Tokens   (Keyword, Token)
 import Type     (Type)
 
 
@@ -37,10 +37,8 @@ data GeneratorError = NoStateFound String
 
 data SyntaxError = NonValidIdentifier LexDat
                  | MissingToken Token LexDat
-                 | UnexpectedToken Token
                  | UnexpectedLexDat LexDat
-                 | MissingKeyword Keyword
-                 | UnexpectedOp OpTok
+                 | MissingKeyword Keyword LexDat
                  deriving (Show, Eq)
 
 

@@ -82,11 +82,11 @@ parseOptAssign lexData = do
 
 
 parseOptionalAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
-parseOptionalAssign lexData@(_:LexDat{tok=OpTok op}:_)
+parseOptionalAssign lexData@(_:d@LexDat{tok=OpTok op}:_)
         | Tokens.isAssign op = do
                 (tree, lexData') <- parseExpression lexData
                 pure (Just tree, lexData')
-        | otherwise = throwError $ SyntaxError (UnexpectedToken (OpTok op))
+        | otherwise = throwError $ SyntaxError (UnexpectedLexDat d)
 parseOptionalAssign lexData = do
         lexData' <- consumeTok lexData
         pure (Nothing, lexData')
@@ -238,8 +238,8 @@ parsePostExp lexData = do
 
 
 parseForLoopPostExp :: [LexDat] -> ParserState (Tree, [LexDat])
-parseForLoopPostExp (LexDat{tok=SemiColon}:_) =
-        throwError $ SyntaxError (UnexpectedToken SemiColon)
+parseForLoopPostExp (d@LexDat{tok=SemiColon}:_) =
+        throwError $ SyntaxError (UnexpectedLexDat d)
 parseForLoopPostExp lexData@(LexDat{tok=CloseParen}:_) =
         nullExpr lexData
 parseForLoopPostExp lexData = parseExpression lexData
@@ -254,8 +254,8 @@ parseDoWhile lexData@(LexDat{tok=OpenBrace}:_) = do
                      lexData'''        <- verifyAndConsume CloseParen lexData''
                      lexData''''       <- verifyAndConsume SemiColon lexData'''
                      pure (DoWhileNode stmts test, lexData'''')
-             (_:LexDat{tok=OpenParen}:_) ->
-                     throwError $ SyntaxError (MissingKeyword While)
+             (_:d@LexDat{tok=OpenParen}:_) ->
+                     throwError $ SyntaxError (MissingKeyword While d)
              (d@LexDat{tok=Keyword While}:_:_) ->
                      throwError $ SyntaxError (MissingToken OpenParen d)
              _ -> throwError $ ParserError (LexDataError lexData')
@@ -321,13 +321,13 @@ parseExpression :: [LexDat] -> ParserState (Tree, [LexDat])
 parseExpression lexData = do
         (tree, lexData') <- parseTernaryExp lexData
         case lexData' of
-             (LexDat{tok=OpTok op}:rest)
+             (d@LexDat{tok=OpTok op}:rest)
                 | Tokens.isAssign op  -> parseAssignment tree lexData'
                 | Tokens.isPostPos op -> do
                         let unOp = Operator.tokToPostUnaryOp op
                         pure (UnaryNode tree unOp, rest)
                 | otherwise ->
-                        throwError $ SyntaxError (UnexpectedToken (OpTok op))
+                        throwError $ SyntaxError (UnexpectedLexDat d)
              _ -> pure (tree, lexData')
 
 
@@ -490,8 +490,8 @@ parsePassIn _ [] _ = throwError $ ParserError (LexDataError [])
 parsePassIn xs (LexDat{tok=OpenParen}:LexDat{tok=CloseParen}:rest) _ =
         pure (xs, rest)
 parsePassIn xs (LexDat{tok=CloseParen}:rest) _ = pure (reverse xs, rest)
-parsePassIn _ (LexDat{tok=Comma}:LexDat{tok=CloseParen}:_) _ =
-        throwError $ SyntaxError (UnexpectedToken Comma)
+parsePassIn _ (d@LexDat{tok=Comma}:LexDat{tok=CloseParen}:_) _ =
+        throwError $ SyntaxError (UnexpectedLexDat d)
 parsePassIn xs (LexDat{tok=OpenParen}:rest) f = f xs rest
 parsePassIn xs (LexDat{tok=Comma}:rest) f     = f xs rest
 parsePassIn _ (a:_) _ = throwError $ SyntaxError (UnexpectedLexDat a)
@@ -536,7 +536,7 @@ isTok t a = unless (t == tok a) $ throwError $ SyntaxError (MissingToken t a)
 
 
 isNotTok :: Token -> LexDat -> ParserState ()
-isNotTok t a = unless ( t /= tok a) $ throwError $ SyntaxError (UnexpectedToken (tok a))
+isNotTok t a = unless ( t /= tok a) $ throwError $ SyntaxError (UnexpectedLexDat a)
 
 
 consumeTok :: [LexDat] -> ParserState [LexDat]
