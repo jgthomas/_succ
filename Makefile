@@ -4,7 +4,7 @@ PROJECT=succ
 .PHONY: test lint clean
 
 
-all: build test lint
+all: test lint
 
 
 build:
@@ -15,7 +15,7 @@ test: unit func
 
 
 unit:
-	stack test
+	stack build --pedantic --test
 
 
 func:
