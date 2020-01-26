@@ -6,7 +6,6 @@ import Data.Either
 import Test.Hspec
 
 import AST
-import Error
 import Generator
 import Operator
 import Type

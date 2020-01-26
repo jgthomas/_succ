@@ -15,7 +15,7 @@ import Type
 
 
 mkLexDat :: Token -> LexDat
-mkLexDat tok = LexDat tok 0
+mkLexDat t = LexDat t 0
 
 
 parserTest :: IO ()

@@ -9,7 +9,6 @@ import Test.Hspec
 import AST
 import Checker
 import Error
-import Operator
 import Type
 
 
