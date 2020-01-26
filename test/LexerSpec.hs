@@ -6,6 +6,7 @@ import Data.Either
 import Test.Hspec
 
 import Error
+import LexDat
 import Lexer
 import Tokens
 
@@ -14,6 +15,7 @@ lexerTest :: IO ()
 lexerTest = hspec $ do
         describe "Lex input string into tokens" $ do
                 it "Should correctly lex all separator characters" $
+                  (map tok $
                   concatMap
                   (fromRight [] . tokenize)
                   ["(",
@@ -23,7 +25,7 @@ lexerTest = hspec $ do
                    ";",
                    ":",
                    "?",
-                   ","]
+                   ","])
                   `shouldBe`
                   [OpenParen,
                    CloseParen,
@@ -35,6 +37,7 @@ lexerTest = hspec $ do
                    Comma]
 
                 it "Should correctly lex all language keywords" $
+                  (map tok $
                   concatMap
                   (fromRight [] . tokenize)
                   ["int",
@@ -45,7 +48,7 @@ lexerTest = hspec $ do
                    "while",
                    "do",
                    "break",
-                   "continue"]
+                   "continue"])
                   `shouldBe`
                   [Keyword Int,
                    Keyword Return,
@@ -58,12 +61,13 @@ lexerTest = hspec $ do
                    Keyword Continue]
 
                 it "Should correctly lex valid identifiers" $
+                  (map tok $
                   concatMap
                   (fromRight [] . tokenize)
                   ["main",
                    "dog",
                    "_cat",
-                   "Mouse"]
+                   "Mouse"])
                   `shouldBe`
                   [Ident "main",
                    Ident "dog",
@@ -71,6 +75,7 @@ lexerTest = hspec $ do
                    Ident "Mouse"]
 
                 it "Should correctly lex all single-character operators" $
+                  (map tok $
                   concatMap
                   (fromRight [] . tokenize)
                   ["+",
@@ -85,7 +90,7 @@ lexerTest = hspec $ do
                    "=",
                    "&",
                    "^",
-                   "|"]
+                   "|"])
                   `shouldBe`
                   [OpTok PlusSign,
                    OpTok MinusSign,
@@ -102,6 +107,7 @@ lexerTest = hspec $ do
                    OpTok Pipe]
 
                 it "Should correctly lex all two-character operators" $
+                  (map tok $
                   concatMap
                   (fromRight [] . tokenize)
                   ["||",
@@ -121,7 +127,7 @@ lexerTest = hspec $ do
                    "^=",
                    "|=",
                    "<<",
-                   ">>"]
+                   ">>"])
                   `shouldBe`
                   [OpTok PipePipe,
                    OpTok AmpAmp,
@@ -143,16 +149,18 @@ lexerTest = hspec $ do
                    OpTok DoubleRightArrow]
 
                 it "Should correctly lex all three-character opertators" $
-                  concatMap (fromRight [] . tokenize) ["<<=",">>="]
+                  (map tok $
+                  concatMap (fromRight [] . tokenize) ["<<=",">>="])
                   `shouldBe` [OpTok DoubleLArrowEqual,OpTok DoubleRArrowEqual]
 
                 it "Should correctly lex a mix of different length operators" $
+                  (map tok $
                   concatMap
                   (fromRight [] . tokenize)
                   ["+",
                    "||",
                    "<<=",
-                   "*"]
+                   "*"])
                   `shouldBe`
                   [OpTok PlusSign,
                    OpTok PipePipe,
@@ -160,19 +168,23 @@ lexerTest = hspec $ do
                    OpTok Asterisk]
 
                 it "Should correctly lex easily confused operators" $
-                  concatMap (fromRight [] . tokenize) ["++","+","+="]
+                  (map tok $
+                  concatMap (fromRight [] . tokenize) ["++","+","+="])
                   `shouldBe` [OpTok PlusPlus,OpTok PlusSign,OpTok PlusEqual]
 
                 it "Should correctly lex valid numbers" $
-                  concatMap (fromRight [] . tokenize) ["123","1","0"]
+                  (map tok $
+                  concatMap (fromRight [] . tokenize) ["123","1","0"])
                   `shouldBe` [ConstInt 123,ConstInt 1,ConstInt 0]
 
                 it "Should correctly lex a variable declaration" $
-                  fromRight [] (tokenize "int a;")
+                  (map tok $
+                  fromRight [] (tokenize "int a;"))
                   `shouldBe` [Keyword Int,Ident "a",SemiColon]
 
                 it "Should correctly lex a simple function" $
-                  fromRight [] (tokenize "int main() { return 2; }")
+                  (map tok $
+                  fromRight [] (tokenize "int main() { return 2; }"))
                   `shouldBe` [Keyword Int,
                               Ident "main",
                               OpenParen,
