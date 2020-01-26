@@ -26,9 +26,7 @@ data PrintRange = All
 -- | Print error message with relevant section of code
 printError :: String -> CompilerError -> IO ()
 printError input err = do
-        if lineCount input < 10
-           then printSource All input
-           else printSource range input
+        printSource range input
         putStrLn errMsg
         where (errMsg, range) = errorMsg err
 
@@ -94,15 +92,15 @@ generatorErrorMsg err = (show err, All)
 
 syntaxErrorMsg :: SyntaxError -> (String, PrintRange)
 syntaxErrorMsg (MissingToken t d) = (msg, mkRange d)
-        where msg = buildLineMsg (line d)
-                    ++ "Syntax Error - Unexpected character "
-                    ++ buildTokMsg (tok d)
+        where msg = unexpectedLexDatMsg d
                     ++ ", Expected "
                     ++ buildTokMsg t
 syntaxErrorMsg (BadType d) = (msg, mkRange d)
         where msg = buildLineMsg (line d)
                     ++ "Syntax Error - Invalid type identifier "
                     ++ buildTokMsg (tok d)
+syntaxErrorMsg (UnexpectedLexDat d) = (msg, mkRange d)
+        where msg = unexpectedLexDatMsg d
 syntaxErrorMsg err = (show err, All)
 
 
@@ -136,3 +134,10 @@ lineCount input = length $ filter (== '\n') input
 
 mkRange :: LexDat -> PrintRange
 mkRange d = Range (pred . line $ d) (succ . line $ d)
+
+
+unexpectedLexDatMsg :: LexDat -> String
+unexpectedLexDatMsg d =
+        buildLineMsg (line d)
+        ++ "Syntax Error - Unexpected token "
+        ++ buildTokMsg (tok d)
