@@ -28,12 +28,11 @@ printError :: String -> CompilerError -> IO ()
 printError input err = do
         printSource range input
         putStrLn errMsg
-        where
-                (errMsg, range) = errorMsg err
+        where (errMsg, range) = errorMsg err
 
 
 printSource :: PrintRange -> String -> IO ()
-printSource All input         = putStrLn input
+printSource All input         = printSourceLineRange input 1 (lineCount input)
 printSource (Range n m) input = printSourceLineRange input n m
 printSource (Exact n) input   = printSourceLine (toLineMap input) n
 printSource None _            = pure ()
@@ -47,9 +46,8 @@ printSourceLineRange input n m =
 printSourceLine :: M.Map Int String -> Int -> IO ()
 printSourceLine lineMap n =
         unless (isNothing sourceLine) $
-            putStrLn $ fromMaybe "" sourceLine
-        where
-                sourceLine = M.lookup n lineMap
+            putStrLn $ show n ++ "  " ++ fromMaybe "" sourceLine
+        where sourceLine = M.lookup n lineMap
 
 
 errorMsg :: CompilerError -> (String, PrintRange)
@@ -82,7 +80,7 @@ parserErrorMsg :: ParserError -> (String, PrintRange)
 parserErrorMsg err@(TreeError _) = (show err, All)
 parserErrorMsg (LexDataError []) = (msg, None)
         where msg = "Empty input from lexer"
-parserErrorMsg (LexDataError (d:_))  = (msg, Exact $ line d)
+parserErrorMsg (LexDataError (d:_))  = (msg, mkRange d)
         where msg = buildLineMsg (line d)
                     ++ "Unexpected input "
                     ++ buildTokMsg (tok d)
@@ -93,13 +91,13 @@ generatorErrorMsg err = (show err, All)
 
 
 syntaxErrorMsg :: SyntaxError -> (String, PrintRange)
-syntaxErrorMsg (MissingToken t d) = (msg, Exact $ line d)
+syntaxErrorMsg (MissingToken t d) = (msg, mkRange d)
         where msg = buildLineMsg (line d)
                     ++ "Unexpected character "
                     ++ buildTokMsg (tok d)
                     ++ ", Expected "
                     ++ buildTokMsg t
-syntaxErrorMsg (BadType d) = (msg, Exact $ line d)
+syntaxErrorMsg (BadType d) = (msg, mkRange d)
         where msg = buildLineMsg (line d)
                     ++ "Invalid type identifier "
                     ++ buildTokMsg (tok d)
@@ -128,3 +126,11 @@ buildLineMsg n = "Line " ++ show n ++ ": "
 
 buildTokMsg :: Token -> String
 buildTokMsg t = "'" ++ show t ++ "'"
+
+
+lineCount :: String -> Int
+lineCount input = length $ filter (== '\n') input
+
+
+mkRange :: LexDat -> PrintRange
+mkRange d = Range (pred . line $ d) (succ . line $ d)
