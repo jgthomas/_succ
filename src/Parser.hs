@@ -104,7 +104,8 @@ parseFunction lexData = do
 parseFuncName :: [LexDat] -> ParserState String
 parseFuncName (_:LexDat{tok=Ident name}:_)   = pure name
 parseFuncName (_:_:LexDat{tok=Ident name}:_) = pure name
-parseFuncName _ = throwError $ SyntaxError MissingIdentifier
+parseFuncName (d:_) = throwError $ SyntaxError (NonValidIdentifier d)
+parseFuncName [] = throwError $ ParserError (LexDataError [])
 
 
 parseFuncParams :: [LexDat] -> ParserState ([Tree], [LexDat])

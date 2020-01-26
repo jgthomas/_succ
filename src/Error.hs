@@ -35,12 +35,10 @@ data GeneratorError = NoStateFound String
                     deriving (Show, Eq)
 
 
-data SyntaxError = InvalidIdentifier Token
-                 | NonValidIdentifier LexDat
+data SyntaxError = NonValidIdentifier LexDat
                  | MissingToken Token LexDat
                  | UnexpectedToken Token
                  | UnexpectedLexDat LexDat
-                 | MissingIdentifier
                  | MissingKeyword Keyword
                  | UnexpectedOp OpTok
                  deriving (Show, Eq)
