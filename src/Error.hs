@@ -24,7 +24,6 @@ data LexerError = EmptyInput
 
 
 data ParserError = TreeError Tree
-                 | TokensError [Token]
                  | LexDataError [LexDat]
                  deriving (Show, Eq)
 
