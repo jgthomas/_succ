@@ -56,6 +56,7 @@ errorMsg (LexerError err)     = lexerErrorMsg err
 errorMsg (ParserError err)    = parserErrorMsg err
 errorMsg (GeneratorError err) = generatorErrorMsg err
 errorMsg (SyntaxError err)    = syntaxErrorMsg err
+errorMsg (ScopeError err)     = scopeErrorMsg err
 errorMsg (TypeError err)      = typeErrorMsg err
 errorMsg ImpossibleError      = impossibleErrorMsg
 
@@ -98,6 +99,10 @@ syntaxErrorMsg (MissingToken t d) = (msg, Exact $ line d)
                     ++ show t
                     ++ buildLineMsg (line d)
 syntaxErrorMsg err = (show err, All)
+
+
+scopeErrorMsg :: ScopeError -> (String, PrintRange)
+scopeErrorMsg err = (show err, All)
 
 
 typeErrorMsg :: TypeError -> (String, PrintRange)

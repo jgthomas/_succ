@@ -13,6 +13,7 @@ data CompilerError = LexerError LexerError
                    | ParserError ParserError
                    | GeneratorError GeneratorError
                    | SyntaxError SyntaxError
+                   | ScopeError ScopeError
                    | TypeError TypeError
                    | ImpossibleError
                    deriving (Show, Eq)
@@ -41,16 +42,19 @@ data SyntaxError = InvalidIdentifier Token
                  | UnexpectedLexDat LexDat
                  | MissingIdentifier
                  | MissingKeyword Keyword
-                 | Undeclared Tree
-                 | Undefined Tree
-                 | DoubleDeclared Tree
-                 | DoubleDefined Tree
-                 | Unrecognised Tree
-                 | Unexpected Tree
-                 | MisMatch Int Tree
-                 | InvalidCall Tree
                  | UnexpectedOp OpTok
                  deriving (Show, Eq)
+
+
+data ScopeError = UndeclaredNode Tree
+                | UndefinedNode Tree
+                | DoubleDeclaredNode Tree
+                | DoubleDefinedNode Tree
+                | UnrecognisedNode Tree
+                | UnexpectedNode Tree
+                | MisMatchNode Int Tree
+                | InvalidCallNode Tree
+                deriving (Show, Eq)
 
 
 data TypeError = InvalidType Token | Type

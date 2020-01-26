@@ -88,4 +88,4 @@ checkerTest = hspec $ do
                    )
                   )
                   `shouldBe`
-                  SyntaxError (Unrecognised (VarNode "a"))
+                  ScopeError (UnrecognisedNode (VarNode "a"))

@@ -11,8 +11,8 @@ import           Control.Monad (unless, when)
 import           Data.Maybe    (isNothing)
 
 import           AST           (Tree (..))
-import           Error         (CompilerError (GeneratorError, SyntaxError),
-                                GeneratorError (..), SyntaxError (..))
+import           Error         (CompilerError (GeneratorError, ScopeError),
+                                GeneratorError (..), ScopeError (..))
 import           GenState      (GenState, runGenState, throwError)
 import qualified GenState      (startState)
 import           GenTokens     (Scope (..))
@@ -50,7 +50,7 @@ checkAST node@(FunctionNode _ name _ (Just stmts)) = do
 checkAST (ParamNode typ (VarNode name)) =
         SymTab.addParameter name typ
 checkAST node@ParamNode{} =
-        throwError $ SyntaxError (Unexpected node)
+        throwError $ ScopeError (UnexpectedNode node)
 
 checkAST node@(FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
@@ -138,12 +138,12 @@ checkAST (ExprStmtNode expression) = checkAST expression
 checkAST ContinueNode = do
         continueLabel <- SymTab.getContinue
         when (isNothing continueLabel) $
-            throwError $ SyntaxError (Unexpected ContinueNode)
+            throwError $ ScopeError (UnexpectedNode ContinueNode)
 
 checkAST BreakNode = do
         breakLabel <- SymTab.getContinue
         when (isNothing breakLabel) $
-            throwError $ SyntaxError (Unexpected BreakNode)
+            throwError $ ScopeError (UnexpectedNode BreakNode)
 
 checkAST (ReturnNode tree) = do
         checkAST tree
@@ -189,14 +189,14 @@ checkFuncDec node@(FunctionNode _ funcName _ _) = do
         case prevParamCount of
              Nothing -> checkNewFuncDec node
              Just ns -> checkRepeatFuncDec ns node
-checkFuncDec tree = throwError $ SyntaxError (Unexpected tree)
+checkFuncDec tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 checkNewFuncDec :: Tree -> GenState ()
 checkNewFuncDec (FunctionNode typ funcName paramList _) = do
         SymTab.declareFunction typ funcName (length paramList)
         checkParams funcName paramList
-checkNewFuncDec tree = throwError $ SyntaxError (Unexpected tree)
+checkNewFuncDec tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 checkRepeatFuncDec :: Int -> Tree -> GenState ()
@@ -209,7 +209,7 @@ checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _) = do
         unless defined $ do
             SymTab.delFuncState funcName
             checkParams funcName paramList
-checkRepeatFuncDec _ tree = throwError $ SyntaxError (Unexpected tree)
+checkRepeatFuncDec _ tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 checkParams :: String -> [Tree] -> GenState ()
@@ -229,7 +229,7 @@ checkDeclareGlobal node@(DeclarationNode name typ toAssign) = do
                      globLab <- SymTab.mkGlobLabel name
                      SymTab.declareGlobal name typ globLab
                      checkAssignment toAssign
-checkDeclareGlobal tree = throwError $ SyntaxError (Unexpected tree)
+checkDeclareGlobal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 checkAssignment :: Maybe Tree -> GenState ()
@@ -245,7 +245,7 @@ checkDeclareLocal node@(DeclarationNode name typ toAssign) = do
         case toAssign of
              Just val -> checkAST val
              Nothing  -> pure ()
-checkDeclareLocal tree = throwError $ SyntaxError (Unexpected tree)
+checkDeclareLocal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 checkDefineGlobal :: Tree -> GenState ()
@@ -254,16 +254,16 @@ checkDefineGlobal node@(AssignmentNode name _ _) = do
         label <- SymTab.globalLabel name
         SymTab.defineGlobal name
         checkPrevDecGlob label node
-checkDefineGlobal tree = throwError $ SyntaxError (Unexpected tree)
+checkDefineGlobal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 checkPrevDecGlob :: Maybe String -> Tree -> GenState ()
-checkPrevDecGlob Nothing node = throwError $ SyntaxError (Undeclared node)
+checkPrevDecGlob Nothing node = throwError $ ScopeError (UndeclaredNode node)
 checkPrevDecGlob (Just _) (AssignmentNode _ node@(ConstantNode _) _)  = checkAST node
 checkPrevDecGlob (Just _) (AssignmentNode _ node@(AddressOfNode _) _) = checkAST node
 checkPrevDecGlob _ (AssignmentNode _ valNode _) =
-        throwError $ SyntaxError (Unexpected valNode)
-checkPrevDecGlob _ tree = throwError $ SyntaxError (Unexpected tree)
+        throwError $ ScopeError (UnexpectedNode valNode)
+checkPrevDecGlob _ tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 checkAssignLocal :: Tree -> Tree -> Operator -> GenState ()

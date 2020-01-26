@@ -21,7 +21,7 @@ import           Control.Monad (unless, when)
 import           Data.Maybe    (isNothing)
 
 import           AST           (Tree (..))
-import           Error         (CompilerError (SyntaxError), SyntaxError (..))
+import           Error         (CompilerError (ScopeError), ScopeError (..))
 import           GenState      (GenState, throwError)
 import qualified SymTab
 
@@ -32,8 +32,8 @@ checkIfUsedInScope node@(DeclarationNode name _ _) = do
         localDec <- SymTab.checkVariable name
         paramDec <- SymTab.parameterDeclared name
         when (localDec || paramDec) $
-           throwError $ SyntaxError (DoubleDeclared node)
-checkIfUsedInScope tree = throwError $ SyntaxError (Unexpected tree)
+           throwError $ ScopeError (DoubleDeclaredNode node)
+checkIfUsedInScope tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 -- | Validate a function call sequence
@@ -42,8 +42,8 @@ validateCall node@(FuncCallNode name _) = do
         callee <- SymTab.decSeqNumber name
         caller <- SymTab.currentSeqNumber
         unless (validSeq callee caller) $
-            throwError $ SyntaxError (InvalidCall node)
-validateCall tree = throwError $ SyntaxError (Unexpected tree)
+            throwError $ ScopeError (InvalidCallNode node)
+validateCall tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 validSeq :: Maybe Int -> Maybe Int -> Bool
@@ -58,8 +58,8 @@ checkIfFuncDefined :: Tree -> GenState ()
 checkIfFuncDefined node@(FunctionNode _ name _ _) = do
         defined <- SymTab.checkFuncDefined name
         when defined $
-           throwError $ SyntaxError (DoubleDefined node)
-checkIfFuncDefined tree = throwError $ SyntaxError (Unexpected tree)
+           throwError $ ScopeError (DoubleDefinedNode node)
+checkIfFuncDefined tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 -- | Check if a variable has been defined
@@ -67,8 +67,8 @@ checkIfDefined :: Tree -> GenState ()
 checkIfDefined node@(AssignmentNode name _ _) = do
         defined <- SymTab.checkVarDefined name
         when defined $
-           throwError $ SyntaxError (DoubleDefined node)
-checkIfDefined tree = throwError $ SyntaxError (Unexpected tree)
+           throwError $ ScopeError (DoubleDefinedNode node)
+checkIfDefined tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 -- | Check if an identifier is a variable
@@ -76,26 +76,26 @@ checkIfVariable :: Tree -> GenState ()
 checkIfVariable node@(FunctionNode _ name _ _) = do
         label <- SymTab.globalLabel name
         unless (isNothing label) $
-            throwError $ SyntaxError (DoubleDefined node)
-checkIfVariable tree = throwError $ SyntaxError (Unexpected tree)
+            throwError $ ScopeError (DoubleDefinedNode node)
+checkIfVariable tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 -- | Check parameter counts match in two function declarations
 checkCountsMatch :: Int -> Tree -> GenState ()
 checkCountsMatch count node@(FunctionNode _ _ paramList _) =
         when (count /= length paramList) $
-           throwError $ SyntaxError (MisMatch count node)
+           throwError $ ScopeError (MisMatchNode count node)
 checkCountsMatch count node@(FuncCallNode _ argList) =
         when (count /= length argList) $
-           throwError $ SyntaxError (MisMatch count node)
-checkCountsMatch _ tree = throwError $ SyntaxError (Unexpected tree)
+           throwError $ ScopeError (MisMatchNode count node)
+checkCountsMatch _ tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 -- | Check argument counts match in two function calls
 checkArguments :: Maybe Int -> Tree -> GenState ()
 checkArguments (Just n) node@(FuncCallNode _ _) = checkCountsMatch n node
-checkArguments (Just _) tree = throwError $ SyntaxError (Unexpected tree)
-checkArguments Nothing tree  = throwError $ SyntaxError (Undeclared tree)
+checkArguments (Just _) tree = throwError $ ScopeError (UnexpectedNode tree)
+checkArguments Nothing tree  = throwError $ ScopeError (UndeclaredNode tree)
 
 
 -- | Check if an identifier is a function
@@ -103,8 +103,8 @@ checkIfFunction :: Tree -> GenState ()
 checkIfFunction node@(DeclarationNode name _ _) = do
         paramNum <- SymTab.decParamCount name
         unless (isNothing paramNum) $
-            throwError $ SyntaxError (DoubleDeclared node)
-checkIfFunction tree = throwError $ SyntaxError (Unexpected tree)
+            throwError $ ScopeError (DoubleDeclaredNode node)
+checkIfFunction tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 -- | Check an identifier is linked to real variable
@@ -115,13 +115,13 @@ variableExists node@(DereferenceNode a)           = varExists node a
 variableExists node@(PointerNode a _ _)           = varExists node a
 variableExists node@(AssignmentNode a _ _)        = varExists node a
 variableExists node@(AssignDereferenceNode a _ _) = varExists node a
-variableExists tree = throwError $ SyntaxError (Unexpected tree)
+variableExists tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 varExists :: Tree -> String -> GenState ()
 varExists node varName = do
         (offset, argPos, globLab) <- SymTab.getVariables varName
         when (isNothing offset && isNothing argPos && isNothing globLab) $
-            throwError $ SyntaxError (Unrecognised node)
+            throwError $ ScopeError (UnrecognisedNode node)
 
 

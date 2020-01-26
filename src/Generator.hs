@@ -13,8 +13,8 @@ import           Data.Maybe          (fromMaybe)
 
 import qualified ASM
 import           AST                 (Tree (..))
-import           Error               (CompilerError (GeneratorError, SyntaxError),
-                                      GeneratorError (..), SyntaxError (..))
+import           Error               (CompilerError (GeneratorError, ScopeError),
+                                      GeneratorError (..), ScopeError (..))
 import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (startState)
 import           GenTokens           (Scope (..))
@@ -53,7 +53,7 @@ genASM (ParamNode typ (VarNode name)) = do
         SymTab.addParameter name typ
         ASM.noOutput
 genASM node@(ParamNode _ _) =
-        throwError $ SyntaxError (Unexpected node)
+        throwError $ ScopeError (UnexpectedNode node)
 
 genASM (FuncCallNode name args) =
         ASM.functionCall name <$> processArgs args
@@ -119,7 +119,7 @@ genASM node@(PointerNode varName typ (Just a)) = do
         case (offset, globLab) of
              (Just off, _) -> ASM.varAddressStore (pointerASM ++ value) off
              (_, Just _)   -> pure $ pointerASM ++ value
-             _             -> throwError $ SyntaxError (Unrecognised node)
+             _             -> throwError $ ScopeError (UnrecognisedNode node)
 
 genASM node@DeclarationNode{} = do
         currScope <- SymTab.getScope
@@ -200,7 +200,7 @@ declareGlobal (DeclarationNode name typ toAssign) = do
                      globLab <- SymTab.mkGlobLabel name
                      SymTab.declareGlobal name typ globLab
                      genAssignment toAssign
-declareGlobal tree = throwError $ SyntaxError (Unexpected tree)
+declareGlobal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 genAssignment :: Maybe Tree -> GenState String
@@ -213,11 +213,11 @@ defineGlobal node@(AssignmentNode name _ _) = do
         label <- SymTab.globalLabel name
         SymTab.defineGlobal name
         defPrevDecGlob label node
-defineGlobal tree = throwError $ SyntaxError (Unexpected tree)
+defineGlobal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 defPrevDecGlob :: Maybe String -> Tree -> GenState String
-defPrevDecGlob Nothing node = throwError $ SyntaxError (Undeclared node)
+defPrevDecGlob Nothing node = throwError $ ScopeError (UndeclaredNode node)
 defPrevDecGlob (Just label) (AssignmentNode _ (ConstantNode a) _) = do
         value <- genASM (ConstantNode a)
         globalVarASM label value
@@ -227,8 +227,8 @@ defPrevDecGlob (Just label) (AssignmentNode _ (AddressOfNode a) _) = do
         SymTab.storeForInit initASM
         ASM.uninitializedGlobal label
 defPrevDecGlob _ (AssignmentNode _ valNode _) =
-        throwError $ SyntaxError (Unexpected valNode)
-defPrevDecGlob _ tree = throwError $ SyntaxError (Unexpected tree)
+        throwError $ ScopeError (UnexpectedNode valNode)
+defPrevDecGlob _ tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 globalVarASM :: String -> String -> GenState String
@@ -245,7 +245,7 @@ declareLocal (DeclarationNode varName typ value) = do
         case value of
              Just val -> genASM val
              Nothing  -> ASM.decNoAssign offset adjust
-declareLocal tree = throwError $ SyntaxError (Unexpected tree)
+declareLocal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 defineLocal :: Tree -> GenState String
@@ -255,8 +255,8 @@ defineLocal node@(AssignmentNode varName value op) = do
         case (offset, globLab) of
              (Just off, _) -> ASM.assign assign off <$> SymTab.stackPointerValue
              (_, Just lab) -> ASM.storeGlobal assign lab
-             _ -> throwError $ SyntaxError (Undeclared node)
-defineLocal tree = throwError $ SyntaxError (Unexpected tree)
+             _ -> throwError $ ScopeError (UndeclaredNode node)
+defineLocal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 -- Functions / function calls
@@ -267,14 +267,14 @@ declareFunction node@(FunctionNode _ funcName _ _) = do
         case prevParamCount of
              Nothing -> declareNewFunction node
              Just _  -> declareRepeatFunction node
-declareFunction tree = throwError $ SyntaxError (Unexpected tree)
+declareFunction tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 declareNewFunction :: Tree -> GenState ()
 declareNewFunction (FunctionNode typ funcName paramList _) = do
         SymTab.declareFunction typ funcName (length paramList)
         processParameters funcName paramList
-declareNewFunction tree = throwError $ SyntaxError (Unexpected tree)
+declareNewFunction tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 declareRepeatFunction :: Tree -> GenState ()
@@ -284,7 +284,7 @@ declareRepeatFunction (FunctionNode typ funcName paramList _) = do
         unless defined $
            do SymTab.delFuncState funcName
               processParameters funcName paramList
-declareRepeatFunction tree = throwError $ SyntaxError (Unexpected tree)
+declareRepeatFunction tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 processParameters :: String -> [Tree] -> GenState ()
@@ -330,4 +330,4 @@ processBinaryNode (BinaryNode left _ op) rgt = do
         lab2 <- SymTab.labelNum
         lft  <- genASM left
         ASM.binary lft rgt op lab1 lab2
-processBinaryNode tree _ = throwError $ SyntaxError (Unexpected tree)
+processBinaryNode tree _ = throwError $ ScopeError (UnexpectedNode tree)
