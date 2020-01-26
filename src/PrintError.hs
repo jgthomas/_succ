@@ -26,7 +26,9 @@ data PrintRange = All
 -- | Print error message with relevant section of code
 printError :: String -> CompilerError -> IO ()
 printError input err = do
-        printSource range input
+        if lineCount input < 10
+           then printSource All input
+           else printSource range input
         putStrLn errMsg
         where (errMsg, range) = errorMsg err
 
@@ -93,13 +95,13 @@ generatorErrorMsg err = (show err, All)
 syntaxErrorMsg :: SyntaxError -> (String, PrintRange)
 syntaxErrorMsg (MissingToken t d) = (msg, mkRange d)
         where msg = buildLineMsg (line d)
-                    ++ "Unexpected character "
+                    ++ "Syntax Error - Unexpected character "
                     ++ buildTokMsg (tok d)
                     ++ ", Expected "
                     ++ buildTokMsg t
 syntaxErrorMsg (BadType d) = (msg, mkRange d)
         where msg = buildLineMsg (line d)
-                    ++ "Invalid type identifier "
+                    ++ "Syntax Error - Invalid type identifier "
                     ++ buildTokMsg (tok d)
 syntaxErrorMsg err = (show err, All)
 
