@@ -77,8 +77,9 @@ lexerUnexpectedMsg str =
 
 
 parserErrorMsg :: ParserError -> (String, PrintRange)
-parserErrorMsg err@(TreeError _)     = (show err, All)
-parserErrorMsg err@(LexDataError []) = (show err, All)
+parserErrorMsg err@(TreeError _) = (show err, All)
+parserErrorMsg (LexDataError []) = (msg, All)
+        where msg = "Empty input from lexer"
 parserErrorMsg (LexDataError (d:_))  = (msg, Exact $ line d)
         where msg = "Unexpected input: "
                     ++ show (tok d)
