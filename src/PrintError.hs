@@ -13,6 +13,7 @@ import Data.Maybe    (fromMaybe, isNothing)
 
 import Error
 import LexDat        (LexDat (..))
+import Tokens        (Token)
 
 
 data PrintRange = All
@@ -82,9 +83,9 @@ parserErrorMsg err@(TreeError _) = (show err, All)
 parserErrorMsg (LexDataError []) = (msg, None)
         where msg = "Empty input from lexer"
 parserErrorMsg (LexDataError (d:_))  = (msg, Exact $ line d)
-        where msg = "Unexpected input: "
-                    ++ show (tok d)
-                    ++ buildLineMsg (line d)
+        where msg = buildLineMsg (line d)
+                    ++ "Unexpected input "
+                    ++ buildTokMsg (tok d)
 
 
 generatorErrorMsg :: GeneratorError -> (String, PrintRange)
@@ -93,15 +94,15 @@ generatorErrorMsg err = (show err, All)
 
 syntaxErrorMsg :: SyntaxError -> (String, PrintRange)
 syntaxErrorMsg (MissingToken t d) = (msg, Exact $ line d)
-        where msg = "Unexpected character: "
-                    ++ show (tok d)
-                    ++ " Expected: "
-                    ++ show t
-                    ++ buildLineMsg (line d)
+        where msg = buildLineMsg (line d)
+                    ++ "Unexpected character "
+                    ++ buildTokMsg (tok d)
+                    ++ ", Expected "
+                    ++ buildTokMsg t
 syntaxErrorMsg (BadType d) = (msg, Exact $ line d)
-        where msg = "Invalid type identifier: "
-                    ++ show (tok d)
-                    ++ buildLineMsg (line d)
+        where msg = buildLineMsg (line d)
+                    ++ "Invalid type identifier "
+                    ++ buildTokMsg (tok d)
 syntaxErrorMsg err = (show err, All)
 
 
@@ -122,4 +123,8 @@ toLineMap input = M.fromList $ zip [1..] $ lines input
 
 
 buildLineMsg :: Int -> String
-buildLineMsg n = " : Line " ++ show n
+buildLineMsg n = "Line " ++ show n ++ ": "
+
+
+buildTokMsg :: Token -> String
+buildTokMsg t = "'" ++ show t ++ "'"

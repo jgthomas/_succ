@@ -2,6 +2,9 @@
 module Tokens where
 
 
+import Data.Char (toLower)
+
+
 data Token = OpenParen
            | CloseParen
            | OpenBrace
@@ -14,7 +17,7 @@ data Token = OpenParen
            | Colon
            | QuestMark
            | Comma
-           deriving (Show, Eq)
+           deriving (Eq)
 
 
 data Keyword = Int
@@ -62,7 +65,60 @@ data OpTok = PlusSign
            | DoubleRightArrow
            | DoubleLArrowEqual
            | DoubleRArrowEqual
-           deriving (Show, Eq)
+           deriving (Eq)
+
+
+instance Show Token where
+        show OpenParen     = "("
+        show CloseParen    = ")"
+        show OpenBrace     = "{"
+        show CloseBrace    = "}"
+        show SemiColon     = ";"
+        show Colon         = ":"
+        show QuestMark     = "?"
+        show Comma         = ","
+        show (Ident a)     = a
+        show (ConstInt n)  = show n
+        show (Keyword kwd) = map toLower (show kwd)
+        show (OpTok op)    = showOpTok op
+
+
+showOpTok :: OpTok -> String
+showOpTok opTok =
+        case opTok of
+             PlusSign          -> "+"
+             MinusSign         -> "-"
+             Asterisk          -> "*"
+             Backslash         -> "/"
+             Percent           -> "%"
+             Tilde             -> "~"
+             Bang              -> "!"
+             PipePipe          -> "||"
+             AmpAmp            -> "&&"
+             RightArrow        -> ">"
+             RightArrowEqual   -> ">="
+             LeftArrow         -> "<"
+             LeftArrowEqual    -> "<="
+             EqualEqual        -> "=="
+             BangEqual         -> "!="
+             EqualSign         -> "="
+             PlusEqual         -> "+="
+             MinusEqual        -> "-="
+             AsteriskEqual     -> "*="
+             BackslashEqual    -> "/="
+             PercentEqual      -> "%="
+             Ampersand         -> "&"
+             PlusPlus          -> "++"
+             MinusMinus        -> "--"
+             Caret             -> "^"
+             Pipe              -> "|"
+             AmpEqual          -> "&="
+             CaretEqual        -> "^="
+             PipeEqual         -> "|="
+             DoubleLeftArrow   -> "<<"
+             DoubleRightArrow  -> ">>"
+             DoubleLArrowEqual -> "<<="
+             DoubleRArrowEqual -> ">>="
 
 
 data OpTokType = LogicalOR
