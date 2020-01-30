@@ -46,7 +46,7 @@ printSourceLineRange input n m =
 printSourceLine :: M.Map Int String -> Int -> IO ()
 printSourceLine lineMap n =
         unless (isNothing sourceLine) $
-            putStrLn $ show n ++ "  " ++ fromMaybe "" sourceLine
+            putStrLn $ show n ++ "  |  " ++ fromMaybe "" sourceLine
         where sourceLine = M.lookup n lineMap
 
 
@@ -97,10 +97,14 @@ syntaxErrorMsg (MissingToken t d) = (msg, mkRange d)
                     ++ buildTokMsg t
 syntaxErrorMsg (BadType d) = (msg, mkRange d)
         where msg = buildLineMsg (line d)
-                    ++ "Syntax Error - Invalid type identifier "
+                    ++ "Invalid type "
                     ++ buildTokMsg (tok d)
 syntaxErrorMsg (UnexpectedLexDat d) = (msg, mkRange d)
         where msg = unexpectedLexDatMsg d
+syntaxErrorMsg (NonValidIdentifier d) = (msg, mkRange d)
+        where msg = buildLineMsg (line d)
+                    ++ "Invalid identifier "
+                    ++ buildTokMsg (tok d)
 syntaxErrorMsg err = (show err, All)
 
 
@@ -139,5 +143,5 @@ mkRange d = Range (pred . line $ d) (succ . line $ d)
 unexpectedLexDatMsg :: LexDat -> String
 unexpectedLexDatMsg d =
         buildLineMsg (line d)
-        ++ "Syntax Error - Unexpected token "
+        ++ "Unexpected token "
         ++ buildTokMsg (tok d)
