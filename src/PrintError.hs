@@ -26,9 +26,16 @@ data PrintRange = All
 -- | Print error message with relevant section of code
 printError :: String -> CompilerError -> IO ()
 printError input err = do
-        printSource range input
+        formatSourcePrint range input
         putStrLn errMsg
         where (errMsg, range) = errorMsg err
+
+
+formatSourcePrint :: PrintRange -> String -> IO ()
+formatSourcePrint range input = do
+        putStr "\n"
+        printSource range input
+        putStr "\n"
 
 
 printSource :: PrintRange -> String -> IO ()
