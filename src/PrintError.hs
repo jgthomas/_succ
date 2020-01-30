@@ -112,7 +112,9 @@ syntaxErrorMsg (NonValidIdentifier d) = (msg, mkRange d)
         where msg = buildLineMsg (line d)
                     ++ "Invalid identifier "
                     ++ buildTokMsg (tok d)
-syntaxErrorMsg err = (show err, All)
+syntaxErrorMsg (MissingKeyword kwd d) = (msg, mkRange d)
+        where msg = buildLineMsg (line d)
+                    ++ "Expected keyword " ++ show kwd
 
 
 scopeErrorMsg :: ScopeError -> (String, PrintRange)
