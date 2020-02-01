@@ -55,7 +55,7 @@ checkAST node@ParamNode{} =
 checkAST node@(FuncCallNode name argList) = do
         paramCount <- SymTab.decParamCount name
         ScopeCheck.checkArguments paramCount node
-        TypeCheck.typesMatch name argList
+        TypeCheck.typesMatch node
         ScopeCheck.validateCall node
         mapM_ checkAST argList
 
@@ -202,7 +202,7 @@ checkNewFuncDec tree = throwError $ ScopeError (UnexpectedNode tree)
 checkRepeatFuncDec :: Int -> Tree -> GenState ()
 checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _ _) = do
         ScopeCheck.checkCountsMatch count node
-        TypeCheck.typesMatch funcName paramList
+        TypeCheck.typesMatch node
         TypeCheck.funcDeclaration node
         SymTab.declareFunction typ funcName (length paramList)
         defined <- SymTab.checkFuncDefined funcName

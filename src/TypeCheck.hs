@@ -26,8 +26,16 @@ import           Type          (Type (..))
 
 
 -- | Throw error if two lists of types don't match
-typesMatch :: String -> [Tree] -> GenState ()
-typesMatch name treeList = do
+typesMatch :: Tree -> GenState ()
+typesMatch node@(FuncCallNode name argList) =
+        checkTypesMatch node name argList
+typesMatch node@(FunctionNode _ name paramList _ _) =
+        checkTypesMatch node name paramList
+typesMatch tree = throwError $ CheckerError (InvalidNode tree)
+
+
+checkTypesMatch :: Tree -> String -> [Tree] -> GenState ()
+checkTypesMatch _ name treeList = do
         (params, args) <- passedTypes name treeList
         checkTypes params args
 
