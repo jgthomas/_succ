@@ -12,13 +12,11 @@ import           AST               (Tree (..))
 import           Error             (CompilerError (ImpossibleError, ParserError, SyntaxError),
                                     ParserError (..), SyntaxError (..))
 import           LexDat            (LexDat (..))
+import           ParserDeclaration (parsePointerDec, parseValueDec)
+import           ParserFunction    (parseFunction)
 import           ParState          (ParserState, runParState, throwError)
 import qualified ParState          (getState, putState, startState)
 import           Tokens            (OpTok (..), Token (..))
-
-
-import           ParserDeclaration (parsePointerDec, parseValueDec)
-import           ParserFunction    (parseFunction)
 
 
 -- | Convert a list of tokens into an AST

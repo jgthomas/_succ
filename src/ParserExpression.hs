@@ -8,11 +8,10 @@ import           Error        (CompilerError (ImpossibleError, ParserError, Synt
 import           LexDat       (LexDat (..))
 import qualified Operator     (tokToAssignOp, tokToBinOp, tokToPostUnaryOp,
                                tokToUnaryOp)
+import           ParserShared (consumeTok, parsePassIn, verifyAndConsume)
 import           ParState     (ParserState, throwError)
 import           Tokens       (OpTok (..), OpTokType (..), Token (..))
 import qualified Tokens       (isAssign, isPostPos, kind)
-
-import           ParserShared
 
 
 parseExpression :: [LexDat] -> ParserState (Tree, [LexDat])

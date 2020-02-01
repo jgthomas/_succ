@@ -1,5 +1,13 @@
 
-module ParserShared where
+module ParserShared
+        (parsePassIn,
+         verifyAndConsume,
+         consumeTok,
+         consumeNToks,
+         parseType,
+         mkDat,
+         nextTokIsNot
+        ) where
 
 
 import Control.Monad (unless)

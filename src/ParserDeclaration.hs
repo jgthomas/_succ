@@ -6,12 +6,12 @@ import           AST              (Tree (..))
 import           Error            (CompilerError (ParserError, SyntaxError),
                                    ParserError (..), SyntaxError (..))
 import           LexDat           (LexDat (..))
+import           ParserExpression (parseExpression)
+import           ParserShared     (consumeNToks, consumeTok, parseType,
+                                   verifyAndConsume)
 import           ParState         (ParserState, throwError)
 import           Tokens           (Token (..))
 import qualified Tokens           (isAssign)
-
-import           ParserExpression (parseExpression)
-import           ParserShared
 
 
 parseValueDec :: [LexDat] -> ParserState (Tree, [LexDat])

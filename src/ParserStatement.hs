@@ -6,13 +6,11 @@ import AST               (Tree (..))
 import Error             (CompilerError (ParserError, SyntaxError),
                           ParserError (..), SyntaxError (..))
 import LexDat            (LexDat (..))
-import ParState          (ParserState, throwError)
-import Tokens            (Keyword (..), OpTok (..), Token (..))
-
-
 import ParserDeclaration (parsePointerDec, parseValueDec)
 import ParserExpression  (parseExpression)
-import ParserShared
+import ParserShared      (nextTokIsNot, verifyAndConsume)
+import ParState          (ParserState, throwError)
+import Tokens            (Keyword (..), OpTok (..), Token (..))
 
 
 parseBlock :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
