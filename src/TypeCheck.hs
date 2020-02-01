@@ -35,24 +35,24 @@ typesMatch tree = throwError $ CheckerError (InvalidNode tree)
 
 
 checkTypesMatch :: Tree -> String -> [Tree] -> GenState ()
-checkTypesMatch _ name treeList = do
+checkTypesMatch node name treeList = do
         (params, args) <- passedTypes name treeList
-        checkTypes params args
+        checkTypes node params args
 
 
 -- | Throw error if function type declarations don't match
 funcDeclaration :: Tree -> GenState ()
-funcDeclaration (FunctionNode typ name _ _ _) = do
+funcDeclaration node@(FunctionNode typ name _ _ _) = do
         oldTyp <- getFuncType name
-        checkTypes [oldTyp] [typ]
+        checkTypes node [oldTyp] [typ]
 funcDeclaration tree = throwError $ CheckerError (InvalidNode tree)
 
 
 -- | Throw error if global variable type declarations don't match
 globalDeclaration :: Tree -> GenState ()
-globalDeclaration (DeclarationNode name typ _) = do
+globalDeclaration node@(DeclarationNode name typ _) = do
         oldTyp <- getType (VarNode name)
-        checkTypes [oldTyp] [typ]
+        checkTypes node [oldTyp] [typ]
 globalDeclaration tree = throwError $ CheckerError (InvalidNode tree)
 
 
@@ -66,21 +66,21 @@ assignment node = throwError $ CheckerError (InvalidNode node)
 
 
 checkAssignmentType :: Tree -> String -> Tree -> GenState ()
-checkAssignmentType _ name value = do
+checkAssignmentType node name value = do
         varTyp  <- getType (VarNode name)
         valType <- getType value
         valid   <- permitted varTyp
         unless (valType `elem` valid) $
-            throwError $ TypeError (TypeMismatch [varTyp] [valType])
+            throwError $ TypeError (TypeMismatch [varTyp] [valType] node)
 
 
 -- | Throw error if declared and actual return value don't match
 funcReturn :: Tree -> Tree -> GenState ()
-funcReturn _ retVal = do
+funcReturn node retVal = do
         currFuncName <- FrameStack.currentFunc
         currFuncType <- getFuncType currFuncName
         retValType   <- getType retVal
-        checkTypes [currFuncType] [retValType]
+        checkTypes node [currFuncType] [retValType]
 
 
 passedTypes :: String -> [Tree] -> GenState ([Type], [Type])
@@ -90,10 +90,10 @@ passedTypes name treeList = do
         pure (currTypes, newTypes)
 
 
-checkTypes :: [Type] -> [Type] -> GenState ()
-checkTypes oldTypes newTypes =
+checkTypes :: Tree -> [Type] -> [Type] -> GenState ()
+checkTypes node oldTypes newTypes =
         when (oldTypes /= newTypes) $
-            throwError $ TypeError (TypeMismatch oldTypes newTypes)
+            throwError $ TypeError (TypeMismatch oldTypes newTypes node)
 
 
 getType :: Tree -> GenState Type

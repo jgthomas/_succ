@@ -71,7 +71,7 @@ checkerTest = hspec $ do
                    )
                   )
                   `shouldBe`
-                  TypeError (TypeMismatch [IntVar] [IntPointer])
+                  TypeError (TypeMismatch [IntVar] [IntPointer] (ReturnNode (VarNode "a")))
 
                 it "Should error if returning undeclared variable" $
                   fromLeft
