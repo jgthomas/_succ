@@ -1,6 +1,7 @@
 
 module ParserFunction (parseFunction) where
 
+
 import AST              (Tree (..))
 import Error            (CompilerError (ParserError, SyntaxError),
                          ParserError (..), SyntaxError (..))
@@ -20,7 +21,7 @@ parseFunction lexData@(a:_) = do
         typ             <- parseType lexData
         name            <- parseFuncName lexData
         (params, lexData') <- parseFuncParams lexData
-        (items, lexData'') <- parseFuncBlockItems [] lexData'
+        (items, lexData'') <- parseFuncBody [] lexData'
         pure (FunctionNode typ name params items nodeDat, lexData'')
 
 
@@ -64,10 +65,10 @@ parseParamValue lexData@(LexDat{tok=Ident _}:_)   = parseExpression lexData
 parseParamValue lexData = throwError $ ParserError (LexDataError lexData)
 
 
-parseFuncBlockItems :: [Tree] -> [LexDat] -> ParserState (Maybe [Tree], [LexDat])
-parseFuncBlockItems _ (LexDat{tok=SemiColon}:rest) = pure (Nothing, rest)
-parseFuncBlockItems stmts (LexDat{tok=OpenBrace}:rest) = do
+parseFuncBody :: [Tree] -> [LexDat] -> ParserState (Maybe [Tree], [LexDat])
+parseFuncBody _ (LexDat{tok=SemiColon}:rest) = pure (Nothing, rest)
+parseFuncBody stmts (LexDat{tok=OpenBrace}:rest) = do
         (tree, lexData') <- parseBlock stmts rest
         lexData''        <- verifyAndConsume CloseBrace lexData'
         pure (Just tree, lexData'')
-parseFuncBlockItems _ lexData = throwError $ ParserError (LexDataError lexData)
+parseFuncBody _ lexData = throwError $ ParserError (LexDataError lexData)
