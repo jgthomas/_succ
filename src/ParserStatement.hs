@@ -1,5 +1,5 @@
 
-module ParserStatement (parseBlock) where
+module ParserStatement (parseStatementBlock) where
 
 
 import AST               (Tree (..))
@@ -13,11 +13,11 @@ import ParState          (ParserState, throwError)
 import Tokens            (Keyword (..), OpTok (..), Token (..))
 
 
-parseBlock :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
-parseBlock stmts lexData@(LexDat{tok=CloseBrace}:_) = pure (reverse stmts, lexData)
-parseBlock stmts lexData = do
+parseStatementBlock :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
+parseStatementBlock stmts lexData@(LexDat{tok=CloseBrace}:_) = pure (reverse stmts, lexData)
+parseStatementBlock stmts lexData = do
         (tree, lexData') <- parseBlockItem lexData
-        parseBlock (tree:stmts) lexData'
+        parseStatementBlock (tree:stmts) lexData'
 
 
 parseBlockItem :: [LexDat] -> ParserState (Tree, [LexDat])
@@ -75,7 +75,7 @@ parseContinue [] = throwError $ ParserError (LexDataError [])
 
 parseCompoundStmt :: [LexDat] -> ParserState (Tree, [LexDat])
 parseCompoundStmt lexData = do
-        (items, lexData') <- parseBlock [] lexData
+        (items, lexData') <- parseStatementBlock [] lexData
         lexData''         <- verifyAndConsume CloseBrace lexData'
         pure (CompoundStmtNode items, lexData'')
 

@@ -9,7 +9,7 @@ import LexDat           (LexDat (..))
 import ParserExpression (parseExpression)
 import ParserShared     (consumeTok, mkDat, parsePassIn, parseType,
                          verifyAndConsume)
-import ParserStatement  (parseBlock)
+import ParserStatement  (parseStatementBlock)
 import ParState         (ParserState, throwError)
 import Tokens           (OpTok (..), Token (..))
 
@@ -68,7 +68,7 @@ parseParamValue lexData = throwError $ ParserError (LexDataError lexData)
 parseFuncBody :: [Tree] -> [LexDat] -> ParserState (Maybe [Tree], [LexDat])
 parseFuncBody _ (LexDat{tok=SemiColon}:rest) = pure (Nothing, rest)
 parseFuncBody stmts (LexDat{tok=OpenBrace}:rest) = do
-        (tree, lexData') <- parseBlock stmts rest
+        (tree, lexData') <- parseStatementBlock stmts rest
         lexData''        <- verifyAndConsume CloseBrace lexData'
         pure (Just tree, lexData'')
 parseFuncBody _ lexData = throwError $ ParserError (LexDataError lexData)
