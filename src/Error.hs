@@ -12,6 +12,7 @@ import Type     (Type)
 data CompilerError = LexerError LexerError
                    | ParserError ParserError
                    | GeneratorError GeneratorError
+                   | CheckerError CheckerError
                    | SyntaxError SyntaxError
                    | ScopeError ScopeError
                    | TypeError TypeError
@@ -33,6 +34,11 @@ data GeneratorError = NoStateFound String
                     | UndefinedScope Int
                     | OperatorError Operator
                     deriving (Show, Eq)
+
+
+data CheckerError = InvalidNode Tree
+                  | MissingNode Tree
+                  deriving (Show, Eq)
 
 
 data SyntaxError = NonValidIdentifier LexDat

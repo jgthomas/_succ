@@ -203,7 +203,7 @@ checkRepeatFuncDec :: Int -> Tree -> GenState ()
 checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _ _) = do
         ScopeCheck.checkCountsMatch count node
         TypeCheck.typesMatch funcName paramList
-        TypeCheck.funcDeclaration funcName typ
+        TypeCheck.funcDeclaration node
         SymTab.declareFunction typ funcName (length paramList)
         defined <- SymTab.checkFuncDefined funcName
         unless defined $ do

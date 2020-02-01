@@ -62,6 +62,7 @@ errorMsg :: CompilerError -> (String, PrintRange)
 errorMsg (LexerError err)     = lexerErrorMsg err
 errorMsg (ParserError err)    = parserErrorMsg err
 errorMsg (GeneratorError err) = generatorErrorMsg err
+errorMsg (CheckerError err)   = checkerErrorMsg err
 errorMsg (SyntaxError err)    = syntaxErrorMsg err
 errorMsg (ScopeError err)     = scopeErrorMsg err
 errorMsg (TypeError err)      = typeErrorMsg err
@@ -96,6 +97,10 @@ parserErrorMsg (LexDataError (d:_))  = (msg, mkRange d)
 
 generatorErrorMsg :: GeneratorError -> (String, PrintRange)
 generatorErrorMsg err = (show err, All)
+
+
+checkerErrorMsg :: CheckerError -> (String, PrintRange)
+checkerErrorMsg err = (show err, All)
 
 
 syntaxErrorMsg :: SyntaxError -> (String, PrintRange)

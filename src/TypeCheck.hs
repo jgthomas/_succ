@@ -15,7 +15,7 @@ module TypeCheck
 import           Control.Monad (unless, when)
 
 import           AST           (Tree (..))
-import           Error         (CompilerError (ImpossibleError, TypeError),
+import           Error         (CheckerError (..), CompilerError (CheckerError, ImpossibleError, TypeError),
                                 TypeError (..))
 import qualified FrameStack    (currentFunc, getScope)
 import           GenState      (GenState, throwError)
@@ -33,10 +33,11 @@ typesMatch name treeList = do
 
 
 -- | Throw error if function type declarations don't match
-funcDeclaration :: String -> Type -> GenState ()
-funcDeclaration name newTyp = do
+funcDeclaration :: Tree -> GenState ()
+funcDeclaration (FunctionNode typ name _ _ _) = do
         oldTyp <- getFuncType name
-        checkTypes [oldTyp] [newTyp]
+        checkTypes [oldTyp] [typ]
+funcDeclaration tree = throwError $ CheckerError (InvalidNode tree)
 
 
 -- | Throw error if global variable type declarations don't match
