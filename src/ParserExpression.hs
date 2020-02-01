@@ -2,17 +2,17 @@
 module ParserExpression (parseExpression) where
 
 
-import           Control.Monad (unless)
+import           AST          (Tree (..))
+import           Error        (CompilerError (ImpossibleError, ParserError, SyntaxError),
+                               ParserError (..), SyntaxError (..))
+import           LexDat       (LexDat (..))
+import qualified Operator     (tokToAssignOp, tokToBinOp, tokToPostUnaryOp,
+                               tokToUnaryOp)
+import           ParState     (ParserState, throwError)
+import           Tokens       (OpTok (..), OpTokType (..), Token (..))
+import qualified Tokens       (isAssign, isPostPos, kind)
 
-import           AST           (Tree (..))
-import           Error         (CompilerError (ImpossibleError, ParserError, SyntaxError),
-                                ParserError (..), SyntaxError (..))
-import           LexDat        (LexDat (..))
-import qualified Operator      (tokToAssignOp, tokToBinOp, tokToPostUnaryOp,
-                                tokToUnaryOp)
-import           ParState      (ParserState, throwError)
-import           Tokens        (OpTok (..), OpTokType (..), Token (..))
-import qualified Tokens        (isAssign, isPostPos, kind)
+import           ParserShared
 
 
 parseExpression :: [LexDat] -> ParserState (Tree, [LexDat])
@@ -193,21 +193,6 @@ parseTheArgs as lexData = do
         parseArgs (tree:as) lexData'
 
 
-parsePassIn :: [Tree]
-            -> [LexDat]
-            -> ([Tree] -> [LexDat] -> ParserState ([Tree], [LexDat]))
-            -> ParserState ([Tree], [LexDat])
-parsePassIn _ [] _ = throwError $ ParserError (LexDataError [])
-parsePassIn xs (LexDat{tok=OpenParen}:LexDat{tok=CloseParen}:rest) _ =
-        pure (xs, rest)
-parsePassIn xs (LexDat{tok=CloseParen}:rest) _ = pure (reverse xs, rest)
-parsePassIn _ (d@LexDat{tok=Comma}:LexDat{tok=CloseParen}:_) _ =
-        throwError $ SyntaxError (UnexpectedLexDat d)
-parsePassIn xs (LexDat{tok=OpenParen}:rest) f = f xs rest
-parsePassIn xs (LexDat{tok=Comma}:rest) f     = f xs rest
-parsePassIn _ (a:_) _ = throwError $ SyntaxError (UnexpectedLexDat a)
-
-
 parseBinaryExp :: Tree
                -> [LexDat]
                -> ([LexDat] -> ParserState (Tree, [LexDat]))
@@ -222,25 +207,3 @@ parseBinaryExp tree lexData@(LexDat{tok=OpTok op}:rest) f ops
                 parseBinaryExp (BinaryNode tree ntree binOp) lexData'' f ops
         | otherwise = pure (tree, lexData)
 parseBinaryExp tree lexData _ _ = pure (tree, lexData)
-
-
-verifyAndConsume :: Token -> [LexDat] -> ParserState [LexDat]
-verifyAndConsume t lexData = do
-        nextTokIs t lexData
-        consumeTok lexData
-
-
-nextTokIs :: Token -> [LexDat] -> ParserState ()
-nextTokIs _ []    = throwError $ ParserError (LexDataError [])
-nextTokIs t [a]   = isTok t a
-nextTokIs t (a:_) = isTok t a
-
-
-isTok :: Token -> LexDat -> ParserState ()
-isTok t a = unless (t == tok a) $ throwError $ SyntaxError (MissingToken t a)
-
-
-consumeTok :: [LexDat] -> ParserState [LexDat]
-consumeTok []          = throwError $ ParserError (LexDataError [])
-consumeTok [_]         = pure []
-consumeTok (_:lexData) = pure lexData
