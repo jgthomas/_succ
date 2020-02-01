@@ -36,10 +36,10 @@ genASM (ProgramNode topLevelItems) = do
         toIni <- ASM.outputInit . concat <$> SymTab.getAllForInit
         pure $ text ++ bss ++ toIni
 
-genASM node@(FunctionNode _ _ _ Nothing) = do
+genASM node@(FunctionNode _ _ _ Nothing _) = do
         declareFunction node
         ASM.noOutput
-genASM node@(FunctionNode _ name _ (Just stmts)) = do
+genASM node@(FunctionNode _ name _ (Just stmts) _) = do
         declareFunction node
         SymTab.initFunction name
         statements <- concatMapM genASM stmts
@@ -262,7 +262,7 @@ defineLocal tree = throwError $ ScopeError (UnexpectedNode tree)
 -- Functions / function calls
 
 declareFunction :: Tree -> GenState ()
-declareFunction node@(FunctionNode _ funcName _ _) = do
+declareFunction node@(FunctionNode _ funcName _ _ _) = do
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
              Nothing -> declareNewFunction node
@@ -271,14 +271,14 @@ declareFunction tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 declareNewFunction :: Tree -> GenState ()
-declareNewFunction (FunctionNode typ funcName paramList _) = do
+declareNewFunction (FunctionNode typ funcName paramList _ _) = do
         SymTab.declareFunction typ funcName (length paramList)
         processParameters funcName paramList
 declareNewFunction tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 declareRepeatFunction :: Tree -> GenState ()
-declareRepeatFunction (FunctionNode typ funcName paramList _) = do
+declareRepeatFunction (FunctionNode typ funcName paramList _ _) = do
         SymTab.declareFunction typ funcName (length paramList)
         defined <- SymTab.checkFuncDefined funcName
         unless defined $

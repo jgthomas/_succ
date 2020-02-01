@@ -10,7 +10,7 @@ module Parser (parse) where
 
 import           Control.Monad (unless)
 
-import           AST           (Tree (..))
+import           AST           (NodeDat, Tree (..), mkNodeDat)
 import           Error         (CompilerError (ImpossibleError, ParserError, SyntaxError),
                                 ParserError (..), SyntaxError (..))
 import           LexDat        (LexDat (..))
@@ -93,12 +93,14 @@ parseOptionalAssign lexData = do
 
 
 parseFunction :: [LexDat] -> ParserState (Tree, [LexDat])
-parseFunction lexData = do
+parseFunction [] = throwError $ ParserError (LexDataError [])
+parseFunction lexData@(a:_) = do
+        nodeDat         <- mkDat a
         typ             <- parseType lexData
         name            <- parseFuncName lexData
         (params, lexData') <- parseFuncParams lexData
         (items, lexData'') <- parseFuncBlockItems [] lexData'
-        pure (FunctionNode typ name params items, lexData'')
+        pure (FunctionNode typ name params items nodeDat, lexData'')
 
 
 parseFuncName :: [LexDat] -> ParserState String
@@ -562,3 +564,7 @@ parseType lexData  = throwError $ ParserError (LexDataError lexData)
 
 nullExpr :: [LexDat] -> ParserState (Tree, [LexDat])
 nullExpr lexData = pure (NullExprNode, lexData)
+
+
+mkDat :: LexDat -> ParserState NodeDat
+mkDat d = pure $ mkNodeDat (line d) (line d)

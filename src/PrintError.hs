@@ -11,6 +11,7 @@ import Control.Monad (unless)
 import Data.Map      as M (Map, fromList, lookup)
 import Data.Maybe    (fromMaybe, isNothing)
 
+import AST           (NodeDat (..), Tree (..))
 import Error
 import LexDat        (LexDat (..))
 import Tokens        (Token)
@@ -118,7 +119,16 @@ syntaxErrorMsg (MissingKeyword kwd d) = (msg, mkRange d)
 
 
 scopeErrorMsg :: ScopeError -> (String, PrintRange)
-scopeErrorMsg err = (show err, All)
+scopeErrorMsg err@(DoubleDefinedNode FunctionNode{}) = funcErrorMsg err
+scopeErrorMsg err                                    = (show err, All)
+
+
+funcErrorMsg :: ScopeError -> (String, PrintRange)
+funcErrorMsg (DoubleDefinedNode (FunctionNode _ name _ _ dat)) =
+        (msg, Range (startLine dat) (endLine dat))
+        where msg = buildLineMsg (startLine dat)
+                    ++ "Function '" ++ name ++ "' repeat defined"
+funcErrorMsg err = (show err, All)
 
 
 typeErrorMsg :: TypeError -> (String, PrintRange)

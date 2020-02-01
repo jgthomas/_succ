@@ -37,9 +37,9 @@ checkAST :: Tree -> GenState ()
 
 checkAST (ProgramNode topLevelItems) = mapM_ checkAST topLevelItems
 
-checkAST node@(FunctionNode _ _ _ Nothing) =
+checkAST node@(FunctionNode _ _ _ Nothing _) =
         checkFuncDec node
-checkAST node@(FunctionNode _ name _ (Just stmts)) = do
+checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
         ScopeCheck.checkIfFuncDefined node
         checkFuncDec node
         SymTab.initFunction name
@@ -183,7 +183,7 @@ checkAST (ConstantNode _) = pure ()
 
 
 checkFuncDec :: Tree -> GenState ()
-checkFuncDec node@(FunctionNode _ funcName _ _) = do
+checkFuncDec node@(FunctionNode _ funcName _ _ _) = do
         ScopeCheck.checkIfVariable node
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
@@ -193,14 +193,14 @@ checkFuncDec tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 checkNewFuncDec :: Tree -> GenState ()
-checkNewFuncDec (FunctionNode typ funcName paramList _) = do
+checkNewFuncDec (FunctionNode typ funcName paramList _ _) = do
         SymTab.declareFunction typ funcName (length paramList)
         checkParams funcName paramList
 checkNewFuncDec tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 checkRepeatFuncDec :: Int -> Tree -> GenState ()
-checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _) = do
+checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _ _) = do
         ScopeCheck.checkCountsMatch count node
         TypeCheck.typesMatch funcName paramList
         TypeCheck.funcDeclaration funcName typ

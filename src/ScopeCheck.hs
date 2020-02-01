@@ -55,7 +55,7 @@ validSeq (Just a) (Just b) = a <= b
 
 -- | Check if a function is already defined
 checkIfFuncDefined :: Tree -> GenState ()
-checkIfFuncDefined node@(FunctionNode _ name _ _) = do
+checkIfFuncDefined node@(FunctionNode _ name _ _ _) = do
         defined <- SymTab.checkFuncDefined name
         when defined $
            throwError $ ScopeError (DoubleDefinedNode node)
@@ -73,7 +73,7 @@ checkIfDefined tree = throwError $ ScopeError (UnexpectedNode tree)
 
 -- | Check if an identifier is a variable
 checkIfVariable :: Tree -> GenState ()
-checkIfVariable node@(FunctionNode _ name _ _) = do
+checkIfVariable node@(FunctionNode _ name _ _ _) = do
         label <- SymTab.globalLabel name
         unless (isNothing label) $
             throwError $ ScopeError (DoubleDefinedNode node)
@@ -82,7 +82,7 @@ checkIfVariable tree = throwError $ ScopeError (UnexpectedNode tree)
 
 -- | Check parameter counts match in two function declarations
 checkCountsMatch :: Int -> Tree -> GenState ()
-checkCountsMatch count node@(FunctionNode _ _ paramList _) =
+checkCountsMatch count node@(FunctionNode _ _ paramList _ _) =
         when (count /= length paramList) $
            throwError $ ScopeError (MisMatchNode count node)
 checkCountsMatch count node@(FuncCallNode _ argList) =

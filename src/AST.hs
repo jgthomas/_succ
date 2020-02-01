@@ -7,7 +7,7 @@ import Type     (Type)
 
 
 data Tree = ProgramNode [Tree]
-          | FunctionNode Type String [Tree] (Maybe [Tree])
+          | FunctionNode Type String [Tree] (Maybe [Tree]) NodeDat
           | DeclarationNode String Type (Maybe Tree)
           | PointerNode String Type (Maybe Tree)
           | CompoundStmtNode [Tree]               -- statements
@@ -33,3 +33,12 @@ data Tree = ProgramNode [Tree]
           | BinaryNode Tree Tree BinaryOp
           | TernaryNode Tree Tree Tree
           deriving (Show, Eq)
+
+
+data NodeDat = NodeDat { startLine :: Int
+                       , endLine   :: Int }
+             deriving (Show, Eq)
+
+
+mkNodeDat :: Int -> Int -> NodeDat
+mkNodeDat n m = NodeDat n m
