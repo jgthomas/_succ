@@ -2,14 +2,15 @@
 module CheckerSpec (checkerTest) where
 
 
-import Data.Either
-import Test.Hspec
+import           Data.Either
+import           Test.Hspec
 
+import qualified TestUtility (mkNodeDat)
 
-import AST
-import Checker
-import Error
-import Type
+import           AST
+import           Checker
+import           Error
+import           Type
 
 
 checkerTest :: IO ()
@@ -28,6 +29,7 @@ checkerTest = hspec $ do
                        ReturnNode
                         (ConstantNode 2)
                       ])
+                      TestUtility.mkNodeDat
                      ]
                     )
                    )
@@ -41,6 +43,7 @@ checkerTest = hspec $ do
                      ReturnNode
                       (ConstantNode 2)
                     ])
+                    TestUtility.mkNodeDat
                    ]
                   )
 
@@ -63,6 +66,7 @@ checkerTest = hspec $ do
                        (VarNode "a")
                       ]
                      )
+                     TestUtility.mkNodeDat
                     ]
                    )
                   )
@@ -83,6 +87,7 @@ checkerTest = hspec $ do
                        (VarNode "a")
                       ]
                      )
+                     TestUtility.mkNodeDat
                     ]
                    )
                   )

@@ -2,20 +2,18 @@
 module ParserSpec (parserTest) where
 
 
-import Data.Either
-import Test.Hspec
+import           Data.Either
+import           Test.Hspec
 
-import AST
-import Error
-import LexDat
-import Operator
-import Parser
-import Tokens
-import Type
+import qualified TestUtility (mkLexDat, mkNodeDat)
 
-
-mkLexDat :: Token -> LexDat
-mkLexDat t = LexDat t 0
+import           AST
+import           Error
+import           LexDat
+import           Operator
+import           Parser
+import           Tokens
+import           Type
 
 
 parserTest :: IO ()
@@ -25,7 +23,7 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   (map mkLexDat
+                   (map TestUtility.mkLexDat
                     [Keyword Int,
                      Ident "a",
                      SemiColon]
@@ -44,7 +42,7 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   (map mkLexDat
+                   (map TestUtility.mkLexDat
                     [Keyword Int,
                      Ident "a",
                      OpTok EqualSign,
@@ -71,7 +69,7 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   (map mkLexDat
+                   (map TestUtility.mkLexDat
                     [Keyword Int,
                      OpTok Asterisk,
                      Ident "a",
@@ -91,7 +89,7 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   (map mkLexDat
+                   (map TestUtility.mkLexDat
                     [Keyword Int,
                      OpTok Asterisk,
                      Ident "a",
@@ -120,7 +118,7 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   (map mkLexDat
+                   (map TestUtility.mkLexDat
                     [Keyword Int,
                      Ident "cat",
                      OpenParen,
@@ -135,6 +133,7 @@ parserTest = hspec $ do
                     "cat"
                     []
                     Nothing
+                    TestUtility.mkNodeDat
                    ]
                   )
 
@@ -142,7 +141,7 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   (map mkLexDat
+                   (map TestUtility.mkLexDat
                     [Keyword Int,
                      Ident "cat",
                      OpenParen,
@@ -162,6 +161,7 @@ parserTest = hspec $ do
                      (VarNode "a")
                     ]
                     Nothing
+                    TestUtility.mkNodeDat
                    ]
                   )
 
@@ -169,7 +169,7 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   (map mkLexDat
+                   (map TestUtility.mkLexDat
                     [Keyword Int,
                      Ident "main",
                      OpenParen,
@@ -192,6 +192,7 @@ parserTest = hspec $ do
                       (ConstantNode 2)
                      ]
                     )
+                    TestUtility.mkNodeDat
                    ]
                   )
 
@@ -199,7 +200,7 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   (map mkLexDat
+                   (map TestUtility.mkLexDat
                     [Keyword Int,
                      Ident "main",
                      OpenParen,
@@ -227,6 +228,7 @@ parserTest = hspec $ do
                       (VarNode "a")
                      ]
                     )
+                    TestUtility.mkNodeDat
                    ]
                   )
 
@@ -234,7 +236,7 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   (map mkLexDat
+                   (map TestUtility.mkLexDat
                     [Keyword Int,
                      Ident "main",
                      OpenParen,
@@ -261,6 +263,7 @@ parserTest = hspec $ do
                       )
                      ]
                     )
+                    TestUtility.mkNodeDat
                    ]
                   )
 
@@ -268,7 +271,7 @@ parserTest = hspec $ do
                   fromRight
                   (ProgramNode [])
                   (parse
-                   (map mkLexDat
+                   (map TestUtility.mkLexDat
                     [Keyword Int,
                      Ident "main",
                      OpenParen,
@@ -297,6 +300,7 @@ parserTest = hspec $ do
                       )
                      ]
                     )
+                    TestUtility.mkNodeDat
                    ]
                   )
 
@@ -305,7 +309,7 @@ parserTest = hspec $ do
                   fromLeft
                   ImpossibleError
                   (parse
-                   (map mkLexDat [Keyword Int, OpenBrace, SemiColon])
+                   (map TestUtility.mkLexDat [Keyword Int, OpenBrace, SemiColon])
                   )
                   `shouldBe`
                   (SyntaxError (NonValidIdentifier (LexDat{tok=OpenBrace,line=0})))
@@ -321,7 +325,7 @@ parserTest = hspec $ do
                   fromLeft
                   ImpossibleError
                   (parse
-                   (map mkLexDat [Keyword Break, Ident "a", SemiColon])
+                   (map TestUtility.mkLexDat [Keyword Break, Ident "a", SemiColon])
                   )
                   `shouldBe`
                   (SyntaxError (BadType  (LexDat{tok=Keyword Break,line=0})))
@@ -330,7 +334,7 @@ parserTest = hspec $ do
                   fromLeft
                   ImpossibleError
                   (parse
-                   (map mkLexDat [Keyword Int, Ident "a", Comma])
+                   (map TestUtility.mkLexDat [Keyword Int, Ident "a", Comma])
                   )
                   `shouldBe`
-                  SyntaxError (MissingToken SemiColon (mkLexDat Comma))
+                  SyntaxError (MissingToken SemiColon (TestUtility.mkLexDat Comma))

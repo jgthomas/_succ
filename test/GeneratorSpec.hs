@@ -2,13 +2,15 @@
 module GeneratorSpec (generatorTest) where
 
 
-import Data.Either
-import Test.Hspec
+import           Data.Either
+import           Test.Hspec
 
-import AST
-import Generator
-import Operator
-import Type
+import qualified TestUtility (mkNodeDat)
+
+import           AST
+import           Generator
+import           Operator
+import           Type
 
 
 generatorTest :: IO ()
@@ -35,6 +37,7 @@ generatorTest = hspec $ do
                                        ReturnNode
                                         (ConstantNode 2)
                                       ])
+                                      TestUtility.mkNodeDat
                                      ]
                                     )
                                    )
@@ -69,6 +72,7 @@ generatorTest = hspec $ do
                                          (Unary Negate)
                                         )
                                       ])
+                                      TestUtility.mkNodeDat
                                      ]
                                     )
                                    )
