@@ -61,8 +61,8 @@ data ScopeError = UndeclaredNode Tree
 
 
 data TypeError = TypeMismatch [Type] [Type] Tree
-               | MissingType String
-               | UnexpectedType Type
+               | MissingType Tree
+               | UnexpectedType Type Tree
                | NotTyped Tree
                deriving (Show, Eq)
 

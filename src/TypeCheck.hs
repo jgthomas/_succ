@@ -43,7 +43,7 @@ checkTypesMatch node name treeList = do
 -- | Throw error if function type declarations don't match
 funcDeclaration :: Tree -> GenState ()
 funcDeclaration node@(FunctionNode typ name _ _ _) = do
-        oldTyp <- getFuncType name
+        oldTyp <- getFuncType node name
         checkTypes node [oldTyp] [typ]
 funcDeclaration tree = throwError $ CheckerError (InvalidNode tree)
 
@@ -78,7 +78,7 @@ checkAssignmentType node name value = do
 funcReturn :: Tree -> Tree -> GenState ()
 funcReturn node retVal = do
         currFuncName <- FrameStack.currentFunc
-        currFuncType <- getFuncType currFuncName
+        currFuncType <- getFuncType node currFuncName
         retValType   <- getType retVal
         checkTypes node [currFuncType] [retValType]
 
@@ -97,37 +97,37 @@ checkTypes node oldTypes newTypes =
 
 
 getType :: Tree -> GenState Type
-getType (ArgNode tree)            = getType tree
-getType (ParamNode typ _)         = pure typ
-getType (VarNode name)            = getVariableType name
-getType (AddressOfNode name)      = addressOfType name
-getType (TernaryNode l m r)       = getTernaryType l m r
-getType (BinaryNode l r _)        = getBinaryType l r
-getType (UnaryNode tree _)        = getType tree
-getType (ConstantNode _)          = pure IntVar
-getType (FuncCallNode name _)     = getFuncType name
-getType (AssignmentNode _ tree _) = getType tree
-getType (DereferenceNode name)    = dereferenceType name
-getType tree                      = throwError $ TypeError (NotTyped tree)
+getType (ArgNode tree)              = getType tree
+getType (ParamNode typ _)           = pure typ
+getType node@(VarNode name)         = getVariableType node name
+getType node@(AddressOfNode name)   = addressOfType node name
+getType node@(TernaryNode l m r)    = getTernaryType node l m r
+getType node@(BinaryNode l r _)     = getBinaryType node l r
+getType (UnaryNode tree _)          = getType tree
+getType (ConstantNode _)            = pure IntVar
+getType node@(FuncCallNode name _)  = getFuncType node name
+getType (AssignmentNode _ tree _)   = getType tree
+getType node@(DereferenceNode name) = dereferenceType node name
+getType tree                        = throwError $ TypeError (NotTyped tree)
 
 
-getVariableType :: String -> GenState Type
-getVariableType name = do
+getVariableType :: Tree -> String -> GenState Type
+getVariableType node name = do
         currScope <- FrameStack.getScope
         case currScope of
-             Local  -> checkAllVariableTypes name
+             Local  -> checkAllVariableTypes node name
              Global -> do
                      typG <- Global.globalType name
-                     extractType name typG
+                     extractType node typG
 
 
-checkAllVariableTypes :: String -> GenState Type
-checkAllVariableTypes name = do
+checkAllVariableTypes :: Tree -> String -> GenState Type
+checkAllVariableTypes node name = do
         typL <- Local.variableType name
         typP <- Local.parameterType name
         typG <- Global.globalType name
         typ  <- varType typL typP typG
-        extractType name typ
+        extractType node typ
 
 
 varType :: Maybe Type -> Maybe Type -> Maybe Type -> GenState (Maybe Type)
@@ -137,39 +137,39 @@ varType _ _ (Just typG)         = pure $ Just typG
 varType Nothing Nothing Nothing = pure Nothing
 
 
-extractType :: String -> Maybe Type -> GenState Type
+extractType :: Tree -> Maybe Type -> GenState Type
 extractType _ (Just typ) = pure typ
-extractType name Nothing = throwError $ TypeError (MissingType name)
+extractType node Nothing = throwError $ TypeError (MissingType node)
 
 
-getBinaryType :: Tree -> Tree -> GenState Type
-getBinaryType left right = do
+getBinaryType :: Tree -> Tree -> Tree -> GenState Type
+getBinaryType node left right = do
         leftType  <- getType left
         rightType <- getType right
-        binType leftType rightType
+        binType node leftType rightType
 
 
-binType :: Type -> Type -> GenState Type
-binType IntVar IntVar = pure IntVar
-binType typ IntVar    = throwError $ TypeError (UnexpectedType typ)
-binType IntVar typ    = throwError $ TypeError (UnexpectedType typ)
-binType a _           = throwError $ TypeError (UnexpectedType a)
+binType :: Tree -> Type -> Type -> GenState Type
+binType _ IntVar IntVar = pure IntVar
+binType node t IntVar   = throwError $ TypeError (UnexpectedType t node)
+binType node IntVar t   = throwError $ TypeError (UnexpectedType t node)
+binType node t _        = throwError $ TypeError (UnexpectedType t node)
 
 
-getTernaryType :: Tree -> Tree -> Tree -> GenState Type
-getTernaryType left mid right = do
+getTernaryType ::  Tree -> Tree -> Tree -> Tree -> GenState Type
+getTernaryType node left mid right = do
         leftType  <- getType left
         midType   <- getType mid
         rightType <- getType right
-        ternaryType leftType midType rightType
+        ternaryType node leftType midType rightType
 
 
-ternaryType :: Type -> Type -> Type -> GenState Type
-ternaryType IntVar IntVar IntVar = pure IntVar
-ternaryType a IntVar IntVar      = throwError $ TypeError (UnexpectedType a)
-ternaryType IntVar b IntVar      = throwError $ TypeError (UnexpectedType b)
-ternaryType IntVar IntVar c      = throwError $ TypeError (UnexpectedType c)
-ternaryType a _ _                = throwError $ TypeError (UnexpectedType a)
+ternaryType :: Tree -> Type -> Type -> Type -> GenState Type
+ternaryType _ IntVar IntVar IntVar = pure IntVar
+ternaryType node t IntVar IntVar   = throwError $ TypeError (UnexpectedType t node)
+ternaryType node IntVar t IntVar   = throwError $ TypeError (UnexpectedType t node)
+ternaryType node IntVar IntVar t   = throwError $ TypeError (UnexpectedType t node)
+ternaryType node t _ _             = throwError $ TypeError (UnexpectedType t node)
 
 
 permitted :: Type -> GenState [Type]
@@ -180,29 +180,29 @@ permitted typ =
              Label      -> throwError ImpossibleError
 
 
-getFuncType :: String -> GenState Type
-getFuncType name = do
+getFuncType :: Tree -> String -> GenState Type
+getFuncType node name = do
         oldTyp <- Global.declaredFuncType name
-        extractType name oldTyp
+        extractType node oldTyp
 
 
-addressOfType :: String -> GenState Type
-addressOfType name = do
+addressOfType :: Tree -> String -> GenState Type
+addressOfType node name = do
         typ <- getType (VarNode name)
-        addType typ
+        addType node typ
 
 
-addType :: Type -> GenState Type
-addType IntVar = pure IntPointer
-addType typ    = throwError $ TypeError (UnexpectedType typ)
+addType :: Tree -> Type -> GenState Type
+addType _ IntVar = pure IntPointer
+addType node t   = throwError $ TypeError (UnexpectedType t node)
 
 
-dereferenceType :: String -> GenState Type
-dereferenceType name = do
+dereferenceType :: Tree -> String -> GenState Type
+dereferenceType node name = do
         typ <- getType (VarNode name)
-        derefType typ
+        derefType node typ
 
 
-derefType :: Type -> GenState Type
-derefType IntPointer = pure IntVar
-derefType typ        = throwError $ TypeError (UnexpectedType typ)
+derefType :: Tree -> Type -> GenState Type
+derefType _ IntPointer = pure IntVar
+derefType node t       = throwError $ TypeError (UnexpectedType t node)
