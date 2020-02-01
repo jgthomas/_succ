@@ -47,7 +47,7 @@ checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
         SymTab.closeFunction
         SymTab.defineFunction name
 
-checkAST (ParamNode typ (VarNode name)) =
+checkAST (ParamNode typ (VarNode name) _) =
         SymTab.addParameter name typ
 checkAST node@ParamNode{} =
         throwError $ ScopeError (UnexpectedNode node)

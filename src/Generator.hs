@@ -49,10 +49,10 @@ genASM node@(FunctionNode _ name _ (Just stmts) _) = do
            then ASM.function name statements
            else ASM.mainNoReturn name statements
 
-genASM (ParamNode typ (VarNode name)) = do
+genASM (ParamNode typ (VarNode name) _) = do
         SymTab.addParameter name typ
         ASM.noOutput
-genASM node@(ParamNode _ _) =
+genASM node@ParamNode{} =
         throwError $ ScopeError (UnexpectedNode node)
 
 genASM (FuncCallNode name args) =

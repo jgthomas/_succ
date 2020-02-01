@@ -50,12 +50,14 @@ parseTheParams _ lexData = throwError $ ParserError (LexDataError lexData)
 
 
 parseParam :: [LexDat] -> ParserState (Tree, [LexDat])
-parseParam lexData = do
+parseParam [] = throwError $ ParserError (LexDataError [])
+parseParam lexData@(a:_) = do
+        nodeDat           <- mkDat a
         typ               <- parseType lexData
         lexData'          <- consumeTok lexData
         (tree, lexData'') <- parseParamValue lexData'
         case tree of
-             VarNode _ -> pure (ParamNode typ tree, lexData'')
+             VarNode _ -> pure (ParamNode typ tree nodeDat, lexData'')
              _         -> throwError $ ParserError (TreeError tree)
 
 

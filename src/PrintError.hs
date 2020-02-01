@@ -137,6 +137,12 @@ funcErrorMsg err = (show err, All)
 
 
 typeErrorMsg :: TypeError -> (String, PrintRange)
+typeErrorMsg (TypeMismatch a b (FunctionNode _ name _ _ dat)) =
+        (msg, Exact (startLine dat))
+        where msg = buildLineMsg (startLine dat)
+                    ++ "Type mismatch between declarations of '" ++ name ++ "' "
+                    ++ "was '" ++ concatMap show a
+                    ++ "' now '" ++ concatMap show b ++ "'"
 typeErrorMsg err = (show err, All)
 
 
