@@ -120,7 +120,7 @@ checkAST node@DeclarationNode{} = do
              Local  -> checkDeclareLocal node
 
 checkAST node@(AssignmentNode varName value op) = do
-        TypeCheck.assignment varName value
+        TypeCheck.assignment node
         currScope <- SymTab.getScope
         case currScope of
              Global -> checkDefineGlobal node
@@ -130,7 +130,7 @@ checkAST node@(AssignmentNode varName value op) = do
 
 checkAST node@(AssignDereferenceNode varName value op) = do
         ScopeCheck.variableExists node
-        TypeCheck.assignment varName value
+        TypeCheck.assignment node
         checkAssignLocal (DereferenceNode varName) value op
 
 checkAST (ExprStmtNode expression) = checkAST expression

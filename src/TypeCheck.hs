@@ -48,8 +48,16 @@ globalDeclaration name newTyp = do
 
 
 -- | Throw error if types of assignment and declaration don't match
-assignment :: String -> Tree -> GenState ()
-assignment name value = do
+assignment :: Tree -> GenState ()
+assignment node@(AssignmentNode name value _) =
+        checkAssignmentType node name value
+assignment node@(AssignDereferenceNode name value _) =
+        checkAssignmentType node name value
+assignment node = throwError $ CheckerError (InvalidNode node)
+
+
+checkAssignmentType :: Tree -> String -> Tree -> GenState ()
+checkAssignmentType _ name value = do
         varTyp  <- getType (VarNode name)
         valType <- getType value
         valid   <- permitted varTyp
