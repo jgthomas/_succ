@@ -125,7 +125,7 @@ scopeErrorMsg err                                    = (show err, All)
 
 funcErrorMsg :: ScopeError -> (String, PrintRange)
 funcErrorMsg (DoubleDefinedNode (FunctionNode _ name _ _ dat)) =
-        (msg, Range (startLine dat) (endLine dat))
+        (msg, Exact (startLine dat))
         where msg = buildLineMsg (startLine dat)
                     ++ "Function '" ++ name ++ "' repeat defined"
 funcErrorMsg err = (show err, All)
