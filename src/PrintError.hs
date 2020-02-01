@@ -141,8 +141,8 @@ typeErrorMsg (TypeMismatch a b (FunctionNode _ name _ _ dat)) =
         (msg, Exact (startLine dat))
         where msg = buildLineMsg (startLine dat)
                     ++ "Type mismatch between declarations of '" ++ name ++ "' "
-                    ++ "was '" ++ concatMap show a
-                    ++ "' now '" ++ concatMap show b ++ "'"
+                    ++ "was '" ++ unwords (map show a)
+                    ++ "' now '" ++ unwords (map show b) ++ "'"
 typeErrorMsg err = (show err, All)
 
 
