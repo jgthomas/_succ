@@ -224,7 +224,7 @@ checkDeclareGlobal node@(DeclarationNode name typ toAssign) = do
         ScopeCheck.checkIfFunction node
         currLabel <- SymTab.globalLabel name
         case currLabel of
-             Just _  -> TypeCheck.globalDeclaration name typ
+             Just _  -> TypeCheck.globalDeclaration node
              Nothing -> do
                      globLab <- SymTab.mkGlobLabel name
                      SymTab.declareGlobal name typ globLab
