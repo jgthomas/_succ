@@ -66,8 +66,8 @@ checkAssignmentType _ name value = do
 
 
 -- | Throw error if declared and actual return value don't match
-funcReturn :: Tree -> GenState ()
-funcReturn retVal = do
+funcReturn :: Tree -> Tree -> GenState ()
+funcReturn _ retVal = do
         currFuncName <- FrameStack.currentFunc
         currFuncType <- getFuncType currFuncName
         retValType   <- getType retVal

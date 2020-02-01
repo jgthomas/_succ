@@ -145,9 +145,9 @@ checkAST BreakNode = do
         when (isNothing breakLabel) $
             throwError $ ScopeError (UnexpectedNode BreakNode)
 
-checkAST (ReturnNode tree) = do
+checkAST node@(ReturnNode tree) = do
         checkAST tree
-        TypeCheck.funcReturn tree
+        TypeCheck.funcReturn node tree
 
 checkAST (TernaryNode cond pass fails) = do
         _ <- SymTab.labelNum
