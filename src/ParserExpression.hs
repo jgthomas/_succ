@@ -8,7 +8,8 @@ import           Error        (CompilerError (ImpossibleError, ParserError, Synt
 import           LexDat       (LexDat (..))
 import qualified Operator     (tokToAssignOp, tokToBinOp, tokToPostUnaryOp,
                                tokToUnaryOp)
-import           ParserShared (consumeTok, parsePassIn, verifyAndConsume)
+import           ParserShared (consumeTok, makeNodeDat, parsePassIn,
+                               verifyAndConsume)
 import           ParState     (ParserState, throwError)
 import           Tokens       (OpTok (..), OpTokType (..), Token (..))
 import qualified Tokens       (isAssign, isPostPos, kind)
@@ -32,11 +33,12 @@ parseAssignment :: Tree -> [LexDat] -> ParserState (Tree, [LexDat])
 parseAssignment tree (LexDat{tok=OpTok op}:rest) = do
                    (asgn, lexData') <- parseExpression rest
                    let asgnOp = Operator.tokToAssignOp op
+                   dat <- makeNodeDat lexData'
                    case tree of
                      (VarNode a) ->
-                             pure (AssignmentNode a asgn asgnOp, lexData')
+                             pure (AssignmentNode a asgn asgnOp dat, lexData')
                      (DereferenceNode a) ->
-                             pure (AssignDereferenceNode a asgn asgnOp, lexData')
+                             pure (AssignDereferenceNode a asgn asgnOp dat, lexData')
                      _ -> throwError $ ParserError (TreeError tree)
 parseAssignment _ lexData = throwError $ ParserError (LexDataError lexData)
 

@@ -119,7 +119,7 @@ checkAST node@DeclarationNode{} = do
              Global -> checkDeclareGlobal node
              Local  -> checkDeclareLocal node
 
-checkAST node@(AssignmentNode varName value op) = do
+checkAST node@(AssignmentNode varName value op _) = do
         TypeCheck.assignment node
         currScope <- SymTab.getScope
         case currScope of
@@ -128,7 +128,7 @@ checkAST node@(AssignmentNode varName value op) = do
                      ScopeCheck.variableExists node
                      checkAssignLocal (VarNode varName) value op
 
-checkAST node@(AssignDereferenceNode varName value op) = do
+checkAST node@(AssignDereferenceNode varName value op _) = do
         ScopeCheck.variableExists node
         TypeCheck.assignment node
         checkAssignLocal (DereferenceNode varName) value op
@@ -249,7 +249,7 @@ checkDeclareLocal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 checkDefineGlobal :: Tree -> GenState ()
-checkDefineGlobal node@(AssignmentNode name _ _) = do
+checkDefineGlobal node@(AssignmentNode name _ _ _) = do
         ScopeCheck.checkIfDefined node
         label <- SymTab.globalLabel name
         SymTab.defineGlobal name
@@ -259,9 +259,9 @@ checkDefineGlobal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 checkPrevDecGlob :: Maybe String -> Tree -> GenState ()
 checkPrevDecGlob Nothing node = throwError $ ScopeError (UndeclaredNode node)
-checkPrevDecGlob (Just _) (AssignmentNode _ node@(ConstantNode _) _)  = checkAST node
-checkPrevDecGlob (Just _) (AssignmentNode _ node@(AddressOfNode _) _) = checkAST node
-checkPrevDecGlob _ (AssignmentNode _ valNode _) =
+checkPrevDecGlob (Just _) (AssignmentNode _ node@(ConstantNode _) _ _)  = checkAST node
+checkPrevDecGlob (Just _) (AssignmentNode _ node@(AddressOfNode _) _ _) = checkAST node
+checkPrevDecGlob _ (AssignmentNode _ valNode _ _) =
         throwError $ ScopeError (UnexpectedNode valNode)
 checkPrevDecGlob _ tree = throwError $ ScopeError (UnexpectedNode tree)
 

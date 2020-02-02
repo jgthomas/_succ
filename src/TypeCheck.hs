@@ -58,9 +58,9 @@ globalDeclaration tree = throwError $ CheckerError (InvalidNode tree)
 
 -- | Throw error if types of assignment and declaration don't match
 assignment :: Tree -> GenState ()
-assignment node@(AssignmentNode name value _) =
+assignment node@(AssignmentNode name value _ _) =
         checkAssignmentType node name value
-assignment node@(AssignDereferenceNode name value _) =
+assignment node@(AssignDereferenceNode name value _ _) =
         checkAssignmentType node name value
 assignment node = throwError $ CheckerError (InvalidNode node)
 
@@ -106,7 +106,7 @@ getType node@(BinaryNode l r _)     = getBinaryType node l r
 getType (UnaryNode tree _)          = getType tree
 getType (ConstantNode _)            = pure IntVar
 getType node@(FuncCallNode name _)  = getFuncType node name
-getType (AssignmentNode _ tree _)   = getType tree
+getType (AssignmentNode _ tree _ _) = getType tree
 getType node@(DereferenceNode name) = dereferenceType node name
 getType tree                        = throwError $ TypeError (NotTyped tree)
 

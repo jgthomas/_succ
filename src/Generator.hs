@@ -133,7 +133,7 @@ genASM node@AssignmentNode{} = do
              Global -> defineGlobal node
              Local  -> defineLocal node
 
-genASM (AssignDereferenceNode varName value op) = do
+genASM (AssignDereferenceNode varName value op _) = do
         assign <- buildAssignmentASM (DereferenceNode varName) value op
         (offset, argPos, globLab) <- SymTab.getVariables varName
         ASM.derefStore assign offset argPos globLab
@@ -209,7 +209,7 @@ genAssignment (Just tree) = genASM tree
 
 
 defineGlobal :: Tree -> GenState String
-defineGlobal node@(AssignmentNode name _ _) = do
+defineGlobal node@(AssignmentNode name _ _ _) = do
         label <- SymTab.globalLabel name
         SymTab.defineGlobal name
         defPrevDecGlob label node
@@ -218,15 +218,15 @@ defineGlobal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 defPrevDecGlob :: Maybe String -> Tree -> GenState String
 defPrevDecGlob Nothing node = throwError $ ScopeError (UndeclaredNode node)
-defPrevDecGlob (Just label) (AssignmentNode _ (ConstantNode a) _) = do
+defPrevDecGlob (Just label) (AssignmentNode _ (ConstantNode a) _ _) = do
         value <- genASM (ConstantNode a)
         globalVarASM label value
-defPrevDecGlob (Just label) (AssignmentNode _ (AddressOfNode a) _) = do
+defPrevDecGlob (Just label) (AssignmentNode _ (AddressOfNode a) _ _) = do
         value   <- genASM (AddressOfNode a)
         initASM <- ASM.varAddressStoreGlobal value label
         SymTab.storeForInit initASM
         ASM.uninitializedGlobal label
-defPrevDecGlob _ (AssignmentNode _ valNode _) =
+defPrevDecGlob _ (AssignmentNode _ valNode _ _) =
         throwError $ ScopeError (UnexpectedNode valNode)
 defPrevDecGlob _ tree = throwError $ ScopeError (UnexpectedNode tree)
 
@@ -249,7 +249,7 @@ declareLocal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 defineLocal :: Tree -> GenState String
-defineLocal node@(AssignmentNode varName value op) = do
+defineLocal node@(AssignmentNode varName value op _) = do
         assign <- buildAssignmentASM (VarNode varName) value op
         (offset, _, globLab) <- SymTab.getVariables varName
         case (offset, globLab) of
