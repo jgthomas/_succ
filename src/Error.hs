@@ -39,7 +39,7 @@ data ParserError = TreeError Tree
 
 
 data StateError = NoStateFound String
-                | UndefinedScope Int
+                | UndefinedScope String Int
                 deriving (Show, Eq)
 
 

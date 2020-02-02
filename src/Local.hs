@@ -219,7 +219,9 @@ getScope :: Int -> FuncState -> GenState (M.Map String LocalVar)
 getScope scope fs =
         case M.lookup scope $ scopes fs of
              Just sc -> pure sc
-             Nothing -> throwError $ StateError (UndefinedScope scope)
+             Nothing -> do
+                     funcName <- FrameStack.currentFunc
+                     throwError $ StateError (UndefinedScope funcName scope)
 
 
 -- scope
