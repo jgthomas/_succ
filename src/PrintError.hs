@@ -203,7 +203,8 @@ fatalErrorMsgOutro = " good luck!"
 
 
 impossibleErrorMsg :: (String, PrintRange)
-impossibleErrorMsg = ("Something unexpected went wrong, you are on your own!", None)
+impossibleErrorMsg = (msg, None)
+        where msg = "Something unexpected went wrong, you are on your own!"
 
 
 toLineMap :: String -> M.Map Int String
