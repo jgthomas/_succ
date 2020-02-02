@@ -133,11 +133,22 @@ syntaxErrorMsg (MissingKeyword kwd d) = (msg, mkRange d)
 
 
 scopeErrorMsg :: ScopeError -> (String, PrintRange)
-scopeErrorMsg (DoubleDefinedNode (FunctionNode _ name _ _ dat)) =
-        (msg, Exact $ startLine dat)
+scopeErrorMsg (DoubleDefinedNode (FunctionNode _ name _ _ dat)) = (msg, Exact $ startLine dat)
         where msg = buildLineMsg (startLine dat)
                     ++ "Identifier '" ++ name ++ "' already defined"
+scopeErrorMsg (UnexpectedNode node@BreakNode{})    = unexpectedNodeErrMsg node
+scopeErrorMsg (UnexpectedNode node@ContinueNode{}) = unexpectedNodeErrMsg node
 scopeErrorMsg err = (show err, All)
+
+
+unexpectedNodeErrMsg :: Tree -> (String, PrintRange)
+unexpectedNodeErrMsg (BreakNode dat) = (msg, Exact $ startLine dat)
+        where msg = buildLineMsg (startLine dat)
+                    ++ "Unexpected 'break' outside loop context"
+unexpectedNodeErrMsg (ContinueNode dat) = (msg, Exact $ startLine dat)
+        where msg = buildLineMsg (startLine dat)
+                    ++ "Unexpected 'continue' outside loop context"
+unexpectedNodeErrMsg _ = undefined
 
 
 typeErrorMsg :: TypeError -> (String, PrintRange)
