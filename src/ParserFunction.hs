@@ -15,9 +15,8 @@ import Tokens           (OpTok (..), Token (..))
 
 
 parseFunction :: [LexDat] -> ParserState (Tree, [LexDat])
-parseFunction [] = throwError $ ParserError (LexDataError [])
-parseFunction lexData@(a:_) = do
-        nodeDat         <- mkDat a
+parseFunction lexData = do
+        nodeDat         <- mkDat lexData
         typ             <- parseType lexData
         name            <- parseFuncName lexData
         (params, lexData') <- parseFuncParams lexData
@@ -50,9 +49,8 @@ parseTheParams _ lexData = throwError $ ParserError (LexDataError lexData)
 
 
 parseParam :: [LexDat] -> ParserState (Tree, [LexDat])
-parseParam [] = throwError $ ParserError (LexDataError [])
-parseParam lexData@(a:_) = do
-        nodeDat           <- mkDat a
+parseParam lexData = do
+        nodeDat           <- mkDat lexData
         typ               <- parseType lexData
         lexData'          <- consumeTok lexData
         (tree, lexData'') <- parseParamValue lexData'

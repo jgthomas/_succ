@@ -83,5 +83,6 @@ parseType (a:_) = throwError $ SyntaxError (BadType a)
 parseType lexData  = throwError $ ParserError (LexDataError lexData)
 
 
-mkDat :: LexDat -> ParserState NodeDat
-mkDat d = pure $ mkNodeDat (line d) (line d)
+mkDat :: [LexDat] -> ParserState NodeDat
+mkDat []    = throwError $ ParserError (LexDataError [])
+mkDat (d:_) = pure $ mkNodeDat (line d) (line d)
