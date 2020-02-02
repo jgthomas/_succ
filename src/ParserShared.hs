@@ -5,7 +5,7 @@ module ParserShared
          consumeTok,
          consumeNToks,
          parseType,
-         mkDat,
+         makeNodeDat,
          nextTokIsNot
         ) where
 
@@ -83,6 +83,6 @@ parseType (a:_) = throwError $ SyntaxError (BadType a)
 parseType lexData  = throwError $ ParserError (LexDataError lexData)
 
 
-mkDat :: [LexDat] -> ParserState NodeDat
-mkDat []    = throwError $ ParserError (LexDataError [])
-mkDat (d:_) = pure $ mkNodeDat (line d) (line d)
+makeNodeDat :: [LexDat] -> ParserState NodeDat
+makeNodeDat []    = throwError $ ParserError (LexDataError [])
+makeNodeDat (d:_) = pure $ mkNodeDat (line d) (line d)

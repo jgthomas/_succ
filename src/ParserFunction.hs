@@ -7,7 +7,7 @@ import Error            (CompilerError (ParserError, SyntaxError),
                          ParserError (..), SyntaxError (..))
 import LexDat           (LexDat (..))
 import ParserExpression (parseExpression)
-import ParserShared     (consumeTok, mkDat, parsePassIn, parseType,
+import ParserShared     (consumeTok, makeNodeDat, parsePassIn, parseType,
                          verifyAndConsume)
 import ParserStatement  (parseStatementBlock)
 import ParState         (ParserState, throwError)
@@ -16,7 +16,7 @@ import Tokens           (OpTok (..), Token (..))
 
 parseFunction :: [LexDat] -> ParserState (Tree, [LexDat])
 parseFunction lexData = do
-        nodeDat         <- mkDat lexData
+        nodeDat         <- makeNodeDat lexData
         typ             <- parseType lexData
         name            <- parseFuncName lexData
         (params, lexData') <- parseFuncParams lexData
@@ -50,7 +50,7 @@ parseTheParams _ lexData = throwError $ ParserError (LexDataError lexData)
 
 parseParam :: [LexDat] -> ParserState (Tree, [LexDat])
 parseParam lexData = do
-        nodeDat           <- mkDat lexData
+        nodeDat           <- makeNodeDat lexData
         typ               <- parseType lexData
         lexData'          <- consumeTok lexData
         (tree, lexData'') <- parseParamValue lexData'
