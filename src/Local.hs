@@ -34,8 +34,7 @@ import           Data.List     (sortBy)
 import qualified Data.Map      as M
 import           Data.Maybe    (isNothing)
 
-import           Error         (CompilerError (GeneratorError),
-                                GeneratorError (..))
+import           Error         (CompilerError (StateError), StateError (..))
 import qualified FrameStack    (currentFunc, popFunc, pushFunc)
 import           GenState      (GenState, throwError)
 import qualified GenState      (delFuncState, getFuncState, updateFuncState)
@@ -220,7 +219,7 @@ getScope :: Int -> FuncState -> GenState (M.Map String LocalVar)
 getScope scope fs =
         case M.lookup scope $ scopes fs of
              Just sc -> pure sc
-             Nothing -> throwError $ GeneratorError (UndefinedScope scope)
+             Nothing -> throwError $ StateError (UndefinedScope scope)
 
 
 -- scope
@@ -260,7 +259,7 @@ getFunctionState name = do
         fstate <- GenState.getFuncState name
         case fstate of
              Just st -> pure st
-             Nothing -> throwError $ GeneratorError (NoStateFound name)
+             Nothing -> throwError $ StateError (NoStateFound name)
 
 
 setFunctionState :: String -> FuncState -> GenState ()

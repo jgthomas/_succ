@@ -11,7 +11,7 @@ import Type     (Type)
 
 data CompilerError = LexerError LexerError
                    | ParserError ParserError
-                   | GeneratorError GeneratorError
+                   | StateError StateError
                    | CheckerError CheckerError
                    | SyntaxError SyntaxError
                    | ScopeError ScopeError
@@ -38,9 +38,9 @@ data ParserError = TreeError Tree
                  deriving (Show, Eq)
 
 
-data GeneratorError = NoStateFound String
-                    | UndefinedScope Int
-                    deriving (Show, Eq)
+data StateError = NoStateFound String
+                | UndefinedScope Int
+                deriving (Show, Eq)
 
 
 data CheckerError = InvalidNode Tree

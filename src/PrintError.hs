@@ -64,15 +64,15 @@ printSourceLine lineMap n =
 
 
 errorMsg :: CompilerError -> (String, PrintRange)
-errorMsg (LexerError err)     = lexerErrorMsg err
-errorMsg (ParserError err)    = parserErrorMsg err
-errorMsg (GeneratorError err) = generatorErrorMsg err
-errorMsg (CheckerError err)   = checkerErrorMsg err
-errorMsg (SyntaxError err)    = syntaxErrorMsg err
-errorMsg (ScopeError err)     = scopeErrorMsg err
-errorMsg (TypeError err)      = typeErrorMsg err
-errorMsg (FatalError err)     = fatalErrorMsg err
-errorMsg ImpossibleError      = impossibleErrorMsg
+errorMsg (LexerError err)   = lexerErrorMsg err
+errorMsg (ParserError err)  = parserErrorMsg err
+errorMsg (StateError err)   = stateErrorMsg err
+errorMsg (CheckerError err) = checkerErrorMsg err
+errorMsg (SyntaxError err)  = syntaxErrorMsg err
+errorMsg (ScopeError err)   = scopeErrorMsg err
+errorMsg (TypeError err)    = typeErrorMsg err
+errorMsg (FatalError err)   = fatalErrorMsg err
+errorMsg ImpossibleError    = impossibleErrorMsg
 
 
 lexerErrorMsg :: LexerError -> (String, PrintRange)
@@ -105,8 +105,8 @@ parserErrorMsg (LexDataError (d:_)) = (msg, From $ line d)
                     ++ buildTokMsg (tok d) ++ "'"
 
 
-generatorErrorMsg :: GeneratorError -> (String, PrintRange)
-generatorErrorMsg err = (show err, All)
+stateErrorMsg :: StateError -> (String, PrintRange)
+stateErrorMsg err = (show err, All)
 
 
 checkerErrorMsg :: CheckerError -> (String, PrintRange)
