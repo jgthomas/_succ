@@ -8,7 +8,7 @@ import Error             (CompilerError (ParserError, SyntaxError),
 import LexDat            (LexDat (..))
 import ParserDeclaration (parsePointerDec, parseValueDec)
 import ParserExpression  (parseExpression)
-import ParserShared      (nextTokIsNot, verifyAndConsume)
+import ParserShared      (makeNodeDat, nextTokIsNot, verifyAndConsume)
 import ParState          (ParserState, throwError)
 import Tokens            (Keyword (..), OpTok (..), Token (..))
 
@@ -37,8 +37,8 @@ parseStatement lexData@(first:rest) =
              LexDat{tok=Keyword While}    -> parseWhileStatement rest
              LexDat{tok=Keyword Do}       -> parseDoWhile rest
              LexDat{tok=Keyword For}      -> parseForLoop rest
-             LexDat{tok=Keyword Break}    -> parseBreak rest
-             LexDat{tok=Keyword Continue} -> parseContinue rest
+             LexDat{tok=Keyword Break}    -> parseBreak lexData
+             LexDat{tok=Keyword Continue} -> parseContinue lexData
              LexDat{tok=OpenBrace}        -> parseCompoundStmt rest
              _                            -> parseExprStatement lexData
 
@@ -62,15 +62,21 @@ parseExprStatement lexData = do
 
 
 parseBreak :: [LexDat] -> ParserState (Tree, [LexDat])
-parseBreak (LexDat{tok=SemiColon}:rest) = pure (BreakNode, rest)
-parseBreak (d:_) = throwError $ SyntaxError (MissingToken SemiColon d)
-parseBreak [] = throwError $ ParserError (LexDataError [])
+parseBreak lexData@(LexDat{tok=Keyword Break}:LexDat{tok=SemiColon}:rest) = do
+        dat <- makeNodeDat lexData
+        pure (BreakNode dat, rest)
+parseBreak (LexDat{tok=Keyword Break}:d:_) =
+        throwError $ SyntaxError (MissingToken SemiColon d)
+parseBreak lexData = throwError $ ParserError (LexDataError lexData)
 
 
 parseContinue :: [LexDat] -> ParserState (Tree, [LexDat])
-parseContinue (LexDat{tok=SemiColon}:rest) = pure (ContinueNode, rest)
-parseContinue (d:_) = throwError $ SyntaxError (MissingToken SemiColon d)
-parseContinue [] = throwError $ ParserError (LexDataError [])
+parseContinue lexData@(LexDat{tok=Keyword Continue}:LexDat{tok=SemiColon}:rest) = do
+        dat <- makeNodeDat lexData
+        pure (ContinueNode dat, rest)
+parseContinue (LexDat{tok=Keyword Continue}:d:_) =
+        throwError $ SyntaxError (MissingToken SemiColon d)
+parseContinue lexData = throwError $ ParserError (LexDataError lexData)
 
 
 parseCompoundStmt :: [LexDat] -> ParserState (Tree, [LexDat])

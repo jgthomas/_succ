@@ -140,9 +140,9 @@ genASM (AssignDereferenceNode varName value op _) = do
 
 genASM (ExprStmtNode expression) = genASM expression
 
-genASM ContinueNode = ASM.setGotoPoint . fromMaybe (-1) <$> SymTab.getContinue
+genASM (ContinueNode _) = ASM.setGotoPoint . fromMaybe (-1) <$> SymTab.getContinue
 
-genASM BreakNode = ASM.setGotoPoint . fromMaybe (-1) <$> SymTab.getBreak
+genASM (BreakNode _) = ASM.setGotoPoint . fromMaybe (-1) <$> SymTab.getBreak
 
 genASM (ReturnNode tree) = ASM.returnValue <$> genASM tree
 

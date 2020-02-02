@@ -135,15 +135,15 @@ checkAST node@(AssignDereferenceNode varName value op _) = do
 
 checkAST (ExprStmtNode expression) = checkAST expression
 
-checkAST ContinueNode = do
+checkAST node@(ContinueNode _) = do
         continueLabel <- SymTab.getContinue
         when (isNothing continueLabel) $
-            throwError $ ScopeError (UnexpectedNode ContinueNode)
+            throwError $ ScopeError (UnexpectedNode node)
 
-checkAST BreakNode = do
+checkAST node@(BreakNode _) = do
         breakLabel <- SymTab.getContinue
         when (isNothing breakLabel) $
-            throwError $ ScopeError (UnexpectedNode BreakNode)
+            throwError $ ScopeError (UnexpectedNode node)
 
 checkAST node@(ReturnNode tree) = do
         checkAST tree

@@ -19,8 +19,8 @@ data Tree = ProgramNode [Tree]
           | WhileNode Tree Tree
           | DoWhileNode Tree Tree
           | ForLoopNode Tree Tree Tree Tree
-          | BreakNode
-          | ContinueNode
+          | BreakNode NodeDat
+          | ContinueNode NodeDat
           | ConstantNode Int                      -- expressions
           | FuncCallNode String [Tree]
           | ParamNode Type Tree NodeDat
