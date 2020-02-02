@@ -94,10 +94,14 @@ parserErrorMsg :: ParserError -> (String, PrintRange)
 parserErrorMsg err@(TreeError _) = (show err, All)
 parserErrorMsg (LexDataError []) = (msg, None)
         where msg = "Empty input from lexer"
-parserErrorMsg (LexDataError (d:_))  = (msg, mkRange d)
+parserErrorMsg (LexDataError [d])  = (msg, Exact $ line d)
         where msg = buildLineMsg (line d)
                     ++ "Unexpected input "
                     ++ buildTokMsg (tok d)
+parserErrorMsg (LexDataError (d:_)) = (msg, From $ line d)
+        where msg = buildLineMsg (line d)
+                    ++ "Unexpected input starting at '"
+                    ++ buildTokMsg (tok d) ++ "'"
 
 
 generatorErrorMsg :: GeneratorError -> (String, PrintRange)
