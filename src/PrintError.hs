@@ -75,10 +75,10 @@ errorMsg ImpossibleError      = impossibleErrorMsg
 
 
 lexerErrorMsg :: LexerError -> (String, PrintRange)
-lexerErrorMsg err =
-        case err of
-             UnexpectedInput str -> (lexerUnexpectedMsg str, All)
-             EmptyInput          -> ("Empty input file", None)
+lexerErrorMsg (UnexpectedInput s) = (msg, All)
+        where msg = lexerUnexpectedMsg s
+lexerErrorMsg EmptyInput = (msg, None)
+        where msg = "Empty input file"
 
 
 lexerUnexpectedMsg :: String -> String
