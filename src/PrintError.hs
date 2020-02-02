@@ -133,16 +133,11 @@ syntaxErrorMsg (MissingKeyword kwd d) = (msg, mkRange d)
 
 
 scopeErrorMsg :: ScopeError -> (String, PrintRange)
-scopeErrorMsg err@(DoubleDefinedNode FunctionNode{}) = funcErrorMsg err
-scopeErrorMsg err                                    = (show err, All)
-
-
-funcErrorMsg :: ScopeError -> (String, PrintRange)
-funcErrorMsg (DoubleDefinedNode (FunctionNode _ name _ _ dat)) =
-        (msg, Exact (startLine dat))
+scopeErrorMsg (DoubleDefinedNode (FunctionNode _ name _ _ dat)) =
+        (msg, Exact $ startLine dat)
         where msg = buildLineMsg (startLine dat)
-                    ++ "Function '" ++ name ++ "' repeat defined"
-funcErrorMsg err = (show err, All)
+                    ++ "Identifier '" ++ name ++ "' already defined"
+scopeErrorMsg err = (show err, All)
 
 
 typeErrorMsg :: TypeError -> (String, PrintRange)
