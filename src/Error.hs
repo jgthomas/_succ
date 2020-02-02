@@ -45,7 +45,6 @@ data StateError = NoStateFound String
 
 
 data CheckerError = InvalidNode Tree
-                  | MissingNode Tree
                   | OperatorError Operator Tree
                   deriving (Show, Eq)
 
