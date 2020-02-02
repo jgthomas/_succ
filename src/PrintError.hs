@@ -15,6 +15,7 @@ import AST           (NodeDat (..), Tree (..))
 import Error
 import LexDat        (LexDat (..))
 import Tokens        (Token)
+import Type          (Type (..))
 
 
 data PrintRange = All
@@ -140,10 +141,14 @@ typeErrorMsg :: TypeError -> (String, PrintRange)
 typeErrorMsg (TypeMismatch a b (FunctionNode _ name _ _ dat)) =
         (msg, Exact (startLine dat))
         where msg = buildLineMsg (startLine dat)
-                    ++ "Type mismatch between declarations of '" ++ name ++ "' "
-                    ++ "was '" ++ unwords (map show a)
-                    ++ "' now '" ++ unwords (map show b) ++ "'"
+                    ++ "Parameter type mismatch between declarations of '" ++ name
+                    ++ "' was '" ++ typeString a
+                    ++ "' now '" ++ typeString b ++ "'"
 typeErrorMsg err = (show err, All)
+
+
+typeString :: [Type] -> String
+typeString ts = unwords . map show $ ts
 
 
 impossibleErrorMsg :: (String, PrintRange)
