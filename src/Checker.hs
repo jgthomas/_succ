@@ -165,10 +165,10 @@ checkAST (BinaryNode lft rgt _) = do
 checkAST (UnaryNode node@(VarNode _) _) = do
         checkAST node
         ScopeCheck.variableExists node
-checkAST (UnaryNode _ unOp@(PreOpUnary _)) =
-        throwError $ GeneratorError (OperatorError (UnaryOp unOp))
-checkAST (UnaryNode _ unOp@(PostOpUnary _)) =
-        throwError $ GeneratorError (OperatorError (UnaryOp unOp))
+checkAST node@(UnaryNode _ unOp@(PreOpUnary _)) =
+        throwError $ GeneratorError (OperatorError (UnaryOp unOp) node)
+checkAST node@(UnaryNode _ unOp@(PostOpUnary _)) =
+        throwError $ GeneratorError (OperatorError (UnaryOp unOp) node)
 checkAST (UnaryNode tree (Unary _)) = checkAST tree
 
 checkAST node@(VarNode _) = ScopeCheck.variableExists node
@@ -270,5 +270,5 @@ checkAssignLocal :: Tree -> Tree -> Operator -> GenState ()
 checkAssignLocal _ valTree Assignment = checkAST valTree
 checkAssignLocal varTree valTree (BinaryOp binOp) =
         checkAST (BinaryNode varTree valTree binOp)
-checkAssignLocal _ _ (UnaryOp a) =
-        throwError $ GeneratorError (OperatorError (UnaryOp a))
+checkAssignLocal node _ op@(UnaryOp _) =
+        throwError $ GeneratorError (OperatorError op node)

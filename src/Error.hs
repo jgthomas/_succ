@@ -32,7 +32,7 @@ data ParserError = TreeError Tree
 
 data GeneratorError = NoStateFound String
                     | UndefinedScope Int
-                    | OperatorError Operator
+                    | OperatorError Operator Tree
                     deriving (Show, Eq)
 
 

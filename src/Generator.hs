@@ -318,8 +318,8 @@ buildAssignmentASM :: Tree -> Tree -> Operator -> GenState String
 buildAssignmentASM _ valTree Assignment = genASM valTree
 buildAssignmentASM varTree valTree (BinaryOp binOp) =
         genASM (BinaryNode varTree valTree binOp)
-buildAssignmentASM _ _ (UnaryOp a) =
-        throwError $ GeneratorError (OperatorError (UnaryOp a))
+buildAssignmentASM node _ op@(UnaryOp _) =
+        throwError $ GeneratorError (OperatorError op node)
 
 
 -- Operators
