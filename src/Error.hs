@@ -16,8 +16,16 @@ data CompilerError = LexerError LexerError
                    | SyntaxError SyntaxError
                    | ScopeError ScopeError
                    | TypeError TypeError
+                   | FatalError FatalError
                    | ImpossibleError
                    deriving (Show, Eq)
+
+
+data FatalError = LexerBug String
+                | ParserBug [LexDat]
+                | CheckerBug Tree
+                | GeneratorBug Tree
+                deriving (Show, Eq)
 
 
 data LexerError = EmptyInput

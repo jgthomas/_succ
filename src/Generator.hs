@@ -13,8 +13,9 @@ import           Data.Maybe          (fromMaybe)
 
 import qualified ASM
 import           AST                 (Tree (..))
-import           Error               (CompilerError (GeneratorError, ScopeError),
-                                      GeneratorError (..), ScopeError (..))
+import           Error               (CompilerError (FatalError, ScopeError),
+                                      FatalError (GeneratorBug),
+                                      ScopeError (..))
 import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (startState)
 import           GenTokens           (Scope (..))
@@ -53,7 +54,7 @@ genASM (ParamNode typ (VarNode name) _) = do
         SymTab.addParameter name typ
         ASM.noOutput
 genASM node@ParamNode{} =
-        throwError $ ScopeError (UnexpectedNode node)
+        throwError $ FatalError (GeneratorBug node)
 
 genASM (FuncCallNode name args) =
         ASM.functionCall name <$> processArgs args
@@ -200,7 +201,7 @@ declareGlobal (DeclarationNode name typ toAssign _) = do
                      globLab <- SymTab.mkGlobLabel name
                      SymTab.declareGlobal name typ globLab
                      genAssignment toAssign
-declareGlobal tree = throwError $ ScopeError (UnexpectedNode tree)
+declareGlobal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 genAssignment :: Maybe Tree -> GenState String
@@ -213,11 +214,10 @@ defineGlobal node@(AssignmentNode name _ _ _) = do
         label <- SymTab.globalLabel name
         SymTab.defineGlobal name
         defPrevDecGlob label node
-defineGlobal tree = throwError $ ScopeError (UnexpectedNode tree)
+defineGlobal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 defPrevDecGlob :: Maybe String -> Tree -> GenState String
-defPrevDecGlob Nothing node = throwError $ ScopeError (UndeclaredNode node)
 defPrevDecGlob (Just label) (AssignmentNode _ (ConstantNode a) _ _) = do
         value <- genASM (ConstantNode a)
         globalVarASM label value
@@ -227,8 +227,8 @@ defPrevDecGlob (Just label) (AssignmentNode _ (AddressOfNode a) _ _) = do
         SymTab.storeForInit initASM
         ASM.uninitializedGlobal label
 defPrevDecGlob _ (AssignmentNode _ valNode _ _) =
-        throwError $ ScopeError (UnexpectedNode valNode)
-defPrevDecGlob _ tree = throwError $ ScopeError (UnexpectedNode tree)
+        throwError $ FatalError (GeneratorBug valNode)
+defPrevDecGlob _ tree = throwError $ FatalError (GeneratorBug tree)
 
 
 globalVarASM :: String -> String -> GenState String
@@ -245,7 +245,7 @@ declareLocal (DeclarationNode varName typ value _) = do
         case value of
              Just val -> genASM val
              Nothing  -> ASM.decNoAssign offset adjust
-declareLocal tree = throwError $ ScopeError (UnexpectedNode tree)
+declareLocal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 defineLocal :: Tree -> GenState String
@@ -267,14 +267,14 @@ declareFunction node@(FunctionNode _ funcName _ _ _) = do
         case prevParamCount of
              Nothing -> declareNewFunction node
              Just _  -> declareRepeatFunction node
-declareFunction tree = throwError $ ScopeError (UnexpectedNode tree)
+declareFunction tree = throwError $ FatalError (GeneratorBug tree)
 
 
 declareNewFunction :: Tree -> GenState ()
 declareNewFunction (FunctionNode typ funcName paramList _ _) = do
         SymTab.declareFunction typ funcName (length paramList)
         processParameters funcName paramList
-declareNewFunction tree = throwError $ ScopeError (UnexpectedNode tree)
+declareNewFunction tree = throwError $ FatalError (GeneratorBug tree)
 
 
 declareRepeatFunction :: Tree -> GenState ()
@@ -284,7 +284,7 @@ declareRepeatFunction (FunctionNode typ funcName paramList _ _) = do
         unless defined $
            do SymTab.delFuncState funcName
               processParameters funcName paramList
-declareRepeatFunction tree = throwError $ ScopeError (UnexpectedNode tree)
+declareRepeatFunction tree = throwError $ FatalError (GeneratorBug tree)
 
 
 processParameters :: String -> [Tree] -> GenState ()
@@ -318,8 +318,8 @@ buildAssignmentASM :: Tree -> Tree -> Operator -> GenState String
 buildAssignmentASM _ valTree Assignment = genASM valTree
 buildAssignmentASM varTree valTree (BinaryOp binOp) =
         genASM (BinaryNode varTree valTree binOp)
-buildAssignmentASM node _ op@(UnaryOp _) =
-        throwError $ GeneratorError (OperatorError op node)
+buildAssignmentASM node _ (UnaryOp _) =
+        throwError $ FatalError (GeneratorBug node)
 
 
 -- Operators
@@ -330,4 +330,4 @@ processBinaryNode (BinaryNode left _ op) rgt = do
         lab2 <- SymTab.labelNum
         lft  <- genASM left
         ASM.binary lft rgt op lab1 lab2
-processBinaryNode tree _ = throwError $ ScopeError (UnexpectedNode tree)
+processBinaryNode tree _ = throwError $ FatalError (GeneratorBug tree)
