@@ -11,8 +11,9 @@ import           Control.Monad (unless, when)
 import           Data.Maybe    (isNothing)
 
 import           AST           (Tree (..))
-import           Error         (CompilerError (GeneratorError, ScopeError),
-                                GeneratorError (..), ScopeError (..))
+import           Error         (CheckerError (..),
+                                CompilerError (CheckerError, ScopeError),
+                                ScopeError (..))
 import           GenState      (GenState, runGenState, throwError)
 import qualified GenState      (startState)
 import           GenTokens     (Scope (..))
@@ -166,9 +167,9 @@ checkAST (UnaryNode node@(VarNode _) _) = do
         checkAST node
         ScopeCheck.variableExists node
 checkAST node@(UnaryNode _ unOp@(PreOpUnary _)) =
-        throwError $ GeneratorError (OperatorError (UnaryOp unOp) node)
+        throwError $ CheckerError (OperatorError (UnaryOp unOp) node)
 checkAST node@(UnaryNode _ unOp@(PostOpUnary _)) =
-        throwError $ GeneratorError (OperatorError (UnaryOp unOp) node)
+        throwError $ CheckerError (OperatorError (UnaryOp unOp) node)
 checkAST (UnaryNode tree (Unary _)) = checkAST tree
 
 checkAST node@(VarNode _) = ScopeCheck.variableExists node
@@ -271,4 +272,4 @@ checkAssignLocal _ valTree Assignment = checkAST valTree
 checkAssignLocal varTree valTree (BinaryOp binOp) =
         checkAST (BinaryNode varTree valTree binOp)
 checkAssignLocal node _ op@(UnaryOp _) =
-        throwError $ GeneratorError (OperatorError op node)
+        throwError $ CheckerError (OperatorError op node)

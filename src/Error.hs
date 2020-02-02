@@ -40,12 +40,12 @@ data ParserError = TreeError Tree
 
 data GeneratorError = NoStateFound String
                     | UndefinedScope Int
-                    | OperatorError Operator Tree
                     deriving (Show, Eq)
 
 
 data CheckerError = InvalidNode Tree
                   | MissingNode Tree
+                  | OperatorError Operator Tree
                   deriving (Show, Eq)
 
 
