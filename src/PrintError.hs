@@ -22,6 +22,8 @@ data PrintRange = All
                 | None
                 | Exact Int
                 | Range Int Int
+                | From Int
+                | Until Int
                 deriving (Eq)
 
 
@@ -44,6 +46,8 @@ printSource :: PrintRange -> String -> IO ()
 printSource All input         = printSourceLineRange input 1 (lineCount input)
 printSource (Range n m) input = printSourceLineRange input n m
 printSource (Exact n) input   = printSourceLine (toLineMap input) n
+printSource (From n) input    = printSourceLineRange input n (lineCount input)
+printSource (Until n) input   = printSourceLineRange input 1 n
 printSource None _            = pure ()
 
 
