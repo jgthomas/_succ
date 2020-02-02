@@ -9,7 +9,7 @@ module Parser (parse) where
 
 
 import           AST               (Tree (..))
-import           Error             (CompilerError (ImpossibleError, ParserError, SyntaxError),
+import           Error             (CompilerError (ParserError, SyntaxError),
                                     ParserError (..), SyntaxError (..))
 import           LexDat            (LexDat (..))
 import           ParserDeclaration (parsePointerDec, parseValueDec)
@@ -44,6 +44,5 @@ parseTopLevelItem lexData@(_:_:_:LexDat{tok=OpenParen}:_)  = parseFunction lexDa
 parseTopLevelItem lexData@(_:_:LexDat{tok=OpenParen}:_)    = parseFunction lexData
 parseTopLevelItem lexData@(_:LexDat{tok=Ident _}:_)        = parseValueDec lexData
 parseTopLevelItem lexData@(_:LexDat{tok=OpTok Asterisk}:_) = parsePointerDec lexData
-parseTopLevelItem []      = throwError ImpossibleError
 parseTopLevelItem (_:b:_) = throwError $ SyntaxError (NonValidIdentifier b)
 parseTopLevelItem lexData = throwError $ ParserError (LexDataError lexData)
