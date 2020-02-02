@@ -11,21 +11,14 @@ import Type     (Type)
 
 data CompilerError = LexerError LexerError
                    | ParserError ParserError
+                   | SyntaxError SyntaxError
                    | StateError StateError
                    | CheckerError CheckerError
-                   | SyntaxError SyntaxError
                    | ScopeError ScopeError
                    | TypeError TypeError
                    | FatalError FatalError
                    | ImpossibleError
                    deriving (Show, Eq)
-
-
-data FatalError = LexerBug String
-                | ParserBug [LexDat]
-                | CheckerBug Tree
-                | GeneratorBug Tree
-                deriving (Show, Eq)
 
 
 data LexerError = EmptyInput
@@ -38,6 +31,14 @@ data ParserError = TreeError Tree
                  deriving (Show, Eq)
 
 
+data SyntaxError = NonValidIdentifier LexDat
+                 | MissingToken Token LexDat
+                 | UnexpectedLexDat LexDat
+                 | MissingKeyword Keyword LexDat
+                 | BadType LexDat
+                 deriving (Show, Eq)
+
+
 data StateError = NoStateFound String
                 | UndefinedScope String Int
                 deriving (Show, Eq)
@@ -47,14 +48,6 @@ data CheckerError = InvalidNode Tree
                   | MissingNode Tree
                   | OperatorError Operator Tree
                   deriving (Show, Eq)
-
-
-data SyntaxError = NonValidIdentifier LexDat
-                 | MissingToken Token LexDat
-                 | UnexpectedLexDat LexDat
-                 | MissingKeyword Keyword LexDat
-                 | BadType LexDat
-                 deriving (Show, Eq)
 
 
 data ScopeError = UndeclaredNode Tree
@@ -74,3 +67,9 @@ data TypeError = TypeMismatch [Type] [Type] Tree
                | NotTyped Tree
                deriving (Show, Eq)
 
+
+data FatalError = LexerBug String
+                | ParserBug [LexDat]
+                | CheckerBug Tree
+                | GeneratorBug Tree
+                deriving (Show, Eq)
