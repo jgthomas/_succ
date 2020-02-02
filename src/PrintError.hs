@@ -106,7 +106,12 @@ parserErrorMsg (LexDataError (d:_)) = (msg, From $ line d)
 
 
 stateErrorMsg :: StateError -> (String, PrintRange)
-stateErrorMsg err = (show err, All)
+stateErrorMsg (NoStateFound name) = (msg, None)
+        where msg = "Unable to locate any state for '" ++ name
+                    ++ "' compilation terminated"
+stateErrorMsg (UndefinedScope name scope) = (msg, None)
+        where msg = "Unable to locate state for scope '" ++ show scope
+                    ++ "' in '" ++ name ++ "' compilation terminated"
 
 
 checkerErrorMsg :: CheckerError -> (String, PrintRange)
