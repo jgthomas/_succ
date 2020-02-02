@@ -145,7 +145,7 @@ checkAST node@(BreakNode _) = do
         when (isNothing breakLabel) $
             throwError $ ScopeError (UnexpectedNode node)
 
-checkAST node@(ReturnNode tree) = do
+checkAST node@(ReturnNode tree _) = do
         checkAST tree
         TypeCheck.funcReturn node tree
 

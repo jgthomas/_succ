@@ -32,7 +32,7 @@ parseStatement :: [LexDat] -> ParserState (Tree, [LexDat])
 parseStatement [] = throwError $ ParserError (LexDataError [])
 parseStatement lexData@(first:rest) =
         case first of
-             LexDat{tok=Keyword Return}   -> parseReturnStmt rest
+             LexDat{tok=Keyword Return}   -> parseReturnStmt lexData
              LexDat{tok=Keyword If}       -> parseIfStatement rest
              LexDat{tok=Keyword While}    -> parseWhileStatement rest
              LexDat{tok=Keyword Do}       -> parseDoWhile rest
@@ -164,9 +164,11 @@ parseOptionalElse lexData = pure (Nothing, lexData)
 
 parseReturnStmt :: [LexDat] -> ParserState (Tree, [LexDat])
 parseReturnStmt lexData = do
-        (tree, lexData') <- parseExpression lexData
-        lexData''        <- verifyAndConsume SemiColon lexData'
-        pure (ReturnNode tree, lexData'')
+        dat               <- makeNodeDat lexData
+        lexData'          <- verifyAndConsume (Keyword Return) lexData
+        (tree, lexData'') <- parseExpression lexData'
+        lexData'''        <- verifyAndConsume SemiColon lexData''
+        pure (ReturnNode tree dat, lexData''')
 
 
 parseNullStatement :: [LexDat] -> ParserState (Tree, [LexDat])

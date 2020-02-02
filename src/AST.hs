@@ -11,7 +11,7 @@ data Tree = ProgramNode [Tree]
           | DeclarationNode String Type (Maybe Tree)
           | PointerNode String Type (Maybe Tree)
           | CompoundStmtNode [Tree]               -- statements
-          | ReturnNode Tree
+          | ReturnNode Tree NodeDat
           | AssignmentNode String Tree Operator NodeDat
           | AssignDereferenceNode String Tree Operator NodeDat
           | ExprStmtNode Tree

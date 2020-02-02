@@ -144,7 +144,7 @@ genASM (ContinueNode _) = ASM.setGotoPoint . fromMaybe (-1) <$> SymTab.getContin
 
 genASM (BreakNode _) = ASM.setGotoPoint . fromMaybe (-1) <$> SymTab.getBreak
 
-genASM (ReturnNode tree) = ASM.returnValue <$> genASM tree
+genASM (ReturnNode tree _) = ASM.returnValue <$> genASM tree
 
 genASM (TernaryNode cond pass fails) = do
         testExp  <- genASM cond
@@ -298,7 +298,7 @@ hasReturn :: [Tree] -> Bool
 hasReturn [] = False
 hasReturn items =
         case last items of
-             ReturnNode _ -> True
+             ReturnNode{} -> True
              _            -> False
 
 
