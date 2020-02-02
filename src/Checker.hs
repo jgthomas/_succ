@@ -106,10 +106,10 @@ checkAST (IfNode test action possElse) = do
                      _ <- SymTab.labelNum
                      checkAST e
 
-checkAST (PointerNode varName typ Nothing) =
-        checkAST (DeclarationNode varName typ Nothing)
-checkAST node@(PointerNode varName typ (Just a)) = do
-        checkAST (DeclarationNode varName typ Nothing)
+checkAST (PointerNode varName typ Nothing dat) =
+        checkAST (DeclarationNode varName typ Nothing dat)
+checkAST node@(PointerNode varName typ (Just a) dat) = do
+        checkAST (DeclarationNode varName typ Nothing dat)
         ScopeCheck.variableExists node
         checkAST a
 
@@ -220,7 +220,7 @@ checkParams name params = do
 
 
 checkDeclareGlobal :: Tree -> GenState ()
-checkDeclareGlobal node@(DeclarationNode name typ toAssign) = do
+checkDeclareGlobal node@(DeclarationNode name typ toAssign _) = do
         ScopeCheck.checkIfFunction node
         currLabel <- SymTab.globalLabel name
         case currLabel of
@@ -238,7 +238,7 @@ checkAssignment (Just t) = checkAST t
 
 
 checkDeclareLocal :: Tree -> GenState ()
-checkDeclareLocal node@(DeclarationNode name typ toAssign) = do
+checkDeclareLocal node@(DeclarationNode name typ toAssign _) = do
         ScopeCheck.checkIfUsedInScope node
         _ <- SymTab.addVariable name typ
         _ <- SymTab.stackPointerValue

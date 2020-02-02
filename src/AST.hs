@@ -8,8 +8,8 @@ import Type     (Type)
 
 data Tree = ProgramNode [Tree]
           | FunctionNode Type String [Tree] (Maybe [Tree]) NodeDat
-          | DeclarationNode String Type (Maybe Tree)
-          | PointerNode String Type (Maybe Tree)
+          | DeclarationNode String Type (Maybe Tree) NodeDat
+          | PointerNode String Type (Maybe Tree) NodeDat
           | CompoundStmtNode [Tree]               -- statements
           | ReturnNode Tree NodeDat
           | AssignmentNode String Tree Operator NodeDat

@@ -50,7 +50,7 @@ funcDeclaration tree = throwError $ CheckerError (InvalidNode tree)
 
 -- | Throw error if global variable type declarations don't match
 globalDeclaration :: Tree -> GenState ()
-globalDeclaration node@(DeclarationNode name typ _) = do
+globalDeclaration node@(DeclarationNode name typ _ _) = do
         oldTyp <- getType (VarNode name)
         checkTypes node [oldTyp] [typ]
 globalDeclaration tree = throwError $ CheckerError (InvalidNode tree)
