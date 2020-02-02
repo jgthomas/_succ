@@ -13,9 +13,8 @@ import           Data.Maybe          (fromMaybe)
 
 import qualified ASM
 import           AST                 (Tree (..))
-import           Error               (CompilerError (FatalError, ScopeError),
-                                      FatalError (GeneratorBug),
-                                      ScopeError (..))
+import           Error               (CompilerError (FatalError),
+                                      FatalError (GeneratorBug))
 import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (startState)
 import           GenTokens           (Scope (..))
@@ -120,7 +119,7 @@ genASM node@(PointerNode varName typ (Just a) dat) = do
         case (offset, globLab) of
              (Just off, _) -> ASM.varAddressStore (pointerASM ++ value) off
              (_, Just _)   -> pure $ pointerASM ++ value
-             _             -> throwError $ ScopeError (UnrecognisedNode node)
+             _             -> throwError $ FatalError (GeneratorBug node)
 
 genASM node@DeclarationNode{} = do
         currScope <- SymTab.getScope
@@ -255,8 +254,8 @@ defineLocal node@(AssignmentNode varName value op _) = do
         case (offset, globLab) of
              (Just off, _) -> ASM.assign assign off <$> SymTab.stackPointerValue
              (_, Just lab) -> ASM.storeGlobal assign lab
-             _ -> throwError $ ScopeError (UndeclaredNode node)
-defineLocal tree = throwError $ ScopeError (UnexpectedNode tree)
+             _ -> throwError $ FatalError (GeneratorBug node)
+defineLocal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 -- Functions / function calls
