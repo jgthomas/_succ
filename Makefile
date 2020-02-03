@@ -1,7 +1,7 @@
 
 PROJECT=succ
 
-.PHONY: test lint clean
+.PHONY: test lint clean coverage graph
 
 
 all: test lint
