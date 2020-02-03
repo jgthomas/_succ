@@ -59,7 +59,7 @@ isTok t a = unless (t == tok a) $ throwError $ SyntaxError (MissingToken t a)
 
 
 isNotTok :: Token -> LexDat -> ParserState ()
-isNotTok t a = unless ( t /= tok a) $ throwError $ SyntaxError (UnexpectedLexDat a)
+isNotTok t a = unless (t /= tok a) $ throwError $ SyntaxError (UnexpectedLexDat a)
 
 
 consumeTok :: [LexDat] -> ParserState [LexDat]
