@@ -217,8 +217,8 @@ defineGlobal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 defPrevDecGlob :: Maybe String -> Tree -> GenState String
-defPrevDecGlob (Just label) (AssignmentNode _ (ConstantNode a dat) _ _) = do
-        value <- genASM (ConstantNode a dat)
+defPrevDecGlob (Just label) (AssignmentNode _ node@ConstantNode{} _ _) = do
+        value <- genASM node
         globalVarASM label value
 defPrevDecGlob (Just label) (AssignmentNode _ node@AddressOfNode{} _ _) = do
         value   <- genASM node
