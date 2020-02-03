@@ -234,8 +234,9 @@ parseBinaryExp _ [] _ _ = throwError $ ParserError (LexDataError [])
 parseBinaryExp _ _ _ [] = throwError ImpossibleError
 parseBinaryExp tree lexData@(LexDat{tok=OpTok op}:rest) f ops
         | op `elem` ops = do
+                dat                <- makeNodeDat lexData
                 (ntree, lexData'') <- f rest
                 let binOp = Operator.tokToBinOp op
-                parseBinaryExp (BinaryNode tree ntree binOp) lexData'' f ops
+                parseBinaryExp (BinaryNode tree ntree binOp dat) lexData'' f ops
         | otherwise = pure (tree, lexData)
 parseBinaryExp tree lexData _ _ = pure (tree, lexData)

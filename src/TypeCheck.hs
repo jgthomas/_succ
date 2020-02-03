@@ -103,7 +103,7 @@ getType node@(VarNode name _)         = getVarType node name
 getType node@(AddressOfNode name _)   = getVarType node name >>= invertType node
 getType node@(DereferenceNode name _) = getVarType node name >>= invertType node
 getType node@(TernaryNode l m r _)    = getTernaryType node l m r
-getType node@(BinaryNode l r _)       = getBinaryType node l r
+getType node@(BinaryNode l r _ _)     = getBinaryType node l r
 getType (UnaryNode tree _ _)          = getType tree
 getType (ConstantNode _ _)            = pure IntVar
 getType node@(FuncCallNode name _ _)  = getFuncType node name

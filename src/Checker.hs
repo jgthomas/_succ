@@ -157,7 +157,7 @@ checkAST (TernaryNode cond pass fails _) = do
         checkAST pass
         checkAST fails
 
-checkAST (BinaryNode lft rgt _) = do
+checkAST (BinaryNode lft rgt _ _) = do
         _ <- SymTab.labelNum
         _ <- SymTab.labelNum
         checkAST lft
@@ -269,7 +269,10 @@ checkPrevDecGlob _ tree = throwError $ ScopeError (UnexpectedNode tree)
 
 checkAssignLocal :: Tree -> Tree -> Operator -> GenState ()
 checkAssignLocal _ valTree Assignment = checkAST valTree
-checkAssignLocal varTree valTree (BinaryOp binOp) =
-        checkAST (BinaryNode varTree valTree binOp)
+checkAssignLocal varTree@(DereferenceNode _ dat) valTree (BinaryOp binOp) =
+        checkAST (BinaryNode varTree valTree binOp dat)
+checkAssignLocal varTree@(VarNode _ dat) valTree (BinaryOp binOp) =
+        checkAST (BinaryNode varTree valTree binOp dat)
 checkAssignLocal node _ op@(UnaryOp _) =
         throwError $ CheckerError (OperatorError op node)
+checkAssignLocal node _ _ = throwError $ CheckerError (InvalidNode node)

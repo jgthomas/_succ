@@ -156,9 +156,9 @@ genASM (TernaryNode cond pass fails _) = do
         falseLab <- SymTab.labelNum
         ASM.ternary testExp true false trueLab falseLab
 
-genASM node@(BinaryNode _ (ConstantNode n _) (ShiftOp _)) =
+genASM node@(BinaryNode _ (ConstantNode n _) (ShiftOp _) _) =
         processBinaryNode node (show n)
-genASM node@(BinaryNode _ right _) = do
+genASM node@(BinaryNode _ right _ _) = do
         rgt <- genASM right
         processBinaryNode node rgt
 
@@ -317,16 +317,18 @@ processArg (arg, pos) = do
 
 buildAssignmentASM :: Tree -> Tree -> Operator -> GenState String
 buildAssignmentASM _ valTree Assignment = genASM valTree
-buildAssignmentASM varTree valTree (BinaryOp binOp) =
-        genASM (BinaryNode varTree valTree binOp)
-buildAssignmentASM node _ (UnaryOp _) =
-        throwError $ FatalError (GeneratorBug node)
+buildAssignmentASM varTree@(DereferenceNode _ dat) valTree (BinaryOp binOp) =
+        genASM (BinaryNode varTree valTree binOp dat)
+buildAssignmentASM varTree@(VarNode _ dat) valTree (BinaryOp binOp) =
+        genASM (BinaryNode varTree valTree binOp dat)
+buildAssignmentASM varTree _ _ =
+        throwError $ FatalError (GeneratorBug varTree)
 
 
 -- Operators
 
 processBinaryNode :: Tree -> String -> GenState String
-processBinaryNode (BinaryNode left _ op) rgt = do
+processBinaryNode (BinaryNode left _ op _) rgt = do
         lab1 <- SymTab.labelNum
         lab2 <- SymTab.labelNum
         lft  <- genASM left
