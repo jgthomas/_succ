@@ -16,7 +16,7 @@ data Tree = ProgramNode [Tree]
           | AssignDereferenceNode String Tree Operator NodeDat
           | ExprStmtNode Tree NodeDat
           | IfNode Tree Tree (Maybe Tree) NodeDat
-          | WhileNode Tree Tree
+          | WhileNode Tree Tree NodeDat
           | DoWhileNode Tree Tree
           | ForLoopNode Tree Tree Tree Tree
           | BreakNode NodeDat

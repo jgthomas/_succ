@@ -80,7 +80,7 @@ checkAST (ForLoopNode ini test iter block) = do
         checkAST block
         SymTab.closeScope
 
-checkAST (WhileNode test whileBlock) = do
+checkAST (WhileNode test whileBlock _) = do
         loopLabel <- SymTab.labelNum
         checkAST test
         testLabel <- SymTab.labelNum
