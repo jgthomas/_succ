@@ -126,11 +126,11 @@ checkAST node@(AssignmentNode varNode value op _) = do
         case currScope of
              Global -> checkDefineGlobal node
              Local  -> do
-                     ScopeCheck.variableExists node
+                     ScopeCheck.variableExists varNode
                      checkAssignLocal varNode value op
 
 checkAST node@(AssignDereferenceNode derefNode value op _) = do
-        ScopeCheck.variableExists node
+        ScopeCheck.variableExists derefNode
         TypeCheck.assignment node
         checkAssignLocal derefNode value op
 
