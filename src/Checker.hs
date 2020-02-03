@@ -62,7 +62,7 @@ checkAST node@(FuncCallNode name argList) = do
 
 checkAST (ArgNode arg) = checkAST arg
 
-checkAST (CompoundStmtNode blockItems) = do
+checkAST (CompoundStmtNode blockItems _) = do
         SymTab.initScope
         mapM_ checkAST blockItems
         SymTab.closeScope

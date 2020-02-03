@@ -60,7 +60,7 @@ genASM (FuncCallNode name args) =
 
 genASM (ArgNode arg) = genASM arg
 
-genASM (CompoundStmtNode blockItems) = do
+genASM (CompoundStmtNode blockItems _) = do
         SymTab.initScope
         blockLines <- mapM genASM blockItems
         SymTab.closeScope

@@ -39,7 +39,7 @@ parseStatement lexData@(first:rest) =
              LexDat{tok=Keyword For}      -> parseForLoop rest
              LexDat{tok=Keyword Break}    -> parseBreak lexData
              LexDat{tok=Keyword Continue} -> parseContinue lexData
-             LexDat{tok=OpenBrace}        -> parseCompoundStmt rest
+             LexDat{tok=OpenBrace}        -> parseCompoundStmt lexData
              _                            -> parseExprStatement lexData
 
 
@@ -81,9 +81,11 @@ parseContinue lexData = throwError $ ParserError (LexDataError lexData)
 
 parseCompoundStmt :: [LexDat] -> ParserState (Tree, [LexDat])
 parseCompoundStmt lexData = do
-        (items, lexData') <- parseStatementBlock [] lexData
-        lexData''         <- verifyAndConsume CloseBrace lexData'
-        pure (CompoundStmtNode items, lexData'')
+        dat                <- makeNodeDat lexData
+        lexData'           <- verifyAndConsume OpenBrace lexData
+        (items, lexData'') <- parseStatementBlock [] lexData'
+        lexData'''         <- verifyAndConsume CloseBrace lexData''
+        pure (CompoundStmtNode items dat, lexData''')
 
 
 parseForLoop :: [LexDat] -> ParserState (Tree, [LexDat])
