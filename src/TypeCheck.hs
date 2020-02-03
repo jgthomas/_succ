@@ -100,7 +100,7 @@ getType :: Tree -> GenState Type
 getType (ArgNode tree _)             = getType tree
 getType (ParamNode typ _ _)          = pure typ
 getType node@(VarNode name)          = getVariableType node name
-getType node@(AddressOfNode name)    = addressOfType node name
+getType node@(AddressOfNode name _)  = addressOfType node name
 getType node@(TernaryNode l m r)     = getTernaryType node l m r
 getType node@(BinaryNode l r _)      = getBinaryType node l r
 getType (UnaryNode tree _)           = getType tree

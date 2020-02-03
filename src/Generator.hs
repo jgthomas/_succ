@@ -172,7 +172,7 @@ genASM (VarNode name) = do
         (offset, argPos, globLab) <- SymTab.getVariables name
         ASM.loadVariable offset argPos globLab
 
-genASM (AddressOfNode name) = do
+genASM (AddressOfNode name _) = do
         (offset, _, globLab) <- SymTab.getVariables name
         ASM.addressOf offset globLab
 
@@ -220,8 +220,8 @@ defPrevDecGlob :: Maybe String -> Tree -> GenState String
 defPrevDecGlob (Just label) (AssignmentNode _ (ConstantNode a dat) _ _) = do
         value <- genASM (ConstantNode a dat)
         globalVarASM label value
-defPrevDecGlob (Just label) (AssignmentNode _ (AddressOfNode a) _ _) = do
-        value   <- genASM (AddressOfNode a)
+defPrevDecGlob (Just label) (AssignmentNode _ node@AddressOfNode{} _ _) = do
+        value   <- genASM node
         initASM <- ASM.varAddressStoreGlobal value label
         SymTab.storeForInit initASM
         ASM.uninitializedGlobal label

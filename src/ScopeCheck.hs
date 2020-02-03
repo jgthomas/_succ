@@ -110,7 +110,7 @@ checkIfFunction tree = throwError $ ScopeError (UnexpectedNode tree)
 -- | Check an identifier is linked to real variable
 variableExists :: Tree -> GenState ()
 variableExists node@(VarNode a)                     = varExists node a
-variableExists node@(AddressOfNode a)               = varExists node a
+variableExists node@(AddressOfNode a _)             = varExists node a
 variableExists node@(DereferenceNode a)             = varExists node a
 variableExists node@(PointerNode a _ _ _)           = varExists node a
 variableExists node@(AssignmentNode a _ _ _)        = varExists node a

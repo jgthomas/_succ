@@ -122,7 +122,7 @@ parseFactor lexData@(next:rest) =
              LexDat{tok=SemiColon}        -> parseNullExpression lexData
              LexDat{tok=ConstInt _}       -> parseConstant lexData
              LexDat{tok=Ident _}          -> parseIdent lexData
-             LexDat{tok=OpTok Ampersand}  -> parseAddressOf rest
+             LexDat{tok=OpTok Ampersand}  -> parseAddressOf lexData
              LexDat{tok=OpTok Asterisk}   -> parseDereference rest
              LexDat{tok=OpTok MinusSign}  -> parseUnary lexData
              LexDat{tok=OpTok Tilde}      -> parseUnary lexData
@@ -172,8 +172,10 @@ parseParenExp lexData = do
 
 
 parseAddressOf :: [LexDat] -> ParserState (Tree, [LexDat])
-parseAddressOf (LexDat{tok=Ident n}:rest) = pure (AddressOfNode n, rest)
-parseAddressOf (a:_)   = throwError $ SyntaxError (NonValidIdentifier a)
+parseAddressOf lexData@(LexDat{tok=OpTok Ampersand}:LexDat{tok=Ident n}:rest) = do
+        dat <- makeNodeDat lexData
+        pure (AddressOfNode n dat, rest)
+parseAddressOf (_:a:_)   = throwError $ SyntaxError (NonValidIdentifier a)
 parseAddressOf lexData = throwError $ ParserError (LexDataError lexData)
 
 

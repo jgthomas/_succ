@@ -261,7 +261,7 @@ checkDefineGlobal tree = throwError $ ScopeError (UnexpectedNode tree)
 checkPrevDecGlob :: Maybe String -> Tree -> GenState ()
 checkPrevDecGlob Nothing node = throwError $ ScopeError (UndeclaredNode node)
 checkPrevDecGlob (Just _) (AssignmentNode _ node@(ConstantNode _ _) _ _)  = checkAST node
-checkPrevDecGlob (Just _) (AssignmentNode _ node@(AddressOfNode _) _ _) = checkAST node
+checkPrevDecGlob (Just _) (AssignmentNode _ node@AddressOfNode{} _ _) = checkAST node
 checkPrevDecGlob _ (AssignmentNode _ valNode _ _) =
         throwError $ ScopeError (UnexpectedNode valNode)
 checkPrevDecGlob _ tree = throwError $ ScopeError (UnexpectedNode tree)
