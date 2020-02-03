@@ -89,7 +89,7 @@ genASM (WhileNode test whileBlock _) = do
         SymTab.setBreak testLabel
         ASM.while tests body loopLabel testLabel
 
-genASM (DoWhileNode block test) = do
+genASM (DoWhileNode block test _) = do
         loopLabel <- SymTab.labelNum
         contLabel <- SymTab.labelNum
         body      <- genASM block

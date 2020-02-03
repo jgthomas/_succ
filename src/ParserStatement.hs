@@ -35,7 +35,7 @@ parseStatement lexData@(first:rest) =
              LexDat{tok=Keyword Return}   -> parseReturnStmt lexData
              LexDat{tok=Keyword If}       -> parseIfStatement lexData
              LexDat{tok=Keyword While}    -> parseWhileStatement lexData
-             LexDat{tok=Keyword Do}       -> parseDoWhile rest
+             LexDat{tok=Keyword Do}       -> parseDoWhile lexData
              LexDat{tok=Keyword For}      -> parseForLoop rest
              LexDat{tok=Keyword Break}    -> parseBreak lexData
              LexDat{tok=Keyword Continue} -> parseContinue lexData
@@ -121,14 +121,16 @@ parseForLoopPostExp lexData = parseExpression lexData
 
 
 parseDoWhile :: [LexDat] -> ParserState (Tree, [LexDat])
-parseDoWhile lexData@(LexDat{tok=OpenBrace}:_) = do
-        (stmts, lexData') <- parseStatement lexData
-        case lexData' of
+parseDoWhile lexData@(LexDat{tok=Keyword Do}:LexDat{tok=OpenBrace}:_) = do
+        dat                <- makeNodeDat lexData
+        lexData'           <- verifyAndConsume (Keyword Do) lexData
+        (stmts, lexData'') <- parseStatement lexData'
+        case lexData'' of
              (LexDat{tok=Keyword While}:LexDat{tok=OpenParen}:rest) -> do
-                     (test, lexData'') <- parseExpression rest
-                     lexData'''        <- verifyAndConsume CloseParen lexData''
-                     lexData''''       <- verifyAndConsume SemiColon lexData'''
-                     pure (DoWhileNode stmts test, lexData'''')
+                     (test, lexData''') <- parseExpression rest
+                     lexData''''        <- verifyAndConsume CloseParen lexData'''
+                     lexData'''''       <- verifyAndConsume SemiColon lexData''''
+                     pure (DoWhileNode stmts test dat, lexData''''')
              (_:d@LexDat{tok=OpenParen}:_) ->
                      throwError $ SyntaxError (MissingKeyword While d)
              (d@LexDat{tok=Keyword While}:_:_) ->

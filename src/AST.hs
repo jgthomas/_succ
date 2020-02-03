@@ -17,7 +17,7 @@ data Tree = ProgramNode [Tree]
           | ExprStmtNode Tree NodeDat
           | IfNode Tree Tree (Maybe Tree) NodeDat
           | WhileNode Tree Tree NodeDat
-          | DoWhileNode Tree Tree
+          | DoWhileNode Tree Tree NodeDat
           | ForLoopNode Tree Tree Tree Tree
           | BreakNode NodeDat
           | ContinueNode NodeDat

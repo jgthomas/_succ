@@ -88,7 +88,7 @@ checkAST (WhileNode test whileBlock _) = do
         SymTab.setContinue loopLabel
         SymTab.setBreak testLabel
 
-checkAST (DoWhileNode block test) = do
+checkAST (DoWhileNode block test _) = do
         _         <- SymTab.labelNum
         contLabel <- SymTab.labelNum
         checkAST block
