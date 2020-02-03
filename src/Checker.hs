@@ -97,7 +97,7 @@ checkAST (DoWhileNode block test) = do
         SymTab.setContinue contLabel
         SymTab.setBreak testLabel
 
-checkAST (IfNode test action possElse) = do
+checkAST (IfNode test action possElse _) = do
         checkAST test
         checkAST action
         _ <- SymTab.labelNum

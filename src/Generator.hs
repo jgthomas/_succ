@@ -99,7 +99,7 @@ genASM (DoWhileNode block test) = do
         SymTab.setBreak testLabel
         ASM.doWhile body tests loopLabel contLabel testLabel
 
-genASM (IfNode test action possElse) = do
+genASM (IfNode test action possElse _) = do
         testExp <- genASM test
         ifAct   <- genASM action
         label   <- SymTab.labelNum
