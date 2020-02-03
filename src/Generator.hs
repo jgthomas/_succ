@@ -160,11 +160,11 @@ genASM node@(BinaryNode _ right _) = do
         rgt <- genASM right
         processBinaryNode node rgt
 
-genASM (UnaryNode (VarNode a) op) = do
+genASM (UnaryNode (VarNode a) op _) = do
         unaryASM      <- genASM (VarNode a)
         (off, _, lab) <- SymTab.getVariables a
         ASM.unary unaryASM op off lab
-genASM (UnaryNode tree  op) = do
+genASM (UnaryNode tree  op _) = do
         unode <- genASM tree
         ASM.unary unode op Nothing Nothing
 

@@ -29,7 +29,7 @@ data Tree = ProgramNode [Tree]
           | VarNode String
           | AddressOfNode String NodeDat
           | DereferenceNode String NodeDat
-          | UnaryNode Tree UnaryOp
+          | UnaryNode Tree UnaryOp NodeDat
           | BinaryNode Tree Tree BinaryOp
           | TernaryNode Tree Tree Tree NodeDat
           deriving (Show, Eq)

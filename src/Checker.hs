@@ -163,14 +163,14 @@ checkAST (BinaryNode lft rgt _) = do
         checkAST lft
         checkAST rgt
 
-checkAST (UnaryNode node@(VarNode _) _) = do
+checkAST (UnaryNode node@VarNode{} _ _) = do
         checkAST node
         ScopeCheck.variableExists node
-checkAST node@(UnaryNode _ unOp@(PreOpUnary _)) =
+checkAST node@(UnaryNode _ unOp@(PreOpUnary _) _) =
         throwError $ CheckerError (OperatorError (UnaryOp unOp) node)
-checkAST node@(UnaryNode _ unOp@(PostOpUnary _)) =
+checkAST node@(UnaryNode _ unOp@(PostOpUnary _) _) =
         throwError $ CheckerError (OperatorError (UnaryOp unOp) node)
-checkAST (UnaryNode tree (Unary _)) = checkAST tree
+checkAST (UnaryNode tree (Unary _) _) = checkAST tree
 
 checkAST node@VarNode{} = ScopeCheck.variableExists node
 

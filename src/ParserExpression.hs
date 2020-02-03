@@ -22,8 +22,9 @@ parseExpression lexData = do
              (d@LexDat{tok=OpTok op}:rest)
                 | Tokens.isAssign op  -> parseAssignment tree lexData'
                 | Tokens.isPostPos op -> do
+                        dat <- makeNodeDat lexData'
                         let unOp = Operator.tokToPostUnaryOp op
-                        pure (UnaryNode tree unOp, rest)
+                        pure (UnaryNode tree unOp dat, rest)
                 | otherwise ->
                         throwError $ SyntaxError (UnexpectedLexDat d)
              _ -> pure (tree, lexData')
@@ -150,10 +151,11 @@ parseConstant lexData = throwError $ ParserError (LexDataError lexData)
 
 
 parseUnary :: [LexDat] -> ParserState (Tree, [LexDat])
-parseUnary (LexDat{tok=OpTok op}:rest) = do
+parseUnary lexData@(LexDat{tok=OpTok op}:rest) = do
+        dat              <- makeNodeDat lexData
         (tree, lexData') <- parseFactor rest
         let unOp = Operator.tokToUnaryOp op
-        pure (UnaryNode tree unOp, lexData')
+        pure (UnaryNode tree unOp dat, lexData')
 parseUnary lexData = throwError $ ParserError (LexDataError lexData)
 
 
