@@ -28,7 +28,7 @@ import qualified SymTab
 
 -- | Check if variable name exists in current scope
 checkIfUsedInScope :: Tree -> GenState ()
-checkIfUsedInScope node@(DeclarationNode (VarNode name) _ _ _) = do
+checkIfUsedInScope node@(DeclarationNode (VarNode name _) _ _ _) = do
         localDec <- SymTab.checkVariable name
         paramDec <- SymTab.parameterDeclared name
         when (localDec || paramDec) $
@@ -64,7 +64,7 @@ checkIfFuncDefined tree = throwError $ ScopeError (UnexpectedNode tree)
 
 -- | Check if a variable has been defined
 checkIfDefined :: Tree -> GenState ()
-checkIfDefined node@(AssignmentNode (VarNode name) _ _ _) = do
+checkIfDefined node@(AssignmentNode (VarNode name _) _ _ _) = do
         defined <- SymTab.checkVarDefined name
         when defined $
            throwError $ ScopeError (DoubleDefinedNode node)
@@ -100,7 +100,7 @@ checkArguments Nothing tree  = throwError $ ScopeError (UndeclaredNode tree)
 
 -- | Check if an identifier is a function
 checkIfFunction :: Tree -> GenState ()
-checkIfFunction node@(DeclarationNode (VarNode name) _ _ _) = do
+checkIfFunction node@(DeclarationNode (VarNode name _) _ _ _) = do
         paramNum <- SymTab.decParamCount name
         unless (isNothing paramNum) $
             throwError $ ScopeError (DoubleDeclaredNode node)
@@ -109,10 +109,10 @@ checkIfFunction tree = throwError $ ScopeError (UnexpectedNode tree)
 
 -- | Check an identifier is linked to real variable
 variableExists :: Tree -> GenState ()
-variableExists node@(VarNode a)                     = varExists node a
+variableExists node@(VarNode a _)                   = varExists node a
 variableExists node@(AddressOfNode a _)             = varExists node a
 variableExists node@(DereferenceNode a _)           = varExists node a
-variableExists node@(PointerNode (VarNode a) _ _ _) = varExists node a
+variableExists node@(PointerNode (VarNode a _) _ _ _) = varExists node a
 variableExists tree = throwError $ ScopeError (UnexpectedNode tree)
 
 

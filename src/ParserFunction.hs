@@ -55,7 +55,7 @@ parseParam lexData = do
         lexData'          <- consumeTok lexData
         (tree, lexData'') <- parseParamValue lexData'
         case tree of
-             VarNode _ -> pure (ParamNode typ tree nodeDat, lexData'')
+             VarNode{} -> pure (ParamNode typ tree nodeDat, lexData'')
              _         -> throwError $ ParserError (TreeError tree)
 
 

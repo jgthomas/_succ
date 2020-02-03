@@ -162,7 +162,9 @@ parseUnary lexData = throwError $ ParserError (LexDataError lexData)
 parseIdent :: [LexDat] -> ParserState (Tree, [LexDat])
 parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenParen}:_) =
         parseFuncCall lexData
-parseIdent (LexDat{tok=Ident a}:rest) = pure (VarNode a, rest)
+parseIdent lexData@(LexDat{tok=Ident a}:rest) = do
+        dat <- makeNodeDat lexData
+        pure (VarNode a dat, rest)
 parseIdent (a:_) = throwError $ SyntaxError (UnexpectedLexDat a)
 parseIdent lexData  = throwError $ ParserError (LexDataError lexData)
 

@@ -99,7 +99,7 @@ checkTypes node oldTypes newTypes =
 getType :: Tree -> GenState Type
 getType (ArgNode tree _)              = getType tree
 getType (ParamNode typ _ _)           = pure typ
-getType node@(VarNode name)           = getVarType node name
+getType node@(VarNode name _)         = getVarType node name
 getType node@(AddressOfNode name _)   = getVarType node name >>= invertType node
 getType node@(DereferenceNode name _) = getVarType node name >>= invertType node
 getType node@(TernaryNode l m r _)    = getTernaryType node l m r

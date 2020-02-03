@@ -26,7 +26,7 @@ data Tree = ProgramNode [Tree]
           | ParamNode Type Tree NodeDat
           | ArgNode Tree NodeDat
           | NullExprNode NodeDat
-          | VarNode String
+          | VarNode String NodeDat
           | AddressOfNode String NodeDat
           | DereferenceNode String NodeDat
           | UnaryNode Tree UnaryOp NodeDat

@@ -19,8 +19,9 @@ parseValueDec lexData@(_:LexDat{tok=Ident name}:_) = do
         dat               <- makeNodeDat lexData
         typ               <- parseType lexData
         lexData'          <- consumeTok lexData
+        varDat            <- makeNodeDat lexData'
         (tree, lexData'') <- parseOptAssign lexData'
-        pure (DeclarationNode (VarNode name) typ tree dat, lexData'')
+        pure (DeclarationNode (VarNode name varDat) typ tree dat, lexData'')
 parseValueDec (_:c:_:_) = throwError $ SyntaxError (NonValidIdentifier c)
 parseValueDec lexData   = throwError $ ParserError (LexDataError lexData)
 
@@ -30,8 +31,9 @@ parsePointerDec lexData@(_:_:LexDat{tok=Ident name}:_) = do
         dat               <- makeNodeDat lexData
         typ               <- parseType lexData
         lexData'          <- consumeNToks 2 lexData
+        varDat            <- makeNodeDat lexData'
         (tree, lexData'') <- parseOptAssign lexData'
-        pure (PointerNode (VarNode name) typ tree dat, lexData'')
+        pure (PointerNode (VarNode name varDat) typ tree dat, lexData'')
 parsePointerDec (_:_:c:_) = throwError $ SyntaxError (NonValidIdentifier c)
 parsePointerDec lexData   = throwError $ ParserError (LexDataError lexData)
 

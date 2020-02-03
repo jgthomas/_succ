@@ -48,7 +48,7 @@ checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
         SymTab.closeFunction
         SymTab.defineFunction name
 
-checkAST (ParamNode typ (VarNode name) _) =
+checkAST (ParamNode typ (VarNode name _) _) =
         SymTab.addParameter name typ
 checkAST node@ParamNode{} =
         throwError $ ScopeError (UnexpectedNode node)
@@ -221,7 +221,7 @@ checkParams name params = do
 
 
 checkDeclareGlobal :: Tree -> GenState ()
-checkDeclareGlobal node@(DeclarationNode (VarNode name) typ toAssign _) = do
+checkDeclareGlobal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
         ScopeCheck.checkIfFunction node
         currLabel <- SymTab.globalLabel name
         case currLabel of
@@ -239,7 +239,7 @@ checkAssignment (Just t) = checkAST t
 
 
 checkDeclareLocal :: Tree -> GenState ()
-checkDeclareLocal node@(DeclarationNode (VarNode name) typ toAssign _) = do
+checkDeclareLocal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
         ScopeCheck.checkIfUsedInScope node
         _ <- SymTab.addVariable name typ
         _ <- SymTab.stackPointerValue
@@ -250,7 +250,7 @@ checkDeclareLocal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 checkDefineGlobal :: Tree -> GenState ()
-checkDefineGlobal node@(AssignmentNode (VarNode name) _ _ _) = do
+checkDefineGlobal node@(AssignmentNode (VarNode name _) _ _ _) = do
         ScopeCheck.checkIfDefined node
         label <- SymTab.globalLabel name
         SymTab.defineGlobal name
