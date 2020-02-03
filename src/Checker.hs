@@ -221,7 +221,7 @@ checkParams name params = do
 
 
 checkDeclareGlobal :: Tree -> GenState ()
-checkDeclareGlobal node@(DeclarationNode name typ toAssign _) = do
+checkDeclareGlobal node@(DeclarationNode (VarNode name) typ toAssign _) = do
         ScopeCheck.checkIfFunction node
         currLabel <- SymTab.globalLabel name
         case currLabel of
@@ -239,7 +239,7 @@ checkAssignment (Just t) = checkAST t
 
 
 checkDeclareLocal :: Tree -> GenState ()
-checkDeclareLocal node@(DeclarationNode name typ toAssign _) = do
+checkDeclareLocal node@(DeclarationNode (VarNode name) typ toAssign _) = do
         ScopeCheck.checkIfUsedInScope node
         _ <- SymTab.addVariable name typ
         _ <- SymTab.stackPointerValue

@@ -110,16 +110,17 @@ genASM (IfNode test action possElse _) = do
                      nextLab <- SymTab.labelNum
                      ASM.ifElse testExp ifAct label elseAct nextLab
 
-genASM (PointerNode varName typ Nothing dat) =
-        genASM (DeclarationNode varName typ Nothing dat)
-genASM node@(PointerNode varName typ (Just a) dat) = do
-        pointerASM <- genASM (DeclarationNode varName typ Nothing dat)
+genASM (PointerNode varNode@(VarNode _) typ Nothing dat) =
+        genASM (DeclarationNode varNode typ Nothing dat)
+genASM node@(PointerNode varNode@(VarNode varName) typ (Just a) dat) = do
+        pointerASM <- genASM (DeclarationNode varNode typ Nothing dat)
         value      <- genASM a
         (offset, _, globLab) <- SymTab.getVariables varName
         case (offset, globLab) of
              (Just off, _) -> ASM.varAddressStore (pointerASM ++ value) off
              (_, Just _)   -> pure $ pointerASM ++ value
              _             -> throwError $ FatalError (GeneratorBug node)
+genASM node@PointerNode{} = throwError $ FatalError (GeneratorBug node)
 
 genASM node@DeclarationNode{} = do
         currScope <- SymTab.getScope
@@ -193,7 +194,7 @@ genASM (ConstantNode n _) = do
 -- Global variables
 
 declareGlobal :: Tree -> GenState String
-declareGlobal (DeclarationNode name typ toAssign _) = do
+declareGlobal (DeclarationNode (VarNode name) typ toAssign _) = do
         currLabel <- SymTab.globalLabel name
         case currLabel of
              Just _  -> genAssignment toAssign
@@ -239,7 +240,7 @@ globalVarASM lab val = ASM.initializedGlobal lab val
 -- Local variables
 
 declareLocal :: Tree -> GenState String
-declareLocal (DeclarationNode varName typ value _) = do
+declareLocal (DeclarationNode (VarNode varName) typ value _) = do
         offset <- SymTab.addVariable varName typ
         adjust <- SymTab.stackPointerValue
         case value of
