@@ -134,7 +134,7 @@ checkAST node@(AssignDereferenceNode varName value op _) = do
         TypeCheck.assignment node
         checkAssignLocal (DereferenceNode varName) value op
 
-checkAST (ExprStmtNode expression) = checkAST expression
+checkAST (ExprStmtNode expression _) = checkAST expression
 
 checkAST node@(ContinueNode _) = do
         continueLabel <- SymTab.getContinue

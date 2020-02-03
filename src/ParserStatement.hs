@@ -56,9 +56,10 @@ parseStatement lexData@(first:rest) =
 parseExprStatement :: [LexDat] -> ParserState (Tree, [LexDat])
 parseExprStatement lexData@(LexDat{tok=SemiColon}:_) = parseNullStatement lexData
 parseExprStatement lexData = do
+        dat              <- makeNodeDat lexData
         (tree, lexData') <- parseExpression lexData
         lexData''        <- verifyAndConsume SemiColon lexData'
-        pure (ExprStmtNode tree, lexData'')
+        pure (ExprStmtNode tree dat, lexData'')
 
 
 parseBreak :: [LexDat] -> ParserState (Tree, [LexDat])

@@ -138,7 +138,7 @@ genASM (AssignDereferenceNode varName value op _) = do
         (offset, argPos, globLab) <- SymTab.getVariables varName
         ASM.derefStore assign offset argPos globLab
 
-genASM (ExprStmtNode expression) = genASM expression
+genASM (ExprStmtNode expression _) = genASM expression
 
 genASM (ContinueNode _) = ASM.setGotoPoint . fromMaybe (-1) <$> SymTab.getContinue
 
