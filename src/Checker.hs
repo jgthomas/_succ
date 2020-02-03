@@ -53,7 +53,7 @@ checkAST (ParamNode typ (VarNode name) _) =
 checkAST node@ParamNode{} =
         throwError $ ScopeError (UnexpectedNode node)
 
-checkAST node@(FuncCallNode name argList) = do
+checkAST node@(FuncCallNode name argList _) = do
         paramCount <- SymTab.decParamCount name
         ScopeCheck.checkArguments paramCount node
         TypeCheck.typesMatch node

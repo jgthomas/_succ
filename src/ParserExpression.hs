@@ -185,9 +185,10 @@ parseDereference lexData = throwError $ ParserError (LexDataError lexData)
 
 parseFuncCall :: [LexDat] -> ParserState (Tree, [LexDat])
 parseFuncCall lexData@(LexDat{tok=Ident a}:LexDat{tok=OpenParen}:_) = do
+        dat               <- makeNodeDat lexData
         lexData'          <- consumeTok lexData
         (tree, lexData'') <- parseArgs [] lexData'
-        pure (FuncCallNode a tree, lexData'')
+        pure (FuncCallNode a tree dat, lexData'')
 parseFuncCall (d@LexDat{tok=Ident _}:_:_) =
         throwError $ SyntaxError (MissingToken OpenParen d)
 parseFuncCall (a:LexDat{tok=OpenParen}:_) =

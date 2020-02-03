@@ -38,7 +38,7 @@ checkIfUsedInScope tree = throwError $ ScopeError (UnexpectedNode tree)
 
 -- | Validate a function call sequence
 validateCall :: Tree -> GenState ()
-validateCall node@(FuncCallNode name _) = do
+validateCall node@(FuncCallNode name _ _) = do
         callee <- SymTab.decSeqNumber name
         caller <- SymTab.currentSeqNumber
         unless (validSeq callee caller) $
@@ -85,7 +85,7 @@ checkCountsMatch :: Int -> Tree -> GenState ()
 checkCountsMatch count node@(FunctionNode _ _ paramList _ _) =
         when (count /= length paramList) $
            throwError $ ScopeError (MisMatchNode count node)
-checkCountsMatch count node@(FuncCallNode _ argList) =
+checkCountsMatch count node@(FuncCallNode _ argList _) =
         when (count /= length argList) $
            throwError $ ScopeError (MisMatchNode count node)
 checkCountsMatch _ tree = throwError $ ScopeError (UnexpectedNode tree)
@@ -93,7 +93,7 @@ checkCountsMatch _ tree = throwError $ ScopeError (UnexpectedNode tree)
 
 -- | Check argument counts match in two function calls
 checkArguments :: Maybe Int -> Tree -> GenState ()
-checkArguments (Just n) node@(FuncCallNode _ _) = checkCountsMatch n node
+checkArguments (Just n) node@FuncCallNode{} = checkCountsMatch n node
 checkArguments (Just _) tree = throwError $ ScopeError (UnexpectedNode tree)
 checkArguments Nothing tree  = throwError $ ScopeError (UndeclaredNode tree)
 

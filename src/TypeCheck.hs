@@ -27,7 +27,7 @@ import           Type          (Type (..))
 
 -- | Throw error if two lists of types don't match
 typesMatch :: Tree -> GenState ()
-typesMatch node@(FuncCallNode name argList) =
+typesMatch node@(FuncCallNode name argList _) =
         checkTypesMatch node name argList
 typesMatch node@(FunctionNode _ name paramList _ _) =
         checkTypesMatch node name paramList
@@ -97,18 +97,18 @@ checkTypes node oldTypes newTypes =
 
 
 getType :: Tree -> GenState Type
-getType (ArgNode tree)              = getType tree
-getType (ParamNode typ _ _)         = pure typ
-getType node@(VarNode name)         = getVariableType node name
-getType node@(AddressOfNode name)   = addressOfType node name
-getType node@(TernaryNode l m r)    = getTernaryType node l m r
-getType node@(BinaryNode l r _)     = getBinaryType node l r
-getType (UnaryNode tree _)          = getType tree
-getType (ConstantNode _ _)          = pure IntVar
-getType node@(FuncCallNode name _)  = getFuncType node name
-getType (AssignmentNode _ tree _ _) = getType tree
-getType node@(DereferenceNode name) = dereferenceType node name
-getType tree                        = throwError $ TypeError (NotTyped tree)
+getType (ArgNode tree)               = getType tree
+getType (ParamNode typ _ _)          = pure typ
+getType node@(VarNode name)          = getVariableType node name
+getType node@(AddressOfNode name)    = addressOfType node name
+getType node@(TernaryNode l m r)     = getTernaryType node l m r
+getType node@(BinaryNode l r _)      = getBinaryType node l r
+getType (UnaryNode tree _)           = getType tree
+getType (ConstantNode _ _)           = pure IntVar
+getType node@(FuncCallNode name _ _) = getFuncType node name
+getType (AssignmentNode _ tree _ _)  = getType tree
+getType node@(DereferenceNode name)  = dereferenceType node name
+getType tree                         = throwError $ TypeError (NotTyped tree)
 
 
 getVariableType :: Tree -> String -> GenState Type

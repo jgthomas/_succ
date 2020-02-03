@@ -22,7 +22,7 @@ data Tree = ProgramNode [Tree]
           | BreakNode NodeDat
           | ContinueNode NodeDat
           | ConstantNode Int NodeDat
-          | FuncCallNode String [Tree]
+          | FuncCallNode String [Tree] NodeDat
           | ParamNode Type Tree NodeDat
           | ArgNode Tree
           | NullExprNode NodeDat

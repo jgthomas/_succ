@@ -55,7 +55,7 @@ genASM (ParamNode typ (VarNode name) _) = do
 genASM node@ParamNode{} =
         throwError $ FatalError (GeneratorBug node)
 
-genASM (FuncCallNode name args) =
+genASM (FuncCallNode name args _) =
         ASM.functionCall name <$> processArgs args
 
 genASM (ArgNode arg) = genASM arg
