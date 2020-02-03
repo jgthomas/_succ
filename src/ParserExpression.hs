@@ -37,7 +37,7 @@ parseAssignment tree (LexDat{tok=OpTok op}:rest) = do
                    case tree of
                      (VarNode a) ->
                              pure (AssignmentNode a asgn asgnOp dat, lexData')
-                     (DereferenceNode a) ->
+                     (DereferenceNode a _) ->
                              pure (AssignDereferenceNode a asgn asgnOp dat, lexData')
                      _ -> throwError $ ParserError (TreeError tree)
 parseAssignment _ lexData = throwError $ ParserError (LexDataError lexData)
@@ -123,7 +123,7 @@ parseFactor lexData@(next:rest) =
              LexDat{tok=ConstInt _}       -> parseConstant lexData
              LexDat{tok=Ident _}          -> parseIdent lexData
              LexDat{tok=OpTok Ampersand}  -> parseAddressOf lexData
-             LexDat{tok=OpTok Asterisk}   -> parseDereference rest
+             LexDat{tok=OpTok Asterisk}   -> parseDereference lexData
              LexDat{tok=OpTok MinusSign}  -> parseUnary lexData
              LexDat{tok=OpTok Tilde}      -> parseUnary lexData
              LexDat{tok=OpTok Bang}       -> parseUnary lexData
@@ -180,8 +180,10 @@ parseAddressOf lexData = throwError $ ParserError (LexDataError lexData)
 
 
 parseDereference :: [LexDat] -> ParserState (Tree, [LexDat])
-parseDereference (LexDat{tok=Ident n}:rest) = pure (DereferenceNode n, rest)
-parseDereference (a:_)   = throwError $ SyntaxError (NonValidIdentifier a)
+parseDereference lexData@(LexDat{tok=OpTok Asterisk}:LexDat{tok=Ident n}:rest) = do
+        dat <- makeNodeDat lexData
+        pure (DereferenceNode n dat, rest)
+parseDereference (_:a:_)   = throwError $ SyntaxError (NonValidIdentifier a)
 parseDereference lexData = throwError $ ParserError (LexDataError lexData)
 
 

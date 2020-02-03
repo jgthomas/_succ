@@ -133,8 +133,8 @@ genASM node@AssignmentNode{} = do
              Global -> defineGlobal node
              Local  -> defineLocal node
 
-genASM (AssignDereferenceNode varName value op _) = do
-        assign <- buildAssignmentASM (DereferenceNode varName) value op
+genASM (AssignDereferenceNode varName value op dat) = do
+        assign <- buildAssignmentASM (DereferenceNode varName dat) value op
         (offset, argPos, globLab) <- SymTab.getVariables varName
         ASM.derefStore assign offset argPos globLab
 
@@ -176,7 +176,7 @@ genASM (AddressOfNode name _) = do
         (offset, _, globLab) <- SymTab.getVariables name
         ASM.addressOf offset globLab
 
-genASM (DereferenceNode name) = do
+genASM (DereferenceNode name _) = do
         (offset, argPos, globLab) <- SymTab.getVariables name
         ASM.derefLoad offset argPos globLab
 

@@ -129,10 +129,10 @@ checkAST node@(AssignmentNode varName value op _) = do
                      ScopeCheck.variableExists node
                      checkAssignLocal (VarNode varName) value op
 
-checkAST node@(AssignDereferenceNode varName value op _) = do
+checkAST node@(AssignDereferenceNode varName value op dat) = do
         ScopeCheck.variableExists node
         TypeCheck.assignment node
-        checkAssignLocal (DereferenceNode varName) value op
+        checkAssignLocal (DereferenceNode varName dat) value op
 
 checkAST (ExprStmtNode expression _) = checkAST expression
 
