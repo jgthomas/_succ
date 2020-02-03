@@ -66,7 +66,7 @@ genASM (CompoundStmtNode blockItems _) = do
         SymTab.closeScope
         pure . concat $ blockLines
 
-genASM (ForLoopNode ini test iter block) = do
+genASM (ForLoopNode ini test iter block _) = do
         SymTab.initScope
         passLabel <- SymTab.labelNum
         failLabel <- SymTab.labelNum

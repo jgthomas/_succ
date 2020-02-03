@@ -30,13 +30,13 @@ parseBlockItem lexData = parseStatement lexData
 
 parseStatement :: [LexDat] -> ParserState (Tree, [LexDat])
 parseStatement [] = throwError $ ParserError (LexDataError [])
-parseStatement lexData@(first:rest) =
+parseStatement lexData@(first:_) =
         case first of
              LexDat{tok=Keyword Return}   -> parseReturnStmt lexData
              LexDat{tok=Keyword If}       -> parseIfStatement lexData
              LexDat{tok=Keyword While}    -> parseWhileStatement lexData
              LexDat{tok=Keyword Do}       -> parseDoWhile lexData
-             LexDat{tok=Keyword For}      -> parseForLoop rest
+             LexDat{tok=Keyword For}      -> parseForLoop lexData
              LexDat{tok=Keyword Break}    -> parseBreak lexData
              LexDat{tok=Keyword Continue} -> parseContinue lexData
              LexDat{tok=OpenBrace}        -> parseCompoundStmt lexData
@@ -91,17 +91,19 @@ parseCompoundStmt lexData = do
 
 parseForLoop :: [LexDat] -> ParserState (Tree, [LexDat])
 parseForLoop lexData = do
-        lexData'               <- verifyAndConsume OpenParen lexData
-        (ini, lexData'')       <- parseBlockItem lexData'
-        (test, lexData''')     <- parseExprStatement lexData''
-        (change, lexData'''')  <- parsePostExp lexData'''
-        lexData'''''           <- verifyAndConsume CloseParen lexData''''
-        (stmts, lexData'''''') <- parseStatement lexData'''''
+        dat                     <- makeNodeDat lexData
+        lexData'                <- verifyAndConsume (Keyword For) lexData
+        lexData''               <- verifyAndConsume OpenParen lexData'
+        (ini, lexData''')       <- parseBlockItem lexData''
+        (test, lexData'''')     <- parseExprStatement lexData'''
+        (change, lexData''''')  <- parsePostExp lexData''''
+        lexData''''''           <- verifyAndConsume CloseParen lexData'''''
+        (stmts, lexData''''''') <- parseStatement lexData''''''
         case test of
              (NullExprNode _) ->
-                     pure (ForLoopNode ini (ConstantNode 1) change stmts, lexData'''''')
+                     pure (ForLoopNode ini (ConstantNode 1) change stmts dat, lexData''''''')
              _                ->
-                     pure (ForLoopNode ini test change stmts, lexData'''''')
+                     pure (ForLoopNode ini test change stmts dat, lexData''''''')
 
 
 parsePostExp :: [LexDat] -> ParserState (Tree, [LexDat])

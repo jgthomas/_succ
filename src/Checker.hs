@@ -67,7 +67,7 @@ checkAST (CompoundStmtNode blockItems _) = do
         mapM_ checkAST blockItems
         SymTab.closeScope
 
-checkAST (ForLoopNode ini test iter block) = do
+checkAST (ForLoopNode ini test iter block _) = do
         SymTab.initScope
         _         <- SymTab.labelNum
         failLabel <- SymTab.labelNum
