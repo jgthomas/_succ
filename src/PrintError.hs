@@ -144,6 +144,10 @@ scopeErrorMsg (DoubleDefinedNode (FunctionNode _ name _ _ dat)) = (msg, Exact $ 
                     ++ "Identifier '" ++ name ++ "' already defined"
 scopeErrorMsg (UnexpectedNode node@BreakNode{})    = unexpectedNodeErrMsg node
 scopeErrorMsg (UnexpectedNode node@ContinueNode{}) = unexpectedNodeErrMsg node
+scopeErrorMsg (UndeclaredNode (FuncCallNode name _ dat)) =
+              (msg, Exact $ startLine dat)
+        where msg = buildLineMsg (startLine dat)
+                    ++ "Calling undeclared function '" ++ name ++ "'"
 scopeErrorMsg err = (show err, All)
 
 
