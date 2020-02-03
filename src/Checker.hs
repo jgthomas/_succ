@@ -120,19 +120,19 @@ checkAST node@DeclarationNode{} = do
              Global -> checkDeclareGlobal node
              Local  -> checkDeclareLocal node
 
-checkAST node@(AssignmentNode varName value op _) = do
+checkAST node@(AssignmentNode varNode value op _) = do
         TypeCheck.assignment node
         currScope <- SymTab.getScope
         case currScope of
              Global -> checkDefineGlobal node
              Local  -> do
                      ScopeCheck.variableExists node
-                     checkAssignLocal (VarNode varName) value op
+                     checkAssignLocal varNode value op
 
-checkAST node@(AssignDereferenceNode varName value op dat) = do
+checkAST node@(AssignDereferenceNode derefNode value op _) = do
         ScopeCheck.variableExists node
         TypeCheck.assignment node
-        checkAssignLocal (DereferenceNode varName dat) value op
+        checkAssignLocal derefNode value op
 
 checkAST (ExprStmtNode expression _) = checkAST expression
 
@@ -250,7 +250,7 @@ checkDeclareLocal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 checkDefineGlobal :: Tree -> GenState ()
-checkDefineGlobal node@(AssignmentNode name _ _ _) = do
+checkDefineGlobal node@(AssignmentNode (VarNode name) _ _ _) = do
         ScopeCheck.checkIfDefined node
         label <- SymTab.globalLabel name
         SymTab.defineGlobal name

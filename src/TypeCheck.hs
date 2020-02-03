@@ -58,20 +58,20 @@ globalDeclaration tree = throwError $ CheckerError (InvalidNode tree)
 
 -- | Throw error if types of assignment and declaration don't match
 assignment :: Tree -> GenState ()
-assignment node@(AssignmentNode name value _ _) =
-        checkAssignmentType node name value
-assignment node@(AssignDereferenceNode name value _ _) =
-        checkAssignmentType node name value
+assignment (AssignmentNode varNode value _ _) =
+        checkAssignmentType varNode value
+assignment (AssignDereferenceNode varNode value _ _) =
+        checkAssignmentType varNode value
 assignment node = throwError $ CheckerError (InvalidNode node)
 
 
-checkAssignmentType :: Tree -> String -> Tree -> GenState ()
-checkAssignmentType node name value = do
-        varTyp  <- getType (VarNode name)
+checkAssignmentType :: Tree -> Tree -> GenState ()
+checkAssignmentType varNode value = do
+        varTyp  <- getType varNode
         valType <- getType value
         valid   <- permitted varTyp
         unless (valType `elem` valid) $
-            throwError $ TypeError (TypeMismatch [varTyp] [valType] node)
+            throwError $ TypeError (TypeMismatch [varTyp] [valType] varNode)
 
 
 -- | Throw error if declared and actual return value don't match

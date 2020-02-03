@@ -64,7 +64,7 @@ checkIfFuncDefined tree = throwError $ ScopeError (UnexpectedNode tree)
 
 -- | Check if a variable has been defined
 checkIfDefined :: Tree -> GenState ()
-checkIfDefined node@(AssignmentNode name _ _ _) = do
+checkIfDefined node@(AssignmentNode (VarNode name) _ _ _) = do
         defined <- SymTab.checkVarDefined name
         when defined $
            throwError $ ScopeError (DoubleDefinedNode node)
@@ -109,12 +109,12 @@ checkIfFunction tree = throwError $ ScopeError (UnexpectedNode tree)
 
 -- | Check an identifier is linked to real variable
 variableExists :: Tree -> GenState ()
-variableExists node@(VarNode a)                     = varExists node a
-variableExists node@(AddressOfNode a _)             = varExists node a
-variableExists node@(DereferenceNode a _)           = varExists node a
-variableExists node@(PointerNode a _ _ _)           = varExists node a
-variableExists node@(AssignmentNode a _ _ _)        = varExists node a
-variableExists node@(AssignDereferenceNode a _ _ _) = varExists node a
+variableExists node@(VarNode a)                                         = varExists node a
+variableExists node@(AddressOfNode a _)                                 = varExists node a
+variableExists node@(DereferenceNode a _)                               = varExists node a
+variableExists node@(PointerNode a _ _ _)                               = varExists node a
+variableExists node@(AssignmentNode (VarNode a) _ _ _)                  = varExists node a
+variableExists node@(AssignDereferenceNode (DereferenceNode a _) _ _ _) = varExists node a
 variableExists tree = throwError $ ScopeError (UnexpectedNode tree)
 
 

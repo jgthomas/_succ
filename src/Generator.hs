@@ -133,10 +133,11 @@ genASM node@AssignmentNode{} = do
              Global -> defineGlobal node
              Local  -> defineLocal node
 
-genASM (AssignDereferenceNode varName value op dat) = do
-        assign <- buildAssignmentASM (DereferenceNode varName dat) value op
+genASM (AssignDereferenceNode derefNode@(DereferenceNode varName _) value op _) = do
+        assign <- buildAssignmentASM derefNode value op
         (offset, argPos, globLab) <- SymTab.getVariables varName
         ASM.derefStore assign offset argPos globLab
+genASM node@AssignDereferenceNode{} = throwError $ FatalError (GeneratorBug node)
 
 genASM (ExprStmtNode expression _) = genASM expression
 
@@ -209,7 +210,7 @@ genAssignment (Just tree) = genASM tree
 
 
 defineGlobal :: Tree -> GenState String
-defineGlobal node@(AssignmentNode name _ _ _) = do
+defineGlobal node@(AssignmentNode (VarNode name) _ _ _) = do
         label <- SymTab.globalLabel name
         SymTab.defineGlobal name
         defPrevDecGlob label node
@@ -248,8 +249,8 @@ declareLocal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 defineLocal :: Tree -> GenState String
-defineLocal node@(AssignmentNode varName value op _) = do
-        assign <- buildAssignmentASM (VarNode varName) value op
+defineLocal node@(AssignmentNode varNode@(VarNode varName) value op _) = do
+        assign <- buildAssignmentASM varNode value op
         (offset, _, globLab) <- SymTab.getVariables varName
         case (offset, globLab) of
              (Just off, _) -> ASM.assign assign off <$> SymTab.stackPointerValue

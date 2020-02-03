@@ -164,7 +164,7 @@ typeErrorMsg (TypeMismatch a b (FunctionNode _ name _ _ dat)) =
                     ++ "Parameter type mismatch between declarations of '" ++ name
                     ++ "' was '" ++ typeString a
                     ++ "' now '" ++ typeString b ++ "'"
-typeErrorMsg (TypeMismatch a b (AssignmentNode name _ _ dat)) =
+typeErrorMsg (TypeMismatch a b (AssignmentNode (VarNode name) _ _ dat)) =
         (msg, Exact $ startLine dat)
         where msg = buildLineMsg (startLine dat)
                     ++ "Type mismatch for '" ++ name
