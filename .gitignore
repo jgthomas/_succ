@@ -26,3 +26,4 @@ cabal.project.local~
 .ghc.environment.*
 succ.cabal
 stack.yaml.lock
+*.tix
