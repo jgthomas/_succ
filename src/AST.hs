@@ -25,7 +25,7 @@ data Tree = ProgramNode [Tree]
           | FuncCallNode String [Tree]
           | ParamNode Type Tree NodeDat
           | ArgNode Tree
-          | NullExprNode
+          | NullExprNode NodeDat
           | VarNode String
           | AddressOfNode String
           | DereferenceNode String

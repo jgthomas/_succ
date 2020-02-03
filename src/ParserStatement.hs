@@ -54,7 +54,7 @@ parseStatement lexData@(first:rest) =
 -
 -}
 parseExprStatement :: [LexDat] -> ParserState (Tree, [LexDat])
-parseExprStatement (LexDat{tok=SemiColon}:rest) = parseNullStatement rest
+parseExprStatement lexData@(LexDat{tok=SemiColon}:_) = parseNullStatement lexData
 parseExprStatement lexData = do
         (tree, lexData') <- parseExpression lexData
         lexData''        <- verifyAndConsume SemiColon lexData'
@@ -96,9 +96,11 @@ parseForLoop lexData = do
         (change, lexData'''')  <- parsePostExp lexData'''
         lexData'''''           <- verifyAndConsume CloseParen lexData''''
         (stmts, lexData'''''') <- parseStatement lexData'''''
-        if test == NullExprNode
-           then pure (ForLoopNode ini (ConstantNode 1) change stmts, lexData'''''')
-           else pure (ForLoopNode ini test change stmts, lexData'''''')
+        case test of
+             (NullExprNode _) ->
+                     pure (ForLoopNode ini (ConstantNode 1) change stmts, lexData'''''')
+             _                ->
+                     pure (ForLoopNode ini test change stmts, lexData'''''')
 
 
 parsePostExp :: [LexDat] -> ParserState (Tree, [LexDat])
@@ -111,8 +113,9 @@ parsePostExp lexData = do
 parseForLoopPostExp :: [LexDat] -> ParserState (Tree, [LexDat])
 parseForLoopPostExp (d@LexDat{tok=SemiColon}:_) =
         throwError $ SyntaxError (UnexpectedLexDat d)
-parseForLoopPostExp lexData@(LexDat{tok=CloseParen}:_) =
-        nullExpr lexData
+parseForLoopPostExp lexData@(LexDat{tok=CloseParen}:_) = do
+        dat <- makeNodeDat lexData
+        pure (NullExprNode dat, lexData)
 parseForLoopPostExp lexData = parseExpression lexData
 
 
@@ -174,8 +177,7 @@ parseReturnStmt lexData = do
 
 
 parseNullStatement :: [LexDat] -> ParserState (Tree, [LexDat])
-parseNullStatement lexData = pure (NullExprNode, lexData)
-
-
-nullExpr :: [LexDat] -> ParserState (Tree, [LexDat])
-nullExpr lexData = pure (NullExprNode, lexData)
+parseNullStatement lexData = do
+        dat      <- makeNodeDat lexData
+        lexData' <- verifyAndConsume SemiColon lexData
+        pure (NullExprNode dat, lexData')

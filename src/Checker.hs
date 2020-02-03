@@ -178,7 +178,7 @@ checkAST node@(AddressOfNode _) = ScopeCheck.variableExists node
 
 checkAST node@(DereferenceNode _) = ScopeCheck.variableExists node
 
-checkAST NullExprNode = pure ()
+checkAST (NullExprNode _) = pure ()
 
 checkAST (ConstantNode _) = pure ()
 

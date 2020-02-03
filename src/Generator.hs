@@ -180,7 +180,7 @@ genASM (DereferenceNode name) = do
         (offset, argPos, globLab) <- SymTab.getVariables name
         ASM.derefLoad offset argPos globLab
 
-genASM NullExprNode = ASM.noOutput
+genASM (NullExprNode _) = ASM.noOutput
 
 genASM (ConstantNode n) = do
         currScope <- SymTab.getScope
