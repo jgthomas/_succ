@@ -146,7 +146,7 @@ genASM (BreakNode _) = ASM.setGotoPoint . fromMaybe (-1) <$> SymTab.getBreak
 
 genASM (ReturnNode tree _) = ASM.returnValue <$> genASM tree
 
-genASM (TernaryNode cond pass fails) = do
+genASM (TernaryNode cond pass fails _) = do
         testExp  <- genASM cond
         true     <- genASM pass
         false    <- genASM fails

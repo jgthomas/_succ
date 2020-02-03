@@ -45,13 +45,14 @@ parseAssignment _ lexData = throwError $ ParserError (LexDataError lexData)
 
 parseTernaryExp :: [LexDat] -> ParserState (Tree, [LexDat])
 parseTernaryExp lexData = do
+        dat              <- makeNodeDat lexData
         (cond, lexData') <- parseLogicalOrExp lexData
         case lexData' of
              (LexDat{tok=QuestMark}:rest) -> do
                      (expr1, lexData'')   <- parseExpression rest
                      lexData'''           <- verifyAndConsume Colon lexData''
                      (expr2, lexData'''') <- parseTernaryExp lexData'''
-                     pure (TernaryNode cond expr1 expr2, lexData'''')
+                     pure (TernaryNode cond expr1 expr2 dat, lexData'''')
              _ -> pure (cond, lexData')
 
 

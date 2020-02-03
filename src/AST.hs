@@ -31,7 +31,7 @@ data Tree = ProgramNode [Tree]
           | DereferenceNode String NodeDat
           | UnaryNode Tree UnaryOp
           | BinaryNode Tree Tree BinaryOp
-          | TernaryNode Tree Tree Tree
+          | TernaryNode Tree Tree Tree NodeDat
           deriving (Show, Eq)
 
 

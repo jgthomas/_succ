@@ -150,7 +150,7 @@ checkAST node@(ReturnNode tree _) = do
         checkAST tree
         TypeCheck.funcReturn node tree
 
-checkAST (TernaryNode cond pass fails) = do
+checkAST (TernaryNode cond pass fails _) = do
         _ <- SymTab.labelNum
         _ <- SymTab.labelNum
         checkAST cond
