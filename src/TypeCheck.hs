@@ -99,20 +99,20 @@ checkTypes node oldTypes newTypes =
 getType :: Tree -> GenState Type
 getType (ArgNode tree _)              = getType tree
 getType (ParamNode typ _ _)           = pure typ
-getType node@(VarNode name)           = getVariableType node name
-getType node@(AddressOfNode name _)   = addressOfType node name
+getType node@(VarNode name)           = getVarType node name
+getType node@(AddressOfNode name _)   = getVarType node name >>= invertType node
+getType node@(DereferenceNode name _) = getVarType node name >>= invertType node
 getType node@(TernaryNode l m r _)    = getTernaryType node l m r
 getType node@(BinaryNode l r _)       = getBinaryType node l r
 getType (UnaryNode tree _ _)          = getType tree
 getType (ConstantNode _ _)            = pure IntVar
 getType node@(FuncCallNode name _ _)  = getFuncType node name
 getType (AssignmentNode _ tree _ _)   = getType tree
-getType node@(DereferenceNode name _) = dereferenceType node name
 getType tree                          = throwError $ TypeError (NotTyped tree)
 
 
-getVariableType :: Tree -> String -> GenState Type
-getVariableType node name = do
+getVarType :: Tree -> String -> GenState Type
+getVarType node name = do
         currScope <- FrameStack.getScope
         case currScope of
              Local  -> checkAllVariableTypes node name
@@ -186,23 +186,7 @@ getFuncType node name = do
         extractType node oldTyp
 
 
-addressOfType :: Tree -> String -> GenState Type
-addressOfType node name = do
-        typ <- getType (VarNode name)
-        addType node typ
-
-
-addType :: Tree -> Type -> GenState Type
-addType _ IntVar = pure IntPointer
-addType node t   = throwError $ TypeError (UnexpectedType t node)
-
-
-dereferenceType :: Tree -> String -> GenState Type
-dereferenceType node name = do
-        typ <- getType (VarNode name)
-        derefType node typ
-
-
-derefType :: Tree -> Type -> GenState Type
-derefType _ IntPointer = pure IntVar
-derefType node t       = throwError $ TypeError (UnexpectedType t node)
+invertType :: Tree -> Type -> GenState Type
+invertType AddressOfNode{} IntVar       = pure IntPointer
+invertType DereferenceNode{} IntPointer = pure IntVar
+invertType node t = throwError $ TypeError (UnexpectedType t node)
