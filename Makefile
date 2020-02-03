@@ -37,3 +37,7 @@ clean:
 
 docs:
 	stack haddock --no-haddock-deps ${PROJECT}
+
+
+graph:
+	find src -name '*.hs' | xargs graphmod -q | xdot -
