@@ -101,7 +101,7 @@ parseForLoop lexData = do
         (stmts, lexData''''''') <- parseStatement lexData''''''
         case test of
              (NullExprNode _) ->
-                     pure (ForLoopNode ini (ConstantNode 1) change stmts dat, lexData''''''')
+                     pure (ForLoopNode ini (ConstantNode 1 dat) change stmts dat, lexData''''''')
              _                ->
                      pure (ForLoopNode ini test change stmts dat, lexData''''''')
 

@@ -180,7 +180,7 @@ checkAST node@(DereferenceNode _) = ScopeCheck.variableExists node
 
 checkAST (NullExprNode _) = pure ()
 
-checkAST (ConstantNode _) = pure ()
+checkAST (ConstantNode _ _) = pure ()
 
 
 checkFuncDec :: Tree -> GenState ()
@@ -260,7 +260,7 @@ checkDefineGlobal tree = throwError $ ScopeError (UnexpectedNode tree)
 
 checkPrevDecGlob :: Maybe String -> Tree -> GenState ()
 checkPrevDecGlob Nothing node = throwError $ ScopeError (UndeclaredNode node)
-checkPrevDecGlob (Just _) (AssignmentNode _ node@(ConstantNode _) _ _)  = checkAST node
+checkPrevDecGlob (Just _) (AssignmentNode _ node@(ConstantNode _ _) _ _)  = checkAST node
 checkPrevDecGlob (Just _) (AssignmentNode _ node@(AddressOfNode _) _ _) = checkAST node
 checkPrevDecGlob _ (AssignmentNode _ valNode _ _) =
         throwError $ ScopeError (UnexpectedNode valNode)

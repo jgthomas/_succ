@@ -21,7 +21,7 @@ data Tree = ProgramNode [Tree]
           | ForLoopNode Tree Tree Tree Tree NodeDat
           | BreakNode NodeDat
           | ContinueNode NodeDat
-          | ConstantNode Int
+          | ConstantNode Int NodeDat
           | FuncCallNode String [Tree]
           | ParamNode Type Tree NodeDat
           | ArgNode Tree

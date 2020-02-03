@@ -120,7 +120,7 @@ parseFactor [] = throwError $ ParserError (LexDataError [])
 parseFactor lexData@(next:rest) =
         case next of
              LexDat{tok=SemiColon}        -> parseNullExpression lexData
-             LexDat{tok=ConstInt n}       -> pure (ConstantNode n, rest)
+             LexDat{tok=ConstInt _}       -> parseConstant lexData
              LexDat{tok=Ident _}          -> parseIdent lexData
              LexDat{tok=OpTok Ampersand}  -> parseAddressOf rest
              LexDat{tok=OpTok Asterisk}   -> parseDereference rest
@@ -139,6 +139,13 @@ parseNullExpression lexData = do
         dat      <- makeNodeDat lexData
         lexData' <- verifyAndConsume SemiColon lexData
         pure (NullExprNode dat, lexData')
+
+
+parseConstant :: [LexDat] -> ParserState (Tree, [LexDat])
+parseConstant lexData@(LexDat{tok=ConstInt n}:rest) = do
+        dat <- makeNodeDat lexData
+        pure (ConstantNode n dat, rest)
+parseConstant lexData = throwError $ ParserError (LexDataError lexData)
 
 
 parseUnary :: [LexDat] -> ParserState (Tree, [LexDat])

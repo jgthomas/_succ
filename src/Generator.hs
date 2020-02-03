@@ -154,7 +154,7 @@ genASM (TernaryNode cond pass fails) = do
         falseLab <- SymTab.labelNum
         ASM.ternary testExp true false trueLab falseLab
 
-genASM node@(BinaryNode _ (ConstantNode n) (ShiftOp _)) =
+genASM node@(BinaryNode _ (ConstantNode n _) (ShiftOp _)) =
         processBinaryNode node (show n)
 genASM node@(BinaryNode _ right _) = do
         rgt <- genASM right
@@ -182,7 +182,7 @@ genASM (DereferenceNode name) = do
 
 genASM (NullExprNode _) = ASM.noOutput
 
-genASM (ConstantNode n) = do
+genASM (ConstantNode n _) = do
         currScope <- SymTab.getScope
         case currScope of
              Global -> pure . show $ n
@@ -217,8 +217,8 @@ defineGlobal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 defPrevDecGlob :: Maybe String -> Tree -> GenState String
-defPrevDecGlob (Just label) (AssignmentNode _ (ConstantNode a) _ _) = do
-        value <- genASM (ConstantNode a)
+defPrevDecGlob (Just label) (AssignmentNode _ (ConstantNode a dat) _ _) = do
+        value <- genASM (ConstantNode a dat)
         globalVarASM label value
 defPrevDecGlob (Just label) (AssignmentNode _ (AddressOfNode a) _ _) = do
         value   <- genASM (AddressOfNode a)
