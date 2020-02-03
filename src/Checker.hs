@@ -107,11 +107,11 @@ checkAST (IfNode test action possElse _) = do
                      _ <- SymTab.labelNum
                      checkAST e
 
-checkAST (PointerNode varName typ Nothing dat) =
-        checkAST (DeclarationNode varName typ Nothing dat)
-checkAST node@(PointerNode varName typ (Just a) dat) = do
-        checkAST (DeclarationNode varName typ Nothing dat)
-        ScopeCheck.variableExists node
+checkAST (PointerNode varNode typ Nothing dat) =
+        checkAST (DeclarationNode varNode typ Nothing dat)
+checkAST (PointerNode varNode typ (Just a) dat) = do
+        checkAST (DeclarationNode varNode typ Nothing dat)
+        ScopeCheck.variableExists varNode
         checkAST a
 
 checkAST node@DeclarationNode{} = do
