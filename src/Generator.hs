@@ -58,7 +58,7 @@ genASM node@ParamNode{} =
 genASM (FuncCallNode name args _) =
         ASM.functionCall name <$> processArgs args
 
-genASM (ArgNode arg) = genASM arg
+genASM (ArgNode arg _) = genASM arg
 
 genASM (CompoundStmtNode blockItems _) = do
         SymTab.initScope

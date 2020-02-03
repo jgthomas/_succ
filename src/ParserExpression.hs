@@ -211,8 +211,9 @@ parseTheArgs as lexData = do
 
 parseArg :: [LexDat] -> ParserState (Tree, [LexDat])
 parseArg lexData = do
+        dat              <- makeNodeDat lexData
         (tree, lexData') <- parseExpression lexData
-        pure (ArgNode tree, lexData')
+        pure (ArgNode tree dat, lexData')
 
 
 parseBinaryExp :: Tree
