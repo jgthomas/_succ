@@ -172,15 +172,15 @@ checkAST node@(UnaryNode _ unOp@(PostOpUnary _)) =
         throwError $ CheckerError (OperatorError (UnaryOp unOp) node)
 checkAST (UnaryNode tree (Unary _)) = checkAST tree
 
-checkAST node@(VarNode _) = ScopeCheck.variableExists node
+checkAST node@VarNode{} = ScopeCheck.variableExists node
 
-checkAST node@(AddressOfNode _) = ScopeCheck.variableExists node
+checkAST node@AddressOfNode{} = ScopeCheck.variableExists node
 
-checkAST node@(DereferenceNode _) = ScopeCheck.variableExists node
+checkAST node@DereferenceNode{} = ScopeCheck.variableExists node
 
-checkAST (NullExprNode _) = pure ()
+checkAST NullExprNode{} = pure ()
 
-checkAST (ConstantNode _ _) = pure ()
+checkAST ConstantNode{} = pure ()
 
 
 checkFuncDec :: Tree -> GenState ()
