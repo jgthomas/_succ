@@ -7,8 +7,8 @@ import Error            (CompilerError (ParserError, SyntaxError),
                          ParserError (..), SyntaxError (..))
 import LexDat           (LexDat (..))
 import ParserExpression (parseExpression)
-import ParserShared     (consumeTok, makeNodeDat, parsePassIn, parseType,
-                         verifyAndConsume)
+import ParserShared     (consumeNToks, consumeTok, makeNodeDat, parsePassIn,
+                         parseType, verifyAndConsume)
 import ParserStatement  (parseStatementBlock)
 import ParState         (ParserState, throwError)
 import Tokens           (CloseBracket (..), OpTok (..), OpenBracket (..),
@@ -33,9 +33,20 @@ parseFuncName [] = throwError $ ParserError (LexDataError [])
 
 
 parseFuncParams :: [LexDat] -> ParserState ([Tree], [LexDat])
-parseFuncParams (_:LexDat{tok=OpTok Asterisk}:_:rest) = parseParams [] rest
-parseFuncParams (_:LexDat{tok=Ident _}:rest)          = parseParams [] rest
+parseFuncParams lexData@(_:LexDat{tok=OpTok Asterisk}:_:LexDat{tok=OpenBracket OpenParen}:_) = do
+        lexData' <- consumeNToks 3 lexData
+        parseAllParams lexData'
+parseFuncParams lexData@(_:LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenParen}:_) = do
+        lexData' <- consumeNToks 2 lexData
+        parseAllParams lexData'
 parseFuncParams lexData = throwError $ ParserError (LexDataError lexData)
+
+
+parseAllParams :: [LexDat] -> ParserState ([Tree], [LexDat])
+parseAllParams lexData = do
+        (params, lexData') <- parseParams [] lexData
+        lexData''          <- verifyAndConsume (CloseBracket CloseParen) lexData'
+        pure (params, lexData'')
 
 
 parseParams :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])

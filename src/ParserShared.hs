@@ -26,13 +26,17 @@ parsePassIn :: [Tree]
             -> ([Tree] -> [LexDat] -> ParserState ([Tree], [LexDat]))
             -> ParserState ([Tree], [LexDat])
 parsePassIn _ [] _ = throwError $ ParserError (LexDataError [])
-parsePassIn xs (LexDat{tok=OpenBracket _}:LexDat{tok=CloseBracket _}:rest) _ =
-        pure (xs, rest)
-parsePassIn xs (LexDat{tok=CloseBracket _}:rest) _ = pure (reverse xs, rest)
+parsePassIn xs lexData@(LexDat{tok=OpenBracket _}:LexDat{tok=CloseBracket _}:_) _ = do
+        lexData' <- consumeTok lexData
+        pure (reverse xs, lexData')
+parsePassIn xs lexData@(LexDat{tok=CloseBracket _}:_) _ =
+        pure (reverse xs, lexData)
 parsePassIn _ (d@LexDat{tok=Comma}:LexDat{tok=CloseBracket _}:_) _ =
         throwError $ SyntaxError (UnexpectedLexDat d)
-parsePassIn xs (LexDat{tok=OpenBracket _}:rest) f = f xs rest
-parsePassIn xs (LexDat{tok=Comma}:rest) f     = f xs rest
+parsePassIn xs (LexDat{tok=OpenBracket _}:rest) f =
+        f xs rest
+parsePassIn xs (LexDat{tok=Comma}:rest) f =
+        f xs rest
 parsePassIn _ (a:_) _ = throwError $ SyntaxError (UnexpectedLexDat a)
 
 

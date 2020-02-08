@@ -198,7 +198,8 @@ parseFuncCall lexData@(LexDat{tok=Ident a}:LexDat{tok=OpenBracket OpenParen}:_) 
         dat               <- makeNodeDat lexData
         lexData'          <- consumeTok lexData
         (tree, lexData'') <- parseArgs [] lexData'
-        pure (FuncCallNode a tree dat, lexData'')
+        lexData'''        <- verifyAndConsume (CloseBracket CloseParen) lexData''
+        pure (FuncCallNode a tree dat, lexData''')
 parseFuncCall (d@LexDat{tok=Ident _}:_:_) =
         throwError $ SyntaxError (MissingToken (OpenBracket OpenParen) d)
 parseFuncCall (a:LexDat{tok=OpenBracket OpenParen}:_) =
