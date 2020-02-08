@@ -177,6 +177,7 @@ permitted typ =
         case typ of
              IntVar     -> pure [IntVar, IntPointer]
              IntPointer -> pure [IntVar, IntPointer]
+             IntArray   -> pure [IntArray]
              Label      -> throwError ImpossibleError
 
 
