@@ -23,9 +23,9 @@ import Type          (Type (..))
 
 
 parseBracketedSeq :: [Tree]
-            -> [LexDat]
-            -> ([Tree] -> [LexDat] -> ParserState ([Tree], [LexDat]))
-            -> ParserState ([Tree], [LexDat])
+                  -> [LexDat]
+                  -> ([Tree] -> [LexDat] -> ParserState ([Tree], [LexDat]))
+                  -> ParserState ([Tree], [LexDat])
 parseBracketedSeq _ [] _ = throwError $ ParserError (LexDataError [])
 parseBracketedSeq xs lexData@(LexDat{tok=OpenBracket _}:LexDat{tok=CloseBracket _}:_) _ = do
         lexData' <- consumeTok lexData
