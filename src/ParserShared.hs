@@ -17,7 +17,8 @@ import Error         (CompilerError (ParserError, SyntaxError),
                       ParserError (..), SyntaxError (..))
 import LexDat        (LexDat (..))
 import ParState      (ParserState, throwError)
-import Tokens        (Keyword (..), OpTok (..), Token (..))
+import Tokens        (CloseBracket (..), Keyword (..), OpTok (..),
+                      OpenBracket (..), Token (..))
 import Type          (Type (..))
 
 
@@ -80,11 +81,21 @@ consumeNToks n lexData = do
 
 
 parseType :: [LexDat] -> ParserState Type
-parseType (LexDat{tok=Keyword Int}:LexDat{tok=OpTok Asterisk}:_) =
-        pure IntPointer
-parseType (LexDat{tok=Keyword Int}:_) = pure IntVar
-parseType (a:_) = throwError $ SyntaxError (BadType a)
+parseType (LexDat{tok=Keyword Int}:rest) = parseIntType rest
+parseType (a:_)    = throwError $ SyntaxError (BadType a)
 parseType lexData  = throwError $ ParserError (LexDataError lexData)
+
+
+parseIntType :: [LexDat] -> ParserState Type
+parseIntType (LexDat{tok=OpTok Asterisk}:_) = pure IntPointer
+parseIntType (LexDat{tok=OpenBracket OpenSqBracket}:
+              LexDat{tok=CloseBracket CloseSqBracket}:
+              _) = pure IntArray
+parseIntType (LexDat{tok=OpenBracket OpenSqBracket}:
+              LexDat{tok=ConstInt _}:
+              LexDat{tok=CloseBracket CloseSqBracket}:
+              _) = pure IntArray
+parseIntType _   = pure IntVar
 
 
 makeNodeDat :: [LexDat] -> ParserState NodeDat
