@@ -41,7 +41,7 @@ parseDec :: Declaration -> String -> [LexDat] -> ParserState (Tree, [LexDat])
 parseDec decType name lexData = do
         dat               <- makeNodeDat lexData
         typ               <- parseType lexData
-        lexData'          <- eatUntilName lexData
+        lexData'          <- findVarName lexData
         varDat            <- makeNodeDat lexData'
         (tree, lexData'') <- parseOptAssign lexData'
         let var = VarNode name varDat
@@ -69,9 +69,9 @@ parseOptionalAssign lexData = do
         pure (Nothing, lexData')
 
 
-eatUntilName :: [LexDat] -> ParserState [LexDat]
-eatUntilName [] = pure []
-eatUntilName lexData@(LexDat{tok=Ident _}:_) = pure lexData
-eatUntilName lexData = do
+findVarName :: [LexDat] -> ParserState [LexDat]
+findVarName [] = pure []
+findVarName lexData@(LexDat{tok=Ident _}:_) = pure lexData
+findVarName lexData = do
         lexData' <- consumeTok lexData
-        eatUntilName lexData'
+        findVarName lexData'
