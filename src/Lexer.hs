@@ -65,6 +65,8 @@ lexSeparator (c:cs) =
              ':' -> pure (Colon, cs)
              '?' -> pure (QuestMark, cs)
              ',' -> pure (Comma, cs)
+             '[' -> pure (OpenSqBracket, cs)
+             ']' -> pure (CloseSqBracket, cs)
              _   -> throwError $ LexerError (UnexpectedInput [c])
 
 
@@ -167,7 +169,7 @@ opSymbols = "+-*/~!|&<>=%^"
 
 
 separators :: String
-separators = "(){};:,?"
+separators = "(){};:,?[]"
 
 
 identStart :: Char -> Bool

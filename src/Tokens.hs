@@ -17,6 +17,8 @@ data Token = OpenParen
            | Colon
            | QuestMark
            | Comma
+           | OpenSqBracket
+           | CloseSqBracket
            deriving (Eq)
 
 
@@ -69,18 +71,20 @@ data OpTok = PlusSign
 
 
 instance Show Token where
-        show OpenParen     = "("
-        show CloseParen    = ")"
-        show OpenBrace     = "{"
-        show CloseBrace    = "}"
-        show SemiColon     = ";"
-        show Colon         = ":"
-        show QuestMark     = "?"
-        show Comma         = ","
-        show (Ident a)     = a
-        show (ConstInt n)  = show n
-        show (Keyword kwd) = map toLower (show kwd)
-        show (OpTok op)    = showOpTok op
+        show OpenParen      = "("
+        show CloseParen     = ")"
+        show OpenBrace      = "{"
+        show CloseBrace     = "}"
+        show SemiColon      = ";"
+        show Colon          = ":"
+        show QuestMark      = "?"
+        show Comma          = ","
+        show OpenSqBracket  = "["
+        show CloseSqBracket = "]"
+        show (Ident a)      = a
+        show (ConstInt n)   = show n
+        show (Keyword kwd)  = map toLower (show kwd)
+        show (OpTok op)     = showOpTok op
 
 
 showOpTok :: OpTok -> String

@@ -25,7 +25,9 @@ lexerTest = hspec $ do
                    ";",
                    ":",
                    "?",
-                   ","])
+                   ",",
+                   "[",
+                   "]"])
                   `shouldBe`
                   [OpenParen,
                    CloseParen,
@@ -34,7 +36,9 @@ lexerTest = hspec $ do
                    SemiColon,
                    Colon,
                    QuestMark,
-                   Comma]
+                   Comma,
+                   OpenSqBracket,
+                   CloseSqBracket]
 
                 it "Should correctly lex all language keywords" $
                   (map tok $
