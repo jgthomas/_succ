@@ -10,11 +10,13 @@ import ParserDeclaration (parsePointerDec, parseValueDec)
 import ParserExpression  (parseExpression)
 import ParserShared      (makeNodeDat, nextTokIsNot, verifyAndConsume)
 import ParState          (ParserState, throwError)
-import Tokens            (Keyword (..), OpTok (..), Token (..))
+import Tokens            (CloseBracket (..), Keyword (..), OpTok (..),
+                          OpenBracket (..), Token (..))
 
 
 parseStatementBlock :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
-parseStatementBlock stmts lexData@(LexDat{tok=CloseBrace}:_) = pure (reverse stmts, lexData)
+parseStatementBlock stmts lexData@(LexDat{tok=CloseBracket CloseBrace}:_) =
+        pure (reverse stmts, lexData)
 parseStatementBlock stmts lexData = do
         (tree, lexData') <- parseBlockItem lexData
         parseStatementBlock (tree:stmts) lexData'
@@ -32,15 +34,15 @@ parseStatement :: [LexDat] -> ParserState (Tree, [LexDat])
 parseStatement [] = throwError $ ParserError (LexDataError [])
 parseStatement lexData@(first:_) =
         case first of
-             LexDat{tok=Keyword Return}   -> parseReturnStmt lexData
-             LexDat{tok=Keyword If}       -> parseIfStatement lexData
-             LexDat{tok=Keyword While}    -> parseWhileStatement lexData
-             LexDat{tok=Keyword Do}       -> parseDoWhile lexData
-             LexDat{tok=Keyword For}      -> parseForLoop lexData
-             LexDat{tok=Keyword Break}    -> parseBreak lexData
-             LexDat{tok=Keyword Continue} -> parseContinue lexData
-             LexDat{tok=OpenBrace}        -> parseCompoundStmt lexData
-             _                            -> parseExprStatement lexData
+             LexDat{tok=Keyword Return}        -> parseReturnStmt lexData
+             LexDat{tok=Keyword If}            -> parseIfStatement lexData
+             LexDat{tok=Keyword While}         -> parseWhileStatement lexData
+             LexDat{tok=Keyword Do}            -> parseDoWhile lexData
+             LexDat{tok=Keyword For}           -> parseForLoop lexData
+             LexDat{tok=Keyword Break}         -> parseBreak lexData
+             LexDat{tok=Keyword Continue}      -> parseContinue lexData
+             LexDat{tok=OpenBracket OpenBrace} -> parseCompoundStmt lexData
+             _                                 -> parseExprStatement lexData
 
 
 {-
@@ -83,9 +85,9 @@ parseContinue lexData = throwError $ ParserError (LexDataError lexData)
 parseCompoundStmt :: [LexDat] -> ParserState (Tree, [LexDat])
 parseCompoundStmt lexData = do
         dat                <- makeNodeDat lexData
-        lexData'           <- verifyAndConsume OpenBrace lexData
+        lexData'           <- verifyAndConsume (OpenBracket OpenBrace) lexData
         (items, lexData'') <- parseStatementBlock [] lexData'
-        lexData'''         <- verifyAndConsume CloseBrace lexData''
+        lexData'''         <- verifyAndConsume (CloseBracket CloseBrace) lexData''
         pure (CompoundStmtNode items dat, lexData''')
 
 
@@ -93,11 +95,11 @@ parseForLoop :: [LexDat] -> ParserState (Tree, [LexDat])
 parseForLoop lexData = do
         dat                     <- makeNodeDat lexData
         lexData'                <- verifyAndConsume (Keyword For) lexData
-        lexData''               <- verifyAndConsume OpenParen lexData'
+        lexData''               <- verifyAndConsume (OpenBracket OpenParen) lexData'
         (ini, lexData''')       <- parseBlockItem lexData''
         (test, lexData'''')     <- parseExprStatement lexData'''
         (change, lexData''''')  <- parsePostExp lexData''''
-        lexData''''''           <- verifyAndConsume CloseParen lexData'''''
+        lexData''''''           <- verifyAndConsume (CloseBracket CloseParen) lexData'''''
         (stmts, lexData''''''') <- parseStatement lexData''''''
         case test of
              (NullExprNode _) ->
@@ -116,29 +118,29 @@ parsePostExp lexData = do
 parseForLoopPostExp :: [LexDat] -> ParserState (Tree, [LexDat])
 parseForLoopPostExp (d@LexDat{tok=SemiColon}:_) =
         throwError $ SyntaxError (UnexpectedLexDat d)
-parseForLoopPostExp lexData@(LexDat{tok=CloseParen}:_) = do
+parseForLoopPostExp lexData@(LexDat{tok=CloseBracket CloseParen}:_) = do
         dat <- makeNodeDat lexData
         pure (NullExprNode dat, lexData)
 parseForLoopPostExp lexData = parseExpression lexData
 
 
 parseDoWhile :: [LexDat] -> ParserState (Tree, [LexDat])
-parseDoWhile lexData@(LexDat{tok=Keyword Do}:LexDat{tok=OpenBrace}:_) = do
+parseDoWhile lexData@(LexDat{tok=Keyword Do}:LexDat{tok=OpenBracket OpenBrace}:_) = do
         dat                <- makeNodeDat lexData
         lexData'           <- verifyAndConsume (Keyword Do) lexData
         (stmts, lexData'') <- parseStatement lexData'
         case lexData'' of
-             (LexDat{tok=Keyword While}:LexDat{tok=OpenParen}:rest) -> do
+             (LexDat{tok=Keyword While}:LexDat{tok=OpenBracket OpenParen}:rest) -> do
                      (test, lexData''') <- parseExpression rest
-                     lexData''''        <- verifyAndConsume CloseParen lexData'''
+                     lexData''''        <- verifyAndConsume (CloseBracket CloseParen) lexData'''
                      lexData'''''       <- verifyAndConsume SemiColon lexData''''
                      pure (DoWhileNode stmts test dat, lexData''''')
-             (_:d@LexDat{tok=OpenParen}:_) ->
+             (_:d@LexDat{tok=OpenBracket OpenParen}:_) ->
                      throwError $ SyntaxError (MissingKeyword While d)
              (d@LexDat{tok=Keyword While}:_:_) ->
-                     throwError $ SyntaxError (MissingToken OpenParen d)
+                     throwError $ SyntaxError (MissingToken (OpenBracket OpenParen) d)
              _ -> throwError $ ParserError (LexDataError lexData')
-parseDoWhile (d:_) = throwError $ SyntaxError (MissingToken OpenBrace d)
+parseDoWhile (d:_) = throwError $ SyntaxError (MissingToken (OpenBracket OpenBrace) d)
 parseDoWhile [] = throwError $ ParserError (LexDataError [])
 
 
@@ -163,9 +165,9 @@ parseIfStatement lexData = do
 
 parseConditionalParen :: [LexDat] -> ParserState (Tree, [LexDat])
 parseConditionalParen lexData = do
-        lexData'             <- verifyAndConsume OpenParen lexData
+        lexData'             <- verifyAndConsume (OpenBracket OpenParen) lexData
         (test, lexData'')    <- parseExpression lexData'
-        lexData'''           <- verifyAndConsume CloseParen lexData''
+        lexData'''           <- verifyAndConsume (CloseBracket CloseParen) lexData''
         pure (test, lexData''')
 
 

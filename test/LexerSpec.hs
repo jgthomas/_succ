@@ -29,16 +29,16 @@ lexerTest = hspec $ do
                    "[",
                    "]"])
                   `shouldBe`
-                  [OpenParen,
-                   CloseParen,
-                   OpenBrace,
-                   CloseBrace,
+                  [OpenBracket OpenParen,
+                   CloseBracket CloseParen,
+                   OpenBracket OpenBrace,
+                   CloseBracket CloseBrace,
                    SemiColon,
                    Colon,
                    QuestMark,
                    Comma,
-                   OpenSqBracket,
-                   CloseSqBracket]
+                   OpenBracket OpenSqBracket,
+                   CloseBracket CloseSqBracket]
 
                 it "Should correctly lex all language keywords" $
                   (map tok $
@@ -191,13 +191,13 @@ lexerTest = hspec $ do
                   fromRight [] (tokenize "int main() { return 2; }"))
                   `shouldBe` [Keyword Int,
                               Ident "main",
-                              OpenParen,
-                              CloseParen,
-                              OpenBrace,
+                              OpenBracket OpenParen,
+                              CloseBracket CloseParen,
+                              OpenBracket OpenBrace,
                               Keyword Return,
                               ConstInt 2,
                               SemiColon,
-                              CloseBrace]
+                              CloseBracket CloseBrace]
 
         describe "Throw errors on bad input" $ do
                 it "Should throw error for unrecognised character" $

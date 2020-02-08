@@ -16,7 +16,7 @@ import           ParserDeclaration (parsePointerDec, parseValueDec)
 import           ParserFunction    (parseFunction)
 import           ParState          (ParserState, runParState, throwError)
 import qualified ParState          (getState, putState, startState)
-import           Tokens            (OpTok (..), Token (..))
+import           Tokens            (OpTok (..), OpenBracket (..), Token (..))
 
 
 -- | Convert a list of tokens into an AST
@@ -40,8 +40,8 @@ parseTopLevelItems lexData = throwError $ ParserError (LexDataError lexData)
 
 
 parseTopLevelItem :: [LexDat] -> ParserState (Tree, [LexDat])
-parseTopLevelItem lexData@(_:_:_:LexDat{tok=OpenParen}:_)  = parseFunction lexData
-parseTopLevelItem lexData@(_:_:LexDat{tok=OpenParen}:_)    = parseFunction lexData
+parseTopLevelItem lexData@(_:_:_:LexDat{tok=OpenBracket OpenParen}:_)  = parseFunction lexData
+parseTopLevelItem lexData@(_:_:LexDat{tok=OpenBracket OpenParen}:_)    = parseFunction lexData
 parseTopLevelItem lexData@(_:LexDat{tok=Ident _}:_)        = parseValueDec lexData
 parseTopLevelItem lexData@(_:LexDat{tok=OpTok Asterisk}:_) = parsePointerDec lexData
 parseTopLevelItem (_:b:_) = throwError $ SyntaxError (NonValidIdentifier b)

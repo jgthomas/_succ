@@ -26,12 +26,12 @@ parsePassIn :: [Tree]
             -> ([Tree] -> [LexDat] -> ParserState ([Tree], [LexDat]))
             -> ParserState ([Tree], [LexDat])
 parsePassIn _ [] _ = throwError $ ParserError (LexDataError [])
-parsePassIn xs (LexDat{tok=OpenParen}:LexDat{tok=CloseParen}:rest) _ =
+parsePassIn xs (LexDat{tok=OpenBracket _}:LexDat{tok=CloseBracket _}:rest) _ =
         pure (xs, rest)
-parsePassIn xs (LexDat{tok=CloseParen}:rest) _ = pure (reverse xs, rest)
-parsePassIn _ (d@LexDat{tok=Comma}:LexDat{tok=CloseParen}:_) _ =
+parsePassIn xs (LexDat{tok=CloseBracket _}:rest) _ = pure (reverse xs, rest)
+parsePassIn _ (d@LexDat{tok=Comma}:LexDat{tok=CloseBracket _}:_) _ =
         throwError $ SyntaxError (UnexpectedLexDat d)
-parsePassIn xs (LexDat{tok=OpenParen}:rest) f = f xs rest
+parsePassIn xs (LexDat{tok=OpenBracket _}:rest) f = f xs rest
 parsePassIn xs (LexDat{tok=Comma}:rest) f     = f xs rest
 parsePassIn _ (a:_) _ = throwError $ SyntaxError (UnexpectedLexDat a)
 
