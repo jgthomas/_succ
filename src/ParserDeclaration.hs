@@ -35,9 +35,10 @@ parseDec name lexData n = do
         lexData'          <- consumeNToks n lexData
         varDat            <- makeNodeDat lexData'
         (tree, lexData'') <- parseOptAssign lexData'
+        let var = VarNode name varDat
         case declarationType lexData of
-             PointerDec -> pure (PointerNode (VarNode name varDat) typ tree dat, lexData'')
-             ValueDec   -> pure (DeclarationNode (VarNode name varDat) typ tree dat, lexData'')
+             PointerDec -> pure (PointerNode var typ tree dat, lexData'')
+             ValueDec   -> pure (DeclarationNode var typ tree dat, lexData'')
              ArrayDec   -> undefined
 
 
