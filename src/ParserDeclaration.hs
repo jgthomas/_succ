@@ -7,8 +7,8 @@ import           Error            (CompilerError (ParserError, SyntaxError),
                                    ParserError (..), SyntaxError (..))
 import           LexDat           (LexDat (..))
 import           ParserExpression (parseExpression)
-import           ParserShared     (consumeNToks, consumeTok, makeNodeDat,
-                                   parseType, verifyAndConsume)
+import           ParserShared     (consumeTok, makeNodeDat, parseType,
+                                   verifyAndConsume)
 import           ParState         (ParserState, throwError)
 import           Tokens           (CloseBracket (..), OpenBracket (..),
                                    Token (..))
@@ -22,21 +22,25 @@ data Declaration = ValueDec
 
 
 parseDeclaration :: [LexDat] -> ParserState (Tree, [LexDat])
-parseDeclaration lexData@(_:LexDat{tok=Ident name}:_)   = parseDec name lexData 1
-parseDeclaration lexData@(_:_:LexDat{tok=Ident name}:_) = parseDec name lexData 2
+parseDeclaration lexData@(
+        _:LexDat{tok=Ident name}:
+        LexDat{tok=OpenBracket OpenSqBracket}:
+        LexDat{tok=CloseBracket CloseSqBracket}:_)      = parseDec ArrayDec name lexData
+parseDeclaration lexData@(_:LexDat{tok=Ident name}:_)   = parseDec ValueDec name lexData
+parseDeclaration lexData@(_:_:LexDat{tok=Ident name}:_) = parseDec PointerDec name lexData
 parseDeclaration (_:c:_:_) = throwError $ SyntaxError (NonValidIdentifier c)
 parseDeclaration lexData   = throwError $ ParserError (LexDataError lexData)
 
 
-parseDec :: String -> [LexDat] -> Int -> ParserState (Tree, [LexDat])
-parseDec name lexData n = do
+parseDec :: Declaration -> String -> [LexDat] -> ParserState (Tree, [LexDat])
+parseDec decType name lexData = do
         dat               <- makeNodeDat lexData
         typ               <- parseType lexData
-        lexData'          <- consumeNToks n lexData
+        lexData'          <- eatUntilName lexData
         varDat            <- makeNodeDat lexData'
         (tree, lexData'') <- parseOptAssign lexData'
         let var = VarNode name varDat
-        case declarationType lexData of
+        case decType of
              PointerDec -> pure (PointerNode var typ tree dat, lexData'')
              ValueDec   -> pure (DeclarationNode var typ tree dat, lexData'')
              ArrayDec   -> undefined
@@ -60,11 +64,9 @@ parseOptionalAssign lexData = do
         pure (Nothing, lexData')
 
 
-declarationType :: [LexDat] -> Declaration
-declarationType (_:_:LexDat{tok=Ident _}:_)                 = PointerDec
-declarationType (_:LexDat{tok=Ident _}:
-                 LexDat{tok=OpenBracket OpenSqBracket}:
-                 LexDat{tok=CloseBracket CloseSqBracket}:_) = ArrayDec
-declarationType (_:LexDat{tok=Ident _}:_)                   = ValueDec
-declarationType _ = undefined
-
+eatUntilName :: [LexDat] -> ParserState [LexDat]
+eatUntilName [] = pure []
+eatUntilName lexData@(LexDat{tok=Ident _}:_) = pure lexData
+eatUntilName lexData = do
+        lexData' <- consumeTok lexData
+        eatUntilName lexData'
