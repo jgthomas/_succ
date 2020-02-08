@@ -8,7 +8,7 @@ import           Error        (CompilerError (ImpossibleError, ParserError, Synt
 import           LexDat       (LexDat (..))
 import qualified Operator     (tokToAssignOp, tokToBinOp, tokToPostUnaryOp,
                                tokToUnaryOp)
-import           ParserShared (consumeTok, makeNodeDat, parsePassIn,
+import           ParserShared (consumeTok, makeNodeDat, parseBracketedSeq,
                                verifyAndConsume)
 import           ParState     (ParserState, throwError)
 import           Tokens       (CloseBracket (..), OpTok (..), OpTokType (..),
@@ -211,7 +211,7 @@ parseFuncCall lexData =
 
 
 parseArgs :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
-parseArgs args lexData = parsePassIn args lexData parseTheArgs
+parseArgs args lexData = parseBracketedSeq args lexData parseTheArgs
 
 
 parseTheArgs :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])

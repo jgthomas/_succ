@@ -1,6 +1,6 @@
 
 module ParserShared
-        (parsePassIn,
+        (parseBracketedSeq,
          verifyAndConsume,
          consumeTok,
          consumeNToks,
@@ -21,23 +21,23 @@ import Tokens        (Keyword (..), OpTok (..), Token (..))
 import Type          (Type (..))
 
 
-parsePassIn :: [Tree]
+parseBracketedSeq :: [Tree]
             -> [LexDat]
             -> ([Tree] -> [LexDat] -> ParserState ([Tree], [LexDat]))
             -> ParserState ([Tree], [LexDat])
-parsePassIn _ [] _ = throwError $ ParserError (LexDataError [])
-parsePassIn xs lexData@(LexDat{tok=OpenBracket _}:LexDat{tok=CloseBracket _}:_) _ = do
+parseBracketedSeq _ [] _ = throwError $ ParserError (LexDataError [])
+parseBracketedSeq xs lexData@(LexDat{tok=OpenBracket _}:LexDat{tok=CloseBracket _}:_) _ = do
         lexData' <- consumeTok lexData
         pure (reverse xs, lexData')
-parsePassIn xs lexData@(LexDat{tok=CloseBracket _}:_) _ =
+parseBracketedSeq xs lexData@(LexDat{tok=CloseBracket _}:_) _ =
         pure (reverse xs, lexData)
-parsePassIn _ (d@LexDat{tok=Comma}:LexDat{tok=CloseBracket _}:_) _ =
+parseBracketedSeq _ (d@LexDat{tok=Comma}:LexDat{tok=CloseBracket _}:_) _ =
         throwError $ SyntaxError (UnexpectedLexDat d)
-parsePassIn xs (LexDat{tok=OpenBracket _}:rest) f =
+parseBracketedSeq xs (LexDat{tok=OpenBracket _}:rest) f =
         f xs rest
-parsePassIn xs (LexDat{tok=Comma}:rest) f =
+parseBracketedSeq xs (LexDat{tok=Comma}:rest) f =
         f xs rest
-parsePassIn _ (a:_) _ = throwError $ SyntaxError (UnexpectedLexDat a)
+parseBracketedSeq _ (a:_) _ = throwError $ SyntaxError (UnexpectedLexDat a)
 
 
 verifyAndConsume :: Token -> [LexDat] -> ParserState [LexDat]

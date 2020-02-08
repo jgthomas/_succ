@@ -7,8 +7,8 @@ import Error            (CompilerError (ParserError, SyntaxError),
                          ParserError (..), SyntaxError (..))
 import LexDat           (LexDat (..))
 import ParserExpression (parseExpression)
-import ParserShared     (consumeNToks, consumeTok, makeNodeDat, parsePassIn,
-                         parseType, verifyAndConsume)
+import ParserShared     (consumeNToks, consumeTok, makeNodeDat,
+                         parseBracketedSeq, parseType, verifyAndConsume)
 import ParserStatement  (parseStatementBlock)
 import ParState         (ParserState, throwError)
 import Tokens           (CloseBracket (..), OpTok (..), OpenBracket (..),
@@ -50,7 +50,7 @@ parseAllParams lexData = do
 
 
 parseParams :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
-parseParams prms lexData = parsePassIn prms lexData parseTheParams
+parseParams prms lexData = parseBracketedSeq prms lexData parseTheParams
 
 
 parseTheParams :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
