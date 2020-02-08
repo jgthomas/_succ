@@ -17,9 +17,9 @@ import Tokens           (CloseBracket (..), OpTok (..), OpenBracket (..),
 
 parseFunction :: [LexDat] -> ParserState (Tree, [LexDat])
 parseFunction lexData = do
-        nodeDat         <- makeNodeDat lexData
-        typ             <- parseType lexData
-        name            <- parseFuncName lexData
+        nodeDat            <- makeNodeDat lexData
+        typ                <- parseType lexData
+        name               <- parseFuncName lexData
         (params, lexData') <- parseFuncParams lexData
         (items, lexData'') <- parseFuncBody lexData'
         pure (FunctionNode typ name params items nodeDat, lexData'')
