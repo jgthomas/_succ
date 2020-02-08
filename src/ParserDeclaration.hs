@@ -26,6 +26,11 @@ parseDeclaration lexData@(
         _:LexDat{tok=Ident name}:
         LexDat{tok=OpenBracket OpenSqBracket}:
         LexDat{tok=CloseBracket CloseSqBracket}:_)      = parseDec ArrayDec name lexData
+parseDeclaration lexData@(
+        _:LexDat{tok=Ident name}:
+        LexDat{tok=OpenBracket OpenSqBracket}:
+        LexDat{tok=ConstInt _}:
+        LexDat{tok=CloseBracket CloseSqBracket}:_)      = parseDec ArrayDec name lexData
 parseDeclaration lexData@(_:LexDat{tok=Ident name}:_)   = parseDec ValueDec name lexData
 parseDeclaration lexData@(_:_:LexDat{tok=Ident name}:_) = parseDec PointerDec name lexData
 parseDeclaration (_:c:_:_) = throwError $ SyntaxError (NonValidIdentifier c)
