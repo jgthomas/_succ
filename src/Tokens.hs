@@ -5,10 +5,8 @@ module Tokens where
 import Data.Char (toLower)
 
 
-data Token = OpenParen
-           | CloseParen
-           | OpenBrace
-           | CloseBrace
+data Token = OpenBracket OpenBracket
+           | CloseBracket CloseBracket
            | SemiColon
            | OpTok OpTok
            | Ident String
@@ -17,9 +15,19 @@ data Token = OpenParen
            | Colon
            | QuestMark
            | Comma
-           | OpenSqBracket
-           | CloseSqBracket
            deriving (Eq)
+
+
+data OpenBracket = OpenParen
+                 | OpenBrace
+                 | OpenSqBracket
+                 deriving (Eq)
+
+
+data CloseBracket = CloseParen
+                  | CloseBrace
+                  | CloseSqBracket
+                  deriving (Eq)
 
 
 data Keyword = Int
@@ -71,20 +79,20 @@ data OpTok = PlusSign
 
 
 instance Show Token where
-        show OpenParen      = "("
-        show CloseParen     = ")"
-        show OpenBrace      = "{"
-        show CloseBrace     = "}"
-        show SemiColon      = ";"
-        show Colon          = ":"
-        show QuestMark      = "?"
-        show Comma          = ","
-        show OpenSqBracket  = "["
-        show CloseSqBracket = "]"
-        show (Ident a)      = a
-        show (ConstInt n)   = show n
-        show (Keyword kwd)  = map toLower (show kwd)
-        show (OpTok op)     = showOpTok op
+        show SemiColon                     = ";"
+        show Colon                         = ":"
+        show QuestMark                     = "?"
+        show Comma                         = ","
+        show (OpenBracket OpenParen)       = "("
+        show (OpenBracket OpenBrace)       = "{"
+        show (OpenBracket OpenSqBracket)   = "["
+        show (CloseBracket CloseBrace)     = "}"
+        show (CloseBracket CloseParen)     = ")"
+        show (CloseBracket CloseSqBracket) = "]"
+        show (Ident a)                     = a
+        show (ConstInt n)                  = show n
+        show (Keyword kwd)                 = map toLower (show kwd)
+        show (OpTok op)                    = showOpTok op
 
 
 showOpTok :: OpTok -> String
