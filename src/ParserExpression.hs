@@ -11,8 +11,7 @@ import qualified Operator     (tokToAssignOp, tokToBinOp, tokToPostUnaryOp,
 import           ParserShared (consumeTok, makeNodeDat, parsePassIn,
                                verifyAndConsume)
 import           ParState     (ParserState, throwError)
-import           Tokens       (CloseBracket (..), OpTok (..), OpTokType (..),
-                               OpenBracket (..), Token (..))
+import           Tokens       (OpTok (..), OpTokType (..), Token (..))
 import qualified Tokens       (isAssign, isPostPos, kind)
 
 
@@ -122,18 +121,18 @@ parseFactor :: [LexDat] -> ParserState (Tree, [LexDat])
 parseFactor [] = throwError $ ParserError (LexDataError [])
 parseFactor lexData@(next:rest) =
         case next of
-             LexDat{tok=SemiColon}             -> parseNullExpression lexData
-             LexDat{tok=ConstInt _}            -> parseConstant lexData
-             LexDat{tok=Ident _}               -> parseIdent lexData
-             LexDat{tok=OpTok Ampersand}       -> parseAddressOf lexData
-             LexDat{tok=OpTok Asterisk}        -> parseDereference lexData
-             LexDat{tok=OpTok MinusSign}       -> parseUnary lexData
-             LexDat{tok=OpTok Tilde}           -> parseUnary lexData
-             LexDat{tok=OpTok Bang}            -> parseUnary lexData
-             LexDat{tok=OpTok PlusPlus}        -> parseUnary lexData
-             LexDat{tok=OpTok MinusMinus}      -> parseUnary lexData
-             LexDat{tok=OpTok PlusSign}        -> parseUnary lexData
-             LexDat{tok=OpenBracket OpenParen} -> parseParenExp rest
+             LexDat{tok=SemiColon}        -> parseNullExpression lexData
+             LexDat{tok=ConstInt _}       -> parseConstant lexData
+             LexDat{tok=Ident _}          -> parseIdent lexData
+             LexDat{tok=OpTok Ampersand}  -> parseAddressOf lexData
+             LexDat{tok=OpTok Asterisk}   -> parseDereference lexData
+             LexDat{tok=OpTok MinusSign}  -> parseUnary lexData
+             LexDat{tok=OpTok Tilde}      -> parseUnary lexData
+             LexDat{tok=OpTok Bang}       -> parseUnary lexData
+             LexDat{tok=OpTok PlusPlus}   -> parseUnary lexData
+             LexDat{tok=OpTok MinusMinus} -> parseUnary lexData
+             LexDat{tok=OpTok PlusSign}   -> parseUnary lexData
+             LexDat{tok=OpenParen}        -> parseParenExp rest
              _ -> throwError $ ParserError (LexDataError lexData)
 
 
@@ -161,7 +160,7 @@ parseUnary lexData = throwError $ ParserError (LexDataError lexData)
 
 
 parseIdent :: [LexDat] -> ParserState (Tree, [LexDat])
-parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenParen}:_) =
+parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenParen}:_) =
         parseFuncCall lexData
 parseIdent lexData@(LexDat{tok=Ident a}:rest) = do
         dat <- makeNodeDat lexData
@@ -173,7 +172,7 @@ parseIdent lexData  = throwError $ ParserError (LexDataError lexData)
 parseParenExp :: [LexDat] -> ParserState (Tree, [LexDat])
 parseParenExp lexData = do
         (tree, lexData') <- parseExpression lexData
-        lexData''        <- verifyAndConsume (CloseBracket CloseParen) lexData'
+        lexData''        <- verifyAndConsume CloseParen lexData'
         pure (tree, lexData'')
 
 
@@ -194,14 +193,14 @@ parseDereference lexData = throwError $ ParserError (LexDataError lexData)
 
 
 parseFuncCall :: [LexDat] -> ParserState (Tree, [LexDat])
-parseFuncCall lexData@(LexDat{tok=Ident a}:LexDat{tok=OpenBracket OpenParen}:_) = do
+parseFuncCall lexData@(LexDat{tok=Ident a}:LexDat{tok=OpenParen}:_) = do
         dat               <- makeNodeDat lexData
         lexData'          <- consumeTok lexData
         (tree, lexData'') <- parseArgs [] lexData'
         pure (FuncCallNode a tree dat, lexData'')
 parseFuncCall (d@LexDat{tok=Ident _}:_:_) =
-        throwError $ SyntaxError (MissingToken (OpenBracket OpenParen) d)
-parseFuncCall (a:LexDat{tok=OpenBracket OpenParen}:_) =
+        throwError $ SyntaxError (MissingToken OpenParen d)
+parseFuncCall (a:LexDat{tok=OpenParen}:_) =
         throwError $ SyntaxError (NonValidIdentifier a)
 parseFuncCall (a:_:_) =
         throwError $ SyntaxError (UnexpectedLexDat a)

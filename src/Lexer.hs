@@ -15,8 +15,7 @@ import           Error     (CompilerError (ImpossibleError, LexerError),
 import           LexDat    (LexDat)
 import           LexState  (LexerState, runLexState, throwError)
 import qualified LexState  (addToken, getState, incLineNum, startState)
-import           Tokens    (CloseBracket (..), Keyword (..), OpTok (..),
-                            OpenBracket (..), Token (..))
+import           Tokens    (Keyword (..), OpTok (..), Token (..))
 
 
 -- | Convert a string representing a C program to a list of tokens
@@ -58,16 +57,16 @@ lexSeparator :: String -> LexerState (Token, String)
 lexSeparator [] = throwError ImpossibleError
 lexSeparator (c:cs) =
         case c of
-             '(' -> pure (OpenBracket OpenParen, cs)
-             '{' -> pure (OpenBracket OpenBrace, cs)
-             '[' -> pure (OpenBracket OpenSqBracket, cs)
-             ')' -> pure (CloseBracket CloseParen, cs)
-             '}' -> pure (CloseBracket CloseBrace, cs)
-             ']' -> pure (CloseBracket CloseSqBracket, cs)
+             '(' -> pure (OpenParen, cs)
+             ')' -> pure (CloseParen, cs)
+             '{' -> pure (OpenBrace, cs)
+             '}' -> pure (CloseBrace, cs)
              ';' -> pure (SemiColon, cs)
              ':' -> pure (Colon, cs)
              '?' -> pure (QuestMark, cs)
              ',' -> pure (Comma, cs)
+             '[' -> pure (OpenSqBracket, cs)
+             ']' -> pure (CloseSqBracket, cs)
              _   -> throwError $ LexerError (UnexpectedInput [c])
 
 

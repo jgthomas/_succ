@@ -11,8 +11,7 @@ import ParserShared     (consumeTok, makeNodeDat, parsePassIn, parseType,
                          verifyAndConsume)
 import ParserStatement  (parseStatementBlock)
 import ParState         (ParserState, throwError)
-import Tokens           (CloseBracket (..), OpTok (..), OpenBracket (..),
-                         Token (..))
+import Tokens           (OpTok (..), Token (..))
 
 
 parseFunction :: [LexDat] -> ParserState (Tree, [LexDat])
@@ -68,8 +67,8 @@ parseParamValue lexData = throwError $ ParserError (LexDataError lexData)
 
 parseFuncBody :: [LexDat] -> ParserState (Maybe [Tree], [LexDat])
 parseFuncBody (LexDat{tok=SemiColon}:rest) = pure (Nothing, rest)
-parseFuncBody (LexDat{tok=OpenBracket OpenBrace}:rest) = do
+parseFuncBody (LexDat{tok=OpenBrace}:rest) = do
         (tree, lexData') <- parseStatementBlock [] rest
-        lexData''        <- verifyAndConsume (CloseBracket CloseBrace) lexData'
+        lexData''        <- verifyAndConsume CloseBrace lexData'
         pure (Just tree, lexData'')
 parseFuncBody lexData = throwError $ ParserError (LexDataError lexData)
