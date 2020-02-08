@@ -15,30 +15,25 @@ import qualified Tokens           (isAssign)
 
 
 parseDeclaration :: [LexDat] -> ParserState (Tree, [LexDat])
-parseDeclaration lexData@(_:LexDat{tok=Ident name}:_)   = parseValueDec name lexData
-parseDeclaration lexData@(_:_:LexDat{tok=Ident name}:_) = parsePointerDec name lexData
+parseDeclaration lexData@(_:LexDat{tok=Ident _}:_)   = parseDec lexData 1
+parseDeclaration lexData@(_:_:LexDat{tok=Ident _}:_) = parseDec lexData 2
 parseDeclaration (_:c:_:_) = throwError $ SyntaxError (NonValidIdentifier c)
 parseDeclaration lexData   = throwError $ ParserError (LexDataError lexData)
 
 
-parseValueDec :: String -> [LexDat] -> ParserState (Tree, [LexDat])
-parseValueDec name lexData = do
+parseDec :: [LexDat] -> Int -> ParserState (Tree, [LexDat])
+parseDec lexData n = do
         dat               <- makeNodeDat lexData
         typ               <- parseType lexData
-        lexData'          <- consumeTok lexData
+        lexData'          <- consumeNToks n lexData
         varDat            <- makeNodeDat lexData'
         (tree, lexData'') <- parseOptAssign lexData'
-        pure (DeclarationNode (VarNode name varDat) typ tree dat, lexData'')
-
-
-parsePointerDec :: String -> [LexDat] -> ParserState (Tree, [LexDat])
-parsePointerDec name lexData = do
-        dat               <- makeNodeDat lexData
-        typ               <- parseType lexData
-        lexData'          <- consumeNToks 2 lexData
-        varDat            <- makeNodeDat lexData'
-        (tree, lexData'') <- parseOptAssign lexData'
-        pure (PointerNode (VarNode name varDat) typ tree dat, lexData'')
+        case lexData of
+             (_:_:LexDat{tok=Ident name}:_) ->
+                     pure (PointerNode (VarNode name varDat) typ tree dat, lexData'')
+             (_:LexDat{tok=Ident name}:_)   ->
+                     pure (DeclarationNode (VarNode name varDat) typ tree dat, lexData'')
+             _ -> throwError $ ParserError (LexDataError lexData)
 
 
 parseOptAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
