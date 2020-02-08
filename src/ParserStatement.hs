@@ -6,7 +6,7 @@ import AST               (Tree (..))
 import Error             (CompilerError (ParserError, SyntaxError),
                           ParserError (..), SyntaxError (..))
 import LexDat            (LexDat (..))
-import ParserDeclaration (parsePointerDec, parseValueDec)
+import ParserDeclaration (parseDeclaration)
 import ParserExpression  (parseExpression)
 import ParserShared      (makeNodeDat, nextTokIsNot, verifyAndConsume)
 import ParState          (ParserState, throwError)
@@ -24,9 +24,9 @@ parseStatementBlock stmts lexData = do
 
 parseBlockItem :: [LexDat] -> ParserState (Tree, [LexDat])
 parseBlockItem lexData@(LexDat{tok=Keyword Int}:LexDat{tok=Ident _}:_) =
-        parseValueDec lexData
+        parseDeclaration lexData
 parseBlockItem lexData@(LexDat{tok=Keyword Int}:LexDat{tok=OpTok Asterisk}:_) =
-        parsePointerDec lexData
+        parseDeclaration lexData
 parseBlockItem lexData = parseStatement lexData
 
 

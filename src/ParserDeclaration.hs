@@ -1,5 +1,5 @@
 
-module ParserDeclaration (parseValueDec, parsePointerDec) where
+module ParserDeclaration (parseDeclaration) where
 
 
 import           AST              (Tree (..))
@@ -14,28 +14,31 @@ import           Tokens           (Token (..))
 import qualified Tokens           (isAssign)
 
 
-parseValueDec :: [LexDat] -> ParserState (Tree, [LexDat])
-parseValueDec lexData@(_:LexDat{tok=Ident name}:_) = do
+parseDeclaration :: [LexDat] -> ParserState (Tree, [LexDat])
+parseDeclaration lexData@(_:LexDat{tok=Ident name}:_)   = parseValueDec name lexData
+parseDeclaration lexData@(_:_:LexDat{tok=Ident name}:_) = parsePointerDec name lexData
+parseDeclaration (_:c:_:_) = throwError $ SyntaxError (NonValidIdentifier c)
+parseDeclaration lexData   = throwError $ ParserError (LexDataError lexData)
+
+
+parseValueDec :: String -> [LexDat] -> ParserState (Tree, [LexDat])
+parseValueDec name lexData = do
         dat               <- makeNodeDat lexData
         typ               <- parseType lexData
         lexData'          <- consumeTok lexData
         varDat            <- makeNodeDat lexData'
         (tree, lexData'') <- parseOptAssign lexData'
         pure (DeclarationNode (VarNode name varDat) typ tree dat, lexData'')
-parseValueDec (_:c:_:_) = throwError $ SyntaxError (NonValidIdentifier c)
-parseValueDec lexData   = throwError $ ParserError (LexDataError lexData)
 
 
-parsePointerDec :: [LexDat] -> ParserState (Tree, [LexDat])
-parsePointerDec lexData@(_:_:LexDat{tok=Ident name}:_) = do
+parsePointerDec :: String -> [LexDat] -> ParserState (Tree, [LexDat])
+parsePointerDec name lexData = do
         dat               <- makeNodeDat lexData
         typ               <- parseType lexData
         lexData'          <- consumeNToks 2 lexData
         varDat            <- makeNodeDat lexData'
         (tree, lexData'') <- parseOptAssign lexData'
         pure (PointerNode (VarNode name varDat) typ tree dat, lexData'')
-parsePointerDec (_:_:c:_) = throwError $ SyntaxError (NonValidIdentifier c)
-parsePointerDec lexData   = throwError $ ParserError (LexDataError lexData)
 
 
 parseOptAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
