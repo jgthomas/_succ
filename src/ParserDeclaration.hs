@@ -10,30 +10,35 @@ import           ParserExpression (parseExpression)
 import           ParserShared     (consumeNToks, consumeTok, makeNodeDat,
                                    parseType, verifyAndConsume)
 import           ParState         (ParserState, throwError)
-import           Tokens           (Token (..))
+import           Tokens           (CloseBracket (..), OpenBracket (..),
+                                   Token (..))
 import qualified Tokens           (isAssign)
 
 
+data Declaration = ValueDec
+                 | PointerDec
+                 | ArrayDec
+                 deriving (Eq)
+
+
 parseDeclaration :: [LexDat] -> ParserState (Tree, [LexDat])
-parseDeclaration lexData@(_:LexDat{tok=Ident _}:_)   = parseDec lexData 1
-parseDeclaration lexData@(_:_:LexDat{tok=Ident _}:_) = parseDec lexData 2
+parseDeclaration lexData@(_:LexDat{tok=Ident name}:_)   = parseDec name lexData 1
+parseDeclaration lexData@(_:_:LexDat{tok=Ident name}:_) = parseDec name lexData 2
 parseDeclaration (_:c:_:_) = throwError $ SyntaxError (NonValidIdentifier c)
 parseDeclaration lexData   = throwError $ ParserError (LexDataError lexData)
 
 
-parseDec :: [LexDat] -> Int -> ParserState (Tree, [LexDat])
-parseDec lexData n = do
+parseDec :: String -> [LexDat] -> Int -> ParserState (Tree, [LexDat])
+parseDec name lexData n = do
         dat               <- makeNodeDat lexData
         typ               <- parseType lexData
         lexData'          <- consumeNToks n lexData
         varDat            <- makeNodeDat lexData'
         (tree, lexData'') <- parseOptAssign lexData'
-        case lexData of
-             (_:_:LexDat{tok=Ident name}:_) ->
-                     pure (PointerNode (VarNode name varDat) typ tree dat, lexData'')
-             (_:LexDat{tok=Ident name}:_)   ->
-                     pure (DeclarationNode (VarNode name varDat) typ tree dat, lexData'')
-             _ -> throwError $ ParserError (LexDataError lexData)
+        case declarationType lexData of
+             PointerDec -> pure (PointerNode (VarNode name varDat) typ tree dat, lexData'')
+             ValueDec   -> pure (DeclarationNode (VarNode name varDat) typ tree dat, lexData'')
+             ArrayDec   -> undefined
 
 
 parseOptAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
@@ -52,3 +57,13 @@ parseOptionalAssign lexData@(_:d@LexDat{tok=OpTok op}:_)
 parseOptionalAssign lexData = do
         lexData' <- consumeTok lexData
         pure (Nothing, lexData')
+
+
+declarationType :: [LexDat] -> Declaration
+declarationType (_:_:LexDat{tok=Ident _}:_)                 = PointerDec
+declarationType (_:LexDat{tok=Ident _}:
+                 LexDat{tok=OpenBracket OpenSqBracket}:
+                 LexDat{tok=CloseBracket CloseSqBracket}:_) = ArrayDec
+declarationType (_:LexDat{tok=Ident _}:_)                   = ValueDec
+declarationType _ = undefined
+
