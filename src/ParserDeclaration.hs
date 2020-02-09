@@ -64,6 +64,10 @@ parseOptionalAssign lexData@(_:d@LexDat{tok=OpTok op}:_)
                 (tree, lexData') <- parseExpression lexData
                 pure (Just tree, lexData')
         | otherwise = throwError $ SyntaxError (UnexpectedLexDat d)
+parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
+                     LexDat{tok=ConstInt _}:
+                     LexDat{tok=CloseBracket CloseSqBracket}:
+                     rest) = pure (Nothing, rest)
 parseOptionalAssign lexData = do
         lexData' <- consumeTok lexData
         pure (Nothing, lexData')
