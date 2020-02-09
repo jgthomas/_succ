@@ -174,6 +174,7 @@ parameterDeclared paramName = do
              Nothing -> pure False
 
 
+-- | Increment base pointer offset by a multiplier
 incrementOffsetByN :: Int -> GenState ()
 incrementOffsetByN n = incOffset n
 
