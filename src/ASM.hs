@@ -36,12 +36,12 @@ module ASM
         ) where
 
 
-import Assembly     (Jump (..), Set (..))
-import Error        (CompilerError (ImpossibleError))
-import GenState     (GenState, throwError)
-import Instructions
-import Operator     (BinaryOp (..), PostOpUnary (..), PreOpUnary (..),
-                     ShiftOp (..), Unary (..), UnaryOp (..))
+import Assembly    (Jump (..), Set (..))
+import Error       (CompilerError (ImpossibleError))
+import GenState    (GenState, throwError)
+import Instruction
+import Operator    (BinaryOp (..), PostOpUnary (..), PreOpUnary (..),
+                    ShiftOp (..), Unary (..), UnaryOp (..))
 
 
 -- | Output asm for a function

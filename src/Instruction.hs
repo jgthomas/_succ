@@ -1,5 +1,5 @@
 
-module Instructions where
+module Instruction where
 
 
 import Assembly (Jump (..), Set (..))
