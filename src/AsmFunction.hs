@@ -2,12 +2,12 @@
 module AsmFunction (function, mainNoReturn, returnValue) where
 
 
-import AsmVariables (loadValue)
-import Directive    (declareGlobl, globlLabel)
-import GenState     (GenState)
-import Instruction  (move, pop, push, returnControl)
-import Register     (Register (..), allScratch, reg, restoreRegisters,
-                     saveRegisters)
+import AsmShared   (loadValue)
+import Directive   (declareGlobl, globlLabel)
+import GenState    (GenState)
+import Instruction (move, pop, push, returnControl)
+import Register    (Register (..), allScratch, reg, restoreRegisters,
+                    saveRegisters)
 
 
 -- | Output asm for a function

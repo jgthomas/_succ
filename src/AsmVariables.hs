@@ -2,6 +2,7 @@
 module AsmVariables where
 
 
+import AsmShared   (literalValue, loadValue)
 import Error       (CompilerError (ImpossibleError))
 import GenState    (GenState, throwError)
 import Instruction (comp, move, sub)
@@ -84,24 +85,12 @@ indirectAddressing :: String -> String
 indirectAddressing s = "(" ++ s ++ ")"
 
 
-literalValue :: Int -> String
-literalValue n = "$" ++ show n
-
-
 saveGlobal :: String -> String
 saveGlobal label = move (reg RAX) (fromInstructionPointer label)
 
 
-empty :: String
-empty = ""
-
-
 testResult :: String
 testResult = comp (literalValue 0) (reg RAX)
-
-
-loadValue :: Int -> String
-loadValue n = move (literalValue n) (reg RAX)
 
 
 adjustStackPointer :: Int -> String

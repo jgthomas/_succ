@@ -3,7 +3,8 @@
 module AsmBinary (binary) where
 
 
-import AsmVariables (literalValue, testResult)
+import AsmShared    (literalValue)
+import AsmVariables (testResult)
 import Assembly     (Jump (..), Set (..))
 import Directive    (emitLabel)
 import GenState     (GenState)

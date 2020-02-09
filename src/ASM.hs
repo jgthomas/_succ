@@ -27,10 +27,11 @@ import AsmFuncCall  (functionCall, passArgument)
 import AsmFunction  (function, mainNoReturn, returnValue)
 import AsmPointers  (addressOf, derefLoad, derefStore, varAddressStore,
                      varAddressStoreGlobal)
+import AsmShared    (empty, loadValue)
 import AsmStatement (doWhile, forLoop, ifElse, ifOnly, while)
 import AsmTernary   (ternary)
 import AsmUnary     (unary)
-import AsmVariables
+import AsmVariables (assign, decNoAssign, loadVariable, storeGlobal)
 import Assembly     (Jump (..), Section (..))
 import Directive
 import GenState     (GenState)

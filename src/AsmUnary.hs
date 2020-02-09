@@ -3,7 +3,8 @@
 module AsmUnary (unary) where
 
 
-import AsmVariables (empty, literalValue, saveGlobal, varOnStack)
+import AsmShared    (empty, literalValue)
+import AsmVariables (saveGlobal, varOnStack)
 import Assembly     (Set (..))
 import GenState     (GenState)
 import Instruction
