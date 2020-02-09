@@ -86,11 +86,11 @@ parseOptAssign lexData = do
 
 
 parseOptionalAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
-parseOptionalAssign lexData@(_:d@LexDat{tok=OpTok op}:_)
-        | Tokens.isAssign op = do
-                (tree, lexData') <- parseExpression lexData
-                pure (Just tree, lexData')
-        | otherwise = throwError $ SyntaxError (UnexpectedLexDat d)
+parseOptionalAssign lexData@(_:d@LexDat{tok=OpTok _}:_) = parseAssign d lexData
+parseOptionalAssign lexData@(_:LexDat{tok=OpenBracket OpenSqBracket}:
+                             LexDat{tok=ConstInt _}:
+                             LexDat{tok=CloseBracket CloseSqBracket}:
+                             d@LexDat{tok=OpTok _}:_) = parseAssign d lexData
 parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
                      LexDat{tok=ConstInt _}:
                      LexDat{tok=CloseBracket CloseSqBracket}:
@@ -98,6 +98,15 @@ parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
 parseOptionalAssign lexData = do
         lexData' <- consumeTok lexData
         pure (Nothing, lexData')
+
+
+parseAssign :: LexDat -> [LexDat] -> ParserState (Maybe Tree, [LexDat])
+parseAssign opDat@LexDat{tok=OpTok op} lexData
+        | Tokens.isAssign op = do
+                (tree, lexData') <- parseExpression lexData
+                pure (Just tree, lexData')
+        | otherwise = throwError $ SyntaxError (UnexpectedLexDat opDat)
+parseAssign _ lexData = throwError $ ParserError (LexDataError lexData)
 
 
 findVarName :: [LexDat] -> ParserState [LexDat]
