@@ -2,6 +2,9 @@
 module Register where
 
 
+import Instruction (pop, push)
+
+
 data Register = RAX
               | RBP
               | RIP
@@ -51,3 +54,30 @@ params = [RDI,
           R8,
           R9
          ]
+
+
+saveRegisters :: [Register] -> String
+saveRegisters rs = concatMap (push . reg) rs
+
+
+restoreRegisters :: [Register] -> String
+restoreRegisters rs = concatMap pop . reverse . map reg $ rs
+
+
+saveCallerRegisters :: String
+saveCallerRegisters = saveRegisters params
+
+
+restoreCallerRegisters :: String
+restoreCallerRegisters = restoreRegisters params
+
+
+selectRegister :: Int -> String
+selectRegister n
+        | n == 0 = reg RDI
+        | n == 1 = reg RSI
+        | n == 2 = reg RDX
+        | n == 3 = reg RCX
+        | n == 4 = reg R8
+        | n == 5 = reg R9
+        | otherwise = undefined

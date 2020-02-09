@@ -48,3 +48,7 @@ empty = ""
 
 testResult :: String
 testResult = comp (literalValue 0) (reg RAX)
+
+
+loadValue :: Int -> String
+loadValue n = move (literalValue n) (reg RAX)

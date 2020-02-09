@@ -5,13 +5,11 @@ Description  : Builds strings of assembly code
 Generates the strings of x86-64 assembly code.
 -}
 module ASM
-        (function,
-         mainNoReturn,
-         returnValue,
-         loadLiteral,
+        (loadLiteral,
          module AsmBinary,
          module AsmUnary,
          module AsmTernary,
+         module AsmFunction,
          functionCall,
          decNoAssign,
          assign,
@@ -37,6 +35,7 @@ module ASM
 
 
 import AsmBinary    (binary)
+import AsmFunction  (function, mainNoReturn, returnValue)
 import AsmTernary   (ternary)
 import AsmUnary     (unary)
 import AsmVariables
@@ -46,51 +45,6 @@ import Error        (CompilerError (ImpossibleError))
 import GenState     (GenState, throwError)
 import Instruction
 import Register
-
-
--- | Output asm for a function
-function :: String -> String -> GenState String
-function name stmts = pure $ functionInit name ++ stmts
-
-
--- | Output asm for a main function with no explicit return value
-mainNoReturn :: String -> String -> GenState String
-mainNoReturn name stmts = pure $
-        functionInit name
-        ++ stmts
-        ++ loadValue 0
-        ++ returnStatement
-
-
-functionInit :: String -> String
-functionInit funcName =
-        declareGlobl funcName
-        ++ globlLabel funcName
-        ++ runInit funcName
-        ++ saveBasePointer
-        ++ saveRegisters allScratch
-
-
-returnStatement :: String
-returnStatement =
-        restoreRegisters allScratch
-        ++ restoreBasePointer
-        ++ returnControl
-
-
--- | Output asm for a return value
-returnValue :: String -> String
-returnValue rtn = rtn ++ returnStatement
-
-
-saveBasePointer :: String
-saveBasePointer = push (reg RBP)
-                  ++ move (reg RSP) (reg RBP)
-
-
-restoreBasePointer :: String
-restoreBasePointer = move (reg RBP) (reg RSP)
-                     ++ pop (reg RBP)
 
 
 -- | Output asm for a function call
@@ -138,10 +92,6 @@ loadVariable _ _ _          = throwError ImpossibleError
 -- | Load a literal value into return register
 loadLiteral :: Int -> GenState String
 loadLiteral n = pure . loadValue $ n
-
-
-loadValue :: Int -> String
-loadValue n = move (literalValue n) (reg RAX)
 
 
 varOffStack :: Int -> String
@@ -243,33 +193,6 @@ putInRegister r = move (reg RAX) (selectRegister r)
 
 getFromRegister :: Int -> String
 getFromRegister r = move (selectRegister r) (reg RAX)
-
-
-selectRegister :: Int -> String
-selectRegister n
-        | n == 0 = reg RDI
-        | n == 1 = reg RSI
-        | n == 2 = reg RDX
-        | n == 3 = reg RCX
-        | n == 4 = reg R8
-        | n == 5 = reg R9
-        | otherwise = undefined
-
-
-saveRegisters :: [Register] -> String
-saveRegisters rs = concatMap (push . reg) rs
-
-
-restoreRegisters :: [Register] -> String
-restoreRegisters rs = concatMap pop . reverse . map reg $ rs
-
-
-saveCallerRegisters :: String
-saveCallerRegisters = saveRegisters params
-
-
-restoreCallerRegisters :: String
-restoreCallerRegisters = restoreRegisters params
 
 
 -- | Output asm for an initialized global variable
@@ -397,10 +320,6 @@ varAddressStoreGlobal value label = pure $
 -- | Setup initialisation block
 outputInit :: String -> String
 outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
-
-runInit :: String -> String
-runInit "main" = "jmp init\n" ++ "init_done:\n"
-runInit _      = ""
 
 
 -- | Empty output
