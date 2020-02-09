@@ -1,5 +1,11 @@
 
-module AsmPointers where
+module AsmPointers
+        (derefLoad,
+         derefStore,
+         addressOf,
+         varAddressStore,
+         varAddressStoreGlobal
+        ) where
 
 
 import AsmShared   (fromBasePointer, fromInstructionPointer, indirectAddressing)
