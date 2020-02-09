@@ -172,10 +172,6 @@ checkAST node@(UnaryNode _ unOp@(PostOpUnary _) _) =
         throwError $ CheckerError (OperatorError (UnaryOp unOp) node)
 checkAST (UnaryNode tree (Unary _) _) = checkAST tree
 
-checkAST ArrayNode{} = pure ()
-checkAST ArrayItemsNode{} = pure ()
-checkAST ArraySingleItemNode{} = pure ()
-
 checkAST node@VarNode{} = ScopeCheck.variableExists node
 
 checkAST node@AddressOfNode{} = ScopeCheck.variableExists node

@@ -48,7 +48,7 @@ parseDec decType name lexData = do
         case decType of
              PointerDec -> pure (PointerNode var typ tree dat, lexData'')
              ValueDec   -> pure (DeclarationNode var typ tree dat, lexData'')
-             ArrayDec   -> pure (ArrayNode var typ tree dat, lexData'')
+             ArrayDec   -> undefined
 
 
 parseOptAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])

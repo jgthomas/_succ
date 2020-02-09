@@ -10,7 +10,6 @@ data Tree = ProgramNode [Tree]
           | FunctionNode Type String [Tree] (Maybe [Tree]) NodeDat
           | DeclarationNode Tree Type (Maybe Tree) NodeDat
           | PointerNode Tree Type (Maybe Tree) NodeDat
-          | ArrayNode Tree Type (Maybe Tree) NodeDat
           | CompoundStmtNode [Tree] NodeDat
           | ReturnNode Tree NodeDat
           | AssignmentNode Tree Tree Operator NodeDat
@@ -23,8 +22,6 @@ data Tree = ProgramNode [Tree]
           | BreakNode NodeDat
           | ContinueNode NodeDat
           | ConstantNode Int NodeDat
-          | ArrayItemsNode Type [Tree] NodeDat
-          | ArraySingleItemNode Type Tree NodeDat
           | FuncCallNode String [Tree] NodeDat
           | ParamNode Type Tree NodeDat
           | ArgNode Tree NodeDat
