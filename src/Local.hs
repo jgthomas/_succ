@@ -24,7 +24,8 @@ module Local
          addVariable,
          delFuncState,
          allTypes,
-         stackPointerValue
+         stackPointerValue,
+         incrementOffsetByN
         ) where
 
 
@@ -173,6 +174,10 @@ parameterDeclared paramName = do
              Nothing -> pure False
 
 
+incrementOffsetByN :: Int -> GenState ()
+incrementOffsetByN n = incOffset n
+
+
 -- store and lookup
 
 getAttribute :: (LocalVar -> a) -> String -> GenState (Maybe a)
@@ -277,10 +282,14 @@ currentOffset = do
 
 
 incrementOffset :: GenState ()
-incrementOffset = do
+incrementOffset = incOffset 1
+
+
+incOffset :: Int -> GenState ()
+incOffset n = do
         name  <- FrameStack.currentFunc
         fs    <- getFunctionState name
-        let fs' = fs { funcOffset = funcOffset fs + LocalScope.memOffset }
+        let fs' = fs { funcOffset = funcOffset fs + (n * LocalScope.memOffset) }
         setFunctionState name fs'
 
 
