@@ -21,6 +21,11 @@ data Declaration = ValueDec
                  deriving (Eq)
 
 
+data ArrayLen = Undeclared
+              | Declared Int
+              deriving (Eq)
+
+
 parseDeclaration :: [LexDat] -> ParserState (Tree, [LexDat])
 parseDeclaration lexData@(
         _:LexDat{tok=Ident name}:
@@ -48,7 +53,29 @@ parseDec decType name lexData = do
         case decType of
              PointerDec -> pure (PointerNode var typ tree dat, lexData'')
              ValueDec   -> pure (DeclarationNode var typ tree dat, lexData'')
-             ArrayDec   -> pure (ArrayNode var typ tree dat, lexData'')
+             ArrayDec   -> do
+                     len <- findArraylen (inferredLen tree) (statedLen lexData')
+                     pure (ArrayNode len var typ tree dat, lexData'')
+
+
+findArraylen :: ArrayLen -> ArrayLen -> ParserState Int
+findArraylen (Declared n) (Declared m)
+        | n == m = pure n
+        | otherwise = throwError $ SyntaxError (LengthMismatch n m)
+findArraylen (Declared n) Undeclared = pure n
+findArraylen Undeclared (Declared m) = pure m
+findArraylen Undeclared Undeclared   = throwError $ SyntaxError UndeclaredLen
+
+
+inferredLen ::  Maybe Tree -> ArrayLen
+inferredLen (Just (ArrayItemsNode _ items _)) = Declared (length items)
+inferredLen _                                 = Undeclared
+
+
+statedLen :: [LexDat] -> ArrayLen
+statedLen (_:LexDat{tok=OpenBracket OpenSqBracket}:
+           LexDat{tok=ConstInt n}:_) = Declared n
+statedLen _ = Undeclared
 
 
 parseOptAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
