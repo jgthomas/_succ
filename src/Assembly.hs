@@ -15,3 +15,9 @@ data Jump = JMP
           | JE
           | JNE
           deriving (Eq)
+
+
+data Section = TEXT
+             | DATA
+             | BSS
+             deriving (Eq)

@@ -36,12 +36,14 @@ module ASM
         ) where
 
 
-import Assembly    (Jump (..), Set (..))
+import Assembly    (Jump (..), Section (..), Set (..))
+import Directive
 import Error       (CompilerError (ImpossibleError))
 import GenState    (GenState, throwError)
 import Instruction
 import Operator    (BinaryOp (..), PostOpUnary (..), PreOpUnary (..),
                     ShiftOp (..), Unary (..), UnaryOp (..))
+import Register
 
 
 -- | Output asm for a function
@@ -633,81 +635,3 @@ noOutput = pure empty
 
 empty :: String
 empty = ""
-
-
--- Directives
-
-declareGlobl :: String -> String
-declareGlobl name = ".globl " ++ name ++ "\n"
-
-globlLabel :: String -> String
-globlLabel name = name ++ ":\n"
-
-data Section = TEXT
-             | DATA
-             | BSS
-             deriving (Eq)
-
-section :: Section -> String
-section sect =
-        case sect of
-             TEXT -> ".text\n"
-             DATA -> ".data\n"
-             BSS  -> ".bss\n"
-
-align :: String
-align = ".align 4\n"
-
-asLong :: String -> String
-asLong l = ".long " ++ l ++ "\n"
-
-emitLabel :: Int -> String
-emitLabel n = "_label_" ++ show n ++ ":\n"
-
-
--- Registers
-
-data Register = RAX
-              | RBP
-              | RIP
-              | RSP
-              | RDI
-              | RSI
-              | RDX
-              | RCX
-              | R8
-              | R9
-              | R12
-              deriving (Eq)
-
-reg :: Register -> String
-reg r = case r of
-             RAX -> "%rax"
-             RBP -> "%rbp"
-             RIP -> "%rip"
-             RSP -> "%rsp"
-             RDI -> "%rdi"
-             RSI -> "%rsi"
-             RDX -> "%rdx"
-             RCX -> "%rcx"
-             R8  -> "%r8"
-             R9  -> "%r9"
-             R12 -> "%r12"
-
-scratch :: String
-scratch = reg R12
-
-regModResult :: String
-regModResult = reg RDX
-
-allScratch :: [Register]
-allScratch = [R12]
-
-params :: [Register]
-params = [RDI,
-          RSI,
-          RDX,
-          RCX,
-          R8,
-          R9
-         ]
