@@ -91,6 +91,9 @@ parseOptionalAssign lexData@(_:LexDat{tok=OpenBracket OpenSqBracket}:
                              LexDat{tok=ConstInt _}:
                              LexDat{tok=CloseBracket CloseSqBracket}:
                              d@LexDat{tok=OpTok _}:_) = parseAssign d lexData
+parseOptionalAssign lexData@(_:LexDat{tok=OpenBracket OpenSqBracket}:
+                             LexDat{tok=CloseBracket CloseSqBracket}:
+                             d@LexDat{tok=OpTok _}:_) = parseAssign d lexData
 parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
                      LexDat{tok=ConstInt _}:
                      LexDat{tok=CloseBracket CloseSqBracket}:
