@@ -4,7 +4,6 @@ module AsmUnary (unary) where
 
 
 import AsmShared   (empty, literalValue, saveGlobal, varOnStack)
-import Assembly    (Set (..))
 import GenState    (GenState)
 import Instruction
 import Operator    (PostOpUnary (..), PreOpUnary (..), Unary (..), UnaryOp (..))

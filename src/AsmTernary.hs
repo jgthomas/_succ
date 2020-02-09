@@ -3,10 +3,9 @@ module AsmTernary (ternary) where
 
 
 import AsmShared   (testResult)
-import Assembly    (Jump (..))
 import Directive   (emitLabel)
 import GenState    (GenState)
-import Instruction
+import Instruction (Jump (..), emitJump)
 
 
 -- | Output asm for the ternary operator

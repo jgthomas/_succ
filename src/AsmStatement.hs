@@ -9,10 +9,9 @@ module AsmStatement
 
 
 import AsmShared   (testResult)
-import Assembly    (Jump (..))
 import Directive   (emitLabel)
 import GenState    (GenState)
-import Instruction (emitJump)
+import Instruction (Jump (..), emitJump)
 
 
 -- | Output asm for while loop

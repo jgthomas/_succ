@@ -30,10 +30,9 @@ import AsmStatement (doWhile, forLoop, ifElse, ifOnly, while)
 import AsmTernary   (ternary)
 import AsmUnary     (unary)
 import AsmVariables (assign, decNoAssign, loadVariable, storeGlobal)
-import Assembly     (Jump (..))
 import Directive    (initializedGlobal, outputInit, uninitializedGlobal)
 import GenState     (GenState)
-import Instruction  (emitJump)
+import Instruction  (Jump (..), emitJump)
 
 
 -- | Output asm for jump

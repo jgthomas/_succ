@@ -4,7 +4,6 @@ module AsmBinary (binary) where
 
 
 import AsmShared   (literalValue, testResult)
-import Assembly    (Jump (..), Set (..))
 import Directive   (emitLabel)
 import GenState    (GenState)
 import Instruction

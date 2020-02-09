@@ -2,7 +2,19 @@
 module Instruction where
 
 
-import Assembly (Jump (..), Set (..))
+data Set = Equ
+         | NEqu
+         | GThan
+         | GThanE
+         | LThan
+         | LThanE
+         deriving (Eq)
+
+
+data Jump = JMP
+          | JE
+          | JNE
+          deriving (Eq)
 
 
 add :: String -> String -> String
