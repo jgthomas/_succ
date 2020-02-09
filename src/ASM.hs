@@ -5,13 +5,13 @@ Description  : Builds strings of assembly code
 Generates the strings of x86-64 assembly code.
 -}
 module ASM
-        (loadLiteral,
-         module AsmBinary,
+        (module AsmBinary,
          module AsmUnary,
          module AsmTernary,
          module AsmFunction,
          module AsmPointers,
          module AsmStatement,
+         loadLiteral,
          functionCall,
          decNoAssign,
          assign,
