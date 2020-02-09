@@ -9,9 +9,9 @@ module ASM
          mainNoReturn,
          returnValue,
          loadLiteral,
-         unary,
-         binary,
-         ternary,
+         module AsmBinary,
+         module AsmUnary,
+         module AsmTernary,
          functionCall,
          decNoAssign,
          assign,
@@ -36,13 +36,15 @@ module ASM
         ) where
 
 
-import Assembly    (Jump (..), Section (..), Set (..))
+import AsmBinary    (binary)
+import AsmTernary   (ternary)
+import AsmUnary     (unary)
+import AsmVariables
+import Assembly     (Jump (..), Section (..))
 import Directive
-import Error       (CompilerError (ImpossibleError))
-import GenState    (GenState, throwError)
+import Error        (CompilerError (ImpossibleError))
+import GenState     (GenState, throwError)
 import Instruction
-import Operator    (BinaryOp (..), PostOpUnary (..), PreOpUnary (..),
-                    ShiftOp (..), Unary (..), UnaryOp (..))
 import Register
 
 
@@ -142,10 +144,6 @@ loadValue :: Int -> String
 loadValue n = move (literalValue n) (reg RAX)
 
 
-varOnStack :: Int -> String
-varOnStack offset = move (reg RAX) (fromBasePointer offset)
-
-
 varOffStack :: Int -> String
 varOffStack offset = move (fromBasePointer offset) (reg RAX)
 
@@ -226,200 +224,6 @@ ifStart test action testLab =
         ++ testResult
         ++ emitJump JE testLab
         ++ action
-
-
--- | Output asm for the ternary operator
-ternary :: String -> String -> String -> Int -> Int -> GenState String
-ternary test true false trueLab falseLab = pure $
-        test
-        ++ testResult
-        ++ emitJump JE falseLab
-        ++ true
-        ++ emitJump JMP trueLab
-        ++ emitLabel falseLab
-        ++ false
-        ++ emitLabel trueLab
-
-
--- | Output asm for unary operators
-unary :: String
-      -> UnaryOp
-      -> Maybe Int
-      -> Maybe String
-      -> GenState String
-unary load (PreOpUnary op) n l  = pure $ load ++ unaryPreOp op n l
-unary load (PostOpUnary op) n l = pure $ load ++ unaryPostOp op n l
-unary load (Unary op) _ _       = pure $ load ++ unaryOp op
-
-
-unaryPreOp :: PreOpUnary -> Maybe Int -> Maybe String -> String
-unaryPreOp PreIncrement (Just n) _ = inc (reg RAX) ++ varOnStack n
-unaryPreOp PreDecrement (Just n) _ = dec (reg RAX) ++ varOnStack n
-unaryPreOp PreIncrement _ (Just l) = inc (reg RAX) ++ saveGlobal l
-unaryPreOp PreDecrement _ (Just l) = dec (reg RAX) ++ saveGlobal l
-unaryPreOp _ _ _                   = undefined
-
-
-unaryPostOp :: PostOpUnary -> Maybe Int -> Maybe String -> String
-unaryPostOp PostIncrement (Just n) _ = updateStoredLocal n inc
-unaryPostOp PostDecrement (Just n) _ = updateStoredLocal n dec
-unaryPostOp PostIncrement _ (Just l) = updateStoredGlobal l inc
-unaryPostOp PostDecrement _ (Just l) = updateStoredGlobal l dec
-unaryPostOp _ _ _                    = undefined
-
-
-updateStoredLocal :: Int -> (String -> String) -> String
-updateStoredLocal n f =
-        move (reg RAX) scratch
-        ++ f (reg RAX)
-        ++ varOnStack n
-        ++ move scratch (reg RAX)
-
-
-updateStoredGlobal :: String -> (String -> String) -> String
-updateStoredGlobal l f =
-        move (reg RAX) scratch
-        ++ f (reg RAX)
-        ++ saveGlobal l
-        ++ move scratch (reg RAX)
-
-
-unaryOp :: Unary -> String
-unaryOp unOp =
-        case unOp of
-             Negate      -> makeNegative (reg RAX)
-             Positive    -> empty
-             BitwiseComp -> invertBits (reg RAX)
-             LogicalNeg  -> logNeg
-
-
-logNeg :: String
-logNeg = comp (literalValue 0) (reg RAX)
-         ++ move (literalValue 0) (reg RAX)
-         ++ setBitIf Equ
-
-
--- | Output asm for binary operators
-binary :: String -> String -> BinaryOp -> Int -> Int -> GenState String
-binary load1 load2 binOp lab1 lab2 =
-        case binOp of
-             Plus               -> pure $ computeAdd load1 load2
-             Minus              -> pure $ computeSub load1 load2
-             Multiply           -> pure $ computeMul load1 load2
-             Divide             -> pure $ computeDiv load1 load2
-             Modulo             -> pure $ computeMod load1 load2
-             Equal              -> pure $ comparison load1 load2 ++ setBitIf Equ
-             NotEqual           -> pure $ comparison load1 load2 ++ setBitIf NEqu
-             GreaterThan        -> pure $ comparison load1 load2 ++ setBitIf GThan
-             LessThan           -> pure $ comparison load1 load2 ++ setBitIf LThan
-             GThanOrEqu         -> pure $ comparison load1 load2 ++ setBitIf GThanE
-             LThanOrEqu         -> pure $ comparison load1 load2 ++ setBitIf LThanE
-             LogicalOR          -> pure $ logicalOR load1 load2 lab1 lab2
-             LogicalAND         -> pure $ logicalAND load1 load2 lab1 lab2
-             BitwiseXOR         -> pure $ computeBitwise load1 load2 xorBits
-             BitwiseAND         -> pure $ computeBitwise load1 load2 andBits
-             BitwiseOR          -> pure $ computeBitwise load1 load2 orBits
-             ShiftOp LeftShift  -> pure $ computeShift load1 load2 shiftBitsLeft
-             ShiftOp RightShift -> pure $ computeShift load1 load2 shiftBitsRight
-
-
-computeShift :: String
-             -> String
-             -> (String -> String -> String)
-             -> String
-computeShift load1 n f = load1 ++ f n (reg RAX)
-
-
-computeBitwise :: String
-               -> String
-               -> (String -> String -> String)
-               -> String
-computeBitwise load1 load2 f =
-        loadValues load1 load2
-        ++ f scratch (reg RAX)
-
-
-logicalOR :: String -> String -> Int -> Int -> String
-logicalOR load1 load2 nextLabel endLabel =
-        load1
-        ++ testResult
-        ++ emitJump JE nextLabel
-        ++ move (literalValue 1) (reg RAX)
-        ++ emitJump JMP endLabel
-        ++ emitLabel nextLabel
-        ++ load2
-        ++ testResult
-        ++ move (literalValue 0) (reg RAX)
-        ++ setBitIf NEqu
-        ++ emitLabel endLabel
-
-
-logicalAND :: String -> String -> Int -> Int -> String
-logicalAND load1 load2 nextLabel endLabel =
-        load1
-        ++ testResult
-        ++ emitJump JNE nextLabel
-        ++ emitJump JMP endLabel
-        ++ emitLabel nextLabel
-        ++ load2
-        ++ testResult
-        ++ move (literalValue 0) (reg RAX)
-        ++ setBitIf NEqu
-        ++ emitLabel endLabel
-
-
-computeAdd :: String -> String -> String
-computeAdd load1 load2 =
-        loadValues load1 load2
-        ++ add scratch (reg RAX)
-
-
-computeMod :: String -> String -> String
-computeMod load1 load2 =
-        push (reg RDX)
-        ++ loadValues load2 load1
-        ++ idivq scratch
-        ++ move regModResult (reg RAX)
-        ++ pop (reg RDX)
-
-
-computeDiv :: String -> String -> String
-computeDiv load1 load2 =
-        push (reg RDX)
-        ++ loadValues load2 load1
-        ++ idivq scratch
-        ++ pop (reg RDX)
-
-
-computeMul :: String -> String -> String
-computeMul load1 load2 =
-        loadValues load1 load2
-        ++ imul scratch (reg RAX)
-
-
-computeSub :: String -> String -> String
-computeSub load1 load2 =
-        loadValues load2 load1
-        ++ sub scratch (reg RAX)
-
-
-loadValues :: String -> String -> String
-loadValues load1 load2 =
-        load1
-        ++ push (reg RAX)
-        ++ load2
-        ++ pop scratch
-
-
-comparison :: String -> String -> String
-comparison load1 load2 =
-        loadValues load1 load2
-        ++ comp (reg RAX) scratch
-        ++ move (literalValue 0) (reg RAX)
-
-
-testResult :: String
-testResult = comp (literalValue 0) (reg RAX)
 
 
 -- Function calls and registers
@@ -503,10 +307,6 @@ loadGlobal label =
 -- | Store the value of a global variable
 storeGlobal :: String -> String -> GenState String
 storeGlobal toAssign label = pure $ toAssign ++ saveGlobal label
-
-
-saveGlobal :: String -> String
-saveGlobal label = move (reg RAX) (fromInstructionPointer label)
 
 
 -- Pointers
@@ -594,33 +394,6 @@ varAddressStoreGlobal value label = pure $
         ++ move (reg RAX) (fromInstructionPointer label)
 
 
--- Addressing
-
-fromBasePointer :: Int -> String
-fromBasePointer n = relAddress (show n) (reg RBP)
-
-fromInstructionPointer :: String -> String
-fromInstructionPointer lab = relAddress lab (reg RIP)
-
-addressIn :: String -> String
-addressIn s = indirectAddressing s
-
-valueFromAddressIn :: String -> String
-valueFromAddressIn s = indirectAddressing s
-
-relAddress :: String -> String -> String
-relAddress offset base = offset ++ indirectAddressing base
-
-indirectAddressing :: String -> String
-indirectAddressing s = "(" ++ s ++ ")"
-
-
--- Other
-
-literalValue :: Int -> String
-literalValue n = "$" ++ show n
-
-
 -- | Setup initialisation block
 outputInit :: String -> String
 outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
@@ -629,9 +402,7 @@ runInit :: String -> String
 runInit "main" = "jmp init\n" ++ "init_done:\n"
 runInit _      = ""
 
+
 -- | Empty output
 noOutput :: GenState String
 noOutput = pure empty
-
-empty :: String
-empty = ""
