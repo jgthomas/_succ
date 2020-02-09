@@ -129,6 +129,3 @@ comparison load1 load2 =
         loadValues load1 load2
         ++ comp (reg RAX) scratch
         ++ move (literalValue 0) (reg RAX)
-
-
-
