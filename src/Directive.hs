@@ -2,8 +2,13 @@
 module Directive where
 
 
-import Assembly (Section (..))
 import GenState (GenState)
+
+
+data Section = TEXT
+             | DATA
+             | BSS
+             deriving (Eq)
 
 
 -- | Setup initialisation block
