@@ -88,10 +88,10 @@ parseType lexData  = throwError $ ParserError (LexDataError lexData)
 
 parseIntType :: [LexDat] -> ParserState Type
 parseIntType (LexDat{tok=OpTok Asterisk}:_) = pure IntPointer
-parseIntType (LexDat{tok=OpenBracket OpenSqBracket}:
+parseIntType (_:LexDat{tok=OpenBracket OpenSqBracket}:
               LexDat{tok=CloseBracket CloseSqBracket}:
               _) = pure IntArray
-parseIntType (LexDat{tok=OpenBracket OpenSqBracket}:
+parseIntType (_:LexDat{tok=OpenBracket OpenSqBracket}:
               LexDat{tok=ConstInt _}:
               LexDat{tok=CloseBracket CloseSqBracket}:
               _) = pure IntArray
