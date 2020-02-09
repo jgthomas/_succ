@@ -23,8 +23,8 @@ data Tree = ProgramNode [Tree]
           | BreakNode NodeDat
           | ContinueNode NodeDat
           | ConstantNode Int NodeDat
-          | ArrayItemsNode Type [Tree] NodeDat
-          | ArraySingleItemNode Type Tree NodeDat
+          | ArrayItemsNode [Tree] NodeDat
+          | ArraySingleItemNode Tree NodeDat
           | FuncCallNode String [Tree] NodeDat
           | ParamNode Type Tree NodeDat
           | ArgNode Tree NodeDat

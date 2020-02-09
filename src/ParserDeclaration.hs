@@ -68,8 +68,8 @@ findArraylen Undeclared Undeclared   = throwError $ SyntaxError UndeclaredLen
 
 
 inferredLen ::  Maybe Tree -> ArrayLen
-inferredLen (Just (ArrayItemsNode _ items _)) = Declared (length items)
-inferredLen _                                 = Undeclared
+inferredLen (Just (ArrayItemsNode items _)) = Declared (length items)
+inferredLen _                               = Undeclared
 
 
 statedLen :: [LexDat] -> ArrayLen

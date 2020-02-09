@@ -134,7 +134,34 @@ parseFactor lexData@(next:rest) =
              LexDat{tok=OpTok MinusMinus}      -> parseUnary lexData
              LexDat{tok=OpTok PlusSign}        -> parseUnary lexData
              LexDat{tok=OpenBracket OpenParen} -> parseParenExp rest
+             LexDat{tok=OpenBracket OpenBrace} -> parseArrayItems lexData
              _ -> throwError $ ParserError (LexDataError lexData)
+
+
+parseArrayItems :: [LexDat] -> ParserState (Tree, [LexDat])
+parseArrayItems lexData@(LexDat{tok=OpenBracket OpenBrace}:_) = do
+        dat               <- makeNodeDat lexData
+        (items, lexData') <- parseItems [] lexData
+        lexData''         <- verifyAndConsume (CloseBracket CloseBrace) lexData'
+        pure (ArrayItemsNode items dat, lexData'')
+parseArrayItems lexData = throwError $ ParserError (LexDataError lexData)
+
+
+parseItems :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
+parseItems items lexData = parseBracketedSeq items lexData parseTheItems
+
+
+parseTheItems :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
+parseTheItems items lexData = do
+        (item, lexData') <- parseItem lexData
+        parseItems (item:items) lexData'
+
+
+parseItem :: [LexDat] -> ParserState (Tree, [LexDat])
+parseItem lexData = do
+        dat              <- makeNodeDat lexData
+        (item, lexData') <- parseExpression lexData
+        pure (ArraySingleItemNode item dat, lexData')
 
 
 parseNullExpression :: [LexDat] -> ParserState (Tree, [LexDat])
