@@ -163,6 +163,17 @@ parseUnary lexData = throwError $ ParserError (LexDataError lexData)
 parseIdent :: [LexDat] -> ParserState (Tree, [LexDat])
 parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenParen}:_) =
         parseFuncCall lexData
+parseIdent lexData@(LexDat{tok=Ident a}:
+                    LexDat{tok=OpenBracket OpenSqBracket}:
+                    LexDat{tok=ConstInt _}:
+                    LexDat{tok=CloseBracket CloseSqBracket}:rest) = do
+        dat <- makeNodeDat lexData
+        pure (VarNode a dat, rest)
+parseIdent lexData@(LexDat{tok=Ident a}:
+                    LexDat{tok=OpenBracket OpenSqBracket}:
+                    LexDat{tok=CloseBracket CloseSqBracket}:rest) = do
+        dat <- makeNodeDat lexData
+        pure (VarNode a dat, rest)
 parseIdent lexData@(LexDat{tok=Ident a}:rest) = do
         dat <- makeNodeDat lexData
         pure (VarNode a dat, rest)
