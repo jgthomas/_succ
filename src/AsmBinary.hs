@@ -3,13 +3,12 @@
 module AsmBinary (binary) where
 
 
-import AsmShared    (literalValue)
-import AsmVariables (testResult)
-import Assembly     (Jump (..), Set (..))
-import Directive    (emitLabel)
-import GenState     (GenState)
+import AsmShared   (literalValue, testResult)
+import Assembly    (Jump (..), Set (..))
+import Directive   (emitLabel)
+import GenState    (GenState)
 import Instruction
-import Operator     (BinaryOp (..), ShiftOp (..))
+import Operator    (BinaryOp (..), ShiftOp (..))
 import Register
 
 

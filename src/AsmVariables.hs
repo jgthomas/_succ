@@ -1,11 +1,17 @@
 
-module AsmVariables where
+module AsmVariables
+        (storeGlobal,
+         decNoAssign,
+         assign,
+         loadVariable
+        ) where
 
 
-import AsmShared   (literalValue, loadValue)
+import AsmShared   (fromBasePointer, fromInstructionPointer, literalValue,
+                    loadValue, saveGlobal, varOnStack)
 import Error       (CompilerError (ImpossibleError))
 import GenState    (GenState, throwError)
-import Instruction (comp, move, sub)
+import Instruction (move, sub)
 import Register
 
 
@@ -55,42 +61,6 @@ declare :: Int -> Int -> String
 declare off adj =
         varOnStack off
         ++ adjustStackPointer adj
-
-
-varOnStack :: Int -> String
-varOnStack offset = move (reg RAX) (fromBasePointer offset)
-
-
-fromBasePointer :: Int -> String
-fromBasePointer n = relAddress (show n) (reg RBP)
-
-
-fromInstructionPointer :: String -> String
-fromInstructionPointer lab = relAddress lab (reg RIP)
-
-
-addressIn :: String -> String
-addressIn s = indirectAddressing s
-
-
-valueFromAddressIn :: String -> String
-valueFromAddressIn s = indirectAddressing s
-
-
-relAddress :: String -> String -> String
-relAddress offset base = offset ++ indirectAddressing base
-
-
-indirectAddressing :: String -> String
-indirectAddressing s = "(" ++ s ++ ")"
-
-
-saveGlobal :: String -> String
-saveGlobal label = move (reg RAX) (fromInstructionPointer label)
-
-
-testResult :: String
-testResult = comp (literalValue 0) (reg RAX)
 
 
 adjustStackPointer :: Int -> String

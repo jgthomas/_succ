@@ -2,10 +2,9 @@
 module AsmPointers where
 
 
-import AsmVariables (addressIn, fromBasePointer, fromInstructionPointer,
-                     valueFromAddressIn)
-import Error        (CompilerError (ImpossibleError))
-import GenState     (GenState, throwError)
+import AsmShared   (fromBasePointer, fromInstructionPointer, indirectAddressing)
+import Error       (CompilerError (ImpossibleError))
+import GenState    (GenState, throwError)
 import Instruction
 import Register
 
@@ -91,3 +90,11 @@ varAddressStoreGlobal :: String -> String -> GenState String
 varAddressStoreGlobal value label = pure $
         value
         ++ move (reg RAX) (fromInstructionPointer label)
+
+
+addressIn :: String -> String
+addressIn s = indirectAddressing s
+
+
+valueFromAddressIn :: String -> String
+valueFromAddressIn s = indirectAddressing s

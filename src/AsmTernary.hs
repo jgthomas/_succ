@@ -2,10 +2,10 @@
 module AsmTernary (ternary) where
 
 
-import AsmVariables (testResult)
-import Assembly     (Jump (..))
-import Directive    (emitLabel)
-import GenState     (GenState)
+import AsmShared   (testResult)
+import Assembly    (Jump (..))
+import Directive   (emitLabel)
+import GenState    (GenState)
 import Instruction
 
 

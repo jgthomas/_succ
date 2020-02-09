@@ -8,11 +8,11 @@ module AsmStatement
         ) where
 
 
-import AsmVariables (testResult)
-import Assembly     (Jump (..))
-import Directive    (emitLabel)
-import GenState     (GenState)
-import Instruction  (emitJump)
+import AsmShared   (testResult)
+import Assembly    (Jump (..))
+import Directive   (emitLabel)
+import GenState    (GenState)
+import Instruction (emitJump)
 
 
 -- | Output asm for while loop
