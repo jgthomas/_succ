@@ -170,6 +170,10 @@ genASM (UnaryNode tree  op _) = do
         unode <- genASM tree
         ASM.unary unode op Nothing Nothing
 
+genASM ArrayNode{} = ASM.noOutput
+genASM ArrayItemsNode{} = ASM.noOutput
+genASM ArraySingleItemNode{} = ASM.noOutput
+
 genASM (VarNode name _) = do
         (offset, argPos, globLab) <- SymTab.getVariables name
         ASM.loadVariable offset argPos globLab
