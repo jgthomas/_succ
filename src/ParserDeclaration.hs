@@ -68,8 +68,9 @@ findArraylen Undeclared Undeclared   = throwError $ SyntaxError UndeclaredLen
 
 
 inferredLen ::  Maybe Tree -> ArrayLen
-inferredLen (Just (ArrayItemsNode items _)) = Declared (length items)
-inferredLen _                               = Undeclared
+inferredLen (Just (AssignArrayNode _ (ArrayItemsNode items _)_ _)) =
+        Declared (length items)
+inferredLen _ = Undeclared
 
 
 statedLen :: [LexDat] -> ArrayLen
@@ -96,6 +97,9 @@ parseOptionalAssign lexData@(_:LexDat{tok=OpenBracket OpenSqBracket}:
                              d@LexDat{tok=OpTok _}:_) = parseAssign d lexData
 parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
                      LexDat{tok=ConstInt _}:
+                     LexDat{tok=CloseBracket CloseSqBracket}:
+                     rest) = pure (Nothing, rest)
+parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
                      LexDat{tok=CloseBracket CloseSqBracket}:
                      rest) = pure (Nothing, rest)
 parseOptionalAssign lexData = do

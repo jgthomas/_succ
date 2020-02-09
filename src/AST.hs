@@ -15,6 +15,7 @@ data Tree = ProgramNode [Tree]
           | ReturnNode Tree NodeDat
           | AssignmentNode Tree Tree Operator NodeDat
           | AssignDereferenceNode Tree Tree Operator NodeDat
+          | AssignArrayNode Tree Tree Operator NodeDat
           | ExprStmtNode Tree NodeDat
           | IfNode Tree Tree (Maybe Tree) NodeDat
           | WhileNode Tree Tree NodeDat
@@ -30,6 +31,7 @@ data Tree = ProgramNode [Tree]
           | ArgNode Tree NodeDat
           | NullExprNode NodeDat
           | VarNode String NodeDat
+          | ArrayVarNode String NodeDat
           | AddressOfNode String NodeDat
           | DereferenceNode String NodeDat
           | UnaryNode Tree UnaryOp NodeDat

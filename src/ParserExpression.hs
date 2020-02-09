@@ -37,6 +37,8 @@ parseAssignment tree (LexDat{tok=OpTok op}:rest) = do
                    let asgnOp = Operator.tokToAssignOp op
                    dat <- makeNodeDat lexData'
                    case tree of
+                     arrVarNode@ArrayVarNode{} ->
+                             pure (AssignArrayNode arrVarNode asgn asgnOp dat, lexData')
                      varNode@VarNode{} ->
                              pure (AssignmentNode varNode asgn asgnOp dat, lexData')
                      derefNode@DereferenceNode{} ->
@@ -195,12 +197,12 @@ parseIdent lexData@(LexDat{tok=Ident a}:
                     LexDat{tok=ConstInt _}:
                     LexDat{tok=CloseBracket CloseSqBracket}:rest) = do
         dat <- makeNodeDat lexData
-        pure (VarNode a dat, rest)
+        pure (ArrayVarNode a dat, rest)
 parseIdent lexData@(LexDat{tok=Ident a}:
                     LexDat{tok=OpenBracket OpenSqBracket}:
                     LexDat{tok=CloseBracket CloseSqBracket}:rest) = do
         dat <- makeNodeDat lexData
-        pure (VarNode a dat, rest)
+        pure (ArrayVarNode a dat, rest)
 parseIdent lexData@(LexDat{tok=Ident a}:rest) = do
         dat <- makeNodeDat lexData
         pure (VarNode a dat, rest)

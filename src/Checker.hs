@@ -175,6 +175,8 @@ checkAST (UnaryNode tree (Unary _) _) = checkAST tree
 checkAST ArrayNode{} = pure ()
 checkAST ArrayItemsNode{} = pure ()
 checkAST ArraySingleItemNode{} = pure ()
+checkAST ArrayVarNode{} = pure ()
+checkAST AssignArrayNode{} = pure ()
 
 checkAST node@VarNode{} = ScopeCheck.variableExists node
 
