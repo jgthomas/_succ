@@ -1,5 +1,12 @@
 
-module Directive where
+module Directive
+        (outputInit,
+         initializedGlobal,
+         uninitializedGlobal,
+         declareGlobl,
+         globlLabel,
+         emitLabel
+        ) where
 
 
 import GenState (GenState)
@@ -37,10 +44,17 @@ uninitializedGlobal label = pure $
         ++ section TEXT
 
 
+-- | Create a label
+emitLabel :: Int -> String
+emitLabel n = "_label_" ++ show n ++ ":\n"
+
+
+-- | Declare .globl
 declareGlobl :: String -> String
 declareGlobl name = ".globl " ++ name ++ "\n"
 
 
+-- | Create a .globl label
 globlLabel :: String -> String
 globlLabel name = name ++ ":\n"
 
@@ -59,7 +73,3 @@ align = ".align 4\n"
 
 asLong :: String -> String
 asLong l = ".long " ++ l ++ "\n"
-
-
-emitLabel :: Int -> String
-emitLabel n = "_label_" ++ show n ++ ":\n"
