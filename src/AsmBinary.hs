@@ -6,9 +6,11 @@ module AsmBinary (binary) where
 import AsmShared   (literalValue, testResult)
 import Directive   (emitLabel)
 import GenState    (GenState)
-import Instruction
+import Instruction (Jump (..), Set (..), add, andBits, comp, emitJump, idivq,
+                    imul, move, orBits, pop, push, setBitIf, shiftBitsLeft,
+                    shiftBitsRight, sub, xorBits)
 import Operator    (BinaryOp (..), ShiftOp (..))
-import Register
+import Register    (Register (..), reg, regModResult, scratch)
 
 
 -- | Output asm for binary operators
