@@ -2,7 +2,7 @@
 module Register where
 
 
-import Instruction (move, pop, push)
+import Instruction (pop, push)
 
 
 data Register = RAX
@@ -73,10 +73,6 @@ selectRegister n
         | n == 4 = reg R8
         | n == 5 = reg R9
         | otherwise = undefined
-
-
-getFromRegister :: Int -> String
-getFromRegister r = move (selectRegister r) (reg RAX)
 
 
 saveCallerRegisters :: String

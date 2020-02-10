@@ -12,7 +12,7 @@ import AsmShared   (fromBasePointer, fromInstructionPointer, literalValue,
 import Error       (CompilerError (ImpossibleError))
 import GenState    (GenState, throwError)
 import Instruction (move, sub)
-import Register
+import Register    (Register (..), reg, selectRegister)
 
 
 -- | Store the value of a global variable
@@ -25,6 +25,18 @@ decNoAssign :: Int -> Int -> GenState String
 decNoAssign off adj = pure $
         loadValue 0
         ++ declare off adj
+
+
+declare :: Int -> Int -> String
+declare off adj =
+        varOnStack off
+        ++ adjustStackPointer adj
+
+
+adjustStackPointer :: Int -> String
+adjustStackPointer offset =
+        move (reg RBP) (reg RSP)
+        ++ sub (literalValue offset) (reg RSP)
 
 
 -- | Output asm for an assignment
@@ -46,6 +58,10 @@ varOffStack :: Int -> String
 varOffStack offset = move (fromBasePointer offset) (reg RAX)
 
 
+getFromRegister :: Int -> String
+getFromRegister r = move (selectRegister r) (reg RAX)
+
+
 {-
 - gcc treats global labels as position
 - independent, PIE, by default, and so as
@@ -55,15 +71,3 @@ varOffStack offset = move (fromBasePointer offset) (reg RAX)
 loadGlobal :: String -> String
 loadGlobal label =
         move (fromInstructionPointer label) (reg RAX)
-
-
-declare :: Int -> Int -> String
-declare off adj =
-        varOnStack off
-        ++ adjustStackPointer adj
-
-
-adjustStackPointer :: Int -> String
-adjustStackPointer offset =
-        move (reg RBP) (reg RSP)
-        ++ sub (literalValue offset) (reg RSP)
