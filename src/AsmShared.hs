@@ -20,5 +20,3 @@ loadValue n = move (literalValue n) (reg RAX)
 
 testResult :: String
 testResult = comp (literalValue 0) (reg RAX)
-
-

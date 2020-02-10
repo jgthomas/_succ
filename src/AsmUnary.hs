@@ -1,15 +1,15 @@
 
-
 module AsmUnary (unary) where
 
 
 import AsmShared    (empty, literalValue)
 import AsmVariables (saveGlobal, varOnStack)
 import GenState     (GenState)
-import Instruction
+import Instruction  (Set (..), comp, dec, inc, invertBits, makeNegative, move,
+                     setBitIf)
 import Operator     (PostOpUnary (..), PreOpUnary (..), Unary (..),
                      UnaryOp (..))
-import Register
+import Register     (Register (..), reg, scratch)
 
 
 -- | Output asm for unary operators
@@ -68,5 +68,3 @@ logNeg :: String
 logNeg = comp (literalValue 0) (reg RAX)
          ++ move (literalValue 0) (reg RAX)
          ++ setBitIf Equ
-
-
