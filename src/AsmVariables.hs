@@ -17,8 +17,8 @@ module AsmVariables
 import AsmShared   (literalValue, loadValue)
 import Error       (CompilerError (ImpossibleError))
 import GenState    (GenState, throwError)
-import Instruction
-import Register
+import Instruction (loadAddOf, move, sub)
+import Register    (Register (..), reg, scratch, selectRegister)
 
 
 -- | Store the value of a global variable
