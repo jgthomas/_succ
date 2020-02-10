@@ -11,7 +11,6 @@ module ASM
          module AsmFunction,
          module AsmPointers,
          module AsmStatement,
-         module AsmFuncCall,
          module AsmVariables,
          module Directive,
          loadLiteral,
@@ -21,8 +20,7 @@ module ASM
 
 
 import AsmBinary    (binary)
-import AsmFuncCall  (functionCall, passArgument)
-import AsmFunction  (function, mainNoReturn, returnValue)
+import AsmFunction
 import AsmPointers  (addressOf, derefLoad, derefStore, varAddressStore,
                      varAddressStoreGlobal)
 import AsmShared    (empty, loadValue)

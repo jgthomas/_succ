@@ -1,13 +1,18 @@
 
-module AsmFunction (function, mainNoReturn, returnValue) where
+module AsmFunction
+        (function,
+         mainNoReturn,
+         returnValue,
+         functionCall,
+         passArgument
+        ) where
 
 
 import AsmShared   (loadValue)
 import Directive   (declareGlobl, globlLabel)
 import GenState    (GenState)
-import Instruction (move, pop, push, returnControl)
-import Register    (Register (..), allScratch, reg, restoreRegisters,
-                    saveRegisters)
+import Instruction (call, move, pop, push, returnControl)
+import Register    (Register (..), allScratch, params, reg, selectRegister)
 
 
 -- | Output asm for a function
@@ -58,3 +63,41 @@ restoreBasePointer = move (reg RBP) (reg RSP)
 runInit :: String -> String
 runInit "main" = "jmp init\n" ++ "init_done:\n"
 runInit _      = ""
+
+
+saveRegisters :: [Register] -> String
+saveRegisters rs = concatMap (push . reg) rs
+
+
+restoreRegisters :: [Register] -> String
+restoreRegisters rs = concatMap pop . reverse . map reg $ rs
+
+
+-- | Output asm for a function call
+functionCall :: String -> String -> String
+functionCall name args =
+        saveCallerRegisters
+        ++ args
+        ++ makeFunctionCall name
+        ++ restoreCallerRegisters
+
+
+makeFunctionCall :: String -> String
+makeFunctionCall funcName = call funcName
+
+
+-- | Pass argument to function
+passArgument:: String -> Int -> GenState String
+passArgument toLoad pos = pure $ toLoad ++ putInRegister pos
+
+
+putInRegister :: Int -> String
+putInRegister r = move (reg RAX) (selectRegister r)
+
+
+restoreCallerRegisters :: String
+restoreCallerRegisters = restoreRegisters params
+
+
+saveCallerRegisters :: String
+saveCallerRegisters = saveRegisters params
