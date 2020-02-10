@@ -18,14 +18,14 @@ module ASM
         ) where
 
 
-import AsmBinary    (binary)
+import AsmBinary
 import AsmFunction
 import AsmShared    (empty, loadValue)
-import AsmStatement (doWhile, forLoop, ifElse, ifOnly, while)
-import AsmTernary   (ternary)
-import AsmUnary     (unary)
+import AsmStatement
+import AsmTernary
+import AsmUnary
 import AsmVariables hiding (saveGlobal, varOnStack)
-import Directive    (initializedGlobal, outputInit, uninitializedGlobal)
+import Directive    hiding (declareGlobl, emitLabel, globlLabel)
 import GenState     (GenState)
 import Instruction  (Jump (..), emitJump)
 
