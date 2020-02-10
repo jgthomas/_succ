@@ -9,7 +9,6 @@ module ASM
          module AsmUnary,
          module AsmTernary,
          module AsmFunction,
-         module AsmPointers,
          module AsmStatement,
          module AsmVariables,
          module Directive,
@@ -21,13 +20,11 @@ module ASM
 
 import AsmBinary    (binary)
 import AsmFunction
-import AsmPointers  (addressOf, derefLoad, derefStore, varAddressStore,
-                     varAddressStoreGlobal)
 import AsmShared    (empty, loadValue)
 import AsmStatement (doWhile, forLoop, ifElse, ifOnly, while)
 import AsmTernary   (ternary)
 import AsmUnary     (unary)
-import AsmVariables (assign, decNoAssign, loadVariable, storeGlobal)
+import AsmVariables hiding (saveGlobal, varOnStack)
 import Directive    (initializedGlobal, outputInit, uninitializedGlobal)
 import GenState     (GenState)
 import Instruction  (Jump (..), emitJump)

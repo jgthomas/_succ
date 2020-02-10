@@ -3,10 +3,12 @@
 module AsmUnary (unary) where
 
 
-import AsmShared   (empty, literalValue, saveGlobal, varOnStack)
-import GenState    (GenState)
+import AsmShared    (empty, literalValue)
+import AsmVariables (saveGlobal, varOnStack)
+import GenState     (GenState)
 import Instruction
-import Operator    (PostOpUnary (..), PreOpUnary (..), Unary (..), UnaryOp (..))
+import Operator     (PostOpUnary (..), PreOpUnary (..), Unary (..),
+                     UnaryOp (..))
 import Register
 
 
