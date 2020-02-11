@@ -8,10 +8,10 @@ module AsmStatement
         ) where
 
 
-import AsmShared   (testResult)
 import Directive   (emitLabel)
 import GenState    (GenState)
-import Instruction (Jump (..), emitJump)
+import Instruction (Jump (..), comp, emitJump, literal)
+import Register    (Register (..), reg)
 
 
 -- | Output asm for while loop
@@ -19,7 +19,7 @@ while :: String -> String -> Int -> Int -> GenState String
 while test body loopLab testLab = pure $
         emitLabel loopLab
         ++ test
-        ++ testResult
+        ++ comp (literal 0) (reg RAX)
         ++ emitJump JE testLab
         ++ body
         ++ emitJump JMP loopLab
@@ -33,7 +33,7 @@ doWhile body test loopLab contLab testLab = pure $
         ++ body
         ++ emitLabel contLab
         ++ test
-        ++ testResult
+        ++ comp (literal 0) (reg RAX)
         ++ emitJump JE testLab
         ++ emitJump JMP loopLab
         ++ emitLabel testLab
@@ -52,7 +52,7 @@ forLoop inits test iter body trueLab falseLab contLab = pure $
         inits
         ++ emitLabel trueLab
         ++ test
-        ++ testResult
+        ++ comp (literal 0) (reg RAX)
         ++ emitJump JE falseLab
         ++ body
         ++ emitLabel contLab
@@ -81,6 +81,6 @@ ifElse test action testLab elseAction nextLab = pure $
 ifStart :: String -> String -> Int -> String
 ifStart test action testLab =
         test
-        ++ testResult
+        ++ comp (literal 0) (reg RAX)
         ++ emitJump JE testLab
         ++ action

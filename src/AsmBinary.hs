@@ -3,12 +3,11 @@
 module AsmBinary (binary) where
 
 
-import AsmShared   (literalValue, testResult)
 import Directive   (emitLabel)
 import GenState    (GenState)
 import Instruction (Jump (..), Set (..), add, andBits, comp, emitJump, idivq,
-                    imul, move, orBits, pop, push, setBitIf, shiftBitsLeft,
-                    shiftBitsRight, sub, xorBits)
+                    imul, literal, move, orBits, pop, push, setBitIf,
+                    shiftBitsLeft, shiftBitsRight, sub, xorBits)
 import Operator    (BinaryOp (..), ShiftOp (..))
 import Register    (Register (..), reg, regModResult, scratch)
 
@@ -56,14 +55,14 @@ computeBitwise load1 load2 f =
 logicalOR :: String -> String -> Int -> Int -> String
 logicalOR load1 load2 nextLabel endLabel =
         load1
-        ++ testResult
+        ++ comp (literal 0) (reg RAX)
         ++ emitJump JE nextLabel
-        ++ move (literalValue 1) (reg RAX)
+        ++ move (literal 1) (reg RAX)
         ++ emitJump JMP endLabel
         ++ emitLabel nextLabel
         ++ load2
-        ++ testResult
-        ++ move (literalValue 0) (reg RAX)
+        ++ comp (literal 0) (reg RAX)
+        ++ move (literal 0) (reg RAX)
         ++ setBitIf NEqu
         ++ emitLabel endLabel
 
@@ -71,13 +70,13 @@ logicalOR load1 load2 nextLabel endLabel =
 logicalAND :: String -> String -> Int -> Int -> String
 logicalAND load1 load2 nextLabel endLabel =
         load1
-        ++ testResult
+        ++ comp (literal 0) (reg RAX)
         ++ emitJump JNE nextLabel
         ++ emitJump JMP endLabel
         ++ emitLabel nextLabel
         ++ load2
-        ++ testResult
-        ++ move (literalValue 0) (reg RAX)
+        ++ comp (literal 0) (reg RAX)
+        ++ move (literal 0) (reg RAX)
         ++ setBitIf NEqu
         ++ emitLabel endLabel
 
@@ -129,4 +128,4 @@ comparison :: String -> String -> String
 comparison load1 load2 =
         loadValues load1 load2
         ++ comp (reg RAX) scratch
-        ++ move (literalValue 0) (reg RAX)
+        ++ move (literal 0) (reg RAX)

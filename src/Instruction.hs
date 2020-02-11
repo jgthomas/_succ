@@ -120,3 +120,7 @@ emitJump j n =
              JE  -> "je _label_" ++ num ++ "\n"
              JNE -> "jne _label_" ++ num ++ "\n"
         where num = show n
+
+
+literal :: Int -> String
+literal n = "$" ++ show n

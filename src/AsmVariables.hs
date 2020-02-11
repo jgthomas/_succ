@@ -14,10 +14,9 @@ module AsmVariables
         ) where
 
 
-import AsmShared   (literalValue, loadValue)
 import Error       (CompilerError (ImpossibleError))
 import GenState    (GenState, throwError)
-import Instruction (loadAddOf, move, sub)
+import Instruction (literal, loadAddOf, move, sub)
 import Register    (Register (..), reg, scratch, selectRegister)
 
 
@@ -29,7 +28,7 @@ storeGlobal toAssign label = pure $ toAssign ++ saveGlobal label
 -- | Output asm for a declaration with no assignment
 decNoAssign :: Int -> Int -> GenState String
 decNoAssign off adj = pure $
-        loadValue 0
+        move (literal 0) (reg RAX)
         ++ declare off adj
 
 
@@ -42,7 +41,7 @@ declare off adj =
 adjustStackPointer :: Int -> String
 adjustStackPointer offset =
         move (reg RBP) (reg RSP)
-        ++ sub (literalValue offset) (reg RSP)
+        ++ sub (literal offset) (reg RSP)
 
 
 -- | Output asm for an assignment

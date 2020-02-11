@@ -20,14 +20,14 @@ module ASM
 
 import AsmBinary
 import AsmFunction
-import AsmShared    (loadValue)
 import AsmStatement
 import AsmTernary
 import AsmUnary
 import AsmVariables hiding (saveGlobal, varOnStack)
 import Directive    hiding (declareGlobl, emitLabel, globlLabel)
 import GenState     (GenState)
-import Instruction  (Jump (..), emitJump)
+import Instruction  (Jump (..), emitJump, literal, move)
+import Register     (Register (..), reg)
 
 
 -- | Output asm for jump
@@ -37,7 +37,7 @@ setGotoPoint target = emitJump JMP target
 
 -- | Load a literal value into return register
 loadLiteral :: Int -> GenState String
-loadLiteral n = pure . loadValue $ n
+loadLiteral n = pure $ move (literal n) (reg RAX)
 
 
 -- | Empty output

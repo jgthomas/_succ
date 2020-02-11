@@ -8,10 +8,9 @@ module AsmFunction
         ) where
 
 
-import AsmShared   (loadValue)
 import Directive   (declareGlobl, globlLabel)
 import GenState    (GenState)
-import Instruction (call, move, pop, push, returnControl)
+import Instruction (call, literal, move, pop, push, returnControl)
 import Register    (Register (..), allScratch, params, reg, selectRegister)
 
 
@@ -25,7 +24,7 @@ mainNoReturn :: String -> String -> GenState String
 mainNoReturn name stmts = pure $
         functionInit name
         ++ stmts
-        ++ loadValue 0
+        ++ move (literal 0) (reg RAX)
         ++ returnStatement
 
 

@@ -2,11 +2,10 @@
 module AsmUnary (unary) where
 
 
-import AsmShared    (literalValue)
 import AsmVariables (saveGlobal, varOnStack)
 import GenState     (GenState)
-import Instruction  (Set (..), comp, dec, inc, invertBits, makeNegative, move,
-                     setBitIf)
+import Instruction  (Set (..), comp, dec, inc, invertBits, literal,
+                     makeNegative, move, setBitIf)
 import Operator     (PostOpUnary (..), PreOpUnary (..), Unary (..),
                      UnaryOp (..))
 import Register     (Register (..), reg, scratch)
@@ -65,6 +64,6 @@ unaryOp unOp =
 
 
 logNeg :: String
-logNeg = comp (literalValue 0) (reg RAX)
-         ++ move (literalValue 0) (reg RAX)
+logNeg = comp (literal 0) (reg RAX)
+         ++ move (literal 0) (reg RAX)
          ++ setBitIf Equ
