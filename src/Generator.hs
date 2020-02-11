@@ -339,5 +339,5 @@ processBinaryNode (BinaryNode left _ op _) rgt = do
         lab1 <- SymTab.labelNum
         lab2 <- SymTab.labelNum
         lft  <- genASM left
-        ASM.binary lft rgt op lab1 lab2
+        pure $ ASM.binary lft rgt op lab1 lab2
 processBinaryNode tree _ = throwError $ FatalError (GeneratorBug tree)

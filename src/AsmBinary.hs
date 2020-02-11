@@ -4,7 +4,6 @@ module AsmBinary (binary) where
 
 
 import Directive   (emitLabel)
-import GenState    (GenState)
 import Instruction (Jump (..), Set (..), add, andBits, comp, emitJump, idivq,
                     imul, literal, move, orBits, pop, push, setBitIf,
                     shiftBitsLeft, shiftBitsRight, sub, xorBits)
@@ -13,27 +12,27 @@ import Register    (Register (..), reg, regModResult, scratch)
 
 
 -- | Output asm for binary operators
-binary :: String -> String -> BinaryOp -> Int -> Int -> GenState String
+binary :: String -> String -> BinaryOp -> Int -> Int -> String
 binary load1 load2 binOp lab1 lab2 =
         case binOp of
-             Plus               -> pure $ computeAdd load1 load2
-             Minus              -> pure $ computeSub load1 load2
-             Multiply           -> pure $ computeMul load1 load2
-             Divide             -> pure $ computeDiv load1 load2
-             Modulo             -> pure $ computeMod load1 load2
-             Equal              -> pure $ comparison load1 load2 ++ setBitIf Equ
-             NotEqual           -> pure $ comparison load1 load2 ++ setBitIf NEqu
-             GreaterThan        -> pure $ comparison load1 load2 ++ setBitIf GThan
-             LessThan           -> pure $ comparison load1 load2 ++ setBitIf LThan
-             GThanOrEqu         -> pure $ comparison load1 load2 ++ setBitIf GThanE
-             LThanOrEqu         -> pure $ comparison load1 load2 ++ setBitIf LThanE
-             LogicalOR          -> pure $ logicalOR load1 load2 lab1 lab2
-             LogicalAND         -> pure $ logicalAND load1 load2 lab1 lab2
-             BitwiseXOR         -> pure $ computeBitwise load1 load2 xorBits
-             BitwiseAND         -> pure $ computeBitwise load1 load2 andBits
-             BitwiseOR          -> pure $ computeBitwise load1 load2 orBits
-             ShiftOp LeftShift  -> pure $ computeShift load1 load2 shiftBitsLeft
-             ShiftOp RightShift -> pure $ computeShift load1 load2 shiftBitsRight
+             Plus               -> computeAdd load1 load2
+             Minus              -> computeSub load1 load2
+             Multiply           -> computeMul load1 load2
+             Divide             -> computeDiv load1 load2
+             Modulo             -> computeMod load1 load2
+             Equal              -> comparison load1 load2 ++ setBitIf Equ
+             NotEqual           -> comparison load1 load2 ++ setBitIf NEqu
+             GreaterThan        -> comparison load1 load2 ++ setBitIf GThan
+             LessThan           -> comparison load1 load2 ++ setBitIf LThan
+             GThanOrEqu         -> comparison load1 load2 ++ setBitIf GThanE
+             LThanOrEqu         -> comparison load1 load2 ++ setBitIf LThanE
+             LogicalOR          -> logicalOR load1 load2 lab1 lab2
+             LogicalAND         -> logicalAND load1 load2 lab1 lab2
+             BitwiseXOR         -> computeBitwise load1 load2 xorBits
+             BitwiseAND         -> computeBitwise load1 load2 andBits
+             BitwiseOR          -> computeBitwise load1 load2 orBits
+             ShiftOp LeftShift  -> computeShift load1 load2 shiftBitsLeft
+             ShiftOp RightShift -> computeShift load1 load2 shiftBitsRight
 
 
 computeShift :: String
