@@ -116,7 +116,7 @@ genASM node@(PointerNode varNode@(VarNode varName _) typ (Just a) dat) = do
         value      <- genASM a
         (offset, _, globLab) <- SymTab.getVariables varName
         case (offset, globLab) of
-             (Just off, _) -> ASM.varAddressStore (pointerASM ++ value) off
+             (Just off, _) -> pure $ ASM.varAddressStore (pointerASM ++ value) off
              (_, Just _)   -> pure $ pointerASM ++ value
              _             -> throwError $ FatalError (GeneratorBug node)
 genASM node@PointerNode{} = throwError $ FatalError (GeneratorBug node)
@@ -136,7 +136,7 @@ genASM node@AssignmentNode{} = do
 genASM (AssignDereferenceNode derefNode@(DereferenceNode varName _) value op _) = do
         assign <- buildAssignmentASM derefNode value op
         (offset, argPos, globLab) <- SymTab.getVariables varName
-        ASM.derefStore assign offset argPos globLab
+        pure $ ASM.derefStore assign offset argPos globLab
 genASM node@AssignDereferenceNode{} = throwError $ FatalError (GeneratorBug node)
 
 genASM (ExprStmtNode expression _) = genASM expression
@@ -178,15 +178,15 @@ genASM AssignArrayNode{} = pure ASM.noOutput
 
 genASM (VarNode name _) = do
         (offset, argPos, globLab) <- SymTab.getVariables name
-        ASM.loadVariable offset argPos globLab
+        pure $ ASM.loadVariable offset argPos globLab
 
 genASM (AddressOfNode name _) = do
         (offset, _, globLab) <- SymTab.getVariables name
-        ASM.addressOf offset globLab
+        pure $ ASM.addressOf offset globLab
 
 genASM (DereferenceNode name _) = do
         (offset, argPos, globLab) <- SymTab.getVariables name
-        ASM.derefLoad offset argPos globLab
+        pure $ ASM.derefLoad offset argPos globLab
 
 genASM (NullExprNode _) = pure ASM.noOutput
 
@@ -230,8 +230,7 @@ defPrevDecGlob (Just label) (AssignmentNode _ node@ConstantNode{} _ _) = do
         globalVarASM label value
 defPrevDecGlob (Just label) (AssignmentNode _ node@AddressOfNode{} _ _) = do
         value   <- genASM node
-        initASM <- ASM.varAddressStoreGlobal value label
-        SymTab.storeForInit initASM
+        SymTab.storeForInit $ ASM.varAddressStoreGlobal value label
         pure $ ASM.uninitializedGlobal label
 defPrevDecGlob _ (AssignmentNode _ valNode _ _) =
         throwError $ FatalError (GeneratorBug valNode)
@@ -251,7 +250,7 @@ declareLocal (DeclarationNode (VarNode varName _) typ value _) = do
         adjust <- SymTab.stackPointerValue
         case value of
              Just val -> genASM val
-             Nothing  -> ASM.decNoAssign offset adjust
+             Nothing  -> pure $ ASM.decNoAssign offset adjust
 declareLocal tree = throwError $ FatalError (GeneratorBug tree)
 
 
@@ -261,7 +260,7 @@ defineLocal node@(AssignmentNode varNode@(VarNode varName _) value op _) = do
         (offset, _, globLab) <- SymTab.getVariables varName
         case (offset, globLab) of
              (Just off, _) -> ASM.assign assign off <$> SymTab.stackPointerValue
-             (_, Just lab) -> ASM.storeGlobal assign lab
+             (_, Just lab) -> pure $ ASM.storeGlobal assign lab
              _ -> throwError $ FatalError (GeneratorBug node)
 defineLocal tree = throwError $ FatalError (GeneratorBug tree)
 

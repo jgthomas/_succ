@@ -14,20 +14,18 @@ module AsmVariables
         ) where
 
 
-import Error       (CompilerError (ImpossibleError))
-import GenState    (GenState, throwError)
 import Instruction (literal, loadAddOf, move, sub)
 import Register    (Register (..), reg, scratch, selectRegister)
 
 
 -- | Store the value of a global variable
-storeGlobal :: String -> String -> GenState String
-storeGlobal toAssign label = pure $ toAssign ++ saveGlobal label
+storeGlobal :: String -> String -> String
+storeGlobal toAssign label = toAssign ++ saveGlobal label
 
 
 -- | Output asm for a declaration with no assignment
-decNoAssign :: Int -> Int -> GenState String
-decNoAssign off adj = pure $
+decNoAssign :: Int -> Int -> String
+decNoAssign off adj =
         move (literal 0) (reg RAX)
         ++ declare off adj
 
@@ -52,11 +50,11 @@ assign toAssign off adj =
 
 
 -- | Load a variable value
-loadVariable :: Maybe Int -> Maybe Int -> Maybe String -> GenState String
-loadVariable (Just off) _ _ = pure $ varOffStack off
-loadVariable _ (Just pos) _ = pure $ getFromRegister pos
-loadVariable _ _ (Just lab) = pure $ loadGlobal lab
-loadVariable _ _ _          = throwError ImpossibleError
+loadVariable :: Maybe Int -> Maybe Int -> Maybe String -> String
+loadVariable (Just off) _ _ = varOffStack off
+loadVariable _ (Just pos) _ = getFromRegister pos
+loadVariable _ _ (Just lab) = loadGlobal lab
+loadVariable _ _ _          = ""
 
 
 varOffStack :: Int -> String
@@ -79,11 +77,11 @@ loadGlobal label =
 
 
 -- | Load a dereferenced pointer value
-derefLoad :: Maybe Int -> Maybe Int -> Maybe String -> GenState String
-derefLoad (Just off) _ _ = pure $ derefLoadLocal off
-derefLoad _ (Just pos) _ = pure $ derefLoadParam pos
-derefLoad _ _ (Just lab) = pure $ derefLoadGlobal lab
-derefLoad _ _ _          = throwError ImpossibleError
+derefLoad :: Maybe Int -> Maybe Int -> Maybe String -> String
+derefLoad (Just off) _ _ = derefLoadLocal off
+derefLoad _ (Just pos) _ = derefLoadParam pos
+derefLoad _ _ (Just lab) = derefLoadGlobal lab
+derefLoad _ _ _          = ""
 
 
 derefLoadLocal :: Int -> String
@@ -108,11 +106,11 @@ derefStore :: String
            -> Maybe Int
            -> Maybe Int
            -> Maybe String
-           -> GenState String
-derefStore val (Just off) _ _ = pure $ val ++ derefStoreLocal off
-derefStore val _ (Just pos) _ = pure $ val ++ derefStoreParam pos
-derefStore val _ _ (Just lab) = pure $ val ++ derefStoreGlobal lab
-derefStore _ _ _ _            = throwError ImpossibleError
+           -> String
+derefStore val (Just off) _ _ = val ++ derefStoreLocal off
+derefStore val _ (Just pos) _ = val ++ derefStoreParam pos
+derefStore val _ _ (Just lab) = val ++ derefStoreGlobal lab
+derefStore _ _ _ _            = ""
 
 
 derefStoreLocal :: Int -> String
@@ -133,10 +131,10 @@ derefStoreGlobal label =
 
 
 -- | Load the address of a variable
-addressOf :: Maybe Int -> Maybe String -> GenState String
-addressOf (Just off) _ = pure $ varAddressLoad off
-addressOf _ (Just lab) = pure $ varAddressLoadGlobal lab
-addressOf _ _          = throwError ImpossibleError
+addressOf :: Maybe Int -> Maybe String -> String
+addressOf (Just off) _ = varAddressLoad off
+addressOf _ (Just lab) = varAddressLoadGlobal lab
+addressOf _ _          = ""
 
 
 varAddressLoad :: Int -> String
@@ -148,15 +146,15 @@ varAddressLoadGlobal label = loadAddOf (fromInstructionPointer label) (reg RAX)
 
 
 -- | Store the address of a local variable
-varAddressStore :: String -> Int -> GenState String
-varAddressStore value offset = pure $
+varAddressStore :: String -> Int -> String
+varAddressStore value offset =
         value
         ++ move (reg RAX) (fromBasePointer offset)
 
 
 -- | Store the address of a global variable
-varAddressStoreGlobal :: String -> String -> GenState String
-varAddressStoreGlobal value label = pure $
+varAddressStoreGlobal :: String -> String -> String
+varAddressStoreGlobal value label =
         value
         ++ move (reg RAX) (fromInstructionPointer label)
 
