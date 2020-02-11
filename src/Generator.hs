@@ -153,8 +153,7 @@ genASM (TernaryNode cond pass fails _) = do
         true     <- genASM pass
         false    <- genASM fails
         trueLab  <- SymTab.labelNum
-        falseLab <- SymTab.labelNum
-        ASM.ternary testExp true false trueLab falseLab
+        ASM.ternary testExp true false trueLab <$> SymTab.labelNum
 
 genASM node@(BinaryNode _ (ConstantNode n _) (ShiftOp _) _) =
         processBinaryNode node (show n)
