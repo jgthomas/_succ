@@ -46,8 +46,8 @@ genASM node@(FunctionNode _ name _ (Just stmts) _) = do
         SymTab.closeFunction
         SymTab.defineFunction name
         if hasReturn stmts || name /= "main"
-           then ASM.function name statements
-           else ASM.mainNoReturn name statements
+           then pure $ ASM.function name statements
+           else pure $ ASM.mainNoReturn name statements
 
 genASM (ParamNode typ (VarNode name _) _) = do
         SymTab.addParameter name typ
@@ -146,7 +146,9 @@ genASM (ContinueNode _) = ASM.setGotoPoint . fromMaybe (-1) <$> SymTab.getContin
 
 genASM (BreakNode _) = ASM.setGotoPoint . fromMaybe (-1) <$> SymTab.getBreak
 
-genASM (ReturnNode tree _) = ASM.returnValue <$> genASM tree
+genASM (ReturnNode tree _) = do
+        val <- genASM tree
+        pure $ ASM.returnValue val
 
 genASM (TernaryNode cond pass fails _) = do
         testExp  <- genASM cond
@@ -315,7 +317,7 @@ processArgs args = concatMapM processArg (zip args [0..])
 processArg :: (Tree, Int) -> GenState String
 processArg (arg, pos) = do
         argASM <- genASM arg
-        ASM.passArgument argASM pos
+        pure $ ASM.passArgument argASM pos
 
 
 -- Variables

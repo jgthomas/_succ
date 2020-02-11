@@ -9,19 +9,18 @@ module AsmFunction
 
 
 import Directive   (declareGlobl, globlLabel)
-import GenState    (GenState)
 import Instruction (call, literal, move, pop, push, returnControl)
 import Register    (Register (..), allScratch, params, reg, selectRegister)
 
 
 -- | Output asm for a function
-function :: String -> String -> GenState String
-function name stmts = pure $ functionInit name ++ stmts
+function :: String -> String -> String
+function name stmts = functionInit name ++ stmts
 
 
 -- | Output asm for a main function with no explicit return value
-mainNoReturn :: String -> String -> GenState String
-mainNoReturn name stmts = pure $
+mainNoReturn :: String -> String -> String
+mainNoReturn name stmts =
         functionInit name
         ++ stmts
         ++ move (literal 0) (reg RAX)
@@ -86,8 +85,8 @@ makeFunctionCall funcName = call funcName
 
 
 -- | Pass argument to function
-passArgument:: String -> Int -> GenState String
-passArgument toLoad pos = pure $ toLoad ++ putInRegister pos
+passArgument:: String -> Int -> String
+passArgument toLoad pos = toLoad ++ putInRegister pos
 
 
 putInRegister :: Int -> String
