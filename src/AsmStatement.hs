@@ -9,14 +9,13 @@ module AsmStatement
 
 
 import Directive   (emitLabel)
-import GenState    (GenState)
 import Instruction (Jump (..), comp, emitJump, literal)
 import Register    (Register (..), reg)
 
 
 -- | Output asm for while loop
-while :: String -> String -> Int -> Int -> GenState String
-while test body loopLab testLab = pure $
+while :: String -> String -> Int -> Int -> String
+while test body loopLab testLab =
         emitLabel loopLab
         ++ test
         ++ comp (literal 0) (reg RAX)
@@ -27,8 +26,8 @@ while test body loopLab testLab = pure $
 
 
 -- | Output asm for do while loop
-doWhile :: String -> String -> Int -> Int -> Int -> GenState String
-doWhile body test loopLab contLab testLab = pure $
+doWhile :: String -> String -> Int -> Int -> Int -> String
+doWhile body test loopLab contLab testLab =
         emitLabel loopLab
         ++ body
         ++ emitLabel contLab
@@ -47,8 +46,8 @@ forLoop :: String
         -> Int
         -> Int
         -> Int
-        -> GenState String
-forLoop inits test iter body trueLab falseLab contLab = pure $
+        -> String
+forLoop inits test iter body trueLab falseLab contLab =
         inits
         ++ emitLabel trueLab
         ++ test
@@ -62,15 +61,15 @@ forLoop inits test iter body trueLab falseLab contLab = pure $
 
 
 -- | Output asm for a simple if statement
-ifOnly :: String -> String -> Int -> GenState String
-ifOnly test action testLab = pure $
+ifOnly :: String -> String -> Int -> String
+ifOnly test action testLab =
         ifStart test action testLab
         ++ emitLabel testLab
 
 
 -- | Output asm for an if statement with an else clause
-ifElse :: String -> String -> Int -> String -> Int -> GenState String
-ifElse test action testLab elseAction nextLab = pure $
+ifElse :: String -> String -> Int -> String -> Int -> String
+ifElse test action testLab elseAction nextLab =
         ifStart test action testLab
         ++ emitJump JMP nextLab
         ++ emitLabel testLab

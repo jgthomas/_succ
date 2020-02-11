@@ -77,7 +77,7 @@ genASM (ForLoopNode ini test iter block _) = do
         iters <- genASM iter
         body  <- genASM block
         SymTab.closeScope
-        ASM.forLoop inits tests iters body passLabel failLabel contLabel
+        pure $ ASM.forLoop inits tests iters body passLabel failLabel contLabel
 
 genASM (WhileNode test whileBlock _) = do
         loopLabel <- SymTab.labelNum
@@ -86,7 +86,7 @@ genASM (WhileNode test whileBlock _) = do
         body      <- genASM whileBlock
         SymTab.setContinue loopLabel
         SymTab.setBreak testLabel
-        ASM.while tests body loopLabel testLabel
+        pure $ ASM.while tests body loopLabel testLabel
 
 genASM (DoWhileNode block test _) = do
         loopLabel <- SymTab.labelNum
@@ -96,18 +96,17 @@ genASM (DoWhileNode block test _) = do
         testLabel <- SymTab.labelNum
         SymTab.setContinue contLabel
         SymTab.setBreak testLabel
-        ASM.doWhile body tests loopLabel contLabel testLabel
+        pure $ ASM.doWhile body tests loopLabel contLabel testLabel
 
 genASM (IfNode test action possElse _) = do
         testExp <- genASM test
         ifAct   <- genASM action
         label   <- SymTab.labelNum
         case possElse of
-             Nothing -> ASM.ifOnly testExp ifAct label
+             Nothing -> pure $ ASM.ifOnly testExp ifAct label
              Just e  -> do
                      elseAct <- genASM e
-                     nextLab <- SymTab.labelNum
-                     ASM.ifElse testExp ifAct label elseAct nextLab
+                     ASM.ifElse testExp ifAct label elseAct <$> SymTab.labelNum
 
 genASM (PointerNode varNode@VarNode{} typ Nothing dat) =
         genASM (DeclarationNode varNode typ Nothing dat)
