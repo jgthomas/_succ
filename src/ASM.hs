@@ -25,7 +25,6 @@ import AsmTernary
 import AsmUnary
 import AsmVariables hiding (saveGlobal, varOnStack)
 import Directive    hiding (declareGlobl, emitLabel, globlLabel)
-import GenState     (GenState)
 import Instruction  (Jump (..), emitJump, literal, move)
 import Register     (Register (..), reg)
 
@@ -36,10 +35,10 @@ setGotoPoint target = emitJump JMP target
 
 
 -- | Load a literal value into return register
-loadLiteral :: Int -> GenState String
-loadLiteral n = pure $ move (literal n) (reg RAX)
+loadLiteral :: Int -> String
+loadLiteral n = move (literal n) (reg RAX)
 
 
 -- | Empty output
-noOutput :: GenState String
-noOutput = pure ""
+noOutput :: String
+noOutput = ""

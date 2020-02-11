@@ -38,7 +38,7 @@ genASM (ProgramNode topLevelItems) = do
 
 genASM node@(FunctionNode _ _ _ Nothing _) = do
         declareFunction node
-        ASM.noOutput
+        pure ASM.noOutput
 genASM node@(FunctionNode _ name _ (Just stmts) _) = do
         declareFunction node
         SymTab.initFunction name
@@ -51,7 +51,7 @@ genASM node@(FunctionNode _ name _ (Just stmts) _) = do
 
 genASM (ParamNode typ (VarNode name _) _) = do
         SymTab.addParameter name typ
-        ASM.noOutput
+        pure ASM.noOutput
 genASM node@ParamNode{} =
         throwError $ FatalError (GeneratorBug node)
 
@@ -170,11 +170,11 @@ genASM (UnaryNode tree  op _) = do
         unode <- genASM tree
         ASM.unary unode op Nothing Nothing
 
-genASM ArrayNode{} = ASM.noOutput
-genASM ArrayItemsNode{} = ASM.noOutput
-genASM ArraySingleItemNode{} = ASM.noOutput
-genASM ArrayVarNode{} = ASM.noOutput
-genASM AssignArrayNode{} = ASM.noOutput
+genASM ArrayNode{} = pure ASM.noOutput
+genASM ArrayItemsNode{} = pure ASM.noOutput
+genASM ArraySingleItemNode{} = pure ASM.noOutput
+genASM ArrayVarNode{} = pure ASM.noOutput
+genASM AssignArrayNode{} = pure ASM.noOutput
 
 genASM (VarNode name _) = do
         (offset, argPos, globLab) <- SymTab.getVariables name
@@ -188,13 +188,13 @@ genASM (DereferenceNode name _) = do
         (offset, argPos, globLab) <- SymTab.getVariables name
         ASM.derefLoad offset argPos globLab
 
-genASM (NullExprNode _) = ASM.noOutput
+genASM (NullExprNode _) = pure ASM.noOutput
 
 genASM (ConstantNode n _) = do
         currScope <- SymTab.getScope
         case currScope of
              Global -> pure . show $ n
-             Local  -> ASM.loadLiteral n
+             Local  -> pure . ASM.loadLiteral $ n
 
 
 -- Global variables
@@ -212,7 +212,7 @@ declareGlobal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 genAssignment :: Maybe Tree -> GenState String
-genAssignment Nothing     = ASM.noOutput
+genAssignment Nothing     = pure ASM.noOutput
 genAssignment (Just tree) = genASM tree
 
 
