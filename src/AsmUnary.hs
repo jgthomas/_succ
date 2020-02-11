@@ -3,7 +3,6 @@ module AsmUnary (unary) where
 
 
 import AsmVariables (saveGlobal, varOnStack)
-import GenState     (GenState)
 import Instruction  (Set (..), comp, dec, inc, invertBits, literal,
                      makeNegative, move, setBitIf)
 import Operator     (PostOpUnary (..), PreOpUnary (..), Unary (..),
@@ -16,10 +15,10 @@ unary :: String
       -> UnaryOp
       -> Maybe Int
       -> Maybe String
-      -> GenState String
-unary load (PreOpUnary op) n l  = pure $ load ++ unaryPreOp op n l
-unary load (PostOpUnary op) n l = pure $ load ++ unaryPostOp op n l
-unary load (Unary op) _ _       = pure $ load ++ unaryOp op
+      -> String
+unary load (PreOpUnary op) n l  = load ++ unaryPreOp op n l
+unary load (PostOpUnary op) n l = load ++ unaryPostOp op n l
+unary load (Unary op) _ _       = load ++ unaryOp op
 
 
 unaryPreOp :: PreOpUnary -> Maybe Int -> Maybe String -> String

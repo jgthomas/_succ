@@ -164,10 +164,10 @@ genASM node@(BinaryNode _ right _ _) = do
 genASM (UnaryNode node@(VarNode a _) op _) = do
         unaryASM      <- genASM node
         (off, _, lab) <- SymTab.getVariables a
-        ASM.unary unaryASM op off lab
+        pure $ ASM.unary unaryASM op off lab
 genASM (UnaryNode tree  op _) = do
         unode <- genASM tree
-        ASM.unary unode op Nothing Nothing
+        pure $ ASM.unary unode op Nothing Nothing
 
 genASM ArrayNode{} = pure ASM.noOutput
 genASM ArrayItemsNode{} = pure ASM.noOutput
