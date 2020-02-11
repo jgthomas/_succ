@@ -9,9 +9,6 @@ module Directive
         ) where
 
 
-import GenState (GenState)
-
-
 data Section = TEXT
              | DATA
              | BSS
@@ -24,8 +21,8 @@ outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
 
 
 -- | Output asm for an initialized global variable
-initializedGlobal :: String -> String -> GenState String
-initializedGlobal label val = pure $
+initializedGlobal :: String -> String -> String
+initializedGlobal label val =
         declareGlobl label
         ++ section DATA
         ++ align
@@ -35,8 +32,8 @@ initializedGlobal label val = pure $
 
 
 -- | Output asm for an uninitialized global variable
-uninitializedGlobal :: String -> GenState String
-uninitializedGlobal label = pure $
+uninitializedGlobal :: String -> String
+uninitializedGlobal label =
         declareGlobl label
         ++ section BSS
         ++ align

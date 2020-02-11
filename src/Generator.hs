@@ -31,8 +31,7 @@ genASM :: Tree -> GenState String
 
 genASM (ProgramNode topLevelItems) = do
         text  <- concatMapM genASM topLevelItems
-        undef <- SymTab.getUndefined
-        bss   <- concatMapM ASM.uninitializedGlobal undef
+        bss   <- concatMap ASM.uninitializedGlobal <$> SymTab.getUndefined
         toIni <- ASM.outputInit . concat <$> SymTab.getAllForInit
         pure $ text ++ bss ++ toIni
 
@@ -233,15 +232,15 @@ defPrevDecGlob (Just label) (AssignmentNode _ node@AddressOfNode{} _ _) = do
         value   <- genASM node
         initASM <- ASM.varAddressStoreGlobal value label
         SymTab.storeForInit initASM
-        ASM.uninitializedGlobal label
+        pure $ ASM.uninitializedGlobal label
 defPrevDecGlob _ (AssignmentNode _ valNode _ _) =
         throwError $ FatalError (GeneratorBug valNode)
 defPrevDecGlob _ tree = throwError $ FatalError (GeneratorBug tree)
 
 
 globalVarASM :: String -> String -> GenState String
-globalVarASM lab "0" = ASM.uninitializedGlobal lab
-globalVarASM lab val = ASM.initializedGlobal lab val
+globalVarASM lab "0" = pure $ ASM.uninitializedGlobal lab
+globalVarASM lab val = pure $ ASM.initializedGlobal lab val
 
 
 -- Local variables
