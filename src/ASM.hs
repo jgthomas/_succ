@@ -20,7 +20,7 @@ module ASM
 
 import AsmBinary
 import AsmFunction
-import AsmShared    (empty, loadValue)
+import AsmShared    (loadValue)
 import AsmStatement
 import AsmTernary
 import AsmUnary
@@ -42,4 +42,4 @@ loadLiteral n = pure . loadValue $ n
 
 -- | Empty output
 noOutput :: GenState String
-noOutput = pure empty
+noOutput = pure ""

@@ -2,7 +2,7 @@
 module AsmUnary (unary) where
 
 
-import AsmShared    (empty, literalValue)
+import AsmShared    (literalValue)
 import AsmVariables (saveGlobal, varOnStack)
 import GenState     (GenState)
 import Instruction  (Set (..), comp, dec, inc, invertBits, makeNegative, move,
@@ -59,7 +59,7 @@ unaryOp :: Unary -> String
 unaryOp unOp =
         case unOp of
              Negate      -> makeNegative (reg RAX)
-             Positive    -> empty
+             Positive    -> ""
              BitwiseComp -> invertBits (reg RAX)
              LogicalNeg  -> logNeg
 

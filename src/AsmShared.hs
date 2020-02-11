@@ -6,10 +6,6 @@ import Instruction (comp, move)
 import Register    (Register (..), reg)
 
 
-empty :: String
-empty = ""
-
-
 literalValue :: Int -> String
 literalValue n = "$" ++ show n
 
