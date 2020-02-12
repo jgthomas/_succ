@@ -30,10 +30,10 @@ generate ast = runGenState genASM ast GenState.startState
 genASM :: Tree -> GenState String
 
 genASM (ProgramNode topLevelItems) = do
-        text  <- concatMapM genASM topLevelItems
-        bss   <- concatMap ASM.uninitializedGlobal <$> SymTab.getUndefined
-        toIni <- ASM.outputInit . concat <$> SymTab.getAllForInit
-        pure $ text ++ bss ++ toIni
+        text <- concatMapM genASM topLevelItems
+        bss  <- concatMap ASM.uninitializedGlobal <$> SymTab.getUndefined
+        dat  <- ASM.outputInit . concat <$> SymTab.getAllForInit
+        pure $ dat ++ bss ++ text
 
 genASM node@(FunctionNode _ _ _ Nothing _) = do
         declareFunction node
