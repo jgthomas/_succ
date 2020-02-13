@@ -80,10 +80,10 @@ checkFuncDefined name = checkInSet name definedFuncs
 -- | Declare a function
 declareFunction :: Type -> String -> Int -> GenState ()
 declareFunction typ funcName paramCount = do
-        gscope <- getGlobalScope
-        let gscope'   = addSymbol funcName gscope
-            gscope''  = addParams funcName paramCount gscope'
-            gscope''' = addType funcName typ gscope''
+        gscope    <- getGlobalScope
+        gscope'   <- addSymbol funcName gscope
+        gscope''  <- addParams funcName paramCount gscope'
+        gscope''' <- addType funcName typ gscope''
         putGlobalScope gscope'''
 
 
@@ -159,19 +159,19 @@ checkInSet :: (Ord a) => a -> (GlobalScope -> S.Set a) -> GenState Bool
 checkInSet a f = S.member a . f <$> getGlobalScope
 
 
-addParams :: String -> Int -> GlobalScope -> GlobalScope
-addParams n p s = s { funcParams = M.insert n p $ funcParams s }
+addParams :: String -> Int -> GlobalScope -> GenState GlobalScope
+addParams n p s = pure $ s { funcParams = M.insert n p $ funcParams s }
 
 
-addType :: String -> Type -> GlobalScope -> GlobalScope
-addType n t s = s { funcTypes = M.insert n t $ funcTypes s }
+addType :: String -> Type -> GlobalScope -> GenState GlobalScope
+addType n t s = pure $ s { funcTypes = M.insert n t $ funcTypes s }
 
 
-addSymbol :: String -> GlobalScope -> GlobalScope
+addSymbol :: String -> GlobalScope -> GenState GlobalScope
 addSymbol n g =
         let g' = g { funcDecSeq = M.insert n (seqNum g) $ funcDecSeq g }
             in
-        g' { seqNum = succ . seqNum $ g' }
+        pure $ g' { seqNum = succ . seqNum $ g' }
 
 
 getGlobalScope :: GenState GlobalScope
