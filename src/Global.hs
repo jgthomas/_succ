@@ -84,7 +84,7 @@ declareFunction typ funcName paramCount = do
         let gscope'   = addSymbol funcName gscope
             gscope''  = addParams funcName paramCount gscope'
             gscope''' = addType funcName typ gscope''
-        GenState.putGlobalScope gscope'''
+        putGlobalScope gscope'''
 
 
 -- | Define a function
@@ -92,7 +92,7 @@ defineFunction :: String -> GenState ()
 defineFunction name = do
         gscope <- getGlobalScope
         let definedFuncs' = S.insert name . definedFuncs $ gscope
-        GenState.putGlobalScope $ gscope { definedFuncs = definedFuncs' }
+        putGlobalScope $ gscope { definedFuncs = definedFuncs' }
 
 
 -- | Declare a global variable
@@ -101,7 +101,7 @@ declareGlobal name typ label = do
         gscope <- getGlobalScope
         let globVar       = GlobalScope.mkGloVar label typ
             declaredVars' = M.insert name globVar $ declaredVars gscope
-        GenState.putGlobalScope $ gscope { declaredVars = declaredVars' }
+        putGlobalScope $ gscope { declaredVars = declaredVars' }
 
 
 -- | Define a global variable
@@ -109,7 +109,7 @@ defineGlobal :: String -> GenState ()
 defineGlobal name = do
         gscope <- getGlobalScope
         let definedVars' = S.insert name . definedVars $ gscope
-        GenState.putGlobalScope $ gscope { definedVars = definedVars' }
+        putGlobalScope $ gscope { definedVars = definedVars' }
 
 
 -- | Get list of all undefined global variables
@@ -131,7 +131,7 @@ storeForInit :: String -> GenState ()
 storeForInit code = do
         gscope <- getGlobalScope
         let gscope' = gscope { varsToInit = code : varsToInit gscope }
-        GenState.putGlobalScope gscope'
+        putGlobalScope gscope'
 
 
 -- | Get list of all stored initilisation ASM code
@@ -176,3 +176,7 @@ addSymbol n g =
 
 getGlobalScope :: GenState GlobalScope
 getGlobalScope = GenState.getGlobalScope
+
+
+putGlobalScope :: GlobalScope -> GenState ()
+putGlobalScope gscope = GenState.putGlobalScope gscope
