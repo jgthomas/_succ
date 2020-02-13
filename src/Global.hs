@@ -138,7 +138,7 @@ getAllForInit :: GenState [String]
 getAllForInit = varsToInit <$> getGlobalScope
 
 
--- | TODO
+-- | Create label for global variable
 mkGlobLabel :: String -> GenState String
 mkGlobLabel name = do
         labnum <- GenState.labelNum
