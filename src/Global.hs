@@ -80,7 +80,7 @@ checkFuncDefined name = checkInSet name definedFuncs
 -- | Declare a function
 declareFunction :: Type -> String -> Int -> GenState ()
 declareFunction typ funcName paramCount = do
-        gscope <- GenState.getGlobalScope
+        gscope <- getGlobalScope
         let gscope'   = addSymbol funcName gscope
             gscope''  = addParams funcName paramCount gscope'
             gscope''' = addType funcName typ gscope''
@@ -90,7 +90,7 @@ declareFunction typ funcName paramCount = do
 -- | Define a function
 defineFunction :: String -> GenState ()
 defineFunction name = do
-        gscope <- GenState.getGlobalScope
+        gscope <- getGlobalScope
         let definedFuncs' = S.insert name . definedFuncs $ gscope
         GenState.putGlobalScope $ gscope { definedFuncs = definedFuncs' }
 
@@ -98,7 +98,7 @@ defineFunction name = do
 -- | Declare a global variable
 declareGlobal :: String -> Type -> String -> GenState ()
 declareGlobal name typ label = do
-        gscope <- GenState.getGlobalScope
+        gscope <- getGlobalScope
         let globVar       = GlobalScope.mkGloVar label typ
             declaredVars' = M.insert name globVar $ declaredVars gscope
         GenState.putGlobalScope $ gscope { declaredVars = declaredVars' }
@@ -107,7 +107,7 @@ declareGlobal name typ label = do
 -- | Define a global variable
 defineGlobal :: String -> GenState ()
 defineGlobal name = do
-        gscope <- GenState.getGlobalScope
+        gscope <- getGlobalScope
         let definedVars' = S.insert name . definedVars $ gscope
         GenState.putGlobalScope $ gscope { definedVars = definedVars' }
 
@@ -115,7 +115,7 @@ defineGlobal name = do
 -- | Get list of all undefined global variables
 getUndefined :: GenState [String]
 getUndefined = do
-        gscope <- GenState.getGlobalScope
+        gscope <- getGlobalScope
         let definedSet   = definedVars gscope
             declaredSet  = M.keysSet $ declaredVars gscope
             undefinedSet = S.difference declaredSet definedSet
@@ -129,14 +129,14 @@ getUndefined = do
 -- | Store ASM code to initialise a global variable
 storeForInit :: String -> GenState ()
 storeForInit code = do
-        gscope <- GenState.getGlobalScope
+        gscope <- getGlobalScope
         let gscope' = gscope { varsToInit = code : varsToInit gscope }
         GenState.putGlobalScope gscope'
 
 
 -- | Get list of all stored initilisation ASM code
 getAllForInit :: GenState [String]
-getAllForInit = varsToInit <$> GenState.getGlobalScope
+getAllForInit = varsToInit <$> getGlobalScope
 
 
 -- | TODO
@@ -147,7 +147,7 @@ mkGlobLabel name = do
 
 
 lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> GenState (Maybe a)
-lookUp n f = M.lookup n . f <$> GenState.getGlobalScope
+lookUp n f = M.lookup n . f <$> getGlobalScope
 
 
 extract :: (b -> a) -> Maybe b -> Maybe a
@@ -156,7 +156,7 @@ extract _ Nothing   = Nothing
 
 
 checkInSet :: (Ord a) => a -> (GlobalScope -> S.Set a) -> GenState Bool
-checkInSet a f = S.member a . f <$> GenState.getGlobalScope
+checkInSet a f = S.member a . f <$> getGlobalScope
 
 
 addParams :: String -> Int -> GlobalScope -> GlobalScope
@@ -172,3 +172,7 @@ addSymbol n g =
         let g' = g { funcDecSeq = M.insert n (seqNum g) $ funcDecSeq g }
             in
         g' { seqNum = succ . seqNum $ g' }
+
+
+getGlobalScope :: GenState GlobalScope
+getGlobalScope = GenState.getGlobalScope
