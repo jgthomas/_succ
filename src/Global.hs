@@ -130,8 +130,7 @@ getUndefined = do
 storeForInit :: String -> GenState ()
 storeForInit code = do
         gscope <- getGlobalScope
-        let gscope' = gscope { varsToInit = code : varsToInit gscope }
-        putGlobalScope gscope'
+        putGlobalScope $ gscope { varsToInit = code : varsToInit gscope }
 
 
 -- | Get list of all stored initilisation ASM code
