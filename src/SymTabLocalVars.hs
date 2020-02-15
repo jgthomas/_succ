@@ -32,26 +32,6 @@ import           SymTabLocalShared (getFuncState, setFuncState)
 import           Type              (Type (Label))
 
 
--- | Get the break label number for current scope
-getBreak :: GenState (Maybe Int)
-getBreak = getAttribute locOffset "@Break"
-
-
--- | Get the continue label number for current scope
-getContinue :: GenState (Maybe Int)
-getContinue = getAttribute locOffset "@Continue"
-
-
--- | Set the break label number for current scope
-setBreak :: Int -> GenState ()
-setBreak labelNo = store "@Break" labelNo Label
-
-
--- | Set the continue label number for current scope
-setContinue :: Int -> GenState ()
-setContinue labelNo = store "@Continue" labelNo Label
-
-
 -- | Check if variable name is in use in current scope
 checkVariable :: String -> GenState Bool
 checkVariable varName = do
@@ -123,7 +103,25 @@ parameterDeclared paramName = do
              Nothing -> pure False
 
 
--- store and lookup
+-- | Get the break label number for current scope
+getBreak :: GenState (Maybe Int)
+getBreak = getAttribute locOffset "@Break"
+
+
+-- | Get the continue label number for current scope
+getContinue :: GenState (Maybe Int)
+getContinue = getAttribute locOffset "@Continue"
+
+
+-- | Set the break label number for current scope
+setBreak :: Int -> GenState ()
+setBreak labelNo = store "@Break" labelNo Label
+
+
+-- | Set the continue label number for current scope
+setContinue :: Int -> GenState ()
+setContinue labelNo = store "@Continue" labelNo Label
+
 
 getAttribute :: (LocalVar -> a) -> String -> GenState (Maybe a)
 getAttribute f varName = do
@@ -164,8 +162,6 @@ getLocalVar funcName lev var = do
         fstate <- getFuncState funcName
         M.lookup var <$> getScope lev fstate
 
-
--- parameters
 
 getParamPos :: String -> String -> GenState (Maybe Int)
 getParamPos _ "global" = pure Nothing
