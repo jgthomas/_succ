@@ -15,16 +15,23 @@ import qualified ASM
 import           AST                 (Tree (..))
 import           Error               (CompilerError (FatalError),
                                       FatalError (GeneratorBug))
-import           GenState            (GenState, runGenState, throwError)
-import qualified GenState            (startState)
+import           GenState            (GenState, SymTab, runGenState, throwError)
+import qualified GenState            (getState, startState)
 import           GenTokens           (Scope (..))
 import           Operator            (BinaryOp (..), Operator (..))
 import qualified SymTab
 
 
 -- | Generate x86-64 asm from AST
-generate :: Tree -> Either CompilerError String
-generate ast = runGenState genASM ast GenState.startState
+generate :: Tree -> Either CompilerError (String, SymTab)
+generate ast = runGenState genWithState ast GenState.startState
+
+
+genWithState :: Tree -> GenState (String, SymTab)
+genWithState ast = do
+        asm    <- genASM ast
+        symTab <- GenState.getState
+        pure (asm, symTab)
 
 
 genASM :: Tree -> GenState String

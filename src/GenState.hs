@@ -16,7 +16,9 @@ module GenState
          labelNum,
          getFuncState,
          updateFuncState,
-         delFuncState
+         delFuncState,
+         SuccState.getState,
+         SymTab
         ) where
 
 

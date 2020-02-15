@@ -2,8 +2,9 @@
 module Debug where
 
 
-import AST    (Tree)
-import LexDat (LexDat)
+import AST      (Tree)
+import GenState (SymTab)
+import LexDat   (LexDat)
 
 
 data Debug = DebugOn
@@ -11,8 +12,8 @@ data Debug = DebugOn
            deriving (Eq)
 
 
-debug :: Debug -> String -> [LexDat] -> Tree -> String -> IO ()
-debug debugSet input lexed parsed asm =
+debug :: Debug -> String -> [LexDat] -> Tree -> SymTab -> String -> IO ()
+debug debugSet input lexed parsed symTab asm =
         case debugSet of
              DebugOff -> pure ()
              DebugOn  -> do
@@ -26,6 +27,10 @@ debug debugSet input lexed parsed asm =
                      putStrLn "AFTER PARSING"
                      newLine
                      print parsed
+                     newLine
+                     putStrLn "STATE"
+                     newLine
+                     print symTab
                      newLine
                      putStrLn "OUTPUT"
                      newLine
