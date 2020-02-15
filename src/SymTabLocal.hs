@@ -40,8 +40,9 @@ import qualified GenState          (getFuncState)
 import           GenStateLocal     (FuncState (..), LocalVar (..),
                                     ParamVar (..))
 import qualified GenStateLocal     (mkFuncState, mkLocVar, mkParVar)
-import           SymTabLocalOffset
-import           SymTabLocalScope
+import           SymTabLocalOffset (currentOffset, incrementOffsetByN,
+                                    stackPointerValue)
+import           SymTabLocalScope  (closeScope, getScope, initScope, scopeDepth)
 import           SymTabLocalShared (delFuncState, getFuncState, setFuncState)
 import           Type              (Type (Label))
 
