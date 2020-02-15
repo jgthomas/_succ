@@ -1,5 +1,5 @@
 
-module LocalScope where
+module GenStateLocal where
 
 
 import qualified Data.Map as M

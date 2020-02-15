@@ -39,8 +39,8 @@ import           Error         (CompilerError (StateError), StateError (..))
 import qualified FrameStack    (currentFunc, popFunc, pushFunc)
 import           GenState      (GenState, throwError)
 import qualified GenState      (delFuncState, getFuncState, updateFuncState)
-import           LocalScope    (FuncState (..), LocalVar (..), ParamVar (..))
-import qualified LocalScope    (memOffset, mkFuncState, mkLocVar, mkParVar)
+import           GenStateLocal (FuncState (..), LocalVar (..), ParamVar (..))
+import qualified GenStateLocal (memOffset, mkFuncState, mkLocVar, mkParVar)
 import           Type          (Type (Label))
 
 
@@ -50,7 +50,7 @@ initFunction name = do
         FrameStack.pushFunc name
         fstate <- GenState.getFuncState name
         when (isNothing fstate) $
-            GenState.updateFuncState name LocalScope.mkFuncState
+            GenState.updateFuncState name GenStateLocal.mkFuncState
 
 
 -- | Close current function scope
@@ -209,7 +209,7 @@ store name value typ = do
         fstate   <- getFunctionState funcName
         let level = currentScope fstate
         scope <- getScope level fstate
-        let locVar  = LocalScope.mkLocVar value typ
+        let locVar  = GenStateLocal.mkLocVar value typ
             scope'  = M.insert name locVar scope
             fstate' = fstate { scopes = M.insert level scope' $ scopes fstate }
         setFunctionState funcName fstate'
@@ -290,7 +290,7 @@ incOffset :: Int -> GenState ()
 incOffset n = do
         name  <- FrameStack.currentFunc
         fs    <- getFunctionState name
-        let fs' = fs { funcOffset = funcOffset fs + (n * LocalScope.memOffset) }
+        let fs' = fs { funcOffset = funcOffset fs + (n * GenStateLocal.memOffset) }
         setFunctionState name fs'
 
 
@@ -306,7 +306,7 @@ getParamPos paramName funcName =
 
 addParam :: String -> Type -> FuncState -> FuncState
 addParam name typ fstate =
-        let parVar  = LocalScope.mkParVar (paramCount fstate) typ
+        let parVar  = GenStateLocal.mkParVar (paramCount fstate) typ
             fstate' = fstate { paramCount = succ . paramCount $ fstate }
             in
         fstate' { parameters = M.insert name parVar . parameters $ fstate' }
