@@ -21,7 +21,7 @@ import           Data.Maybe        (isNothing)
 import qualified FrameStack        (popFunc, pushFunc)
 import           GenState          (GenState)
 import qualified GenStateLocal     (mkFuncState)
-import           SymTabLocalOffset (stackPointerValue)
+import           SymTabLocalOffset (incrementOffsetByN, stackPointerValue)
 import           SymTabLocalScope  (closeScope, initScope)
 import           SymTabLocalShared (delFuncState, grabFuncState, setFuncState)
 import           SymTabLocalVars
