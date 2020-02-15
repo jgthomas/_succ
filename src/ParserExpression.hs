@@ -37,8 +37,8 @@ parseAssignment tree (LexDat{tok=OpTok op}:rest) = do
                    let asgnOp = Operator.tokToAssignOp op
                    dat <- makeNodeDat lexData'
                    case tree of
-                     arrVarNode@ArrayVarNode{} ->
-                             pure (AssignArrayNode arrVarNode asgn asgnOp dat, lexData')
+                     (ArrayVarNode name varDat) ->
+                             pure (AssignArrayNode (VarNode name varDat) asgn asgnOp dat, lexData')
                      varNode@VarNode{} ->
                              pure (AssignmentNode varNode asgn asgnOp dat, lexData')
                      derefNode@DereferenceNode{} ->
