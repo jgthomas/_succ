@@ -17,11 +17,9 @@ import           Control.Monad (unless, when)
 import           AST           (Tree (..))
 import           Error         (CheckerError (..), CompilerError (CheckerError, ImpossibleError, TypeError),
                                 TypeError (..))
-import qualified FrameStack    (currentFunc, getScope)
 import           GenState      (GenState, throwError)
 import           GenTokens     (Scope (..))
-import qualified SymTab        (allTypes, declaredFuncType, globalType,
-                                parameterType, variableType)
+import qualified SymTab
 import           Type          (Type (..))
 
 
@@ -77,7 +75,7 @@ checkAssignmentType varNode value = do
 -- | Throw error if declared and actual return value don't match
 funcReturn :: Tree -> Tree -> GenState ()
 funcReturn node retVal = do
-        currFuncName <- FrameStack.currentFunc
+        currFuncName <- SymTab.currentFunc
         currFuncType <- getFuncType node currFuncName
         retValType   <- getType retVal
         checkTypes node [currFuncType] [retValType]
@@ -113,7 +111,7 @@ getType tree                          = throwError $ TypeError (NotTyped tree)
 
 getVarType :: Tree -> String -> GenState Type
 getVarType node name = do
-        currScope <- FrameStack.getScope
+        currScope <- SymTab.getScope
         case currScope of
              Local  -> checkAllVariableTypes node name
              Global -> do

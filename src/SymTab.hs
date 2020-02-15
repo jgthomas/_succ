@@ -14,7 +14,7 @@ module SymTab
         ) where
 
 
-import FrameStack   (getScope)
+import FrameStack   (currentFunc, getScope)
 import GenState     (GenState, labelNum)
 import SymTabGlobal
 import SymTabLocal
