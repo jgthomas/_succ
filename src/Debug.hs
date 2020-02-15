@@ -18,13 +18,13 @@ debug debugSet input lexed parsed symTab asm =
              DebugOff -> pure ()
              DebugOn  -> do
                      newLine
-                     putStrLn "INPUT"
+                     putStrLn "INPUT C"
                      putStrLn input
-                     putStrLn "AFTER LEXING"
+                     putStrLn "LEXED TOKENS"
                      newLine
                      print lexed
                      newLine
-                     putStrLn "AFTER PARSING"
+                     putStrLn "ABSTRACT SYNTAX TREE"
                      newLine
                      print parsed
                      newLine
@@ -32,7 +32,7 @@ debug debugSet input lexed parsed symTab asm =
                      newLine
                      print symTab
                      newLine
-                     putStrLn "OUTPUT"
+                     putStrLn "OUTPUT ASSEMBLY"
                      newLine
                      putStrLn asm
                      newLine
