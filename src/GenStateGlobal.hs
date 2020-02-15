@@ -1,9 +1,9 @@
 {-|
-Module       : GlobalScope
+Module       : GenStateGlobal
 Description  : Global scope state
 
 -}
-module GlobalScope where
+module GenStateGlobal where
 
 
 import qualified Data.Map as M

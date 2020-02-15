@@ -24,15 +24,15 @@ module Global
         ) where
 
 
-import qualified Data.Map    as M
-import qualified Data.Set    as S
+import qualified Data.Map       as M
+import qualified Data.Set       as S
 
-import qualified FrameStack  (currentFunc)
-import           GenState    (GenState)
-import qualified GenState    (getGlobalScope, labelNum, putGlobalScope)
-import           GlobalScope (GlobalScope (..), GlobalVar (..))
-import qualified GlobalScope (mkGloVar)
-import           Type        (Type)
+import qualified FrameStack     (currentFunc)
+import           GenState       (GenState)
+import qualified GenState       (getGlobalScope, labelNum, putGlobalScope)
+import           GenStateGlobal (GlobalScope (..), GlobalVar (..))
+import qualified GenStateGlobal (mkGloVar)
+import           Type           (Type)
 
 
 -- | Get the number of parameters for a declared function
@@ -99,7 +99,7 @@ defineFunction name = do
 declareGlobal :: String -> Type -> String -> GenState ()
 declareGlobal name typ label = do
         gscope <- getGlobalScope
-        let globVar       = GlobalScope.mkGloVar label typ
+        let globVar       = GenStateGlobal.mkGloVar label typ
             declaredVars' = M.insert name globVar $ declaredVars gscope
         putGlobalScope $ gscope { declaredVars = declaredVars' }
 

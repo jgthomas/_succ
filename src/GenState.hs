@@ -20,14 +20,14 @@ module GenState
         ) where
 
 
-import qualified Data.Map      as M
+import qualified Data.Map       as M
 
-import           Error         (CompilerError)
-import           GenStateLocal (FuncState)
-import           GlobalScope   (GlobalScope, mkGlobalScope)
-import           Stack         (Stack, mkStack)
-import           SuccState     (SuccStateM, throwError)
-import qualified SuccState     (getState, putState, runSuccState)
+import           Error          (CompilerError)
+import           GenStateGlobal (GlobalScope, mkGlobalScope)
+import           GenStateLocal  (FuncState)
+import           Stack          (Stack, mkStack)
+import           SuccState      (SuccStateM, throwError)
+import qualified SuccState      (getState, putState, runSuccState)
 
 
 data SymTab = Tab { label       :: Int
