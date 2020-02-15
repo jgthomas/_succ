@@ -42,6 +42,7 @@ import           GenStateLocal     (FuncState (..), LocalVar (..),
                                     ParamVar (..))
 import qualified GenStateLocal     (mkFuncState, mkLocVar, mkParVar)
 import           SymTabLocalOffset
+import           SymTabLocalShared (getFunctionState, setFunctionState)
 import           Type              (Type (Label))
 
 
@@ -251,18 +252,6 @@ addNestedScope name level = do
         fs <- getFunctionState name
         let fs' = fs { scopes = M.insert level M.empty $ scopes fs }
         setFunctionState name fs'
-
-
-getFunctionState :: String -> GenState FuncState
-getFunctionState name = do
-        fstate <- GenState.getFuncState name
-        case fstate of
-             Just st -> pure st
-             Nothing -> throwError $ StateError (NoStateFound name)
-
-
-setFunctionState :: String -> FuncState -> GenState ()
-setFunctionState name fstate = GenState.updateFuncState name fstate
 
 
 -- parameters
