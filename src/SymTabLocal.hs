@@ -34,14 +34,14 @@ import           Data.List         (sortBy)
 import qualified Data.Map          as M
 import           Data.Maybe        (isNothing)
 
-import           Error             (CompilerError (StateError), StateError (..))
 import qualified FrameStack        (currentFunc, popFunc, pushFunc)
-import           GenState          (GenState, throwError)
+import           GenState          (GenState)
 import qualified GenState          (getFuncState)
 import           GenStateLocal     (FuncState (..), LocalVar (..),
                                     ParamVar (..))
 import qualified GenStateLocal     (mkFuncState, mkLocVar, mkParVar)
 import           SymTabLocalOffset
+import           SymTabLocalScope
 import           SymTabLocalShared (delFuncState, getFuncState, setFuncState)
 import           Type              (Type (Label))
 
@@ -58,21 +58,6 @@ initFunction name = do
 -- | Close current function scope
 closeFunction :: GenState ()
 closeFunction = FrameStack.popFunc
-
-
--- | Initialize a new scope inside a function
-initScope :: GenState ()
-initScope = do
-        currFuncName  <- FrameStack.currentFunc
-        newScopeLevel <- incrementScope
-        addNestedScope currFuncName newScopeLevel
-
-
--- | Exit current scope inside a function
-closeScope :: GenState ()
-closeScope = do
-        _ <- decrementScope
-        pure ()
 
 
 -- | Get the break label number for current scope
@@ -206,47 +191,6 @@ getLocalVar :: String -> Int -> String -> GenState (Maybe LocalVar)
 getLocalVar funcName lev var = do
         fstate <- getFuncState funcName
         M.lookup var <$> getScope lev fstate
-
-
-getScope :: Int -> FuncState -> GenState (M.Map String LocalVar)
-getScope scope fs =
-        case M.lookup scope $ scopes fs of
-             Just sc -> pure sc
-             Nothing -> do
-                     funcName <- FrameStack.currentFunc
-                     throwError $ StateError (UndefinedScope funcName scope)
-
-
--- scope
-
-incrementScope :: GenState Int
-incrementScope = stepScope succ
-
-
-decrementScope :: GenState Int
-decrementScope = stepScope pred
-
-
-findScope :: String -> GenState Int
-findScope name = currentScope <$> getFuncState name
-
-
-stepScope :: (Int -> Int) -> GenState Int
-stepScope f = do
-        funcName  <- FrameStack.currentFunc
-        funcState <- getFuncState funcName
-        let newLevel = f . currentScope $ funcState
-        setFuncState funcName funcState { currentScope = newLevel }
-        pure newLevel
-
-
--- FuncState
-
-addNestedScope :: String -> Int -> GenState ()
-addNestedScope name level = do
-        fs <- getFuncState name
-        let fs' = fs { scopes = M.insert level M.empty $ scopes fs }
-        setFuncState name fs'
 
 
 -- parameters
