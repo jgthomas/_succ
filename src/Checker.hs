@@ -10,7 +10,7 @@ module Checker (check) where
 import           Control.Monad (unless, when)
 import           Data.Maybe    (isNothing)
 
-import           AST           (Tree (..))
+import           AST           (ArrayNode (..), Tree (..))
 import           Error         (CheckerError (..),
                                 CompilerError (CheckerError, ScopeError),
                                 ScopeError (..))
@@ -172,11 +172,11 @@ checkAST node@(UnaryNode _ unOp@(PostOpUnary _) _) =
         throwError $ CheckerError (OperatorError (UnaryOp unOp) node)
 checkAST (UnaryNode tree (Unary _) _) = checkAST tree
 
-checkAST ArrayNode{} = pure ()
-checkAST ArrayItemsNode{} = pure ()
-checkAST ArraySingleItemNode{} = pure ()
-checkAST ArrayVarNode{} = pure ()
-checkAST AssignArrayNode{} = pure ()
+checkAST (ArrayNode ArrayDeclareNode{}) = pure ()
+checkAST (ArrayNode ArrayAssignNode{}) = pure ()
+checkAST (ArrayNode ArrayItemsNode{}) = pure ()
+checkAST (ArrayNode ArraySingleItemNode{}) = pure ()
+checkAST (ArrayNode ArrayVarNode{}) = pure ()
 
 checkAST node@VarNode{} = ScopeCheck.variableExists node
 

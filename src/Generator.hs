@@ -12,7 +12,7 @@ import           Control.Monad.Extra (concatMapM)
 import           Data.Maybe          (fromMaybe)
 
 import qualified ASM
-import           AST                 (Tree (..))
+import           AST                 (ArrayNode (..), Tree (..))
 import           Error               (CompilerError (FatalError),
                                       FatalError (GeneratorBug))
 import           GenState            (GenState, SymTab, runGenState, throwError)
@@ -176,19 +176,20 @@ genASM (UnaryNode tree  op _) = do
         unode <- genASM tree
         pure $ ASM.unary unode op Nothing Nothing
 
-genASM (ArrayNode len var typ assign dat) = do
+genASM (ArrayNode (ArrayDeclareNode len var typ assign dat)) = do
         itemsAsm <- declareLocal (DeclarationNode var typ assign dat)
         SymTab.incrementOffsetByN (len - 1)
         pure itemsAsm
 
-genASM (AssignArrayNode var (ArrayItemsNode items _) _ _) = processArrayElements var items
-genASM node@AssignArrayNode{} = throwError $ FatalError (GeneratorBug node)
+genASM (ArrayNode (ArrayAssignNode var (ArrayNode (ArrayItemsNode items _)) _ _)) =
+        processArrayElements var items
+genASM node@(ArrayNode ArrayAssignNode{}) = throwError $ FatalError (GeneratorBug node)
 
-genASM ArrayItemsNode{} = pure ASM.noOutput
+genASM (ArrayNode ArrayItemsNode{}) = pure ASM.noOutput
 
-genASM (ArraySingleItemNode item _) = genASM item
+genASM (ArrayNode (ArraySingleItemNode item _)) = genASM item
 
-genASM ArrayVarNode{} = pure ASM.noOutput
+genASM (ArrayNode ArrayVarNode{}) = pure ASM.noOutput
 
 genASM (VarNode name _) = do
         (offset, argPos, globLab) <- SymTab.getVariables name

@@ -2,7 +2,7 @@
 module ParserExpression (parseExpression) where
 
 
-import           AST          (Tree (..))
+import           AST          (ArrayNode (..), Tree (..))
 import           Error        (CompilerError (ImpossibleError, ParserError, SyntaxError),
                                ParserError (..), SyntaxError (..))
 import           LexDat       (LexDat (..))
@@ -37,8 +37,8 @@ parseAssignment tree (LexDat{tok=OpTok op}:rest) = do
                    let asgnOp = Operator.tokToAssignOp op
                    dat <- makeNodeDat lexData'
                    case tree of
-                     (ArrayVarNode name varDat) ->
-                             pure (AssignArrayNode (VarNode name varDat) asgn asgnOp dat, lexData')
+                     (ArrayNode (ArrayVarNode a varDat)) ->
+                             pure (ArrayNode (ArrayAssignNode (VarNode a varDat) asgn asgnOp dat), lexData')
                      varNode@VarNode{} ->
                              pure (AssignmentNode varNode asgn asgnOp dat, lexData')
                      derefNode@DereferenceNode{} ->
@@ -145,7 +145,7 @@ parseArrayItems lexData@(LexDat{tok=OpenBracket OpenBrace}:_) = do
         dat               <- makeNodeDat lexData
         (items, lexData') <- parseItems [] lexData
         lexData''         <- verifyAndConsume (CloseBracket CloseBrace) lexData'
-        pure (ArrayItemsNode items dat, lexData'')
+        pure (ArrayNode (ArrayItemsNode items dat), lexData'')
 parseArrayItems lexData = throwError $ ParserError (LexDataError lexData)
 
 
@@ -163,7 +163,7 @@ parseItem :: [LexDat] -> ParserState (Tree, [LexDat])
 parseItem lexData = do
         dat              <- makeNodeDat lexData
         (item, lexData') <- parseExpression lexData
-        pure (ArraySingleItemNode item dat, lexData')
+        pure (ArrayNode (ArraySingleItemNode item dat), lexData')
 
 
 parseNullExpression :: [LexDat] -> ParserState (Tree, [LexDat])
@@ -197,12 +197,12 @@ parseIdent lexData@(LexDat{tok=Ident a}:
                     LexDat{tok=ConstInt _}:
                     LexDat{tok=CloseBracket CloseSqBracket}:rest) = do
         dat <- makeNodeDat lexData
-        pure (ArrayVarNode a dat, rest)
+        pure (ArrayNode $ ArrayVarNode a dat, rest)
 parseIdent lexData@(LexDat{tok=Ident a}:
                     LexDat{tok=OpenBracket OpenSqBracket}:
                     LexDat{tok=CloseBracket CloseSqBracket}:rest) = do
         dat <- makeNodeDat lexData
-        pure (ArrayVarNode a dat, rest)
+        pure (ArrayNode $ ArrayVarNode a dat, rest)
 parseIdent lexData@(LexDat{tok=Ident a}:rest) = do
         dat <- makeNodeDat lexData
         pure (VarNode a dat, rest)

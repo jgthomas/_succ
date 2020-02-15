@@ -2,7 +2,7 @@
 module ParserDeclaration (parseDeclaration) where
 
 
-import           AST              (Tree (..))
+import           AST              (ArrayNode (..), Tree (..))
 import           Error            (CompilerError (ParserError, SyntaxError),
                                    ParserError (..), SyntaxError (..))
 import           LexDat           (LexDat (..))
@@ -55,7 +55,7 @@ parseDec decType name lexData = do
              ValueDec   -> pure (DeclarationNode var typ tree dat, lexData'')
              ArrayDec   -> do
                      len <- findArraylen (inferredLen tree) (statedLen lexData')
-                     pure (ArrayNode len var typ tree dat, lexData'')
+                     pure (ArrayNode (ArrayDeclareNode len var typ tree dat), lexData'')
 
 
 findArraylen :: ArrayLen -> ArrayLen -> ParserState Int
@@ -68,7 +68,7 @@ findArraylen Undeclared Undeclared   = throwError $ SyntaxError UndeclaredLen
 
 
 inferredLen ::  Maybe Tree -> ArrayLen
-inferredLen (Just (AssignArrayNode _ (ArrayItemsNode items _)_ _)) =
+inferredLen (Just (ArrayNode (ArrayAssignNode _ (ArrayNode (ArrayItemsNode items _))_ _))) =
         Declared (length items)
 inferredLen _ = Undeclared
 

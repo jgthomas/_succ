@@ -10,11 +10,7 @@ data Tree = ProgramNode [Tree]
           | FunctionNode Type String [Tree] (Maybe [Tree]) NodeDat
           | DeclarationNode Tree Type (Maybe Tree) NodeDat
           | PointerNode Tree Type (Maybe Tree) NodeDat
-          | ArrayNode Int Tree Type (Maybe Tree) NodeDat
-          | AssignArrayNode Tree Tree Operator NodeDat
-          | ArrayItemsNode [Tree] NodeDat
-          | ArraySingleItemNode Tree NodeDat
-          | ArrayVarNode String NodeDat
+          | ArrayNode ArrayNode
           | CompoundStmtNode [Tree] NodeDat
           | ReturnNode Tree NodeDat
           | AssignmentNode Tree Tree Operator NodeDat
@@ -38,6 +34,14 @@ data Tree = ProgramNode [Tree]
           | BinaryNode Tree Tree BinaryOp NodeDat
           | TernaryNode Tree Tree Tree NodeDat
           deriving (Show, Eq)
+
+
+data ArrayNode = ArrayDeclareNode Int Tree Type (Maybe Tree) NodeDat
+               | ArrayAssignNode Tree Tree Operator NodeDat
+               | ArrayItemsNode [Tree] NodeDat
+               | ArraySingleItemNode Tree NodeDat
+               | ArrayVarNode String NodeDat
+               deriving (Eq, Show)
 
 
 data NodeDat = NodeDat { startLine :: Int
