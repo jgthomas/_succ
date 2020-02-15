@@ -177,14 +177,18 @@ genASM (UnaryNode tree  op _) = do
         pure $ ASM.unary unode op Nothing Nothing
 
 genASM (ArrayNode len var typ assign dat) = do
-        _ <- declareLocal (DeclarationNode var typ assign dat)
+        itemsAsm <- declareLocal (DeclarationNode var typ assign dat)
         SymTab.incrementOffsetByN (len - 1)
-        pure ASM.noOutput
+        pure itemsAsm
+
+genASM (AssignArrayNode var (ArrayItemsNode items _) _ _) = processArrayElements var items
+genASM node@AssignArrayNode{} = throwError $ FatalError (GeneratorBug node)
 
 genASM ArrayItemsNode{} = pure ASM.noOutput
-genASM ArraySingleItemNode{} = pure ASM.noOutput
+
+genASM (ArraySingleItemNode item _) = genASM item
+
 genASM ArrayVarNode{} = pure ASM.noOutput
-genASM AssignArrayNode{} = pure ASM.noOutput
 
 genASM (VarNode name _) = do
         (offset, argPos, globLab) <- SymTab.getVariables name
@@ -205,6 +209,23 @@ genASM (ConstantNode n _) = do
         case currScope of
              Global -> pure . show $ n
              Local  -> pure . ASM.loadLiteral $ n
+
+
+-- Arrays
+
+processArrayElements :: Tree -> [Tree] -> GenState String
+processArrayElements (VarNode name _) items = concatMapM processElement (zip items [0..])
+        where processElement = processArrayElement name
+processArrayElements tree _ = throwError $ FatalError (GeneratorBug tree)
+
+
+processArrayElement :: String -> (Tree, Int) -> GenState String
+processArrayElement name (item, pos) = do
+        offset  <- SymTab.variableOffset name
+        itemAsm <- genASM item
+        case offset of
+             Just off -> ASM.assign itemAsm (off * pos + off) <$> SymTab.stackPointerValue
+             Nothing  -> throwError $ FatalError (GeneratorBug item)
 
 
 -- Global variables
