@@ -37,12 +37,12 @@ import           Data.Maybe        (isNothing)
 import           Error             (CompilerError (StateError), StateError (..))
 import qualified FrameStack        (currentFunc, popFunc, pushFunc)
 import           GenState          (GenState, throwError)
-import qualified GenState          (delFuncState, getFuncState)
+import qualified GenState          (getFuncState)
 import           GenStateLocal     (FuncState (..), LocalVar (..),
                                     ParamVar (..))
 import qualified GenStateLocal     (mkFuncState, mkLocVar, mkParVar)
 import           SymTabLocalOffset
-import           SymTabLocalShared (getFunctionState, setFunctionState)
+import           SymTabLocalShared (delFuncState, getFuncState, setFuncState)
 import           Type              (Type (Label))
 
 
@@ -52,7 +52,7 @@ initFunction name = do
         FrameStack.pushFunc name
         fstate <- GenState.getFuncState name
         when (isNothing fstate) $
-            setFunctionState name GenStateLocal.mkFuncState
+            setFuncState name GenStateLocal.mkFuncState
 
 
 -- | Close current function scope
@@ -73,11 +73,6 @@ closeScope :: GenState ()
 closeScope = do
         _ <- decrementScope
         pure ()
-
-
--- | Delete named function state record
-delFuncState :: String -> GenState ()
-delFuncState name = GenState.delFuncState name
 
 
 -- | Get the break label number for current scope
@@ -134,9 +129,9 @@ addVariable varName typ = do
 addParameter :: String -> Type -> GenState ()
 addParameter paramName typ = do
         currFuncName <- FrameStack.currentFunc
-        funcState    <- getFunctionState currFuncName
+        funcState    <- getFuncState currFuncName
         let funcState' = addParam paramName typ funcState
-        setFunctionState currFuncName funcState'
+        setFuncState currFuncName funcState'
 
 
 -- | Retrieve the position of function parameter
@@ -152,13 +147,13 @@ parameterType paramName = do
         currFuncName <- FrameStack.currentFunc
         extract paramType
             . M.lookup paramName
-            . parameters <$> getFunctionState currFuncName
+            . parameters <$> getFuncState currFuncName
 
 
 -- | Retrieve list of all the type of function parameters
 allTypes :: String -> GenState [Type]
 allTypes funcName = do
-        paramList <- M.elems . parameters <$> getFunctionState funcName
+        paramList <- M.elems . parameters <$> getFuncState funcName
         pure $ snd <$> sortBy (compare `on` fst) (paramData <$> paramList)
 
 
@@ -198,18 +193,18 @@ find funcName scope name = do
 store :: String -> Int -> Type -> GenState ()
 store name value typ = do
         funcName <- FrameStack.currentFunc
-        fstate   <- getFunctionState funcName
+        fstate   <- getFuncState funcName
         let level = currentScope fstate
         scope <- getScope level fstate
         let locVar  = GenStateLocal.mkLocVar value typ
             scope'  = M.insert name locVar scope
             fstate' = fstate { scopes = M.insert level scope' $ scopes fstate }
-        setFunctionState funcName fstate'
+        setFuncState funcName fstate'
 
 
 getLocalVar :: String -> Int -> String -> GenState (Maybe LocalVar)
 getLocalVar funcName lev var = do
-        fstate <- getFunctionState funcName
+        fstate <- getFuncState funcName
         M.lookup var <$> getScope lev fstate
 
 
@@ -233,15 +228,15 @@ decrementScope = stepScope pred
 
 
 findScope :: String -> GenState Int
-findScope name = currentScope <$> getFunctionState name
+findScope name = currentScope <$> getFuncState name
 
 
 stepScope :: (Int -> Int) -> GenState Int
 stepScope f = do
         funcName  <- FrameStack.currentFunc
-        funcState <- getFunctionState funcName
+        funcState <- getFuncState funcName
         let newLevel = f . currentScope $ funcState
-        setFunctionState funcName funcState { currentScope = newLevel }
+        setFuncState funcName funcState { currentScope = newLevel }
         pure newLevel
 
 
@@ -249,9 +244,9 @@ stepScope f = do
 
 addNestedScope :: String -> Int -> GenState ()
 addNestedScope name level = do
-        fs <- getFunctionState name
+        fs <- getFuncState name
         let fs' = fs { scopes = M.insert level M.empty $ scopes fs }
-        setFunctionState name fs'
+        setFuncState name fs'
 
 
 -- parameters
@@ -261,7 +256,7 @@ getParamPos _ "global" = pure Nothing
 getParamPos paramName funcName =
         extract paramNum
         . M.lookup paramName
-        . parameters <$> getFunctionState funcName
+        . parameters <$> getFuncState funcName
 
 
 addParam :: String -> Type -> FuncState -> FuncState

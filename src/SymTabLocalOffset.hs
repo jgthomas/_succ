@@ -10,7 +10,7 @@ import qualified FrameStack        (currentFunc)
 import           GenState          (GenState)
 import           GenStateLocal     (FuncState (funcOffset))
 import qualified GenStateLocal     (memOffset)
-import           SymTabLocalShared (getFunctionState, setFunctionState)
+import           SymTabLocalShared (getFuncState, setFuncState)
 
 
 -- | Retrieve current value of stack pointer
@@ -27,12 +27,12 @@ incrementOffsetByN n = incOffset n
 currentOffset :: GenState Int
 currentOffset = do
         currFuncName <- FrameStack.currentFunc
-        funcOffset <$> getFunctionState currFuncName
+        funcOffset <$> getFuncState currFuncName
 
 
 incOffset :: Int -> GenState ()
 incOffset n = do
         name  <- FrameStack.currentFunc
-        fs    <- getFunctionState name
+        fs    <- getFuncState name
         let fs' = fs { funcOffset = funcOffset fs + (n * GenStateLocal.memOffset) }
-        setFunctionState name fs'
+        setFuncState name fs'
