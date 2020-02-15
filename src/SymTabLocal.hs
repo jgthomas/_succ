@@ -24,24 +24,25 @@ module SymTabLocal
          addVariable,
          delFuncState,
          allTypes,
-         stackPointerValue,
-         incrementOffsetByN
+         module SymTabLocalOffset
         ) where
 
 
-import           Control.Monad (when)
-import           Data.Function (on)
-import           Data.List     (sortBy)
-import qualified Data.Map      as M
-import           Data.Maybe    (isNothing)
+import           Control.Monad     (when)
+import           Data.Function     (on)
+import           Data.List         (sortBy)
+import qualified Data.Map          as M
+import           Data.Maybe        (isNothing)
 
-import           Error         (CompilerError (StateError), StateError (..))
-import qualified FrameStack    (currentFunc, popFunc, pushFunc)
-import           GenState      (GenState, throwError)
-import qualified GenState      (delFuncState, getFuncState, updateFuncState)
-import           GenStateLocal (FuncState (..), LocalVar (..), ParamVar (..))
-import qualified GenStateLocal (memOffset, mkFuncState, mkLocVar, mkParVar)
-import           Type          (Type (Label))
+import           Error             (CompilerError (StateError), StateError (..))
+import qualified FrameStack        (currentFunc, popFunc, pushFunc)
+import           GenState          (GenState, throwError)
+import qualified GenState          (delFuncState, getFuncState, updateFuncState)
+import           GenStateLocal     (FuncState (..), LocalVar (..),
+                                    ParamVar (..))
+import qualified GenStateLocal     (mkFuncState, mkLocVar, mkParVar)
+import           SymTabLocalOffset
+import           Type              (Type (Label))
 
 
 -- | Switch to scope of named function, creating if needed
@@ -124,13 +125,8 @@ addVariable :: String -> Type -> GenState Int
 addVariable varName typ = do
         currOff <- currentOffset
         store varName currOff typ
-        incrementOffset
+        incrementOffsetByN 1
         pure currOff
-
-
--- | Retrieve current value of stack pointer
-stackPointerValue :: GenState Int
-stackPointerValue = negate <$> currentOffset
 
 
 -- | Add a new parameter to the state of a function
@@ -172,11 +168,6 @@ parameterDeclared paramName = do
         case pos of
              Just _  -> pure True
              Nothing -> pure False
-
-
--- | Increment base pointer offset by a multiplier
-incrementOffsetByN :: Int -> GenState ()
-incrementOffsetByN n = incOffset n
 
 
 -- store and lookup
@@ -272,26 +263,6 @@ getFunctionState name = do
 
 setFunctionState :: String -> FuncState -> GenState ()
 setFunctionState name fstate = GenState.updateFuncState name fstate
-
-
--- offset
-
-currentOffset :: GenState Int
-currentOffset = do
-        currFuncName <- FrameStack.currentFunc
-        funcOffset <$> getFunctionState currFuncName
-
-
-incrementOffset :: GenState ()
-incrementOffset = incOffset 1
-
-
-incOffset :: Int -> GenState ()
-incOffset n = do
-        name  <- FrameStack.currentFunc
-        fs    <- getFunctionState name
-        let fs' = fs { funcOffset = funcOffset fs + (n * GenStateLocal.memOffset) }
-        setFunctionState name fs'
 
 
 -- parameters
