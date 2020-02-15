@@ -176,7 +176,11 @@ genASM (UnaryNode tree  op _) = do
         unode <- genASM tree
         pure $ ASM.unary unode op Nothing Nothing
 
-genASM ArrayNode{} = pure ASM.noOutput
+genASM (ArrayNode len var typ assign dat) = do
+        _ <- declareLocal (DeclarationNode var typ assign dat)
+        SymTab.incrementOffsetByN (len - 1)
+        pure ASM.noOutput
+
 genASM ArrayItemsNode{} = pure ASM.noOutput
 genASM ArraySingleItemNode{} = pure ASM.noOutput
 genASM ArrayVarNode{} = pure ASM.noOutput
