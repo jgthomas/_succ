@@ -1,5 +1,10 @@
 
-module SymTabLocalScope where
+module SymTabLocalScope
+        (initScope,
+         closeScope,
+         getScope,
+         scopeDepth
+        ) where
 
 
 import qualified Data.Map          as M
@@ -26,6 +31,7 @@ closeScope = do
         pure ()
 
 
+-- | Return current scope record
 getScope :: Int -> FuncState -> GenState (M.Map String LocalVar)
 getScope scope fs =
         case M.lookup scope $ scopes fs of
@@ -33,6 +39,11 @@ getScope scope fs =
              Nothing -> do
                      funcName <- FrameStack.currentFunc
                      throwError $ StateError (UndefinedScope funcName scope)
+
+
+-- | Return scope depth of current function
+scopeDepth :: String -> GenState Int
+scopeDepth name = currentScope <$> getFuncState name
 
 
 addNestedScope :: String -> Int -> GenState ()
@@ -48,10 +59,6 @@ incrementScope = stepScope succ
 
 decrementScope :: GenState Int
 decrementScope = stepScope pred
-
-
-findScope :: String -> GenState Int
-findScope name = currentScope <$> getFuncState name
 
 
 stepScope :: (Int -> Int) -> GenState Int

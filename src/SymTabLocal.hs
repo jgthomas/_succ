@@ -84,7 +84,7 @@ setContinue labelNo = store "@Continue" labelNo Label
 checkVariable :: String -> GenState Bool
 checkVariable varName = do
         fName  <- FrameStack.currentFunc
-        scope  <- findScope fName
+        scope  <- scopeDepth fName
         locVar <- getLocalVar fName scope varName
         case locVar of
              Just _  -> pure True
@@ -162,7 +162,7 @@ getAttribute f varName = do
 getAttr :: (LocalVar -> a) -> String -> String -> GenState (Maybe a)
 getAttr _ _ "global" = pure Nothing
 getAttr f varName funcName = do
-        scopeLevel <- findScope funcName
+        scopeLevel <- scopeDepth funcName
         extract f <$> find funcName scopeLevel varName
 
 
