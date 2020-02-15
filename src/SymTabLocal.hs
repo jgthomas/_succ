@@ -37,7 +37,7 @@ import           Data.Maybe        (isNothing)
 import           Error             (CompilerError (StateError), StateError (..))
 import qualified FrameStack        (currentFunc, popFunc, pushFunc)
 import           GenState          (GenState, throwError)
-import qualified GenState          (delFuncState, getFuncState, updateFuncState)
+import qualified GenState          (delFuncState, getFuncState)
 import           GenStateLocal     (FuncState (..), LocalVar (..),
                                     ParamVar (..))
 import qualified GenStateLocal     (mkFuncState, mkLocVar, mkParVar)
@@ -52,7 +52,7 @@ initFunction name = do
         FrameStack.pushFunc name
         fstate <- GenState.getFuncState name
         when (isNothing fstate) $
-            GenState.updateFuncState name GenStateLocal.mkFuncState
+            setFunctionState name GenStateLocal.mkFuncState
 
 
 -- | Close current function scope
