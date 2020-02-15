@@ -16,8 +16,8 @@ module SymTab
 
 import FrameStack   (getScope)
 import GenState     (GenState, labelNum)
-import SymTabGlobal hiding (declaredFuncType, globalType)
-import SymTabLocal  hiding (allTypes, parameterType, variableType)
+import SymTabGlobal
+import SymTabLocal
 
 
 -- | Check all variable types for the supplied identifier
