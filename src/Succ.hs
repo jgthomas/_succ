@@ -9,12 +9,11 @@ module Succ (compile) where
 
 import           System.Exit (exitFailure)
 
-import           AST         (Tree)
 import qualified Checker     (check)
-import           Debug       (Debug (..))
+import           Debug       (Debug)
+import qualified Debug       (debug)
 import           Error       (CompilerError)
 import qualified Generator   (generate)
-import           LexDat      (LexDat)
 import qualified Lexer       (tokenize)
 import qualified Parser      (parse)
 import qualified PrintError  (printError)
@@ -26,31 +25,9 @@ compile debugSet input = do
         toks <- errorHandler . Lexer.tokenize $ input
         ast  <- errorHandler . Parser.parse $ toks
         ast' <- errorHandler . Checker.check $ ast
-        case debugSet of
-             DebugOff -> errorHandler . Generator.generate $ ast'
-             DebugOn  -> do
-                     debug input toks ast
-                     errorHandler . Generator.generate $ ast'
+        Debug.debug debugSet input toks ast
+        errorHandler . Generator.generate $ ast'
         where errorHandler = handleError input
-
-
-debug :: String -> [LexDat] -> Tree -> IO ()
-debug input lexed parsed = do
-        newLine
-        putStrLn "INPUT"
-        putStrLn input
-        putStrLn "AFTER LEXING"
-        newLine
-        print lexed
-        newLine
-        putStrLn "AFTER PARSING"
-        newLine
-        print parsed
-        newLine
-
-
-newLine :: IO ()
-newLine = putStr "\n"
 
 
 handleError :: String -> Either CompilerError a -> IO a
