@@ -28,7 +28,8 @@ compile debugSet input = do
         (asm, symTab)  <- errorHandler . Generator.generate $ ast'
         Debug.debug debugSet input toks ast symTab asm
         pure asm
-        where errorHandler = handleError input
+        where
+                errorHandler = handleError input
 
 
 handleError :: String -> Either CompilerError a -> IO a
