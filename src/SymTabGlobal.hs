@@ -1,10 +1,10 @@
 {-|
-Module       : Global
+Module       : SymTabGlobal
 Description  : Track global scope state
 
 Keeps track of all global variables and functions defined in the program.
 -}
-module Global
+module SymTabGlobal
         (declareFunction,
          defineFunction,
          declareGlobal,

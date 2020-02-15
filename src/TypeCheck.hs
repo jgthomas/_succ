@@ -20,8 +20,8 @@ import           Error         (CheckerError (..), CompilerError (CheckerError, 
 import qualified FrameStack    (currentFunc, getScope)
 import           GenState      (GenState, throwError)
 import           GenTokens     (Scope (..))
-import qualified Global        (declaredFuncType, globalType)
-import qualified Local         (allTypes, parameterType, variableType)
+import qualified SymTabGlobal  (declaredFuncType, globalType)
+import qualified SymTabLocal   (allTypes, parameterType, variableType)
 import           Type          (Type (..))
 
 
@@ -85,7 +85,7 @@ funcReturn node retVal = do
 
 passedTypes :: String -> [Tree] -> GenState ([Type], [Type])
 passedTypes name treeList = do
-        currTypes <- Local.allTypes name
+        currTypes <- SymTabLocal.allTypes name
         newTypes  <- mapM getType treeList
         pure (currTypes, newTypes)
 
@@ -117,15 +117,15 @@ getVarType node name = do
         case currScope of
              Local  -> checkAllVariableTypes node name
              Global -> do
-                     typG <- Global.globalType name
+                     typG <- SymTabGlobal.globalType name
                      extractType node typG
 
 
 checkAllVariableTypes :: Tree -> String -> GenState Type
 checkAllVariableTypes node name = do
-        typL <- Local.variableType name
-        typP <- Local.parameterType name
-        typG <- Global.globalType name
+        typL <- SymTabLocal.variableType name
+        typP <- SymTabLocal.parameterType name
+        typG <- SymTabGlobal.globalType name
         typ  <- varType typL typP typG
         extractType node typ
 
@@ -183,7 +183,7 @@ permitted typ =
 
 getFuncType :: Tree -> String -> GenState Type
 getFuncType node name = do
-        oldTyp <- Global.declaredFuncType name
+        oldTyp <- SymTabGlobal.declaredFuncType name
         extractType node oldTyp
 
 

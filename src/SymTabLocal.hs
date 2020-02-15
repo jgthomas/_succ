@@ -1,11 +1,11 @@
 {-|
-Module       : Local
+Module       : SymTabLocal
 Description  : Control state of each function
 
 Functions to manipulate the state stored for each function being
 compiled.
 -}
-module Local
+module SymTabLocal
         (initScope,
          closeScope,
          initFunction,
