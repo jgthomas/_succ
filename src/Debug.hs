@@ -1,5 +1,14 @@
+{-|
+Module       : Debug
+Description  : Output debugging information
 
-module Debug where
+Internal debugger that outputs the results of each stage of
+the compilation process undertaken by succ.
+-}
+module Debug
+        (Debug(..),
+         debug
+        ) where
 
 
 import AST      (Tree)
@@ -7,11 +16,13 @@ import GenState (SymTab)
 import LexDat   (LexDat)
 
 
+-- | Debug switch definition
 data Debug = DebugOn
            | DebugOff
            deriving (Eq)
 
 
+-- | Output debugging information
 debug :: Debug -> String -> [LexDat] -> Tree -> SymTab -> String -> IO ()
 debug debugSet input lexed parsed symTab asm =
         case debugSet of
