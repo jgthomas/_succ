@@ -20,13 +20,14 @@ import           Data.Function     (on)
 import           Data.List         (sortBy)
 import qualified Data.Map          as M
 
+import           Error             (CompilerError (StateError), StateError (..))
 import qualified FrameStack        (currentFunc)
-import           GenState          (GenState)
+import           GenState          (GenState, throwError)
 import           GenStateLocal     (FuncState (paramCount, parameters, scopes),
                                     LocalVar (..), ParamVar (..))
 import qualified GenStateLocal     (mkLocVar, mkParVar)
 import           SymTabLocalOffset (currentOffset, incrementOffsetByN)
-import           SymTabLocalScope  (getScope, scopeDepth)
+import           SymTabLocalScope  (scopeDepth)
 import           SymTabLocalShared (getFuncState, setFuncState)
 import           Type              (Type (Label))
 
@@ -190,3 +191,11 @@ extract _ Nothing   = Nothing
 paramData :: ParamVar -> (Int, Type)
 paramData pv = (paramNum pv, paramType pv)
 
+
+getScope :: Int -> FuncState -> GenState (M.Map String LocalVar)
+getScope scope fs =
+        case M.lookup scope $ scopes fs of
+             Just sc -> pure sc
+             Nothing -> do
+                     funcName <- FrameStack.currentFunc
+                     throwError $ StateError (UndefinedScope funcName scope)

@@ -2,17 +2,15 @@
 module SymTabLocalScope
         (initScope,
          closeScope,
-         getScope,
          scopeDepth
         ) where
 
 
 import qualified Data.Map          as M
 
-import           Error             (CompilerError (StateError), StateError (..))
 import qualified FrameStack        (currentFunc)
-import           GenState          (GenState, throwError)
-import           GenStateLocal     (FuncState (currentScope, scopes), LocalVar)
+import           GenState          (GenState)
+import           GenStateLocal     (FuncState (currentScope, scopes))
 import           SymTabLocalShared (getFuncState, setFuncState)
 
 
@@ -29,16 +27,6 @@ closeScope :: GenState ()
 closeScope = do
         _ <- decrementScope
         pure ()
-
-
--- | Return current scope record
-getScope :: Int -> FuncState -> GenState (M.Map String LocalVar)
-getScope scope fs =
-        case M.lookup scope $ scopes fs of
-             Just sc -> pure sc
-             Nothing -> do
-                     funcName <- FrameStack.currentFunc
-                     throwError $ StateError (UndefinedScope funcName scope)
 
 
 -- | Return scope depth of current function
