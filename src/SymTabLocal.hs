@@ -20,11 +20,10 @@ import           Data.Maybe        (isNothing)
 
 import qualified FrameStack        (popFunc, pushFunc)
 import           GenState          (GenState)
-import qualified GenState          (getFuncState)
 import qualified GenStateLocal     (mkFuncState)
 import           SymTabLocalOffset (stackPointerValue)
 import           SymTabLocalScope  (closeScope, initScope)
-import           SymTabLocalShared (delFuncState, setFuncState)
+import           SymTabLocalShared (delFuncState, grabFuncState, setFuncState)
 import           SymTabLocalVars
 
 
@@ -32,7 +31,7 @@ import           SymTabLocalVars
 initFunction :: String -> GenState ()
 initFunction name = do
         FrameStack.pushFunc name
-        fstate <- GenState.getFuncState name
+        fstate <- grabFuncState name
         when (isNothing fstate) $
             setFuncState name GenStateLocal.mkFuncState
 
