@@ -1,8 +1,8 @@
 {-|
 Module       : SymTabGlobal
-Description  : Track global scope state
+Description  : Control state for the global scope
 
-Keeps track of all global variables and functions defined in the program.
+Functions to manipulate the state stored for the global scope of a program.
 -}
 module SymTabGlobal
         (declareFunction,
