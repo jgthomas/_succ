@@ -11,11 +11,14 @@ data Tree = ProgramNode [Tree]
           | DeclarationNode Tree Type (Maybe Tree) NodeDat
           | PointerNode Tree Type (Maybe Tree) NodeDat
           | ArrayNode Int Tree Type (Maybe Tree) NodeDat
+          | AssignArrayNode Tree Tree Operator NodeDat
+          | ArrayItemsNode [Tree] NodeDat
+          | ArraySingleItemNode Tree NodeDat
+          | ArrayVarNode String NodeDat
           | CompoundStmtNode [Tree] NodeDat
           | ReturnNode Tree NodeDat
           | AssignmentNode Tree Tree Operator NodeDat
           | AssignDereferenceNode Tree Tree Operator NodeDat
-          | AssignArrayNode Tree Tree Operator NodeDat
           | ExprStmtNode Tree NodeDat
           | IfNode Tree Tree (Maybe Tree) NodeDat
           | WhileNode Tree Tree NodeDat
@@ -24,14 +27,11 @@ data Tree = ProgramNode [Tree]
           | BreakNode NodeDat
           | ContinueNode NodeDat
           | ConstantNode Int NodeDat
-          | ArrayItemsNode [Tree] NodeDat
-          | ArraySingleItemNode Tree NodeDat
           | FuncCallNode String [Tree] NodeDat
           | ParamNode Type Tree NodeDat
           | ArgNode Tree NodeDat
           | NullExprNode NodeDat
           | VarNode String NodeDat
-          | ArrayVarNode String NodeDat
           | AddressOfNode String NodeDat
           | DereferenceNode String NodeDat
           | UnaryNode Tree UnaryOp NodeDat
