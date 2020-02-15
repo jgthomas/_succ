@@ -224,7 +224,7 @@ processArrayElement name (item, pos) = do
         offset  <- SymTab.variableOffset name
         itemAsm <- genASM item
         case offset of
-             Just off -> ASM.assign itemAsm (off * pos + off) <$> SymTab.stackPointerValue
+             Just off -> ASM.assign itemAsm (pos * SymTab.memOffset + off) <$> SymTab.stackPointerValue
              Nothing  -> throwError $ FatalError (GeneratorBug item)
 
 
