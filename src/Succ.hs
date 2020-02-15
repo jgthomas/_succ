@@ -25,8 +25,9 @@ compile debugSet input = do
         toks <- errorHandler . Lexer.tokenize $ input
         ast  <- errorHandler . Parser.parse $ toks
         ast' <- errorHandler . Checker.check $ ast
-        Debug.debug debugSet input toks ast
-        errorHandler . Generator.generate $ ast'
+        asm  <- errorHandler . Generator.generate $ ast'
+        Debug.debug debugSet input toks ast asm
+        pure asm
         where errorHandler = handleError input
 
 

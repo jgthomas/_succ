@@ -11,8 +11,8 @@ data Debug = DebugOn
            deriving (Eq)
 
 
-debug :: Debug -> String -> [LexDat] -> Tree -> IO ()
-debug debugSet input lexed parsed =
+debug :: Debug -> String -> [LexDat] -> Tree -> String -> IO ()
+debug debugSet input lexed parsed asm =
         case debugSet of
              DebugOff -> pure ()
              DebugOn  -> do
@@ -26,6 +26,10 @@ debug debugSet input lexed parsed =
                      putStrLn "AFTER PARSING"
                      newLine
                      print parsed
+                     newLine
+                     putStrLn "OUTPUT"
+                     newLine
+                     putStrLn asm
                      newLine
 
 
