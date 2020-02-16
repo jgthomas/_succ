@@ -4,6 +4,7 @@ module AsmVariables
          decNoAssign,
          assign,
          loadVariable,
+         storeVariable,
          saveGlobal,
          varOnStack,
          derefLoad,
@@ -49,7 +50,7 @@ assign toAssign off adj =
         ++ declare off adj
 
 
--- | Load a variable value
+-- | Load a variable value to %rax
 loadVariable :: Maybe Int -> Maybe Int -> Maybe String -> String
 loadVariable (Just off) _ _ = varOffStack off
 loadVariable _ (Just pos) _ = getFromRegister pos
@@ -63,6 +64,23 @@ varOffStack offset = move (fromBasePointer offset) (reg RAX)
 
 getFromRegister :: Int -> String
 getFromRegister r = move (selectRegister r) (reg RAX)
+
+
+-- | Store a variable value currently held in %rax
+storeVariable :: Maybe Int -> Maybe String -> String
+storeVariable (Just off) _ = varOnStack off
+storeVariable _ (Just lab) = saveGlobal lab
+storeVariable _ _          = ""
+
+
+-- | Save a local variable
+varOnStack :: Int -> String
+varOnStack offset = move (reg RAX) (fromBasePointer offset)
+
+
+-- | Save a global variable
+saveGlobal :: String -> String
+saveGlobal label = move (reg RAX) (fromInstructionPointer label)
 
 
 {-
@@ -169,16 +187,6 @@ valueFromAddressIn s = indirectAddressing s
 
 indirectAddressing :: String -> String
 indirectAddressing s = "(" ++ s ++ ")"
-
-
--- | Save a local variable
-varOnStack :: Int -> String
-varOnStack offset = move (reg RAX) (fromBasePointer offset)
-
-
--- | Save a global variable
-saveGlobal :: String -> String
-saveGlobal label = move (reg RAX) (fromInstructionPointer label)
 
 
 fromInstructionPointer :: String -> String
