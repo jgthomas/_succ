@@ -14,7 +14,7 @@ module TypeCheck
 
 import           Control.Monad (unless, when)
 
-import           AST           (Tree (..))
+import           AST           (ArrayNode (..), Tree (..))
 import           Error         (CheckerError (..), CompilerError (CheckerError, ImpossibleError, TypeError),
                                 TypeError (..))
 import           GenState      (GenState, throwError)
@@ -106,7 +106,13 @@ getType (UnaryNode tree _ _)          = getType tree
 getType (ConstantNode _ _)            = pure IntVar
 getType node@(FuncCallNode name _ _)  = getFuncType node name
 getType (AssignmentNode _ tree _ _)   = getType tree
+getType (ArrayNode arr)               = getArrayType arr
 getType tree                          = throwError $ TypeError (NotTyped tree)
+
+
+getArrayType :: ArrayNode -> GenState Type
+getArrayType (ArrayItemAccess _ var _) = getType var
+getArrayType arrayNode = throwError $ TypeError (NotTyped (ArrayNode arrayNode))
 
 
 getVarType :: Tree -> String -> GenState Type
