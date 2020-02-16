@@ -47,7 +47,7 @@ data ArrayNode = ArrayDeclareNode Int Tree Type (Maybe Tree) NodeDat
 
 data NodeDat = NodeDat { startLine :: Int
                        , endLine   :: Int }
-             deriving (Show, Eq)
+             deriving (Eq, Show)
 
 
 mkNodeDat :: Int -> Int -> NodeDat

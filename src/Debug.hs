@@ -11,9 +11,11 @@ module Debug
         ) where
 
 
-import AST      (Tree)
-import GenState (SymTab)
-import LexDat   (LexDat)
+import Text.Pretty.Simple (pPrint)
+
+import AST                (Tree)
+import GenState           (SymTab)
+import LexDat             (LexDat)
 
 
 -- | Debug switch definition
@@ -37,7 +39,7 @@ debug debugSet input lexed parsed symTab asm =
                      newLine
                      putStrLn "ABSTRACT SYNTAX TREE"
                      newLine
-                     print parsed
+                     pPrint parsed
                      newLine
                      putStrLn "STATE"
                      newLine
