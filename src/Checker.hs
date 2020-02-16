@@ -176,10 +176,9 @@ checkAST (ArrayNode (ArrayDeclareNode len var typ assign dat)) = do
         checkDeclareLocal (DeclarationNode var typ assign dat)
         SymTab.incrementOffsetByN (len - 1)
 
-checkAST (ArrayNode ArrayAssignNode{}) = pure ()
+checkAST (ArrayNode ArrayAssignPosNode{}) = pure ()
 checkAST (ArrayNode ArrayItemsNode{}) = pure ()
 checkAST (ArrayNode ArraySingleItemNode{}) = pure ()
-checkAST (ArrayNode ArrayVarNode{}) = pure ()
 checkAST (ArrayNode ArrayItemAssign{}) = pure ()
 checkAST (ArrayNode ArrayItemAccess{}) = pure ()
 

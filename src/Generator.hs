@@ -190,10 +190,9 @@ genASM (ArrayNode (ArrayItemAccess pos (VarNode name _) _)) = do
         pure $ ASM.loadVariable arrPosOffset argPos globLab
 genASM node@(ArrayNode ArrayItemAccess{}) = throwError $ FatalError (GeneratorBug node)
 
-genASM (ArrayNode ArrayItemAssign{}) = pure ASM.noOutput
+genASM (ArrayNode ArrayAssignPosNode{}) = pure ASM.noOutput
 
-genASM (ArrayNode ArrayAssignNode{}) = pure ASM.noOutput
-genASM (ArrayNode ArrayVarNode{}) = pure ASM.noOutput
+genASM (ArrayNode ArrayItemAssign{}) = pure ASM.noOutput
 
 genASM (VarNode name _) = do
         (offset, argPos, globLab) <- SymTab.getVariables name
