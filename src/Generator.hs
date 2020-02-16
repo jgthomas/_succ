@@ -190,6 +190,8 @@ genASM (ArrayNode ArrayItemsNode{}) = pure ASM.noOutput
 genASM (ArrayNode (ArraySingleItemNode item _)) = genASM item
 
 genASM (ArrayNode ArrayVarNode{}) = pure ASM.noOutput
+genASM (ArrayNode ArrayItemAssign{}) = pure ASM.noOutput
+genASM (ArrayNode ArrayItemAccess{}) = pure ASM.noOutput
 
 genASM (VarNode name _) = do
         (offset, argPos, globLab) <- SymTab.getVariables name

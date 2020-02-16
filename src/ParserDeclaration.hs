@@ -18,6 +18,7 @@ import qualified Tokens           (isAssign)
 data Declaration = ValueDec
                  | PointerDec
                  | ArrayDec
+                 | ArrayDecExplicit Int
                  deriving (Eq)
 
 
@@ -34,8 +35,8 @@ parseDeclaration lexData@(
 parseDeclaration lexData@(
         _:LexDat{tok=Ident name}:
         LexDat{tok=OpenBracket OpenSqBracket}:
-        LexDat{tok=ConstInt _}:
-        LexDat{tok=CloseBracket CloseSqBracket}:_)      = parseDec ArrayDec name lexData
+        LexDat{tok=ConstInt n}:
+        LexDat{tok=CloseBracket CloseSqBracket}:_)      = parseDec (ArrayDecExplicit n) name lexData
 parseDeclaration lexData@(_:LexDat{tok=Ident name}:_)   = parseDec ValueDec name lexData
 parseDeclaration lexData@(_:_:LexDat{tok=Ident name}:_) = parseDec PointerDec name lexData
 parseDeclaration (_:c:_:_) = throwError $ SyntaxError (NonValidIdentifier c)
@@ -54,7 +55,10 @@ parseDec decType name lexData = do
              PointerDec -> pure (PointerNode var typ tree dat, lexData'')
              ValueDec   -> pure (DeclarationNode var typ tree dat, lexData'')
              ArrayDec   -> do
-                     len <- findArraylen (inferredLen tree) (statedLen lexData')
+                     len <- findArraylen (inferredLen tree) Undeclared
+                     pure (ArrayNode (ArrayDeclareNode len var typ tree dat), lexData'')
+             (ArrayDecExplicit n) -> do
+                     len <- findArraylen (inferredLen tree) (Declared n)
                      pure (ArrayNode (ArrayDeclareNode len var typ tree dat), lexData'')
 
 
@@ -68,15 +72,9 @@ findArraylen Undeclared Undeclared   = throwError $ SyntaxError UndeclaredLen
 
 
 inferredLen ::  Maybe Tree -> ArrayLen
-inferredLen (Just (ArrayNode (ArrayAssignNode _ (ArrayNode (ArrayItemsNode items _))_ _))) =
-        Declared (length items)
-inferredLen _ = Undeclared
-
-
-statedLen :: [LexDat] -> ArrayLen
-statedLen (_:LexDat{tok=OpenBracket OpenSqBracket}:
-           LexDat{tok=ConstInt n}:_) = Declared n
-statedLen _ = Undeclared
+inferredLen (Just (ArrayNode (ArrayItemsNode items _))) = Declared (length items)
+inferredLen Nothing = Undeclared
+inferredLen _       = Undeclared
 
 
 parseOptAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
@@ -88,13 +86,13 @@ parseOptAssign lexData = do
 
 parseOptionalAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
 parseOptionalAssign lexData@(_:d@LexDat{tok=OpTok _}:_) = parseAssign d lexData
-parseOptionalAssign lexData@(_:LexDat{tok=OpenBracket OpenSqBracket}:
-                             LexDat{tok=ConstInt _}:
-                             LexDat{tok=CloseBracket CloseSqBracket}:
-                             d@LexDat{tok=OpTok _}:_) = parseAssign d lexData
-parseOptionalAssign lexData@(_:LexDat{tok=OpenBracket OpenSqBracket}:
-                             LexDat{tok=CloseBracket CloseSqBracket}:
-                             d@LexDat{tok=OpTok _}:_) = parseAssign d lexData
+parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
+                     LexDat{tok=ConstInt _}:
+                     LexDat{tok=CloseBracket CloseSqBracket}:
+                     d@LexDat{tok=OpTok _}:rest) = parseAssign d rest
+parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
+                    LexDat{tok=CloseBracket CloseSqBracket}:
+                    d@LexDat{tok=OpTok _}:rest) = parseAssign d rest
 parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
                      LexDat{tok=ConstInt _}:
                      LexDat{tok=CloseBracket CloseSqBracket}:

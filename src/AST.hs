@@ -41,6 +41,8 @@ data ArrayNode = ArrayDeclareNode Int Tree Type (Maybe Tree) NodeDat
                | ArrayItemsNode [Tree] NodeDat
                | ArraySingleItemNode Tree NodeDat
                | ArrayVarNode String NodeDat
+               | ArrayItemAccess Int Tree NodeDat
+               | ArrayItemAssign Int Tree NodeDat
                deriving (Eq, Show)
 
 

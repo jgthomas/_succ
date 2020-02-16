@@ -192,22 +192,30 @@ parseUnary lexData = throwError $ ParserError (LexDataError lexData)
 parseIdent :: [LexDat] -> ParserState (Tree, [LexDat])
 parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenParen}:_) =
         parseFuncCall lexData
-parseIdent lexData@(LexDat{tok=Ident a}:
-                    LexDat{tok=OpenBracket OpenSqBracket}:
-                    LexDat{tok=ConstInt _}:
-                    LexDat{tok=CloseBracket CloseSqBracket}:rest) = do
-        dat <- makeNodeDat lexData
-        pure (ArrayNode $ ArrayVarNode a dat, rest)
-parseIdent lexData@(LexDat{tok=Ident a}:
-                    LexDat{tok=OpenBracket OpenSqBracket}:
-                    LexDat{tok=CloseBracket CloseSqBracket}:rest) = do
-        dat <- makeNodeDat lexData
-        pure (ArrayNode $ ArrayVarNode a dat, rest)
+parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenSqBracket}:_) =
+        parseArrayIndex lexData
 parseIdent lexData@(LexDat{tok=Ident a}:rest) = do
         dat <- makeNodeDat lexData
         pure (VarNode a dat, rest)
 parseIdent (a:_) = throwError $ SyntaxError (UnexpectedLexDat a)
 parseIdent lexData  = throwError $ ParserError (LexDataError lexData)
+
+
+parseArrayIndex :: [LexDat] -> ParserState (Tree, [LexDat])
+parseArrayIndex lexData@(LexDat{tok=Ident a}:
+                         LexDat{tok=OpenBracket OpenSqBracket}:
+                         LexDat{tok=ConstInt n}:
+                         LexDat{tok=CloseBracket CloseSqBracket}:
+                         eq@LexDat{tok=OpTok EqualSign}:rest) = do
+        dat <- makeNodeDat lexData
+        pure (ArrayNode $ ArrayItemAssign n (VarNode a dat) dat, eq:rest)
+parseArrayIndex lexData@(LexDat{tok=Ident a}:
+                         LexDat{tok=OpenBracket OpenSqBracket}:
+                         LexDat{tok=ConstInt n}:
+                         LexDat{tok=CloseBracket CloseSqBracket}:rest) = do
+        dat <- makeNodeDat lexData
+        pure (ArrayNode $ ArrayItemAccess n (VarNode a dat) dat, rest)
+parseArrayIndex lexData = throwError $ ParserError (LexDataError lexData)
 
 
 parseParenExp :: [LexDat] -> ParserState (Tree, [LexDat])

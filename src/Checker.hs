@@ -177,6 +177,8 @@ checkAST (ArrayNode ArrayAssignNode{}) = pure ()
 checkAST (ArrayNode ArrayItemsNode{}) = pure ()
 checkAST (ArrayNode ArraySingleItemNode{}) = pure ()
 checkAST (ArrayNode ArrayVarNode{}) = pure ()
+checkAST (ArrayNode ArrayItemAssign{}) = pure ()
+checkAST (ArrayNode ArrayItemAccess{}) = pure ()
 
 checkAST node@VarNode{} = ScopeCheck.variableExists node
 
