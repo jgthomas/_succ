@@ -173,11 +173,11 @@ genASM (UnaryNode tree  op _) = do
         unode <- genASM tree
         pure $ ASM.unary unode op Nothing Nothing
 
-genASM (ArrayNode (ArrayDeclareNode len var typ assign dat)) = do
+genASM node@(ArrayNode ArrayDeclareNode{}) = do
         currScope <- SymTab.getScope
         case currScope of
-             Global -> declareGlobalArray len (DeclarationNode var typ assign dat)
-             Local  -> declareLocalArray len (DeclarationNode var typ assign dat)
+             Global -> declareGlobalArray node
+             Local  -> declareLocalArray node
 
 genASM (ArrayNode (ArrayItemsNode var items _)) = processArrayElements var items
 
@@ -234,19 +234,19 @@ processArrayElement name (item, pos) = do
              Nothing  -> throwError $ FatalError (GeneratorBug item)
 
 
-declareLocalArray :: Int -> Tree -> GenState String
-declareLocalArray len arrNode@(DeclarationNode _ _ assign _) = do
-        decAsm <- declareLocal arrNode
+declareLocalArray :: Tree -> GenState String
+declareLocalArray (ArrayNode (ArrayDeclareNode len var typ assign dat)) = do
+        decAsm <- declareLocal (DeclarationNode var typ assign dat)
         case assign of
              Nothing -> do
                      SymTab.incrementOffsetByN (len - 1)
                      pure decAsm
              Just _  -> pure decAsm
-declareLocalArray _ tree = throwError $ FatalError (GeneratorBug tree)
+declareLocalArray tree = throwError $ FatalError (GeneratorBug tree)
 
 
-declareGlobalArray :: Int -> Tree -> GenState String
-declareGlobalArray _ _ = undefined
+declareGlobalArray :: Tree -> GenState String
+declareGlobalArray _ = undefined
 
 
 -- Global variables
