@@ -72,7 +72,7 @@ findArraylen Undeclared Undeclared   = throwError $ SyntaxError UndeclaredLen
 
 
 inferredLen ::  Maybe Tree -> ArrayLen
-inferredLen (Just (ArrayNode (ArrayItemsNode items _))) = Declared (length items)
+inferredLen (Just (ArrayNode (ArrayItemsNode _ items _))) = Declared (length items)
 inferredLen Nothing = Undeclared
 inferredLen _       = Undeclared
 
@@ -86,13 +86,15 @@ parseOptAssign lexData = do
 
 parseOptionalAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
 parseOptionalAssign lexData@(_:d@LexDat{tok=OpTok _}:_) = parseAssign d lexData
-parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
+parseOptionalAssign (ident@LexDat{tok=Ident _}:
+                     LexDat{tok=OpenBracket OpenSqBracket}:
                      LexDat{tok=ConstInt _}:
                      LexDat{tok=CloseBracket CloseSqBracket}:
-                     d@LexDat{tok=OpTok _}:rest) = parseAssign d rest
-parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
-                    LexDat{tok=CloseBracket CloseSqBracket}:
-                    d@LexDat{tok=OpTok _}:rest) = parseAssign d rest
+                     d@LexDat{tok=OpTok _}:rest) = parseAssign d (ident:rest)
+parseOptionalAssign (ident@LexDat{tok=Ident _}:
+                     LexDat{tok=OpenBracket OpenSqBracket}:
+                     LexDat{tok=CloseBracket CloseSqBracket}:
+                     d@LexDat{tok=OpTok _}:rest) = parseAssign d (ident:rest)
 parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
                      LexDat{tok=ConstInt _}:
                      LexDat{tok=CloseBracket CloseSqBracket}:

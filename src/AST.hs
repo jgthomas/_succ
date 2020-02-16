@@ -38,7 +38,7 @@ data Tree = ProgramNode [Tree]
 
 data ArrayNode = ArrayDeclareNode Int Tree Type (Maybe Tree) NodeDat
                | ArrayAssignNode Tree Tree Operator NodeDat
-               | ArrayItemsNode [Tree] NodeDat
+               | ArrayItemsNode Tree [Tree] NodeDat
                | ArraySingleItemNode Tree NodeDat
                | ArrayVarNode String NodeDat
                | ArrayItemAccess Int Tree NodeDat

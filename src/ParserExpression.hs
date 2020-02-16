@@ -126,7 +126,6 @@ parseFactor lexData@(next:rest) =
         case next of
              LexDat{tok=SemiColon}             -> parseNullExpression lexData
              LexDat{tok=ConstInt _}            -> parseConstant lexData
-             LexDat{tok=Ident _}               -> parseIdent lexData
              LexDat{tok=OpTok Ampersand}       -> parseAddressOf lexData
              LexDat{tok=OpTok Asterisk}        -> parseDereference lexData
              LexDat{tok=OpTok MinusSign}       -> parseUnary lexData
@@ -136,16 +135,32 @@ parseFactor lexData@(next:rest) =
              LexDat{tok=OpTok MinusMinus}      -> parseUnary lexData
              LexDat{tok=OpTok PlusSign}        -> parseUnary lexData
              LexDat{tok=OpenBracket OpenParen} -> parseParenExp rest
-             LexDat{tok=OpenBracket OpenBrace} -> parseArrayItems lexData
+             LexDat{tok=Ident _}               -> parseIdent lexData
              _ -> throwError $ ParserError (LexDataError lexData)
 
 
+parseIdent :: [LexDat] -> ParserState (Tree, [LexDat])
+parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenParen}:_) =
+        parseFuncCall lexData
+parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenBrace}:_) =
+        parseArrayItems lexData
+parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenSqBracket}:_) =
+        parseArrayIndex lexData
+parseIdent lexData@(LexDat{tok=Ident a}:rest) = do
+        dat <- makeNodeDat lexData
+        pure (VarNode a dat, rest)
+parseIdent (a:_) = throwError $ SyntaxError (UnexpectedLexDat a)
+parseIdent lexData  = throwError $ ParserError (LexDataError lexData)
+
+
 parseArrayItems :: [LexDat] -> ParserState (Tree, [LexDat])
-parseArrayItems lexData@(LexDat{tok=OpenBracket OpenBrace}:_) = do
-        dat               <- makeNodeDat lexData
-        (items, lexData') <- parseItems [] lexData
-        lexData''         <- verifyAndConsume (CloseBracket CloseBrace) lexData'
-        pure (ArrayNode (ArrayItemsNode items dat), lexData'')
+parseArrayItems lexData@(LexDat{tok=Ident name}:LexDat{tok=OpenBracket OpenBrace}:_) = do
+        varDat             <- makeNodeDat lexData
+        lexData'           <- consumeTok lexData
+        dat                <- makeNodeDat lexData'
+        (items, lexData'') <- parseItems [] lexData'
+        lexData'''         <- verifyAndConsume (CloseBracket CloseBrace) lexData''
+        pure (ArrayNode (ArrayItemsNode (VarNode name varDat) items dat), lexData''')
 parseArrayItems lexData = throwError $ ParserError (LexDataError lexData)
 
 
@@ -187,18 +202,6 @@ parseUnary lexData@(LexDat{tok=OpTok op}:rest) = do
         let unOp = Operator.tokToUnaryOp op
         pure (UnaryNode tree unOp dat, lexData')
 parseUnary lexData = throwError $ ParserError (LexDataError lexData)
-
-
-parseIdent :: [LexDat] -> ParserState (Tree, [LexDat])
-parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenParen}:_) =
-        parseFuncCall lexData
-parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenSqBracket}:_) =
-        parseArrayIndex lexData
-parseIdent lexData@(LexDat{tok=Ident a}:rest) = do
-        dat <- makeNodeDat lexData
-        pure (VarNode a dat, rest)
-parseIdent (a:_) = throwError $ SyntaxError (UnexpectedLexDat a)
-parseIdent lexData  = throwError $ ParserError (LexDataError lexData)
 
 
 parseArrayIndex :: [LexDat] -> ParserState (Tree, [LexDat])
