@@ -21,7 +21,6 @@ import           GenTokens           (Scope (..))
 import           Operator            (BinaryOp (..), Operator (..))
 import qualified SymTab
 
-
 -- | Generate x86-64 asm from AST
 generate :: Tree -> Either CompilerError (String, SymTab)
 generate ast = runGenState genWithState ast GenState.startState
@@ -188,11 +187,17 @@ genASM (ArrayNode (ArrayDeclareNode len var typ assign dat)) = do
 
 genASM (ArrayNode (ArraySingleItemNode item _)) = genASM item
 
+genASM (ArrayNode (ArrayItemAccess pos (VarNode name _) _)) = do
+        (offset, argPos, globLab) <- SymTab.getVariables name
+        let arrPosOffset = (+) (pos * SymTab.memOffset) <$> offset
+        pure $ ASM.loadVariable arrPosOffset argPos globLab
+genASM node@(ArrayNode ArrayItemAccess{}) = throwError $ FatalError (GeneratorBug node)
+
+genASM (ArrayNode ArrayItemAssign{}) = pure ASM.noOutput
+
 genASM (ArrayNode ArrayAssignNode{}) = pure ASM.noOutput
 genASM (ArrayNode ArrayItemsNode{}) = pure ASM.noOutput
 genASM (ArrayNode ArrayVarNode{}) = pure ASM.noOutput
-genASM (ArrayNode ArrayItemAssign{}) = pure ASM.noOutput
-genASM (ArrayNode ArrayItemAccess{}) = pure ASM.noOutput
 
 genASM (VarNode name _) = do
         (offset, argPos, globLab) <- SymTab.getVariables name
