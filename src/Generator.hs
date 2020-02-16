@@ -177,18 +177,19 @@ genASM (UnaryNode tree  op _) = do
         pure $ ASM.unary unode op Nothing Nothing
 
 genASM (ArrayNode (ArrayDeclareNode len var typ assign dat)) = do
-        itemsAsm <- declareLocal (DeclarationNode var typ assign dat)
+        decAsm <- declareLocal (DeclarationNode var typ assign dat)
         SymTab.incrementOffsetByN (len - 1)
-        pure itemsAsm
-
-genASM (ArrayNode (ArrayAssignNode var (ArrayNode (ArrayItemsNode items _)) _ _)) =
-        processArrayElements var items
-genASM node@(ArrayNode ArrayAssignNode{}) = throwError $ FatalError (GeneratorBug node)
-
-genASM (ArrayNode ArrayItemsNode{}) = pure ASM.noOutput
+        case assign of
+             Nothing -> pure decAsm
+             (Just (ArrayNode (ArrayItemsNode items _))) -> do
+                     itemsAsm <- processArrayElements var items
+                     pure $ decAsm ++ itemsAsm
+             (Just a) -> throwError $ FatalError (GeneratorBug a)
 
 genASM (ArrayNode (ArraySingleItemNode item _)) = genASM item
 
+genASM (ArrayNode ArrayAssignNode{}) = pure ASM.noOutput
+genASM (ArrayNode ArrayItemsNode{}) = pure ASM.noOutput
 genASM (ArrayNode ArrayVarNode{}) = pure ASM.noOutput
 genASM (ArrayNode ArrayItemAssign{}) = pure ASM.noOutput
 genASM (ArrayNode ArrayItemAccess{}) = pure ASM.noOutput
