@@ -43,7 +43,7 @@ debug debugSet input lexed parsed symTab asm =
                      newLine
                      putStrLn "STATE"
                      newLine
-                     print symTab
+                     pPrint symTab
                      newLine
                      putStrLn "OUTPUT ASSEMBLY CODE"
                      newLine
