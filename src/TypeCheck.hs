@@ -111,8 +111,14 @@ getType tree                          = throwError $ TypeError (NotTyped tree)
 
 
 getArrayType :: ArrayNode -> GenState Type
-getArrayType (ArrayItemAccess _ var _) = getType var
+getArrayType (ArrayItemAccess _ var _) = getType var >>= getArrayItemType
+getArrayType (ArrayItemAssign _ var _) = getType var >>= getArrayItemType
 getArrayType arrayNode = throwError $ TypeError (NotTyped (ArrayNode arrayNode))
+
+
+getArrayItemType :: Type -> GenState Type
+getArrayItemType IntArray = pure IntVar
+getArrayItemType _        = undefined
 
 
 getVarType :: Tree -> String -> GenState Type

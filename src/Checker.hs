@@ -172,7 +172,10 @@ checkAST node@(UnaryNode _ unOp@(PostOpUnary _) _) =
         throwError $ CheckerError (OperatorError (UnaryOp unOp) node)
 checkAST (UnaryNode tree (Unary _) _) = checkAST tree
 
-checkAST (ArrayNode ArrayDeclareNode{}) = pure ()
+checkAST (ArrayNode (ArrayDeclareNode len var typ assign dat)) = do
+        checkDeclareLocal (DeclarationNode var typ assign dat)
+        SymTab.incrementOffsetByN (len - 1)
+
 checkAST (ArrayNode ArrayAssignNode{}) = pure ()
 checkAST (ArrayNode ArrayItemsNode{}) = pure ()
 checkAST (ArrayNode ArraySingleItemNode{}) = pure ()
