@@ -39,21 +39,20 @@ main = do
 
 
 getInput :: [String] -> IO (String, Debug)
-getInput args =
-        let (file, debug) = checkInput args
-            in
-        case (file, debug) of
-             (Nothing, _) -> do
-                     putStrLn "No input file provided"
-                     exitFailure
-             (Just x, Nothing) -> pure (x, DebugOff)
-             (Just x, Just y) ->
-                     if y == "debug"
-                        then pure (x, DebugOn)
-                        else pure (x, DebugOff)
+getInput args = checkInput args >>= setDebugLevel
 
 
-checkInput :: [String] -> (Maybe String, Maybe String)
-checkInput []      = (Nothing, Nothing)
-checkInput (x:y:_) = (Just x, Just y)
-checkInput (x:_)   = (Just x, Nothing)
+checkInput :: [String] -> IO (Maybe String, Maybe String)
+checkInput []      = pure (Nothing, Nothing)
+checkInput (x:y:_) = pure (Just x, Just y)
+checkInput (x:_)   = pure (Just x, Nothing)
+
+
+setDebugLevel :: (Maybe String, Maybe String) -> IO (String, Debug)
+setDebugLevel (Just x, Nothing) = pure (x, DebugOff)
+setDebugLevel (Just x, Just y)
+        | y == "debug" = pure (x, DebugOn)
+        | otherwise    = pure (x, DebugOff)
+setDebugLevel (Nothing, _) = do
+        putStrLn "No input file provided"
+        exitFailure
