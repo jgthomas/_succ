@@ -142,7 +142,7 @@ checkAST node@(ContinueNode _) = do
             throwError $ ScopeError (UnexpectedNode node)
 
 checkAST node@(BreakNode _) = do
-        breakLabel <- SymTab.getContinue
+        breakLabel <- SymTab.getBreak
         when (isNothing breakLabel) $
             throwError $ ScopeError (UnexpectedNode node)
 
