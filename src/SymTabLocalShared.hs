@@ -2,11 +2,11 @@
 module SymTabLocalShared where
 
 
-import           Error         (CompilerError (StateError),
-                                StateError (NoStateFound))
-import           GenState      (GenState, throwError)
-import qualified GenState      (delFuncState, getFuncState, updateFuncState)
-import           GenStateLocal (FuncState)
+import           Error       (CompilerError (StateError),
+                              StateError (NoStateFound))
+import           GenState    (GenState, throwError)
+import qualified GenState    (delFuncState, getFuncState, updateFuncState)
+import           SymbolTable (FuncState)
 
 
 -- | Retrieve a named function state record, without checking for errors

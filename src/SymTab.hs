@@ -10,14 +10,14 @@ module SymTab
          module SymTabGlobal,
          module SymTabLocal,
          module GenState,
-         module GenStateLocal,
+         memOffset,
          getVariables
         ) where
 
 
-import FrameStack    (currentFunc, getScope)
-import GenState      (GenState, labelNum)
-import GenStateLocal (memOffset)
+import FrameStack   (currentFunc, getScope)
+import GenState     (GenState, labelNum)
+import SymbolTable  (memOffset)
 import SymTabGlobal
 import SymTabLocal
 

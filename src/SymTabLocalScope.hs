@@ -10,7 +10,7 @@ import qualified Data.Map          as M
 
 import qualified FrameStack        (currentFunc)
 import           GenState          (GenState)
-import           GenStateLocal     (FuncState (currentScope, scopes))
+import           SymbolTable       (FuncState (currentScope, scopes))
 import           SymTabLocalShared (getFuncState, setFuncState)
 
 

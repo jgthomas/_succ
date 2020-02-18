@@ -8,8 +8,8 @@ module SymTabLocalOffset
 
 import qualified FrameStack        (currentFunc)
 import           GenState          (GenState)
-import           GenStateLocal     (FuncState (funcOffset))
-import qualified GenStateLocal     (memOffset)
+import           SymbolTable       (FuncState (funcOffset))
+import qualified SymbolTable       (memOffset)
 import           SymTabLocalShared (getFuncState, setFuncState)
 
 
@@ -34,5 +34,5 @@ incOffset :: Int -> GenState ()
 incOffset n = do
         name  <- FrameStack.currentFunc
         fs    <- getFuncState name
-        let fs' = fs { funcOffset = funcOffset fs + (n * GenStateLocal.memOffset) }
+        let fs' = fs { funcOffset = funcOffset fs + (n * SymbolTable.memOffset) }
         setFuncState name fs'

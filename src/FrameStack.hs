@@ -12,10 +12,10 @@ module FrameStack
         ) where
 
 
-import           GenState  (GenState)
-import qualified GenState  (getFrameStack, putFrameStack)
-import           GenTokens (Scope (..))
-import           Stack     (stackPeek, stackPop, stackPush)
+import           GenState    (GenState)
+import qualified GenState    (getFrameStack, putFrameStack)
+import           GenTokens   (Scope (..))
+import           SymbolTable (stackPeek, stackPop, stackPush)
 
 
 -- | Check if in Local or Global scope

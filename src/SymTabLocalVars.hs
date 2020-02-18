@@ -23,9 +23,9 @@ import qualified Data.Map          as M
 import           Error             (CompilerError (StateError), StateError (..))
 import qualified FrameStack        (currentFunc)
 import           GenState          (GenState, throwError)
-import           GenStateLocal     (FuncState (paramCount, parameters, scopes),
+import           SymbolTable       (FuncState (paramCount, parameters, scopes),
                                     LocalVar (..), ParamVar (..))
-import qualified GenStateLocal     (mkLocVar, mkParVar)
+import qualified SymbolTable       (mkLocVar, mkParVar)
 import           SymTabLocalOffset (currentOffset, incrementOffsetByN)
 import           SymTabLocalScope  (scopeDepth)
 import           SymTabLocalShared (getFuncState, setFuncState)
@@ -151,7 +151,7 @@ store name value typ = do
         fstate   <- getFuncState funcName
         level    <- scopeDepth funcName
         scope    <- getScope level fstate
-        let locVar  = GenStateLocal.mkLocVar value typ
+        let locVar  = SymbolTable.mkLocVar value typ
             scope'  = M.insert name locVar scope
             fstate' = fstate { scopes = M.insert level scope' $ scopes fstate }
         setFuncState funcName fstate'
@@ -173,7 +173,7 @@ getParamPos paramName funcName =
 
 addParam :: String -> Type -> FuncState -> FuncState
 addParam name typ fstate =
-        let parVar  = GenStateLocal.mkParVar (paramCount fstate) typ
+        let parVar  = SymbolTable.mkParVar (paramCount fstate) typ
             fstate' = fstate { paramCount = succ . paramCount $ fstate }
             in
         fstate' { parameters = M.insert name parVar . parameters $ fstate' }

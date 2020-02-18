@@ -20,7 +20,7 @@ import           Data.Maybe        (isNothing)
 
 import qualified FrameStack        (popFunc, pushFunc)
 import           GenState          (GenState)
-import qualified GenStateLocal     (mkFuncState)
+import qualified SymbolTable       (mkFuncState)
 import           SymTabLocalOffset (incrementOffsetByN, stackPointerValue)
 import           SymTabLocalScope  (closeScope, initScope)
 import           SymTabLocalShared (delFuncState, grabFuncState, setFuncState)
@@ -33,7 +33,7 @@ initFunction name = do
         FrameStack.pushFunc name
         fstate <- grabFuncState name
         when (isNothing fstate) $
-            setFuncState name GenStateLocal.mkFuncState
+            setFuncState name SymbolTable.mkFuncState
 
 
 -- | Close current function scope
