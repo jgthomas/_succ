@@ -14,8 +14,8 @@ module Debug
 import Text.Pretty.Simple (pPrint)
 
 import AST                (Tree)
-import GenState           (SymTab)
 import LexDat             (LexDat)
+import SymbolTable        (SymTab)
 
 
 -- | Debug switch definition

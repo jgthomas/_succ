@@ -15,11 +15,13 @@ import qualified ASM
 import           AST                 (ArrayNode (..), Tree (..))
 import           Error               (CompilerError (FatalError),
                                       FatalError (GeneratorBug))
-import           GenState            (GenState, SymTab, runGenState, throwError)
+import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (getState, startState)
 import           GenTokens           (Scope (..))
 import           Operator            (BinaryOp (..), Operator (..))
+import           SymbolTable         (SymTab)
 import qualified SymTab
+
 
 -- | Generate x86-64 asm from AST
 generate :: Tree -> Either CompilerError (String, SymTab)

@@ -17,26 +17,19 @@ module GenState
          getFuncState,
          updateFuncState,
          delFuncState,
-         SuccState.getState,
-         SymTab
+         SuccState.getState
         ) where
 
 
 import qualified Data.Map       as M
 
 import           Error          (CompilerError)
-import           GenStateGlobal (GlobalScope, mkGlobalScope)
+import           GenStateGlobal (GlobalScope)
 import           GenStateLocal  (FuncState)
-import           Stack          (Stack, mkStack)
+import           Stack          (Stack)
 import           SuccState      (SuccStateM, throwError)
 import qualified SuccState      (getState, putState, runSuccState)
-
-
-data SymTab = Tab { label       :: Int
-                  , frameStack  :: Stack String
-                  , globalScope :: GlobalScope
-                  , funcStates  :: M.Map String FuncState }
-            deriving (Show)
+import           SymbolTable    (SymTab (..), mkSymTab)
 
 
 -- | State definition
@@ -45,7 +38,7 @@ type GenState = SuccStateM SymTab
 
 -- | State constructor
 startState :: SymTab
-startState = Tab 1 mkStack mkGlobalScope M.empty
+startState = mkSymTab
 
 
 -- | Run the state extracting the error or result
