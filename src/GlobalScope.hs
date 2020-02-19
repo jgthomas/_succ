@@ -1,10 +1,10 @@
 {-|
-Module       : SymTabGlobal
+Module       : GlobalScope
 Description  : Control state for the global scope
 
 Functions to manipulate the state stored for the global scope of a program.
 -}
-module SymTabGlobal
+module GlobalScope
         (declareFunction,
          defineFunction,
          declareGlobal,
