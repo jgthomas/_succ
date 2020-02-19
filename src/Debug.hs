@@ -14,7 +14,7 @@ module Debug
 import Text.Pretty.Simple (pPrint)
 
 import AST                (Tree)
-import LexDat             (LexDat)
+import LexTab             (LexDat)
 import SymbolTable        (SymTab)
 
 

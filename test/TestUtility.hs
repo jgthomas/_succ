@@ -4,7 +4,7 @@ module TestUtility where
 
 import           AST    (NodeDat)
 import qualified AST    (mkNodeDat)
-import           LexDat (LexDat (LexDat))
+import           LexTab (LexDat (LexDat))
 import           Tokens (Token)
 
 

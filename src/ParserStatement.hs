@@ -5,7 +5,7 @@ module ParserStatement (parseStatementBlock) where
 import AST               (Tree (..))
 import Error             (CompilerError (ParserError, SyntaxError),
                           ParserError (..), SyntaxError (..))
-import LexDat            (LexDat (..))
+import LexTab            (LexDat (..))
 import ParserDeclaration (parseDeclaration)
 import ParserExpression  (parseExpression)
 import ParserShared      (makeNodeDat, nextTokIsNot, verifyAndConsume)

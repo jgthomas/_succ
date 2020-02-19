@@ -13,7 +13,7 @@ import Data.Maybe    (fromMaybe, isNothing)
 
 import AST           (NodeDat (..), Tree (..))
 import Error
-import LexDat        (LexDat (..))
+import LexTab        (LexDat (..))
 import Tokens        (Token)
 import Type          (Type (..))
 

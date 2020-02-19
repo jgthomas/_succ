@@ -12,9 +12,9 @@ import           Data.Char (isAlpha, isDigit, isSpace)
 
 import           Error     (CompilerError (ImpossibleError, LexerError),
                             LexerError (..))
-import           LexDat    (LexDat)
 import           LexState  (LexerState, runLexState, throwError)
 import qualified LexState  (addToken, getState, incLineNum, startState)
+import           LexTab    (LexDat)
 import           Tokens    (CloseBracket (..), Keyword (..), OpTok (..),
                             OpenBracket (..), Token (..))
 

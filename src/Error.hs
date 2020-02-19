@@ -3,7 +3,7 @@ module Error where
 
 
 import AST      (Tree)
-import LexDat   (LexDat)
+import LexTab   (LexDat)
 import Operator (Operator)
 import Tokens   (Keyword, Token)
 import Type     (Type)

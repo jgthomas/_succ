@@ -6,8 +6,8 @@ import Data.Either
 import Test.Hspec
 
 import Error
-import LexDat
 import Lexer
+import LexTab
 import Tokens
 
 

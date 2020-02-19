@@ -15,7 +15,7 @@ import Control.Monad (unless)
 import AST           (NodeDat, Tree (..), mkNodeDat)
 import Error         (CompilerError (ParserError, SyntaxError),
                       ParserError (..), SyntaxError (..))
-import LexDat        (LexDat (..))
+import LexTab        (LexDat (..))
 import ParState      (ParserState, throwError)
 import Tokens        (CloseBracket (..), Keyword (..), OpTok (..),
                       OpenBracket (..), Token (..))

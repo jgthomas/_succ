@@ -5,7 +5,7 @@ module ParserFunction (parseFunction) where
 import AST              (Tree (..))
 import Error            (CompilerError (ParserError, SyntaxError),
                          ParserError (..), SyntaxError (..))
-import LexDat           (LexDat (..))
+import LexTab           (LexDat (..))
 import ParserExpression (parseExpression)
 import ParserShared     (consumeNToks, consumeTok, makeNodeDat,
                          parseBracketedSeq, parseType, verifyAndConsume)

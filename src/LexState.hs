@@ -16,23 +16,20 @@ module LexState
 
 
 import           Error     (CompilerError)
-import           LexDat    (LexDat (LexDat))
+import           LexTab    (LexDat, LexTab (..))
+import qualified LexTab    (mkLexDat, mkLexTab)
 import           SuccState (SuccStateM, throwError)
 import qualified SuccState (getState, putState, runSuccState)
 import           Tokens    (Token)
 
 
-data LexState = LexState { datList :: [LexDat]
-                         , lineNum :: Int }
-
-
 -- | State definition
-type LexerState = SuccStateM LexState
+type LexerState = SuccStateM LexTab
 
 
 -- | Initial state
-startState :: LexState
-startState = LexState [] 1
+startState :: LexTab
+startState = LexTab.mkLexTab
 
 
 incLineNum :: LexerState ()
@@ -51,7 +48,7 @@ addToken tok = do
 mkLexDat :: Token -> LexerState LexDat
 mkLexDat tok = do
         lineN <- lineNum <$> SuccState.getState
-        pure $ LexDat tok lineN
+        pure $ LexTab.mkLexDat tok lineN
 
 
 getState :: LexerState [LexDat]
