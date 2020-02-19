@@ -8,7 +8,7 @@ generator stage state.
 module SymTab
         (module FrameStack,
          module GlobalScope,
-         module SymTabLocal,
+         module FuncState,
          labelNum,
          memOffset,
          getVariables
@@ -16,16 +16,16 @@ module SymTab
 
 
 import FrameStack  (currentFunc, getScope)
+import FuncState
 import GenState    (GenState, labelNum)
 import GlobalScope
 import SymbolTable (memOffset)
-import SymTabLocal
 
 
 -- | Check all variable types for the supplied identifier
 getVariables :: String -> GenState (Maybe Int, Maybe Int, Maybe String)
 getVariables varName = do
-        offset  <- SymTabLocal.variableOffset varName
-        argPos  <- SymTabLocal.parameterPosition varName
+        offset  <- FuncState.variableOffset varName
+        argPos  <- FuncState.parameterPosition varName
         globLab <- GlobalScope.globalLabel varName
         pure (offset, argPos, globLab)

@@ -1,5 +1,5 @@
 
-module SymTabLocalShared where
+module FuncStateAccess where
 
 
 import           Error       (CompilerError (StateError),

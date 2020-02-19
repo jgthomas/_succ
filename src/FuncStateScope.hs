@@ -1,17 +1,17 @@
 
-module SymTabLocalScope
+module FuncStateScope
         (initScope,
          closeScope,
          scopeDepth
         ) where
 
 
-import qualified Data.Map          as M
+import qualified Data.Map        as M
 
-import qualified FrameStack        (currentFunc)
-import           GenState          (GenState)
-import           SymbolTable       (FuncState (currentScope, scopes))
-import           SymTabLocalShared (getFuncState, setFuncState)
+import qualified FrameStack      (currentFunc)
+import           FuncStateAccess (getFuncState, setFuncState)
+import           GenState        (GenState)
+import           SymbolTable     (FuncState (currentScope, scopes))
 
 
 -- | Initialize a new scope inside a function

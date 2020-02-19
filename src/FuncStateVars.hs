@@ -1,5 +1,5 @@
 
-module SymTabLocalVars
+module FuncStateVars
         (checkVariable,
          variableOffset,
          variableType,
@@ -16,20 +16,20 @@ module SymTabLocalVars
         ) where
 
 
-import           Data.Function     (on)
-import           Data.List         (sortBy)
-import qualified Data.Map          as M
+import           Data.Function   (on)
+import           Data.List       (sortBy)
+import qualified Data.Map        as M
 
-import           Error             (CompilerError (StateError), StateError (..))
-import qualified FrameStack        (currentFunc)
-import           GenState          (GenState, throwError)
-import           SymbolTable       (FuncState (paramCount, parameters, scopes),
-                                    LocalVar (..), ParamVar (..))
-import qualified SymbolTable       (mkLocVar, mkParVar)
-import           SymTabLocalOffset (currentOffset, incrementOffsetByN)
-import           SymTabLocalScope  (scopeDepth)
-import           SymTabLocalShared (getFuncState, setFuncState)
-import           Type              (Type (Label))
+import           Error           (CompilerError (StateError), StateError (..))
+import qualified FrameStack      (currentFunc)
+import           FuncStateAccess (getFuncState, setFuncState)
+import           FuncStateOffset (currentOffset, incrementOffsetByN)
+import           FuncStateScope  (scopeDepth)
+import           GenState        (GenState, throwError)
+import           SymbolTable     (FuncState (paramCount, parameters, scopes),
+                                  LocalVar (..), ParamVar (..))
+import qualified SymbolTable     (mkLocVar, mkParVar)
+import           Type            (Type (Label))
 
 
 -- | Check if variable name is in use in current scope
