@@ -26,15 +26,13 @@ data Debug = DebugOn
 
 -- | Output debugging information
 debug :: Debug -> String -> [LexDat] -> Tree -> SymTab -> String -> IO ()
-debug debugSet input lexed tree symTab asm =
-        case debugSet of
-             DebugOff -> pure ()
-             DebugOn  -> do
-                     debugInput input
-                     debugLexed lexed
-                     debugAst tree
-                     debugState symTab
-                     debugOutput asm
+debug DebugOff _ _ _ _ _ = pure ()
+debug DebugOn input lexed tree symTab asm = do
+        debugInput input
+        debugLexed lexed
+        debugAst tree
+        debugState symTab
+        debugOutput asm
 
 
 debugInput :: String -> IO ()
