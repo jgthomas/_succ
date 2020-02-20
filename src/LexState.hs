@@ -32,12 +32,14 @@ startState :: LexTab
 startState = LexTab.mkLexTab
 
 
+-- | Increment the line number in the state
 incLineNum :: LexerState ()
 incLineNum = do
         state <- SuccState.getState
         SuccState.putState $ state { lineNum = succ . lineNum $ state }
 
 
+-- | Build LexDat from token and add to state
 addToken :: Token -> LexerState ()
 addToken tok = do
         lexDat <- mkLexDat tok
@@ -51,6 +53,7 @@ mkLexDat tok = do
         pure $ LexTab.mkLexDat tok lineN
 
 
+-- | Return the list of LexDat from the state
 getState :: LexerState [LexDat]
 getState = datList <$> SuccState.getState
 
