@@ -31,24 +31,50 @@ debug debugSet input lexed parsed symTab asm =
              DebugOff -> pure ()
              DebugOn  -> do
                      newLine
-                     putStrLn "INPUT C CODE"
-                     putStrLn input
-                     putStrLn "LEXED TOKENS"
+                     debugInput input
                      newLine
-                     print lexed
+                     debugLexed lexed
                      newLine
-                     putStrLn "ABSTRACT SYNTAX TREE"
+                     debugAst parsed
                      newLine
-                     pPrint parsed
+                     debugState symTab
                      newLine
-                     putStrLn "STATE"
+                     debugOutput asm
                      newLine
-                     pPrint symTab
-                     newLine
-                     putStrLn "OUTPUT ASSEMBLY CODE"
-                     newLine
-                     putStrLn asm
-                     newLine
+
+
+debugInput :: String -> IO ()
+debugInput input = do
+        putStrLn "INPUT C CODE"
+        putStrLn input
+
+
+debugLexed :: [LexDat] -> IO ()
+debugLexed lexed = do
+        putStrLn "LEXED TOKENS"
+        newLine
+        print lexed
+
+
+debugAst :: Tree -> IO ()
+debugAst tree = do
+        putStrLn "ABSTRACT SYNTAX TREE"
+        newLine
+        pPrint tree
+
+
+debugState :: SymTab -> IO ()
+debugState symTab = do
+        putStrLn "STATE"
+        newLine
+        pPrint symTab
+
+
+debugOutput :: String -> IO ()
+debugOutput asm = do
+        putStrLn "OUTPUT ASSEMBLY CODE"
+        newLine
+        putStrLn asm
 
 
 newLine :: IO ()
