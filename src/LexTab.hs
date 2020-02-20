@@ -14,6 +14,7 @@ import Tokens (Token)
 data LexTab = LexTab { datList :: [LexDat]
                      , lineNum :: Int }
 
+
 -- | LexTab state constructor
 mkLexTab :: LexTab
 mkLexTab = LexTab [] 1
