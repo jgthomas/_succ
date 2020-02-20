@@ -51,29 +51,25 @@ debugInput input = do
 
 debugLexed :: [LexDat] -> IO ()
 debugLexed lexed = do
-        putStrLn "LEXED TOKENS"
-        newLine
+        putStrLn "LEXED TOKENS\n"
         print lexed
 
 
 debugAst :: Tree -> IO ()
 debugAst tree = do
-        putStrLn "ABSTRACT SYNTAX TREE"
-        newLine
+        putStrLn "ABSTRACT SYNTAX TREE\n"
         pPrint tree
 
 
 debugState :: SymTab -> IO ()
 debugState symTab = do
-        putStrLn "STATE"
-        newLine
+        putStrLn "STATE\n"
         pPrint symTab
 
 
 debugOutput :: String -> IO ()
 debugOutput asm = do
-        putStrLn "OUTPUT ASSEMBLY CODE"
-        newLine
+        putStrLn "OUTPUT ASSEMBLY CODE\n"
         putStrLn asm
 
 
