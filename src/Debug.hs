@@ -39,7 +39,7 @@ debug debugSet input lexed tree symTab asm =
 
 debugInput :: String -> IO ()
 debugInput input = do
-        putStrLn "\nINPUT C CODE"
+        putStrLn "\nC CODE"
         putStrLn input
         newLine
 
@@ -67,7 +67,7 @@ debugState symTab = do
 
 debugOutput :: String -> IO ()
 debugOutput asm = do
-        putStrLn "OUTPUT ASSEMBLY CODE\n"
+        putStrLn "ASSEMBLY CODE\n"
         putStrLn asm
         newLine
 
