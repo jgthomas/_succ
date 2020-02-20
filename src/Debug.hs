@@ -30,47 +30,46 @@ debug debugSet input lexed parsed symTab asm =
         case debugSet of
              DebugOff -> pure ()
              DebugOn  -> do
-                     newLine
                      debugInput input
-                     newLine
                      debugLexed lexed
-                     newLine
                      debugAst parsed
-                     newLine
                      debugState symTab
-                     newLine
                      debugOutput asm
-                     newLine
 
 
 debugInput :: String -> IO ()
 debugInput input = do
-        putStrLn "INPUT C CODE"
+        putStrLn "\nINPUT C CODE"
         putStrLn input
+        newLine
 
 
 debugLexed :: [LexDat] -> IO ()
 debugLexed lexed = do
         putStrLn "LEXED TOKENS\n"
         print lexed
+        newLine
 
 
 debugAst :: Tree -> IO ()
 debugAst tree = do
         putStrLn "ABSTRACT SYNTAX TREE\n"
         pPrint tree
+        newLine
 
 
 debugState :: SymTab -> IO ()
 debugState symTab = do
         putStrLn "STATE\n"
         pPrint symTab
+        newLine
 
 
 debugOutput :: String -> IO ()
 debugOutput asm = do
         putStrLn "OUTPUT ASSEMBLY CODE\n"
         putStrLn asm
+        newLine
 
 
 newLine :: IO ()
