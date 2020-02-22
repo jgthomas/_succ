@@ -119,15 +119,10 @@ derefLoadGlobal label =
 
 
 -- | Store a dereferenced pointer value
-derefStore :: String
-           -> Maybe Int
-           -> Maybe Int
-           -> Maybe String
-           -> String
-derefStore val (Just off) _ _ = val ++ derefStoreLocal off
-derefStore val _ (Just pos) _ = val ++ derefStoreParam pos
-derefStore val _ _ (Just lab) = val ++ derefStoreGlobal lab
-derefStore _ _ _ _            = ""
+derefStore :: String -> VarType -> String
+derefStore val (LocalVar n m)  = val ++ derefStoreLocal (n + m)
+derefStore val (ParamVar n _)  = val ++ derefStoreParam n
+derefStore val (GlobalVar s _) = val ++ derefStoreGlobal s
 
 
 derefStoreLocal :: Int -> String

@@ -140,10 +140,12 @@ genASM node@AssignmentNode{} = do
              Global -> defineGlobal node
              Local  -> defineLocal node
 
-genASM (AssignDereferenceNode derefNode@(DereferenceNode varName _) value op _) = do
+genASM node@(AssignDereferenceNode derefNode@(DereferenceNode name _) value op _) = do
         assign <- buildAssignmentASM derefNode value op
-        (offset, argPos, globLab) <- SymTab.getVariables varName
-        pure $ ASM.derefStore assign offset argPos globLab
+        var    <- SymTab.getVariable name
+        case var of
+             NotFound  -> throwError $ FatalError (GeneratorBug node)
+             VarType a -> pure $ ASM.derefStore assign a
 genASM node@AssignDereferenceNode{} = throwError $ FatalError (GeneratorBug node)
 
 genASM (ExprStmtNode expression _) = genASM expression
