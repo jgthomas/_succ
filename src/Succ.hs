@@ -22,12 +22,11 @@ import           SuccTokens  (Debug (..), Stage (..))
 -- | Run the compilation process
 compile :: String -> Maybe String -> IO String
 compile input debugSet = do
-        _        <- debugInput (pure input)
-        toks     <- debugLexer . errorHandler . Lexer.tokenize $ input
-        ast      <- debugParser . errorHandler . Parser.parse $ toks
-        ast'     <- errorHandler . Checker.check $ ast
-        (asm, _) <- debugOutput . errorHandler . Generator.generate $ ast'
-        pure asm
+        input' <- debugInput . pure $ input
+        toks   <- debugLexer . errorHandler . Lexer.tokenize $ input'
+        ast    <- debugParser . errorHandler . Parser.parse $ toks
+        ast'   <- errorHandler . Checker.check $ ast
+        fmap fst . debugOutput . errorHandler . Generator.generate $ ast'
         where
                 debugLevel   = setDebugLevel debugSet
                 debugInput   = Debug.debug debugLevel Input
