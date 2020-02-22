@@ -19,7 +19,7 @@ import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (getState, startState)
 import           GenTokens           (Scope (..))
 import           Operator            (BinaryOp (..), Operator (..))
-import           SymbolTable         (SymTab)
+import           SymTab              (SymTab)
 import qualified SymTab
 
 

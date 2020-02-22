@@ -9,6 +9,7 @@ module SymTab
         (module FrameStack,
          module GlobalScope,
          module FuncState,
+         SymTab,
          labelNum,
          memOffset,
          getVariables
@@ -19,7 +20,7 @@ import FrameStack  (currentFunc, getScope)
 import FuncState
 import GenState    (GenState, labelNum)
 import GlobalScope
-import SymbolTable (memOffset)
+import SymbolTable (SymTab, memOffset)
 
 
 -- | Check all variable types for the supplied identifier
