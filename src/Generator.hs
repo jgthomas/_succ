@@ -331,13 +331,14 @@ declareLocal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 defineLocal :: Tree -> GenState String
-defineLocal node@(AssignmentNode varNode@(VarNode varName _) value op _) = do
+defineLocal node@(AssignmentNode varNode@(VarNode name _) value op _) = do
         assign <- buildAssignmentASM varNode value op
-        (offset, _, globLab) <- SymTab.getVariables varName
-        case (offset, globLab) of
-             (Just off, _) -> ASM.assign assign off <$> SymTab.stackPointerValue
-             (_, Just lab) -> pure $ ASM.storeGlobal assign lab
-             _ -> throwError $ FatalError (GeneratorBug node)
+        var <- SymTab.getVariable name
+        case var of
+             (VarType (LocalVar n m))  -> ASM.assign assign (n + m) <$> SymTab.stackPointerValue
+             (VarType (ParamVar _ _))  -> undefined
+             (VarType (GlobalVar s _)) -> pure $ ASM.storeGlobal assign s
+             NotFound -> throwError $ FatalError (GeneratorBug node)
 defineLocal tree = throwError $ FatalError (GeneratorBug tree)
 
 
