@@ -38,7 +38,6 @@ debugIt stage x = do
                 outTitle   = "ASSEMBLY CODE"
 
 
-
 debugString :: Show a => String -> a -> IO ()
 debugString title content = do
         putStrLn title
