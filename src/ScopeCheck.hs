@@ -23,6 +23,7 @@ import           Data.Maybe    (isNothing)
 import           AST           (Tree (..))
 import           Error         (CompilerError (ScopeError), ScopeError (..))
 import           GenState      (GenState, throwError)
+import           GenTokens     (VarLookup (NotFound))
 import qualified SymTab
 
 
@@ -116,9 +117,9 @@ variableExists tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 varExists :: Tree -> String -> GenState ()
-varExists node varName = do
-        (offset, argPos, globLab) <- SymTab.getVariables varName
-        when (isNothing offset && isNothing argPos && isNothing globLab) $
+varExists node name = do
+        var <- SymTab.getVariable name
+        when (var == NotFound) $
             throwError $ ScopeError (UnrecognisedNode node)
 
 
