@@ -12,9 +12,9 @@ import Data.Map      as M (Map, fromList, lookup)
 import Data.Maybe    (fromMaybe, isNothing)
 
 import AST           (NodeDat (..), Tree (..))
-import Debug         (Debug (..))
 import Error
 import LexTab        (LexDat (..))
+import SuccTokens    (Debug (..))
 import Tokens        (Token)
 import Type          (Type (..))
 

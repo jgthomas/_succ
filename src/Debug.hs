@@ -5,30 +5,13 @@ Description  : Output debugging information
 Internal debugger that outputs the results of each stage of
 the compilation process undertaken by succ.
 -}
-module Debug
-        (Debug(..),
-         debug,
-         Stage(..)
-        ) where
+module Debug (debug) where
 
 
 import Text.Pretty.Simple (OutputOptions (..), defaultOutputOptionsNoColor,
                            pPrint, pPrintOpt)
 
-
--- | Debug status
-data Debug = DebugOn
-           | DebugOff
-           deriving (Eq)
-
-
--- | Debug stage
-data Stage = Input
-           | Lexer
-           | Parser
-           | State
-           | Output
-           deriving (Eq)
+import SuccTokens         (Debug (..), Stage (..))
 
 
 -- | Print debugging output

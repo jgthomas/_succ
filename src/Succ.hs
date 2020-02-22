@@ -10,12 +10,13 @@ module Succ (compile) where
 import           System.Exit (exitFailure)
 
 import qualified Checker     (check)
-import           Debug       (Debug (..), Stage (..), debug)
+import qualified Debug       (debug)
 import           Error       (CompilerError)
 import qualified Generator   (generate)
 import qualified Lexer       (tokenize)
 import qualified Parser      (parse)
 import qualified PrintError  (printError)
+import           SuccTokens  (Debug (..), Stage (..))
 
 
 -- | Run the compilation process
@@ -31,11 +32,11 @@ compile input debugSet = do
         pure asm
         where
                 debugLevel   = setDebugLevel debugSet
-                debugInput   = debug debugLevel Input
-                debugLexer   = debug debugLevel Lexer
-                debugParser  = debug debugLevel Parser
-                debugState   = debug debugLevel State
-                debugOutput  = debug debugLevel Output
+                debugInput   = Debug.debug debugLevel Input
+                debugLexer   = Debug.debug debugLevel Lexer
+                debugParser  = Debug.debug debugLevel Parser
+                debugState   = Debug.debug debugLevel State
+                debugOutput  = Debug.debug debugLevel Output
                 errorHandler = handleError debugLevel input
 
 
