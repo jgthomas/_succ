@@ -17,7 +17,7 @@ import           Error               (CompilerError (FatalError),
                                       FatalError (GeneratorBug))
 import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (getState, startState)
-import           GenTokens           (Scope (..))
+import           GenTokens           (Scope (..), VarLookup (..))
 import           Operator            (BinaryOp (..), Operator (..))
 import           SymTab              (SymTab)
 import qualified SymTab
@@ -201,9 +201,12 @@ genASM (ArrayNode (ArrayItemAssign pos (VarNode name _) _)) = do
         pure $ ASM.storeVariable arrPosOffset globLab
 genASM node@(ArrayNode ArrayItemAssign{}) = throwError $ FatalError (GeneratorBug node)
 
-genASM (VarNode name _) = do
-        (offset, argPos, globLab) <- SymTab.getVariables name
-        pure $ ASM.loadVariable offset argPos globLab
+genASM node@(VarNode name _) = do
+        var <- SymTab.getVariable name
+        case var of
+             NotFound  -> throwError $ FatalError (GeneratorBug node)
+             VarType a -> pure $ ASM.loadVar a
+        --pure $ ASM.loadVariable offset argPos globLab
 
 genASM (AddressOfNode name _) = do
         (offset, _, globLab) <- SymTab.getVariables name

@@ -4,6 +4,7 @@ module AsmVariables
          decNoAssign,
          assign,
          loadVariable,
+         loadVar,
          storeVariable,
          saveGlobal,
          varOnStack,
@@ -15,6 +16,7 @@ module AsmVariables
         ) where
 
 
+import GenTokens   (VarType (..))
 import Instruction (literal, loadAddOf, move, sub)
 import Register    (Register (..), reg, scratch, selectRegister)
 
@@ -56,6 +58,12 @@ loadVariable (Just off) _ _ = varOffStack off
 loadVariable _ (Just pos) _ = getFromRegister pos
 loadVariable _ _ (Just lab) = loadGlobal lab
 loadVariable _ _ _          = ""
+
+
+loadVar :: VarType -> String
+loadVar (LocalVar n m)  = varOffStack (n + m)
+loadVar (ParamVar n _)  = getFromRegister n
+loadVar (GlobalVar s _) = loadGlobal s
 
 
 varOffStack :: Int -> String
