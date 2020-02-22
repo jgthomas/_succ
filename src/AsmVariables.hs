@@ -67,10 +67,10 @@ getFromRegister r = move (selectRegister r) (reg RAX)
 
 
 -- | Store a variable value currently held in %rax
-storeVariable :: Maybe Int -> Maybe String -> String
-storeVariable (Just off) _ = varOnStack off
-storeVariable _ (Just lab) = saveGlobal lab
-storeVariable _ _          = ""
+storeVariable :: VarType -> String
+storeVariable (LocalVar n m)  = varOnStack (n + m)
+storeVariable (ParamVar _ _)  = undefined
+storeVariable (GlobalVar s _) = saveGlobal s
 
 
 -- | Save a local variable

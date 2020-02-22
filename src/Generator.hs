@@ -196,10 +196,11 @@ genASM (ArrayNode (ArrayAssignPosNode left right _ _)) = do
         value <- genASM right
         (++) value <$> genASM left
 
-genASM (ArrayNode (ArrayItemAssign pos (VarNode name _) _)) = do
-        (offset, _, globLab) <- SymTab.getVariables name
-        let arrPosOffset = (+) (pos * SymTab.memOffset) <$> offset
-        pure $ ASM.storeVariable arrPosOffset globLab
+genASM node@(ArrayNode (ArrayItemAssign pos (VarNode name _) _)) = do
+        var <- SymTab.getVariable name
+        case var of
+             NotFound  -> throwError $ FatalError (GeneratorBug node)
+             VarType a -> ASM.storeVariable <$> adjustVarOffset pos a
 genASM node@(ArrayNode ArrayItemAssign{}) = throwError $ FatalError (GeneratorBug node)
 
 genASM node@(VarNode name _) = do
