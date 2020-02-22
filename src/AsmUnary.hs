@@ -3,6 +3,7 @@ module AsmUnary (unary) where
 
 
 import AsmVariables (saveGlobal, varOnStack)
+import GenTokens    (VarType (..))
 import Instruction  (Set (..), comp, dec, inc, invertBits, literal,
                      makeNegative, move, setBitIf)
 import Operator     (PostOpUnary (..), PreOpUnary (..), Unary (..),
@@ -11,30 +12,26 @@ import Register     (Register (..), reg, scratch)
 
 
 -- | Output asm for unary operators
-unary :: String
-      -> UnaryOp
-      -> Maybe Int
-      -> Maybe String
-      -> String
-unary load (PreOpUnary op) n l  = load ++ unaryPreOp op n l
-unary load (PostOpUnary op) n l = load ++ unaryPostOp op n l
-unary load (Unary op) _ _       = load ++ unaryOp op
+unary :: String -> UnaryOp -> VarType -> String
+unary load (PreOpUnary op) var  = load ++ unaryPreOp op var
+unary load (PostOpUnary op) var = load ++ unaryPostOp op var
+unary load (Unary op) _         = load ++ unaryOp op
 
 
-unaryPreOp :: PreOpUnary -> Maybe Int -> Maybe String -> String
-unaryPreOp PreIncrement (Just n) _ = inc (reg RAX) ++ varOnStack n
-unaryPreOp PreDecrement (Just n) _ = dec (reg RAX) ++ varOnStack n
-unaryPreOp PreIncrement _ (Just l) = inc (reg RAX) ++ saveGlobal l
-unaryPreOp PreDecrement _ (Just l) = dec (reg RAX) ++ saveGlobal l
-unaryPreOp _ _ _                   = undefined
+unaryPreOp :: PreOpUnary -> VarType -> String
+unaryPreOp PreIncrement (LocalVar n m)  = inc (reg RAX) ++ varOnStack (n + m)
+unaryPreOp PreDecrement (LocalVar n m)  = dec (reg RAX) ++ varOnStack (n + m)
+unaryPreOp _ ParamVar{}                 = undefined
+unaryPreOp PreIncrement (GlobalVar s _) = inc (reg RAX) ++ saveGlobal s
+unaryPreOp PreDecrement (GlobalVar s _) = dec (reg RAX) ++ saveGlobal s
 
 
-unaryPostOp :: PostOpUnary -> Maybe Int -> Maybe String -> String
-unaryPostOp PostIncrement (Just n) _ = updateStoredLocal n inc
-unaryPostOp PostDecrement (Just n) _ = updateStoredLocal n dec
-unaryPostOp PostIncrement _ (Just l) = updateStoredGlobal l inc
-unaryPostOp PostDecrement _ (Just l) = updateStoredGlobal l dec
-unaryPostOp _ _ _                    = undefined
+unaryPostOp :: PostOpUnary -> VarType -> String
+unaryPostOp PostIncrement (LocalVar n m)  = updateStoredLocal (n + m) inc
+unaryPostOp PostDecrement (LocalVar n m)  = updateStoredLocal (n + m) dec
+unaryPostOp _ ParamVar{}                  = undefined
+unaryPostOp PostIncrement (GlobalVar s _) = updateStoredGlobal s inc
+unaryPostOp PostDecrement (GlobalVar s _) = updateStoredGlobal s dec
 
 
 updateStoredLocal :: Int -> (String -> String) -> String

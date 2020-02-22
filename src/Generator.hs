@@ -170,13 +170,15 @@ genASM node@(BinaryNode _ right _ _) = do
         rgt <- genASM right
         processBinaryNode node rgt
 
-genASM (UnaryNode node@(VarNode a _) op _) = do
+genASM (UnaryNode node@(VarNode name _) op _) = do
         unaryASM      <- genASM node
-        (off, _, lab) <- SymTab.getVariables a
-        pure $ ASM.unary unaryASM op off lab
+        var <- SymTab.getVariable name
+        case var of
+             NotFound    -> throwError $ FatalError (GeneratorBug node)
+             (VarType a) -> pure $ ASM.unary unaryASM op a
 genASM (UnaryNode tree  op _) = do
         unode <- genASM tree
-        pure $ ASM.unary unode op Nothing Nothing
+        pure $ ASM.unary unode op (LocalVar 0 0)
 
 genASM node@(ArrayNode ArrayDeclareNode{}) = do
         currScope <- SymTab.getScope

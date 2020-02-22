@@ -12,7 +12,6 @@ module SymTab
          SymTab,
          labelNum,
          memOffset,
-         getVariables,
          getVariable
         ) where
 
@@ -26,15 +25,7 @@ import           GlobalScope
 import           SymbolTable (SymTab, memOffset)
 
 
--- | Check all variable types for the supplied identifier
-getVariables :: String -> GenState (Maybe Int, Maybe Int, Maybe String)
-getVariables varName = do
-        offset  <- FuncState.variableOffset varName
-        argPos  <- FuncState.parameterPosition varName
-        globLab <- GlobalScope.globalLabel varName
-        pure (offset, argPos, globLab)
-
-
+-- | Build variable data type from retrieved data
 getVariable :: String -> GenState VarLookup
 getVariable name = do
         localVar  <- GenTokens.mkVarLocal <$> FuncState.variableOffset name
