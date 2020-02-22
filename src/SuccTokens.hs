@@ -1,4 +1,9 @@
+{-|
+Module       : SuccTokens
+Description  : General compiler data types
 
+Data types used to direct the internal flow of the compilation process.
+-}
 module SuccTokens where
 
 
