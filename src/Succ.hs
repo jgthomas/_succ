@@ -21,13 +21,13 @@ import qualified PrintError  (printError)
 -- | Run the compilation process
 compile :: String -> Maybe String -> IO String
 compile input debugSet = do
-        _ <- debugInput (pure input)
+        _             <- debugInput (pure input)
         toks          <- debugLexer . errorHandler . Lexer.tokenize $ input
         ast           <- debugParser . errorHandler . Parser.parse $ toks
         ast'          <- errorHandler . Checker.check $ ast
         (asm, symTab) <- errorHandler . Generator.generate $ ast'
-        _ <- debugState (pure symTab)
-        _ <- debugOutput (pure asm)
+        _             <- debugState (pure symTab)
+        _             <- debugOutput (pure asm)
         pure asm
         where
                 debugLevel   = setDebugLevel debugSet
