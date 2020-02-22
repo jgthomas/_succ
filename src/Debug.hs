@@ -8,16 +8,11 @@ the compilation process undertaken by succ.
 module Debug
         (Debug(..),
          debug,
-         debugs,
          Stage(..)
         ) where
 
 
 import Text.Pretty.Simple
-
-import AST                (Tree)
-import LexTab             (LexDat)
-import SymbolTable        (SymTab)
 
 
 -- | Debug switch definition
@@ -34,6 +29,11 @@ data Stage = Input
            deriving (Eq)
 
 
+debug :: Show a => Debug -> Stage -> IO a -> IO a
+debug DebugOff _ x    = x
+debug DebugOn stage x = debugs stage x
+
+
 debugs :: Show a => Stage -> IO a -> IO a
 debugs stage x = do
         y <- x
@@ -43,7 +43,7 @@ debugs stage x = do
              Parser -> debugDataType parTitle y
              State  -> debugDataType stateTitle y
              Output -> debugString outTitle y
-        id x
+        x
         where
                 inputTitle = "C CODE"
                 lexTitle   = "LEXED TOKENS"
@@ -56,7 +56,7 @@ debugs stage x = do
 debugString :: Show a => String -> a -> IO ()
 debugString title content = do
         putStrLn title
-        pPrintOpt options $ content
+        pPrintOpt options content
         putStr "\n"
         where
                 options = defaultOutputOptionsNoColor {outputOptionsIndentAmount = 0}
@@ -74,53 +74,3 @@ debugDataTypeSimple title dat = do
         putStrLn title
         print dat
         putStr "\n"
-
-
--- | Output debugging information
-debug :: Debug -> String -> [LexDat] -> Tree -> SymTab -> String -> IO ()
-debug DebugOff _ _ _ _ _ = pure ()
-debug DebugOn input lexed tree symTab asm = do
-        debugInput input
-        debugLexed lexed
-        debugAst tree
-        debugState symTab
-        debugOutput asm
-
-
-debugInput :: String -> IO ()
-debugInput input = do
-        putStrLn "\nC CODE"
-        putStrLn input
-        newLine
-
-
-debugLexed :: [LexDat] -> IO ()
-debugLexed lexed = do
-        putStrLn "LEXED TOKENS\n"
-        print lexed
-        newLine
-
-
-debugAst :: Tree -> IO ()
-debugAst tree = do
-        putStrLn "ABSTRACT SYNTAX TREE\n"
-        pPrint tree
-        newLine
-
-
-debugState :: SymTab -> IO ()
-debugState symTab = do
-        putStrLn "STATE\n"
-        pPrint symTab
-        newLine
-
-
-debugOutput :: String -> IO ()
-debugOutput asm = do
-        putStrLn "ASSEMBLY CODE\n"
-        putStrLn asm
-        newLine
-
-
-newLine :: IO ()
-newLine = putStr "\n"
