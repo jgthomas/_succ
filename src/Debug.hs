@@ -7,11 +7,13 @@ the compilation process undertaken by succ.
 -}
 module Debug
         (Debug(..),
-         debug
+         debug,
+         debugs,
+         Stage(..)
         ) where
 
 
-import Text.Pretty.Simple (pPrint)
+import Text.Pretty.Simple
 
 import AST                (Tree)
 import LexTab             (LexDat)
@@ -22,6 +24,56 @@ import SymbolTable        (SymTab)
 data Debug = DebugOn
            | DebugOff
            deriving (Eq)
+
+
+data Stage = Input
+           | Lexer
+           | Parser
+           | State
+           | Output
+           deriving (Eq)
+
+
+debugs :: Show a => Stage -> IO a -> IO a
+debugs stage x = do
+        y <- x
+        case stage of
+             Input  -> debugString inputTitle y
+             Lexer  -> debugDataTypeSimple lexTitle y
+             Parser -> debugDataType parTitle y
+             State  -> debugDataType stateTitle y
+             Output -> debugString outTitle y
+        id x
+        where
+                inputTitle = "C CODE"
+                lexTitle   = "LEXED TOKENS"
+                parTitle   = "ABSTRACT SYNTAX TREE"
+                stateTitle = "SYMBOL TABLE"
+                outTitle   = "ASSEMBLY CODE"
+
+
+
+debugString :: Show a => String -> a -> IO ()
+debugString title content = do
+        putStrLn title
+        pPrintOpt options $ content
+        putStr "\n"
+        where
+                options = defaultOutputOptionsNoColor {outputOptionsIndentAmount = 0}
+
+
+debugDataType :: Show a => String -> a -> IO ()
+debugDataType title dat = do
+        putStrLn title
+        pPrint dat
+        putStr "\n"
+
+
+debugDataTypeSimple :: Show a => String -> a -> IO ()
+debugDataTypeSimple title dat = do
+        putStrLn title
+        print dat
+        putStr "\n"
 
 
 -- | Output debugging information

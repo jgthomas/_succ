@@ -10,8 +10,7 @@ module Succ (compile) where
 import           System.Exit (exitFailure)
 
 import qualified Checker     (check)
-import           Debug       (Debug (..))
-import qualified Debug       (debug)
+import           Debug       (Debug (..), Stage (..), debugs)
 import           Error       (CompilerError)
 import qualified Generator   (generate)
 import qualified Lexer       (tokenize)
@@ -22,11 +21,14 @@ import qualified PrintError  (printError)
 -- | Run the compilation process
 compile :: String -> Maybe String -> IO String
 compile input debugSet = do
-        toks          <- errorHandler . Lexer.tokenize $ input
-        ast           <- errorHandler . Parser.parse $ toks
+        _ <- debugs Input (pure input)
+        toks          <- (debugs Lexer) . errorHandler . Lexer.tokenize $ input
+        ast           <- (debugs Parser) . errorHandler . Parser.parse $ toks
         ast'          <- errorHandler . Checker.check $ ast
         (asm, symTab) <- errorHandler . Generator.generate $ ast'
-        Debug.debug debugLevel input toks ast symTab asm
+        --Debug.debug debugLevel input toks ast symTab asm
+        _ <- debugs State (pure symTab)
+        _ <- debugs Output (pure asm)
         pure asm
         where
                 debugLevel   = setDebugLevel debugSet
