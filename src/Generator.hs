@@ -118,14 +118,15 @@ genASM (IfNode test action possElse _) = do
 
 genASM (PointerNode varNode@VarNode{} typ Nothing dat) =
         genASM (DeclarationNode varNode typ Nothing dat)
-genASM node@(PointerNode varNode@(VarNode varName _) typ (Just a) dat) = do
+genASM node@(PointerNode varNode@(VarNode name _) typ (Just a) dat) = do
         pointerASM <- genASM (DeclarationNode varNode typ Nothing dat)
         value      <- genASM a
-        (offset, _, globLab) <- SymTab.getVariables varName
-        case (offset, globLab) of
-             (Just off, _) -> pure $ ASM.varAddressStore (pointerASM ++ value) off
-             (_, Just _)   -> pure $ pointerASM ++ value
-             _             -> throwError $ FatalError (GeneratorBug node)
+        var        <- SymTab.getVariable name
+        case var of
+             (VarType (LocalVar n m))  -> pure $ ASM.varAddressStore (pointerASM ++ value) (n + m)
+             (VarType (ParamVar _ _))  -> undefined
+             (VarType (GlobalVar _ _)) -> pure $ pointerASM ++ value
+             NotFound                  -> throwError $ FatalError (GeneratorBug node)
 genASM node@PointerNode{} = throwError $ FatalError (GeneratorBug node)
 
 genASM node@DeclarationNode{} = do
@@ -338,7 +339,7 @@ defineLocal node@(AssignmentNode varNode@(VarNode name _) value op _) = do
              (VarType (LocalVar n m))  -> ASM.assign assign (n + m) <$> SymTab.stackPointerValue
              (VarType (ParamVar _ _))  -> undefined
              (VarType (GlobalVar s _)) -> pure $ ASM.storeGlobal assign s
-             NotFound -> throwError $ FatalError (GeneratorBug node)
+             NotFound                  -> throwError $ FatalError (GeneratorBug node)
 defineLocal tree = throwError $ FatalError (GeneratorBug tree)
 
 
