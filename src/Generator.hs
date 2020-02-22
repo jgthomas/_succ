@@ -17,7 +17,7 @@ import           Error               (CompilerError (FatalError),
                                       FatalError (GeneratorBug))
 import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (getState, startState)
-import           GenTokens           (Scope (..), VarLookup (..))
+import           GenTokens           (Scope (..), VarLookup (..), VarType (..))
 import           Operator            (BinaryOp (..), Operator (..))
 import           SymTab              (SymTab)
 import qualified SymTab
@@ -185,10 +185,11 @@ genASM (ArrayNode (ArrayItemsNode var items _)) = processArrayElements var items
 
 genASM (ArrayNode (ArraySingleItemNode item _)) = genASM item
 
-genASM (ArrayNode (ArrayItemAccess pos (VarNode name _) _)) = do
-        (offset, argPos, globLab) <- SymTab.getVariables name
-        let arrPosOffset = (+) (pos * SymTab.memOffset) <$> offset
-        pure $ ASM.loadVariable arrPosOffset argPos globLab
+genASM node@(ArrayNode (ArrayItemAccess pos (VarNode name _) _)) = do
+        var <- SymTab.getVariable name
+        case var of
+             NotFound  -> throwError $ FatalError (GeneratorBug node)
+             VarType a -> ASM.loadVar <$> adjustVarOffset pos a
 genASM node@(ArrayNode ArrayItemAccess{}) = throwError $ FatalError (GeneratorBug node)
 
 genASM (ArrayNode (ArrayAssignPosNode left right _ _)) = do
@@ -206,7 +207,6 @@ genASM node@(VarNode name _) = do
         case var of
              NotFound  -> throwError $ FatalError (GeneratorBug node)
              VarType a -> pure $ ASM.loadVar a
-        --pure $ ASM.loadVariable offset argPos globLab
 
 genASM (AddressOfNode name _) = do
         (offset, _, globLab) <- SymTab.getVariables name
@@ -223,6 +223,12 @@ genASM (ConstantNode n _) = do
         case currScope of
              Global -> pure . show $ n
              Local  -> pure . ASM.loadLiteral $ n
+
+
+adjustVarOffset :: Int -> VarType -> GenState VarType
+adjustVarOffset x (LocalVar n _)  = pure (LocalVar n (x * SymTab.memOffset))
+adjustVarOffset x (ParamVar n _)  = pure (ParamVar n x)
+adjustVarOffset x (GlobalVar s _) = pure (GlobalVar s x)
 
 
 -- Arrays
