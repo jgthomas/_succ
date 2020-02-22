@@ -22,21 +22,18 @@ import           SuccTokens  (Debug (..), Stage (..))
 -- | Run the compilation process
 compile :: String -> Maybe String -> IO String
 compile input debugSet = do
-        _             <- debugInput (pure input)
-        toks          <- debugLexer . errorHandler . Lexer.tokenize $ input
-        ast           <- debugParser . errorHandler . Parser.parse $ toks
-        ast'          <- errorHandler . Checker.check $ ast
-        (asm, symTab) <- errorHandler . Generator.generate $ ast'
-        _             <- debugState (pure symTab)
-        _             <- debugOutput (pure asm)
+        _        <- debugInput (pure input)
+        toks     <- debugLexer . errorHandler . Lexer.tokenize $ input
+        ast      <- debugParser . errorHandler . Parser.parse $ toks
+        ast'     <- errorHandler . Checker.check $ ast
+        (asm, _) <- debugOutput . errorHandler . Generator.generate $ ast'
         pure asm
         where
                 debugLevel   = setDebugLevel debugSet
                 debugInput   = Debug.debug debugLevel Input
                 debugLexer   = Debug.debug debugLevel Lexer
                 debugParser  = Debug.debug debugLevel Parser
-                debugState   = Debug.debug debugLevel State
-                debugOutput  = Debug.debug debugLevel Output
+                debugOutput  = debugOut debugLevel
                 errorHandler = handleError debugLevel input
 
 
@@ -52,3 +49,16 @@ setDebugLevel Nothing = DebugOff
 setDebugLevel (Just dbug)
         | dbug == "debug" = DebugOn
         | otherwise       = DebugOff
+
+
+debugOut :: (Show a, Show b) => Debug -> IO (a, b) -> IO (a, b)
+debugOut debugLevel out = do
+        (asm, symTab) <- out
+        _ <- debugState (pure symTab)
+        _ <- debugOutput (pure asm)
+        out
+        where
+                debugState  = Debug.debug debugLevel State
+                debugOutput = Debug.debug debugLevel Output
+
+
