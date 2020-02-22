@@ -12,7 +12,8 @@ module Debug
         ) where
 
 
-import Text.Pretty.Simple
+import Text.Pretty.Simple (OutputOptions (..), defaultOutputOptionsNoColor,
+                           pPrint, pPrintOpt)
 
 
 -- | Debug status
