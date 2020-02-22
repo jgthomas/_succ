@@ -189,7 +189,7 @@ genASM node@(ArrayNode (ArrayItemAccess pos (VarNode name _) _)) = do
         var <- SymTab.getVariable name
         case var of
              NotFound  -> throwError $ FatalError (GeneratorBug node)
-             VarType a -> ASM.loadVar <$> adjustVarOffset pos a
+             VarType a -> ASM.loadVariable <$> adjustVarOffset pos a
 genASM node@(ArrayNode ArrayItemAccess{}) = throwError $ FatalError (GeneratorBug node)
 
 genASM (ArrayNode (ArrayAssignPosNode left right _ _)) = do
@@ -206,15 +206,17 @@ genASM node@(VarNode name _) = do
         var <- SymTab.getVariable name
         case var of
              NotFound  -> throwError $ FatalError (GeneratorBug node)
-             VarType a -> pure $ ASM.loadVar a
+             VarType a -> pure $ ASM.loadVariable a
 
 genASM (AddressOfNode name _) = do
         (offset, _, globLab) <- SymTab.getVariables name
         pure $ ASM.addressOf offset globLab
 
-genASM (DereferenceNode name _) = do
-        (offset, argPos, globLab) <- SymTab.getVariables name
-        pure $ ASM.derefLoad offset argPos globLab
+genASM node@(DereferenceNode name _) = do
+        var <- SymTab.getVariable name
+        case var of
+             NotFound  -> throwError $ FatalError (GeneratorBug node)
+             VarType a -> pure $ ASM.derefLoad a
 
 genASM (NullExprNode _) = pure ASM.noOutput
 

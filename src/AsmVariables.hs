@@ -4,7 +4,6 @@ module AsmVariables
          decNoAssign,
          assign,
          loadVariable,
-         loadVar,
          storeVariable,
          saveGlobal,
          varOnStack,
@@ -53,17 +52,10 @@ assign toAssign off adj =
 
 
 -- | Load a variable value to %rax
-loadVariable :: Maybe Int -> Maybe Int -> Maybe String -> String
-loadVariable (Just off) _ _ = varOffStack off
-loadVariable _ (Just pos) _ = getFromRegister pos
-loadVariable _ _ (Just lab) = loadGlobal lab
-loadVariable _ _ _          = ""
-
-
-loadVar :: VarType -> String
-loadVar (LocalVar n m)  = varOffStack (n + m)
-loadVar (ParamVar n _)  = getFromRegister n
-loadVar (GlobalVar s _) = loadGlobal s
+loadVariable :: VarType -> String
+loadVariable (LocalVar n m)  = varOffStack (n + m)
+loadVariable (ParamVar n _)  = getFromRegister n
+loadVariable (GlobalVar s _) = loadGlobal s
 
 
 varOffStack :: Int -> String
@@ -103,11 +95,10 @@ loadGlobal label =
 
 
 -- | Load a dereferenced pointer value
-derefLoad :: Maybe Int -> Maybe Int -> Maybe String -> String
-derefLoad (Just off) _ _ = derefLoadLocal off
-derefLoad _ (Just pos) _ = derefLoadParam pos
-derefLoad _ _ (Just lab) = derefLoadGlobal lab
-derefLoad _ _ _          = ""
+derefLoad :: VarType -> String
+derefLoad (LocalVar n m)  = derefLoadLocal (n + m)
+derefLoad (ParamVar n _)  = derefLoadParam n
+derefLoad (GlobalVar s _) = derefLoadGlobal s
 
 
 derefLoadLocal :: Int -> String
