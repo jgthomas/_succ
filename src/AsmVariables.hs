@@ -143,10 +143,10 @@ derefStoreGlobal label =
 
 
 -- | Load the address of a variable
-addressOf :: Maybe Int -> Maybe String -> String
-addressOf (Just off) _ = varAddressLoad off
-addressOf _ (Just lab) = varAddressLoadGlobal lab
-addressOf _ _          = ""
+addressOf :: VarType -> String
+addressOf (LocalVar n m)  = varAddressLoad (n + m)
+addressOf (ParamVar _ _)  = undefined
+addressOf (GlobalVar s _) = varAddressLoadGlobal s
 
 
 varAddressLoad :: Int -> String

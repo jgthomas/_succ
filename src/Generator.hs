@@ -211,9 +211,11 @@ genASM node@(VarNode name _) = do
              NotFound  -> throwError $ FatalError (GeneratorBug node)
              VarType a -> pure $ ASM.loadVariable a
 
-genASM (AddressOfNode name _) = do
-        (offset, _, globLab) <- SymTab.getVariables name
-        pure $ ASM.addressOf offset globLab
+genASM node@(AddressOfNode name _) = do
+        var <- SymTab.getVariable name
+        case var of
+             NotFound  -> throwError $ FatalError (GeneratorBug node)
+             VarType a -> pure $ ASM.addressOf a
 
 genASM node@(DereferenceNode name _) = do
         var <- SymTab.getVariable name
