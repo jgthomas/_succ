@@ -10,7 +10,6 @@ import System.IO          (IOMode (ReadMode), hClose, hGetContents, openFile,
                            writeFile)
 import System.Process     (system)
 
-import Debug              (Debug (..))
 import Succ               (compile)
 
 
@@ -18,12 +17,12 @@ main :: IO ()
 main = do
         args <- getArgs
 
-        (infileName, debugSetting) <- getInput args
+        (infileName, debugSetting) <- checkInput args
         let outfileName = dropExtension infileName ++ ".s"
 
         cFile <- openFile infileName ReadMode
         cCode <- hGetContents cFile
-        asm   <- compile debugSetting cCode
+        asm   <- compile cCode debugSetting
 
         -- force evaluation before writing to file
         asm `deepseq` writeFile outfileName asm
@@ -38,21 +37,9 @@ main = do
         hClose cFile
 
 
-getInput :: [String] -> IO (String, Debug)
-getInput args = checkInput args >>= setDebugLevel
-
-
-checkInput :: [String] -> IO (Maybe String, Maybe String)
-checkInput []      = pure (Nothing, Nothing)
-checkInput (x:y:_) = pure (Just x, Just y)
-checkInput (x:_)   = pure (Just x, Nothing)
-
-
-setDebugLevel :: (Maybe String, Maybe String) -> IO (String, Debug)
-setDebugLevel (Just x, Nothing) = pure (x, DebugOff)
-setDebugLevel (Just x, Just y)
-        | y == "debug" = pure (x, DebugOn)
-        | otherwise    = pure (x, DebugOff)
-setDebugLevel (Nothing, _) = do
+checkInput :: [String] -> IO (String, Maybe String)
+checkInput (x:y:_) = pure (x, Just y)
+checkInput (x:_)   = pure (x, Nothing)
+checkInput []      = do
         putStrLn "No input file provided"
         exitFailure
