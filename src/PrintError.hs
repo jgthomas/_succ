@@ -12,6 +12,7 @@ import Data.Map      as M (Map, fromList, lookup)
 import Data.Maybe    (fromMaybe, isNothing)
 
 import AST           (NodeDat (..), Tree (..))
+import Debug         (Debug (..))
 import Error
 import LexTab        (LexDat (..))
 import Tokens        (Token)
@@ -28,11 +29,22 @@ data PrintRange = All
 
 
 -- | Print error message with relevant section of code
-printError :: String -> CompilerError -> IO ()
-printError input err = do
+printError :: Debug -> String -> CompilerError -> IO ()
+printError DebugOn input err  = printDebugError input err
+printError DebugOff input err = printUserError input err
+
+
+printUserError :: String -> CompilerError -> IO ()
+printUserError input err = do
         formatSourcePrint range input
         putStrLn errMsg
         where (errMsg, range) = errorMsg err
+
+
+printDebugError :: String -> CompilerError -> IO ()
+printDebugError input err = do
+        formatSourcePrint All input
+        print err
 
 
 formatSourcePrint :: PrintRange -> String -> IO ()
