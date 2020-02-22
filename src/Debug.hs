@@ -15,12 +15,13 @@ module Debug
 import Text.Pretty.Simple
 
 
--- | Debug switch definition
+-- | Debug status
 data Debug = DebugOn
            | DebugOff
            deriving (Eq)
 
 
+-- | Debug stage
 data Stage = Input
            | Lexer
            | Parser
@@ -29,13 +30,14 @@ data Stage = Input
            deriving (Eq)
 
 
+-- | Print debugging output
 debug :: Show a => Debug -> Stage -> IO a -> IO a
 debug DebugOff _ x    = x
-debug DebugOn stage x = debugs stage x
+debug DebugOn stage x = debugIt stage x
 
 
-debugs :: Show a => Stage -> IO a -> IO a
-debugs stage x = do
+debugIt :: Show a => Stage -> IO a -> IO a
+debugIt stage x = do
         y <- x
         case stage of
              Input  -> debugString inputTitle y
