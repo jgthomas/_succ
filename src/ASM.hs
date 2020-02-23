@@ -23,7 +23,7 @@ import AsmFunction
 import AsmStatement
 import AsmTernary
 import AsmUnary
-import AsmVariables hiding (saveGlobal, varOnStack)
+import AsmVariables
 import Directive    hiding (declareGlobl, emitLabel, globlLabel)
 import Instruction  (Jump (..), emitJump, literal, move)
 import Register     (Register (..), reg)

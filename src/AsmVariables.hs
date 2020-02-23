@@ -5,8 +5,6 @@ module AsmVariables
          assign,
          loadVariable,
          storeVariable,
-         saveGlobal,
-         varOnStack,
          derefLoad,
          derefStore,
          addressOf,
@@ -73,12 +71,10 @@ storeVariable (ParamVar _ _)  = undefined
 storeVariable (GlobalVar s _) = saveGlobal s
 
 
--- | Save a local variable
 varOnStack :: Int -> String
 varOnStack offset = move (reg RAX) (fromBasePointer offset)
 
 
--- | Save a global variable
 saveGlobal :: String -> String
 saveGlobal label = move (reg RAX) (fromInstructionPointer label)
 

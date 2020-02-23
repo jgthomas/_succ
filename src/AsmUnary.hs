@@ -19,11 +19,11 @@ unary load (Unary op) _         = load ++ unaryOp op
 
 
 unaryPreOp :: PreOpUnary -> VarType -> String
-unaryPreOp PreIncrement var@LocalVar{}  = inc (reg RAX) ++ storeVariable var--varOnStack (n + m)
-unaryPreOp PreDecrement var@LocalVar{}  = dec (reg RAX) ++ storeVariable var--varOnStack (n + m)
+unaryPreOp PreIncrement var@LocalVar{}  = inc (reg RAX) ++ storeVariable var
+unaryPreOp PreDecrement var@LocalVar{}  = dec (reg RAX) ++ storeVariable var
 unaryPreOp _ ParamVar{}                 = undefined
-unaryPreOp PreIncrement var@GlobalVar{} = inc (reg RAX) ++ storeVariable var--saveGlobal s
-unaryPreOp PreDecrement var@GlobalVar{} = dec (reg RAX) ++ storeVariable var--saveGlobal s
+unaryPreOp PreIncrement var@GlobalVar{} = inc (reg RAX) ++ storeVariable var
+unaryPreOp PreDecrement var@GlobalVar{} = dec (reg RAX) ++ storeVariable var
 
 
 unaryPostOp :: PostOpUnary -> VarType -> String
