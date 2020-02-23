@@ -2,7 +2,7 @@
 module AsmUnary (unary) where
 
 
-import AsmVariables (saveGlobal, varOnStack)
+import AsmVariables (storeVariable)
 import GenTokens    (VarType (..))
 import Instruction  (Set (..), comp, dec, inc, invertBits, literal,
                      makeNegative, move, setBitIf)
@@ -19,34 +19,34 @@ unary load (Unary op) _         = load ++ unaryOp op
 
 
 unaryPreOp :: PreOpUnary -> VarType -> String
-unaryPreOp PreIncrement (LocalVar n m)  = inc (reg RAX) ++ varOnStack (n + m)
-unaryPreOp PreDecrement (LocalVar n m)  = dec (reg RAX) ++ varOnStack (n + m)
+unaryPreOp PreIncrement var@LocalVar{}  = inc (reg RAX) ++ storeVariable var--varOnStack (n + m)
+unaryPreOp PreDecrement var@LocalVar{}  = dec (reg RAX) ++ storeVariable var--varOnStack (n + m)
 unaryPreOp _ ParamVar{}                 = undefined
-unaryPreOp PreIncrement (GlobalVar s _) = inc (reg RAX) ++ saveGlobal s
-unaryPreOp PreDecrement (GlobalVar s _) = dec (reg RAX) ++ saveGlobal s
+unaryPreOp PreIncrement var@GlobalVar{} = inc (reg RAX) ++ storeVariable var--saveGlobal s
+unaryPreOp PreDecrement var@GlobalVar{} = dec (reg RAX) ++ storeVariable var--saveGlobal s
 
 
 unaryPostOp :: PostOpUnary -> VarType -> String
-unaryPostOp PostIncrement (LocalVar n m)  = updateStoredLocal (n + m) inc
-unaryPostOp PostDecrement (LocalVar n m)  = updateStoredLocal (n + m) dec
+unaryPostOp PostIncrement var@LocalVar{}  = updateStoredLocal var inc
+unaryPostOp PostDecrement var@LocalVar{}  = updateStoredLocal var dec
 unaryPostOp _ ParamVar{}                  = undefined
-unaryPostOp PostIncrement (GlobalVar s _) = updateStoredGlobal s inc
-unaryPostOp PostDecrement (GlobalVar s _) = updateStoredGlobal s dec
+unaryPostOp PostIncrement var@GlobalVar{} = updateStoredGlobal var inc
+unaryPostOp PostDecrement var@GlobalVar{} = updateStoredGlobal var dec
 
 
-updateStoredLocal :: Int -> (String -> String) -> String
-updateStoredLocal n f =
+updateStoredLocal :: VarType -> (String -> String) -> String
+updateStoredLocal var f =
         move (reg RAX) scratch
         ++ f (reg RAX)
-        ++ varOnStack n
+        ++ storeVariable var
         ++ move scratch (reg RAX)
 
 
-updateStoredGlobal :: String -> (String -> String) -> String
-updateStoredGlobal l f =
+updateStoredGlobal :: VarType -> (String -> String) -> String
+updateStoredGlobal var f =
         move (reg RAX) scratch
         ++ f (reg RAX)
-        ++ saveGlobal l
+        ++ storeVariable var
         ++ move scratch (reg RAX)
 
 
