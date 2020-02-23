@@ -64,6 +64,16 @@ getFromRegister :: Int -> String
 getFromRegister r = move (selectRegister r) (reg RAX)
 
 
+{-
+- gcc treats global labels as position
+- independent, PIE, by default, and so as
+- relative to %rip, so loads need to be
+- from that relative location as well
+-}
+loadGlobal :: String -> String
+loadGlobal label = move (fromInstructionPointer label) (reg RAX)
+
+
 -- | Store a variable value currently held in %rax
 storeVariable :: VarType -> String
 storeVariable (LocalVar n m)  = varOnStack (n + m)
@@ -77,17 +87,6 @@ varOnStack offset = move (reg RAX) (fromBasePointer offset)
 
 saveGlobal :: String -> String
 saveGlobal label = move (reg RAX) (fromInstructionPointer label)
-
-
-{-
-- gcc treats global labels as position
-- independent, PIE, by default, and so as
-- relative to %rip, so loads need to be
-- from that relative location as well
--}
-loadGlobal :: String -> String
-loadGlobal label =
-        move (fromInstructionPointer label) (reg RAX)
 
 
 -- | Load a dereferenced pointer value
