@@ -27,23 +27,15 @@ unaryPreOp PreDecrement var@GlobalVar{} = dec (reg RAX) ++ storeVariable var
 
 
 unaryPostOp :: PostOpUnary -> VarType -> String
-unaryPostOp PostIncrement var@LocalVar{}  = updateStoredLocal var inc
-unaryPostOp PostDecrement var@LocalVar{}  = updateStoredLocal var dec
+unaryPostOp PostIncrement var@LocalVar{}  = updateStoredVar var inc
+unaryPostOp PostDecrement var@LocalVar{}  = updateStoredVar var dec
 unaryPostOp _ ParamVar{}                  = undefined
-unaryPostOp PostIncrement var@GlobalVar{} = updateStoredGlobal var inc
-unaryPostOp PostDecrement var@GlobalVar{} = updateStoredGlobal var dec
+unaryPostOp PostIncrement var@GlobalVar{} = updateStoredVar var inc
+unaryPostOp PostDecrement var@GlobalVar{} = updateStoredVar var dec
 
 
-updateStoredLocal :: VarType -> (String -> String) -> String
-updateStoredLocal var f =
-        move (reg RAX) scratch
-        ++ f (reg RAX)
-        ++ storeVariable var
-        ++ move scratch (reg RAX)
-
-
-updateStoredGlobal :: VarType -> (String -> String) -> String
-updateStoredGlobal var f =
+updateStoredVar :: VarType -> (String -> String) -> String
+updateStoredVar var f =
         move (reg RAX) scratch
         ++ f (reg RAX)
         ++ storeVariable var
