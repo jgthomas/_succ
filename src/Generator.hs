@@ -308,7 +308,7 @@ defPrevDecGlob (Just label) (AssignmentNode _ node@ConstantNode{} _ _) = do
         value <- genASM node
         globalVarASM label value
 defPrevDecGlob (Just label) (AssignmentNode _ node@AddressOfNode{} _ _) = do
-        value   <- genASM node
+        value <- genASM node
         SymTab.storeForInit $ ASM.varAddressStoreGlobal value label
         pure $ ASM.uninitializedGlobal label
 defPrevDecGlob _ (AssignmentNode _ valNode _ _) =
@@ -338,10 +338,10 @@ defineLocal node@(AssignmentNode varNode@(VarNode name _) value op _) = do
         assign <- buildAssignmentASM varNode value op
         var <- SymTab.getVariable name
         case var of
-             (VarType (LocalVar n m))  -> ASM.assign assign (n + m) <$> SymTab.stackPointerValue
-             (VarType (ParamVar _ _))  -> undefined
-             (VarType (GlobalVar s _)) -> pure $ ASM.storeGlobal assign s
-             NotFound                  -> throwError $ FatalError (GeneratorBug node)
+             (VarType (LocalVar n m))   -> ASM.assign assign (n + m) <$> SymTab.stackPointerValue
+             (VarType param@ParamVar{}) -> pure $ assign ++ ASM.storeVariable param
+             (VarType glob@GlobalVar{}) -> pure $ assign ++ ASM.storeVariable glob
+             NotFound                   -> throwError $ FatalError (GeneratorBug node)
 defineLocal tree = throwError $ FatalError (GeneratorBug tree)
 
 

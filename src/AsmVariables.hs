@@ -1,7 +1,6 @@
 
 module AsmVariables
-        (storeGlobal,
-         decNoAssign,
+        (decNoAssign,
          assign,
          loadVariable,
          storeVariable,
@@ -16,11 +15,6 @@ module AsmVariables
 import GenTokens   (VarType (..))
 import Instruction (literal, loadAddOf, move, sub)
 import Register    (Register (..), reg, scratch, selectRegister)
-
-
--- | Store the value of a global variable
-storeGlobal :: String -> String -> String
-storeGlobal toAssign label = toAssign ++ saveGlobal label
 
 
 -- | Output asm for a declaration with no assignment
@@ -77,12 +71,16 @@ loadGlobal label = move (fromInstructionPointer label) (reg RAX)
 -- | Store a variable value currently held in %rax
 storeVariable :: VarType -> String
 storeVariable (LocalVar n m)  = varOnStack (n + m)
-storeVariable (ParamVar _ _)  = undefined
+storeVariable (ParamVar n _)  = updateParam n
 storeVariable (GlobalVar s _) = saveGlobal s
 
 
 varOnStack :: Int -> String
 varOnStack offset = move (reg RAX) (fromBasePointer offset)
+
+
+updateParam :: Int -> String
+updateParam n = move (reg RAX) (selectRegister n)
 
 
 saveGlobal :: String -> String
