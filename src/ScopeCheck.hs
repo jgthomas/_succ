@@ -23,7 +23,7 @@ import           Data.Maybe    (isNothing)
 import           AST           (Tree (..))
 import           Error         (CompilerError (ScopeError), ScopeError (..))
 import           GenState      (GenState, throwError)
-import           GenTokens     (VarLookup (NotFound))
+import           GenTokens     (VarLookup (..), VarType (ParamVar))
 import qualified SymTab
 
 
@@ -111,7 +111,7 @@ checkIfFunction tree = throwError $ ScopeError (UnexpectedNode tree)
 -- | Check an identifier is linked to real variable
 variableExists :: Tree -> GenState ()
 variableExists node@(VarNode a _)         = varExists node a
-variableExists node@(AddressOfNode a _)   = varExists node a
+variableExists node@(AddressOfNode a _)   = addressableVarExists node a
 variableExists node@(DereferenceNode a _) = varExists node a
 variableExists tree = throwError $ ScopeError (UnexpectedNode tree)
 
@@ -122,4 +122,11 @@ varExists node name = do
         when (var == NotFound) $
             throwError $ ScopeError (UnrecognisedNode node)
 
+
+addressableVarExists :: Tree -> String -> GenState ()
+addressableVarExists node name = do
+        var <- SymTab.getVariable name
+        case var of
+             VarType ParamVar{} -> throwError $ ScopeError (Unaddressable node)
+             _                  -> varExists node name
 

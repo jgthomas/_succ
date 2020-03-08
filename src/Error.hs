@@ -59,6 +59,7 @@ data ScopeError = UndeclaredNode Tree
                 | UnexpectedNode Tree
                 | MisMatchNode Int Tree
                 | InvalidCallNode Tree
+                | Unaddressable Tree
                 deriving (Show, Eq)
 
 
