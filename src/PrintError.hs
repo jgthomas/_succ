@@ -11,12 +11,14 @@ import Control.Monad      (unless)
 import Data.Map           as M (Map, fromList, lookup)
 import Data.Maybe         (fromMaybe, isNothing)
 
-import AST                (NodeDat (..), Tree (..))
-import Error
-import LexTab             (LexDat (..))
+import Error              (CompilerError (..))
+import MessageFatalError  (fatalErrorMsg)
+import MessageOtherError  (impossibleErrorMsg, stateErrorMsg)
+import MessageScopeError  (scopeErrorMsg)
+import MessageStageError  (checkerErrorMsg, lexerErrorMsg, parserErrorMsg)
 import MessageSyntaxError (syntaxErrorMsg)
 import MessageTypeError   (typeErrorMsg)
-import PrintErrorTokens   (PrintRange (..), buildLineMsg, buildTokMsg)
+import PrintErrorTokens   (PrintRange (..))
 import SuccTokens         (Debug (..))
 
 
@@ -77,101 +79,6 @@ errorMsg (ScopeError err)   = scopeErrorMsg err
 errorMsg (TypeError err)    = typeErrorMsg err
 errorMsg (FatalError err)   = fatalErrorMsg err
 errorMsg ImpossibleError    = impossibleErrorMsg
-
-
-lexerErrorMsg :: LexerError -> (String, PrintRange)
-lexerErrorMsg (UnexpectedInput s) = (msg, All)
-        where msg = lexerUnexpectedMsg s
-lexerErrorMsg EmptyInput = (msg, None)
-        where msg = "Empty input file"
-
-
-lexerUnexpectedMsg :: String -> String
-lexerUnexpectedMsg str =
-        case str of
-             []    -> msg ++ "Empty file"
-             [c]   -> msg ++ "'" ++ [c] ++ "'"
-             (c:_) -> msg ++ "'" ++ [c] ++ "'"
-        where msg = "Unexpected input: "
-
-
-parserErrorMsg :: ParserError -> (String, PrintRange)
-parserErrorMsg err@(TreeError _) = (show err, All)
-parserErrorMsg (LexDataError []) = (msg, None)
-        where msg = "Empty input from lexer"
-parserErrorMsg (LexDataError [d])  = (msg, Exact $ line d)
-        where msg = buildLineMsg (line d)
-                    ++ "Unexpected input "
-                    ++ buildTokMsg (tok d)
-parserErrorMsg (LexDataError (d:_)) = (msg, From $ line d)
-        where msg = buildLineMsg (line d)
-                    ++ "Unexpected input starting at '"
-                    ++ buildTokMsg (tok d) ++ "'"
-
-
-stateErrorMsg :: StateError -> (String, PrintRange)
-stateErrorMsg (NoStateFound name) = (msg, None)
-        where msg = "Unable to locate any state for '" ++ name
-                    ++ "' compilation terminated"
-stateErrorMsg (UndefinedScope name scope) = (msg, None)
-        where msg = "Unable to locate state for scope '" ++ show scope
-                    ++ "' in '" ++ name ++ "' compilation terminated"
-
-
-checkerErrorMsg :: CheckerError -> (String, PrintRange)
-checkerErrorMsg err = (show err, All)
-
-
-scopeErrorMsg :: ScopeError -> (String, PrintRange)
-scopeErrorMsg (DoubleDefinedNode (FunctionNode _ name _ _ dat)) = (msg, Exact $ startLine dat)
-        where msg = buildLineMsg (startLine dat)
-                    ++ "Identifier '" ++ name ++ "' already defined"
-scopeErrorMsg (UnexpectedNode (BreakNode dat)) = (msg, Exact $ startLine dat)
-        where msg = buildLineMsg (startLine dat)
-                    ++ "Unexpected 'break' outside loop context"
-scopeErrorMsg (UnexpectedNode (ContinueNode dat)) = (msg, Exact $ startLine dat)
-        where msg = buildLineMsg (startLine dat)
-                    ++ "Unexpected 'continue' outside loop context"
-scopeErrorMsg (UndeclaredNode (FuncCallNode name _ dat)) =
-              (msg, Exact $ startLine dat)
-        where msg = buildLineMsg (startLine dat)
-                    ++ "Calling undeclared function '" ++ name ++ "'"
-scopeErrorMsg err = (show err, All)
-
-
-fatalErrorMsg :: FatalError -> (String, PrintRange)
-fatalErrorMsg err@(LexerBug input) = (msg, None)
-        where msg = fatalErrorMsgIntro err ++ input ++ fatalErrorMsgOutro
-fatalErrorMsg err@(ParserBug lexData) = (msg, None)
-        where msg = fatalErrorMsgIntro err ++ show lexData ++ fatalErrorMsgOutro
-fatalErrorMsg err@(CheckerBug tree) = (msg, None)
-        where msg = fatalErrorMsgIntro err ++ show tree ++ fatalErrorMsgOutro
-fatalErrorMsg err@(GeneratorBug tree) = (msg, None)
-        where msg = fatalErrorMsgIntro err ++ show tree ++ fatalErrorMsgOutro
-
-
-fatalErrorMsgIntro :: FatalError -> String
-fatalErrorMsgIntro err = "There is a bug in the " ++ component
-                         ++ ", this is the state I was working with: "
-        where component = fatalComponent err
-
-
-fatalComponent :: FatalError -> String
-fatalComponent err =
-        case err of
-             LexerBug{}     -> "lexer"
-             ParserBug{}    -> "parser"
-             CheckerBug{}   -> "syntax tree checker"
-             GeneratorBug{} -> "code generator"
-
-
-fatalErrorMsgOutro :: String
-fatalErrorMsgOutro = " good luck!"
-
-
-impossibleErrorMsg :: (String, PrintRange)
-impossibleErrorMsg = (msg, None)
-        where msg = "Something unexpected went wrong, you are on your own!"
 
 
 toLineMap :: String -> M.Map Int String
