@@ -12,8 +12,7 @@ module ASM
          module AsmStatement,
          module AsmVariables,
          module Directive,
-         loadLiteral,
-         setGotoPoint,
+         module Instruction,
          noOutput
         ) where
 
@@ -24,19 +23,8 @@ import AsmStatement
 import AsmTernary
 import AsmUnary
 import AsmVariables
-import Directive    hiding (declareGlobl, emitLabel, globlLabel)
-import Instruction  (Jump (..), emitJump, literal, move)
-import Register     (Register (..), reg)
-
-
--- | Output asm for jump
-setGotoPoint :: Int -> String
-setGotoPoint target = emitJump JMP target
-
-
--- | Load a literal value into return register
-loadLiteral :: Int -> String
-loadLiteral n = move (literal n) (reg RAX)
+import Directive    (initializedGlobal, outputInit, uninitializedGlobal)
+import Instruction  (setGotoPoint)
 
 
 -- | Empty output

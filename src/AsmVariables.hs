@@ -8,13 +8,19 @@ module AsmVariables
          derefStore,
          addressOf,
          varAddressStore,
-         varAddressStoreGlobal
+         varAddressStoreGlobal,
+         loadLiteral
         ) where
 
 
 import GenTokens   (VarType (..))
 import Instruction (literal, loadAddOf, move, sub)
 import Register    (Register (..), reg, scratch, selectRegister)
+
+
+-- | Load a literal value into return register
+loadLiteral :: Int -> String
+loadLiteral n = move (literal n) (reg RAX)
 
 
 -- | Output asm for a declaration with no assignment

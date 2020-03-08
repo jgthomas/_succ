@@ -17,6 +17,10 @@ data Jump = JMP
           deriving (Eq)
 
 
+setGotoPoint :: Int -> String
+setGotoPoint target = emitJump JMP target
+
+
 add :: String -> String -> String
 add a b = "addq " ++ a ++ ", " ++ b ++ "\n"
 
