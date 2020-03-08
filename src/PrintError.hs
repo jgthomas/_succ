@@ -7,17 +7,17 @@ Create and format error messages with associated code sections
 module PrintError (printError) where
 
 
-import Control.Monad    (unless)
-import Data.Map         as M (Map, fromList, lookup)
-import Data.Maybe       (fromMaybe, isNothing)
+import Control.Monad      (unless)
+import Data.Map           as M (Map, fromList, lookup)
+import Data.Maybe         (fromMaybe, isNothing)
 
-import AST              (NodeDat (..), Tree (..))
+import AST                (NodeDat (..), Tree (..))
 import Error
-import LexTab           (LexDat (..))
-import PrintErrorSyntax (syntaxErrorMsg)
-import PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
-import SuccTokens       (Debug (..))
-import Type             (Type (..))
+import LexTab             (LexDat (..))
+import MessageSyntaxError (syntaxErrorMsg)
+import PrintErrorTokens   (PrintRange (..), buildLineMsg, buildTokMsg)
+import SuccTokens         (Debug (..))
+import Type               (Type (..))
 
 
 -- | Print error message with relevant section of code

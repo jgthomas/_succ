@@ -1,5 +1,5 @@
 
-module PrintErrorSyntax (syntaxErrorMsg) where
+module MessageSyntaxError (syntaxErrorMsg) where
 
 
 import Error            (SyntaxError (..))
