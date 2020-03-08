@@ -35,8 +35,8 @@ data SyntaxError = NonValidIdentifier LexDat
                  | MissingToken Token LexDat
                  | UnexpectedLexDat LexDat
                  | MissingKeyword Keyword LexDat
-                 | LengthMismatch Int Int
-                 | UndeclaredLen
+                 | LengthMismatch Tree Int Int
+                 | UndeclaredLen Tree
                  | BadType LexDat
                  deriving (Show, Eq)
 

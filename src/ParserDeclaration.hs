@@ -55,20 +55,20 @@ parseDec decType name lexData = do
              PointerDec -> pure (PointerNode var typ tree dat, lexData'')
              ValueDec   -> pure (DeclarationNode var typ tree dat, lexData'')
              ArrayDec   -> do
-                     len <- findArraylen (inferredLen tree) Undeclared
+                     len <- findArraylen var (inferredLen tree) Undeclared
                      pure (ArrayNode (ArrayDeclareNode len var typ tree dat), lexData'')
              (ArrayDecExplicit n) -> do
-                     len <- findArraylen (inferredLen tree) (Declared n)
+                     len <- findArraylen var (inferredLen tree) (Declared n)
                      pure (ArrayNode (ArrayDeclareNode len var typ tree dat), lexData'')
 
 
-findArraylen :: ArrayLen -> ArrayLen -> ParserState Int
-findArraylen (Declared n) (Declared m)
+findArraylen :: Tree -> ArrayLen -> ArrayLen -> ParserState Int
+findArraylen node (Declared n) (Declared m)
         | n == m = pure n
-        | otherwise = throwError $ SyntaxError (LengthMismatch n m)
-findArraylen (Declared n) Undeclared = pure n
-findArraylen Undeclared (Declared m) = pure m
-findArraylen Undeclared Undeclared   = throwError $ SyntaxError UndeclaredLen
+        | otherwise = throwError $ SyntaxError (LengthMismatch node n m)
+findArraylen _ (Declared n) Undeclared = pure n
+findArraylen _ Undeclared (Declared m) = pure m
+findArraylen node Undeclared Undeclared = throwError $ SyntaxError (UndeclaredLen node)
 
 
 inferredLen ::  Maybe Tree -> ArrayLen
