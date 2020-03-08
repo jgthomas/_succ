@@ -15,9 +15,9 @@ import AST                (NodeDat (..), Tree (..))
 import Error
 import LexTab             (LexDat (..))
 import MessageSyntaxError (syntaxErrorMsg)
+import MessageTypeError   (typeErrorMsg)
 import PrintErrorTokens   (PrintRange (..), buildLineMsg, buildTokMsg)
 import SuccTokens         (Debug (..))
-import Type               (Type (..))
 
 
 -- | Print error message with relevant section of code
@@ -137,26 +137,6 @@ scopeErrorMsg (UndeclaredNode (FuncCallNode name _ dat)) =
         where msg = buildLineMsg (startLine dat)
                     ++ "Calling undeclared function '" ++ name ++ "'"
 scopeErrorMsg err = (show err, All)
-
-
-typeErrorMsg :: TypeError -> (String, PrintRange)
-typeErrorMsg (TypeMismatch a b (FunctionNode _ name _ _ dat)) =
-        (msg, Exact (startLine dat))
-        where msg = buildLineMsg (startLine dat)
-                    ++ "Parameter type mismatch between declarations of '" ++ name
-                    ++ "' was '" ++ typeString a
-                    ++ "' now '" ++ typeString b ++ "'"
-typeErrorMsg (TypeMismatch a b (AssignmentNode (VarNode name _) _ _ dat)) =
-        (msg, Exact $ startLine dat)
-        where msg = buildLineMsg (startLine dat)
-                    ++ "Type mismatch for '" ++ name
-                    ++ "' between declaration '" ++ typeString a
-                    ++ "' and assignment '" ++ typeString b
-typeErrorMsg err = (show err, All)
-
-
-typeString :: [Type] -> String
-typeString ts = unwords . map show $ ts
 
 
 fatalErrorMsg :: FatalError -> (String, PrintRange)
