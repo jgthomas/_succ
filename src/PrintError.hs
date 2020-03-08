@@ -7,25 +7,17 @@ Create and format error messages with associated code sections
 module PrintError (printError) where
 
 
-import Control.Monad (unless)
-import Data.Map      as M (Map, fromList, lookup)
-import Data.Maybe    (fromMaybe, isNothing)
+import Control.Monad    (unless)
+import Data.Map         as M (Map, fromList, lookup)
+import Data.Maybe       (fromMaybe, isNothing)
 
-import AST           (NodeDat (..), Tree (..))
+import AST              (NodeDat (..), Tree (..))
 import Error
-import LexTab        (LexDat (..))
-import SuccTokens    (Debug (..))
-import Tokens        (Token)
-import Type          (Type (..))
-
-
-data PrintRange = All
-                | None
-                | Exact Int
-                | Range Int Int
-                | From Int
-                | Until Int
-                deriving (Eq)
+import LexTab           (LexDat (..))
+import PrintErrorSyntax (syntaxErrorMsg)
+import PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
+import SuccTokens       (Debug (..))
+import Type             (Type (..))
 
 
 -- | Print error message with relevant section of code
@@ -130,27 +122,6 @@ checkerErrorMsg :: CheckerError -> (String, PrintRange)
 checkerErrorMsg err = (show err, All)
 
 
-syntaxErrorMsg :: SyntaxError -> (String, PrintRange)
-syntaxErrorMsg (MissingToken t d) = (msg, mkRange d)
-        where msg = unexpectedLexDatMsg d
-                    ++ ", Expected "
-                    ++ buildTokMsg t
-syntaxErrorMsg (BadType d) = (msg, mkRange d)
-        where msg = buildLineMsg (line d)
-                    ++ "Invalid type "
-                    ++ buildTokMsg (tok d)
-syntaxErrorMsg (UnexpectedLexDat d) = (msg, mkRange d)
-        where msg = unexpectedLexDatMsg d
-syntaxErrorMsg (NonValidIdentifier d) = (msg, mkRange d)
-        where msg = buildLineMsg (line d)
-                    ++ "Invalid identifier "
-                    ++ buildTokMsg (tok d)
-syntaxErrorMsg (MissingKeyword kwd d) = (msg, mkRange d)
-        where msg = buildLineMsg (line d)
-                    ++ "Expected keyword " ++ show kwd
-syntaxErrorMsg err = (show err, All)
-
-
 scopeErrorMsg :: ScopeError -> (String, PrintRange)
 scopeErrorMsg (DoubleDefinedNode (FunctionNode _ name _ _ dat)) = (msg, Exact $ startLine dat)
         where msg = buildLineMsg (startLine dat)
@@ -227,24 +198,5 @@ toLineMap :: String -> M.Map Int String
 toLineMap input = M.fromList $ zip [1..] $ lines input
 
 
-buildLineMsg :: Int -> String
-buildLineMsg n = "Line " ++ show n ++ ": "
-
-
-buildTokMsg :: Token -> String
-buildTokMsg t = "'" ++ show t ++ "'"
-
-
 lineCount :: String -> Int
 lineCount input = length $ filter (== '\n') input
-
-
-mkRange :: LexDat -> PrintRange
-mkRange d = Range (pred . line $ d) (succ . line $ d)
-
-
-unexpectedLexDatMsg :: LexDat -> String
-unexpectedLexDatMsg d =
-        buildLineMsg (line d)
-        ++ "Unexpected token "
-        ++ buildTokMsg (tok d)
