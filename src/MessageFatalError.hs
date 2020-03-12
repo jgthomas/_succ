@@ -1,4 +1,9 @@
+{-|
+Module       : MessageFatalError
+Description  : Generate FatalError messages
 
+Create error messages with for the FatalError error type
+-}
 module MessageFatalError (fatalErrorMsg) where
 
 
@@ -6,6 +11,7 @@ import Error            (FatalError (..))
 import PrintErrorTokens (PrintRange (..))
 
 
+-- | Generate string for FatalError message
 fatalErrorMsg :: FatalError -> (String, PrintRange)
 
 fatalErrorMsg err@(LexerBug input) = (msg, None)
