@@ -197,9 +197,13 @@ genASM node@(ArrayNode (ArrayItemAccess pos (VarNode name _) _)) = do
              VarType a -> ASM.loadVariable <$> adjustVarOffset pos a
 genASM node@(ArrayNode ArrayItemAccess{}) = throwError $ FatalError (GeneratorBug node)
 
-genASM (ArrayNode (ArrayAssignPosNode left right _ _)) = do
-        value <- genASM right
-        (++) value <$> genASM left
+genASM (ArrayNode (ArrayAssignPosNode left right op _)) =
+        case op of
+             Assignment -> do
+                     value <- genASM right
+                     (++) value <$> genASM left
+             BinaryOp binOp -> updateArrayIndex left right binOp
+             _ -> undefined
 
 genASM node@(ArrayNode (ArrayItemAssign pos (VarNode name _) _)) = do
         var <- SymTab.getVariable name
@@ -419,3 +423,18 @@ processBinaryNode (BinaryNode left _ op _) rgt = do
         lft  <- genASM left
         pure $ ASM.binary lft rgt op lab1 lab2
 processBinaryNode tree _ = throwError $ FatalError (GeneratorBug tree)
+
+
+updateArrayIndex :: Tree -> Tree -> BinaryOp -> GenState String
+updateArrayIndex node@(ArrayNode (ArrayItemAssign pos (VarNode name _) _)) valNode op = do
+        var <- SymTab.getVariable name
+        case var of
+             NotFound  -> throwError $ FatalError (GeneratorBug node)
+             VarType a -> do
+                     lab1   <- SymTab.labelNum
+                     lab2   <- SymTab.labelNum
+                     varAsm <- ASM.loadVariable <$> adjustVarOffset pos a
+                     valAsm <- genASM valNode
+                     store  <- ASM.storeVariable <$> adjustVarOffset pos a
+                     pure $ ASM.binary varAsm valAsm op lab1 lab2 ++ store
+updateArrayIndex tree _ _ = throwError $ FatalError (GeneratorBug tree)
