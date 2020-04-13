@@ -199,11 +199,12 @@ genASM node@(ArrayNode ArrayItemAccess{}) = throwError $ FatalError (GeneratorBu
 
 genASM (ArrayNode (ArrayAssignPosNode left right op _)) =
         case op of
-             Assignment -> do
-                     value <- genASM right
-                     (++) value <$> genASM left
              BinaryOp binOp -> updateArrayIndex left right binOp
-             _ -> undefined
+             UnaryOp _      -> undefined
+             Assignment     -> do
+                     varAsm <- genASM left
+                     valAsm <- genASM right
+                     pure $ valAsm ++ varAsm
 
 genASM node@(ArrayNode (ArrayItemAssign pos (VarNode name _) _)) = do
         var <- SymTab.getVariable name
