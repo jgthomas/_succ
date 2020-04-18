@@ -191,15 +191,19 @@ checkArrayAST (ArrayDeclareNode len var typ assign dat) = do
         checkDeclareLocal (DeclarationNode var typ assign dat)
         SymTab.incrementOffsetByN (len - 1)
 
-checkArrayAST ArrayItemsNode{} = pure ()
+checkArrayAST (ArrayItemsNode varNode itemList _) = do
+        checkAST varNode
+        mapM_ checkAST itemList
 
-checkArrayAST ArraySingleItemNode{} = pure ()
+checkArrayAST (ArraySingleItemNode item _) = checkAST item
 
-checkArrayAST ArrayItemAccess{} = pure ()
+checkArrayAST (ArrayItemAccess _ varNode _) = checkAST varNode
 
-checkArrayAST ArrayItemAssign{} = pure ()
+checkArrayAST (ArrayItemAssign _ varNode _) = checkAST varNode
 
-checkArrayAST ArrayAssignPosNode{} = pure ()
+checkArrayAST (ArrayAssignPosNode varNode valNode _ _) = do
+        checkAST varNode
+        checkAST valNode
 
 
 checkFuncDec :: Tree -> GenState ()
