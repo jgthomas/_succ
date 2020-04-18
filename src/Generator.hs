@@ -180,39 +180,6 @@ genASM (UnaryNode tree  op _) = do
         unode <- genASM tree
         pure $ ASM.unary unode op (LocalVar 0 0)
 
-genASM node@(ArrayNode ArrayDeclareNode{}) = do
-        currScope <- SymTab.getScope
-        case currScope of
-             Global -> declareGlobalArray node
-             Local  -> declareLocalArray node
-
-genASM (ArrayNode (ArrayItemsNode var items _)) = processArrayElements var items
-
-genASM (ArrayNode (ArraySingleItemNode item _)) = genASM item
-
-genASM node@(ArrayNode (ArrayItemAccess pos (VarNode name _) _)) = do
-        var <- SymTab.getVariable name
-        case var of
-             NotFound  -> throwError $ FatalError (GeneratorBug node)
-             VarType a -> ASM.loadVariable <$> adjustVarOffset pos a
-genASM node@(ArrayNode ArrayItemAccess{}) = throwError $ FatalError (GeneratorBug node)
-
-genASM (ArrayNode (ArrayAssignPosNode left right op _)) =
-        case op of
-             BinaryOp binOp -> updateArrayIndex left right binOp
-             UnaryOp _      -> undefined
-             Assignment     -> do
-                     varAsm <- genASM left
-                     valAsm <- genASM right
-                     pure $ valAsm ++ varAsm
-
-genASM node@(ArrayNode (ArrayItemAssign pos (VarNode name _) _)) = do
-        var <- SymTab.getVariable name
-        case var of
-             NotFound  -> throwError $ FatalError (GeneratorBug node)
-             VarType a -> ASM.storeVariable <$> adjustVarOffset pos a
-genASM node@(ArrayNode ArrayItemAssign{}) = throwError $ FatalError (GeneratorBug node)
-
 genASM node@(VarNode name _) = do
         var <- SymTab.getVariable name
         case var of
@@ -238,6 +205,44 @@ genASM (ConstantNode n _) = do
         case currScope of
              Global -> pure . show $ n
              Local  -> pure . ASM.loadLiteral $ n
+
+genASM (ArrayNode arrayNode) = genArrayASM arrayNode
+
+
+genArrayASM :: ArrayNode -> GenState String
+
+genArrayASM node@ArrayDeclareNode{} = do
+        currScope <- SymTab.getScope
+        case currScope of
+             Global -> declareGlobalArray node
+             Local  -> declareLocalArray node
+
+genArrayASM (ArrayItemsNode var items _) = processArrayElements var items
+
+genArrayASM (ArraySingleItemNode item _) = genASM item
+
+genArrayASM node@(ArrayItemAccess pos (VarNode name _) _) = do
+        var <- SymTab.getVariable name
+        case var of
+             NotFound  -> throwError $ FatalError (GeneratorBug (ArrayNode node))
+             VarType a -> ASM.loadVariable <$> adjustVarOffset pos a
+genArrayASM node@ArrayItemAccess{} = throwError $ FatalError (GeneratorBug (ArrayNode node))
+
+genArrayASM (ArrayAssignPosNode left right op _) =
+        case op of
+             BinaryOp binOp -> updateArrayIndex left right binOp
+             UnaryOp _      -> undefined
+             Assignment     -> do
+                     varAsm <- genASM left
+                     valAsm <- genASM right
+                     pure $ valAsm ++ varAsm
+
+genArrayASM node@(ArrayItemAssign pos (VarNode name _) _) = do
+        var <- SymTab.getVariable name
+        case var of
+             NotFound  -> throwError $ FatalError (GeneratorBug (ArrayNode node))
+             VarType a -> ASM.storeVariable <$> adjustVarOffset pos a
+genArrayASM node@ArrayItemAssign{} = throwError $ FatalError (GeneratorBug (ArrayNode node))
 
 
 adjustVarOffset :: Int -> VarType -> GenState VarType
@@ -266,18 +271,18 @@ processArrayElement name (item, pos) = do
              Nothing  -> throwError $ FatalError (GeneratorBug item)
 
 
-declareLocalArray :: Tree -> GenState String
-declareLocalArray (ArrayNode (ArrayDeclareNode len var typ assign dat)) = do
+declareLocalArray :: ArrayNode -> GenState String
+declareLocalArray (ArrayDeclareNode len var typ assign dat) = do
         decAsm <- declareLocal (DeclarationNode var typ assign dat)
         case assign of
              Nothing -> do
                      SymTab.incrementOffsetByN (len - 1)
                      pure decAsm
              Just _  -> pure decAsm
-declareLocalArray tree = throwError $ FatalError (GeneratorBug tree)
+declareLocalArray tree = throwError $ FatalError (GeneratorBug (ArrayNode tree))
 
 
-declareGlobalArray :: Tree -> GenState String
+declareGlobalArray :: ArrayNode -> GenState String
 declareGlobalArray _ = undefined
 
 

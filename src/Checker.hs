@@ -172,16 +172,6 @@ checkAST node@(UnaryNode _ unOp@(PostOpUnary _) _) =
         throwError $ CheckerError (OperatorError (UnaryOp unOp) node)
 checkAST (UnaryNode tree (Unary _) _) = checkAST tree
 
-checkAST (ArrayNode (ArrayDeclareNode len var typ assign dat)) = do
-        checkDeclareLocal (DeclarationNode var typ assign dat)
-        SymTab.incrementOffsetByN (len - 1)
-
-checkAST (ArrayNode ArrayAssignPosNode{}) = pure ()
-checkAST (ArrayNode ArrayItemsNode{}) = pure ()
-checkAST (ArrayNode ArraySingleItemNode{}) = pure ()
-checkAST (ArrayNode ArrayItemAssign{}) = pure ()
-checkAST (ArrayNode ArrayItemAccess{}) = pure ()
-
 checkAST node@VarNode{} = ScopeCheck.variableExists node
 
 checkAST node@AddressOfNode{} = ScopeCheck.variableExists node
@@ -191,6 +181,25 @@ checkAST node@DereferenceNode{} = ScopeCheck.variableExists node
 checkAST NullExprNode{} = pure ()
 
 checkAST ConstantNode{} = pure ()
+
+checkAST (ArrayNode arrayNode) = checkArrayAST arrayNode
+
+
+checkArrayAST :: ArrayNode -> GenState ()
+
+checkArrayAST (ArrayDeclareNode len var typ assign dat) = do
+        checkDeclareLocal (DeclarationNode var typ assign dat)
+        SymTab.incrementOffsetByN (len - 1)
+
+checkArrayAST ArrayItemsNode{} = pure ()
+
+checkArrayAST ArraySingleItemNode{} = pure ()
+
+checkArrayAST ArrayItemAccess{} = pure ()
+
+checkArrayAST ArrayItemAssign{} = pure ()
+
+checkArrayAST ArrayAssignPosNode{} = pure ()
 
 
 checkFuncDec :: Tree -> GenState ()
