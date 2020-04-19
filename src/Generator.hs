@@ -124,7 +124,7 @@ genASM node@(PointerNode varNode@(VarNode name _) typ (Just a) dat) = do
         var        <- SymTab.getVariable name
         case var of
              (VarType localVar@LocalVar{}) -> pure $ pointerASM ++ value ++ ASM.addressStore localVar
-             (VarType paramVar@ParamVar{}) -> pure $ ASM.addressStore paramVar
+             (VarType ParamVar{})          -> throwError $ FatalError (GeneratorBug node)
              (VarType GlobalVar{})         -> pure $ pointerASM ++ value
              NotFound                      -> throwError $ FatalError (GeneratorBug node)
 genASM node@PointerNode{} = throwError $ FatalError (GeneratorBug node)
