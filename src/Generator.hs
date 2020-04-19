@@ -17,7 +17,7 @@ import           Error               (CompilerError (FatalError),
                                       FatalError (GeneratorBug))
 import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (getState, startState)
-import           GenTokens           (Scope (..), VarLookup (..), VarType (..))
+import           GenTokens
 import           Operator            (BinaryOp (..), Operator (..))
 import           SymTab              (SymTab)
 import qualified SymTab
@@ -123,10 +123,10 @@ genASM node@(PointerNode varNode@(VarNode name _) typ (Just a) dat) = do
         value      <- genASM a
         var        <- SymTab.getVariable name
         case var of
-             (VarType (LocalVar n m))  -> pure $ ASM.varAddressStore (pointerASM ++ value) (n + m)
-             (VarType (ParamVar _ _))  -> undefined
-             (VarType (GlobalVar _ _)) -> pure $ pointerASM ++ value
-             NotFound                  -> throwError $ FatalError (GeneratorBug node)
+             (VarType localVar@LocalVar{}) -> pure $ ASM.addressStore (pointerASM ++ value) localVar
+             (VarType paramVar@ParamVar{}) -> pure $ ASM.addressStore ASM.noOutput paramVar
+             (VarType GlobalVar{})         -> pure $ pointerASM ++ value
+             NotFound                      -> throwError $ FatalError (GeneratorBug node)
 genASM node@PointerNode{} = throwError $ FatalError (GeneratorBug node)
 
 genASM node@DeclarationNode{} = do
@@ -328,7 +328,7 @@ defPrevDecGlob (Just label) (AssignmentNode _ node@ConstantNode{} _ _) = do
         globalVarASM label value
 defPrevDecGlob (Just label) (AssignmentNode _ node@AddressOfNode{} _ _) = do
         value <- genASM node
-        SymTab.storeForInit $ ASM.varAddressStoreGlobal value label
+        SymTab.storeForInit $ ASM.addressStore value (GlobalVar label 0)
         pure $ ASM.uninitializedGlobal label
 defPrevDecGlob _ (AssignmentNode _ valNode _ _) =
         throwError $ FatalError (GeneratorBug valNode)

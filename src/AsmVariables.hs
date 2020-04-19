@@ -7,8 +7,7 @@ module AsmVariables
          derefLoad,
          derefStore,
          addressOf,
-         varAddressStore,
-         varAddressStoreGlobal,
+         addressStore,
          loadLiteral
         ) where
 
@@ -157,18 +156,19 @@ varAddressLoadGlobal label offset =
         loadAddOf (fromInstructionPointerOffset label offset) (reg RAX)
 
 
--- | Store the address of a local variable
-varAddressStore :: String -> Int -> String
-varAddressStore value offset =
-        value
-        ++ move (reg RAX) (fromBasePointer offset)
+-- | Store the address of a variable
+addressStore :: String -> VarType -> String
+addressStore val (LocalVar n m)  = val ++ varAddressStore (n + m)
+addressStore _   (ParamVar _ _)  = undefined
+addressStore val (GlobalVar s o) = val ++ varAddressStoreGlobal s o
 
 
--- | Store the address of a global variable
-varAddressStoreGlobal :: String -> String -> String
-varAddressStoreGlobal value label =
-        value
-        ++ move (reg RAX) (fromInstructionPointer label)
+varAddressStore :: Int -> String
+varAddressStore offset = move (reg RAX) (fromBasePointer offset)
+
+
+varAddressStoreGlobal :: String -> Int -> String
+varAddressStoreGlobal label offset = move (reg RAX) (fromInstructionPointerOffset label offset)
 
 
 addressIn :: String -> String
@@ -185,10 +185,6 @@ indirectAddressing s = "(" ++ s ++ ")"
 
 fromInstructionPointerOffset :: String -> Int -> String
 fromInstructionPointerOffset lab off = lab ++ "+" ++ show off ++ indirectAddressing (reg RIP)
-
-
-fromInstructionPointer :: String -> String
-fromInstructionPointer lab = relAddress lab (reg RIP)
 
 
 relAddress :: String -> String -> String
