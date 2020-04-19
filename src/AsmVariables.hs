@@ -179,17 +179,13 @@ valueFromAddressIn :: String -> String
 valueFromAddressIn s = indirectAddressing s
 
 
-indirectAddressing :: String -> String
-indirectAddressing s = "(" ++ s ++ ")"
-
-
 fromInstructionPointerOffset :: String -> Int -> String
 fromInstructionPointerOffset lab off = lab ++ "+" ++ show off ++ indirectAddressing (reg RIP)
 
 
-relAddress :: String -> String -> String
-relAddress offset base = offset ++ indirectAddressing base
-
-
 fromBasePointer :: Int -> String
-fromBasePointer n = relAddress (show n) (reg RBP)
+fromBasePointer n = show n ++ indirectAddressing (reg RBP)
+
+
+indirectAddressing :: String -> String
+indirectAddressing s = "(" ++ s ++ ")"
