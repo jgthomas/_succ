@@ -145,8 +145,8 @@ genASM node@(AssignDereferenceNode derefNode@(DereferenceNode name _) value op _
         assign <- buildAssignmentASM derefNode value op
         var    <- SymTab.getVariable name
         case var of
-             NotFound  -> throwError $ FatalError (GeneratorBug node)
-             VarType a -> pure $ ASM.derefStore assign a
+             NotFound        -> throwError $ FatalError (GeneratorBug node)
+             VarType varType -> pure $ assign ++ ASM.derefStore varType
 genASM node@AssignDereferenceNode{} = throwError $ FatalError (GeneratorBug node)
 
 genASM (ExprStmtNode expression _) = genASM expression

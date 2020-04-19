@@ -124,10 +124,10 @@ derefLoadGlobal label offset =
 
 
 -- | Store a dereferenced pointer value
-derefStore :: String -> VarType -> String
-derefStore val (LocalVar n m)  = val ++ derefStoreLocal (n + m)
-derefStore val (ParamVar n _)  = val ++ derefStoreParam n
-derefStore val (GlobalVar s o) = val ++ derefStoreGlobal s o
+derefStore :: VarType -> String
+derefStore (LocalVar n m)  = derefStoreLocal (n + m)
+derefStore (ParamVar n _)  = derefStoreParam n
+derefStore (GlobalVar s o) = derefStoreGlobal s o
 
 
 derefStoreLocal :: Int -> String
