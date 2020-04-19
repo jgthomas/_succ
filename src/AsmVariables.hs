@@ -53,7 +53,7 @@ assign toAssign off adj =
 loadVariable :: VarType -> String
 loadVariable (LocalVar n m)  = varOffStack (n + m)
 loadVariable (ParamVar n _)  = getFromRegister n
-loadVariable (GlobalVar s _) = loadGlobal s
+loadVariable (GlobalVar s o) = loadGlobal s o
 
 
 varOffStack :: Int -> String
@@ -70,15 +70,15 @@ getFromRegister r = move (selectRegister r) (reg RAX)
 - relative to %rip, so loads need to be
 - from that relative location as well
 -}
-loadGlobal :: String -> String
-loadGlobal label = move (fromInstructionPointer label) (reg RAX)
+loadGlobal :: String -> Int -> String
+loadGlobal label offset = move (fromInstructionPointerOffset label offset) (reg RAX)
 
 
 -- | Store a variable value currently held in %rax
 storeVariable :: VarType -> String
 storeVariable (LocalVar n m)  = varOnStack (n + m)
 storeVariable (ParamVar n _)  = updateParam n
-storeVariable (GlobalVar s _) = saveGlobal s
+storeVariable (GlobalVar s o) = saveGlobal s o
 
 
 varOnStack :: Int -> String
@@ -89,15 +89,15 @@ updateParam :: Int -> String
 updateParam n = move (reg RAX) (selectRegister n)
 
 
-saveGlobal :: String -> String
-saveGlobal label = move (reg RAX) (fromInstructionPointer label)
+saveGlobal :: String -> Int -> String
+saveGlobal label offset = move (reg RAX) (fromInstructionPointerOffset label offset)
 
 
 -- | Load a dereferenced pointer value
 derefLoad :: VarType -> String
 derefLoad (LocalVar n m)  = derefLoadLocal (n + m)
 derefLoad (ParamVar n _)  = derefLoadParam n
-derefLoad (GlobalVar s _) = derefLoadGlobal s
+derefLoad (GlobalVar s o) = derefLoadGlobal s o
 
 
 derefLoadLocal :: Int -> String
@@ -111,9 +111,9 @@ derefLoadParam r =
         move (valueFromAddressIn . selectRegister $ r) (reg RAX)
 
 
-derefLoadGlobal :: String -> String
-derefLoadGlobal label =
-        move (fromInstructionPointer label) scratch
+derefLoadGlobal :: String -> Int -> String
+derefLoadGlobal label offset =
+        move (fromInstructionPointerOffset label offset) scratch
         ++ move (valueFromAddressIn scratch) (reg RAX)
 
 
@@ -121,7 +121,7 @@ derefLoadGlobal label =
 derefStore :: String -> VarType -> String
 derefStore val (LocalVar n m)  = val ++ derefStoreLocal (n + m)
 derefStore val (ParamVar n _)  = val ++ derefStoreParam n
-derefStore val (GlobalVar s _) = val ++ derefStoreGlobal s
+derefStore val (GlobalVar s o) = val ++ derefStoreGlobal s o
 
 
 derefStoreLocal :: Int -> String
@@ -135,9 +135,9 @@ derefStoreParam r =
         move (reg RAX) (addressIn . selectRegister $ r)
 
 
-derefStoreGlobal :: String -> String
-derefStoreGlobal label =
-        move (fromInstructionPointer label) scratch
+derefStoreGlobal :: String -> Int -> String
+derefStoreGlobal label offset =
+        move (fromInstructionPointerOffset label offset) scratch
         ++ move (reg RAX) (addressIn scratch)
 
 
@@ -145,15 +145,16 @@ derefStoreGlobal label =
 addressOf :: VarType -> String
 addressOf (LocalVar n m)  = varAddressLoad (n + m)
 addressOf (ParamVar _ _)  = undefined
-addressOf (GlobalVar s _) = varAddressLoadGlobal s
+addressOf (GlobalVar s o) = varAddressLoadGlobal s o
 
 
 varAddressLoad :: Int -> String
 varAddressLoad offset = loadAddOf (fromBasePointer offset) (reg RAX)
 
 
-varAddressLoadGlobal :: String -> String
-varAddressLoadGlobal label = loadAddOf (fromInstructionPointer label) (reg RAX)
+varAddressLoadGlobal :: String -> Int -> String
+varAddressLoadGlobal label offset =
+        loadAddOf (fromInstructionPointerOffset label offset) (reg RAX)
 
 
 -- | Store the address of a local variable
@@ -180,6 +181,10 @@ valueFromAddressIn s = indirectAddressing s
 
 indirectAddressing :: String -> String
 indirectAddressing s = "(" ++ s ++ ")"
+
+
+fromInstructionPointerOffset :: String -> Int -> String
+fromInstructionPointerOffset lab off = lab ++ "+" ++ show off ++ indirectAddressing (reg RIP)
 
 
 fromInstructionPointer :: String -> String
