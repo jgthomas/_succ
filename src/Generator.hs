@@ -123,8 +123,8 @@ genASM node@(PointerNode varNode@(VarNode name _) typ (Just a) dat) = do
         value      <- genASM a
         var        <- SymTab.getVariable name
         case var of
-             (VarType localVar@LocalVar{}) -> pure $ ASM.addressStore (pointerASM ++ value) localVar
-             (VarType paramVar@ParamVar{}) -> pure $ ASM.addressStore ASM.noOutput paramVar
+             (VarType localVar@LocalVar{}) -> pure $ pointerASM ++ value ++ ASM.addressStore localVar
+             (VarType paramVar@ParamVar{}) -> pure $ ASM.addressStore paramVar
              (VarType GlobalVar{})         -> pure $ pointerASM ++ value
              NotFound                      -> throwError $ FatalError (GeneratorBug node)
 genASM node@PointerNode{} = throwError $ FatalError (GeneratorBug node)
@@ -328,7 +328,7 @@ defPrevDecGlob (Just label) (AssignmentNode _ node@ConstantNode{} _ _) = do
         globalVarASM label value
 defPrevDecGlob (Just label) (AssignmentNode _ node@AddressOfNode{} _ _) = do
         value <- genASM node
-        SymTab.storeForInit $ ASM.addressStore value (GlobalVar label 0)
+        SymTab.storeForInit $ value ++ ASM.addressStore (GlobalVar label 0)
         pure $ ASM.uninitializedGlobal label
 defPrevDecGlob _ (AssignmentNode _ valNode _ _) =
         throwError $ FatalError (GeneratorBug valNode)

@@ -92,6 +92,13 @@ saveGlobal :: String -> Int -> String
 saveGlobal label offset = move (reg RAX) (fromInstructionPointerOffset label offset)
 
 
+-- | Store the address of a variable
+addressStore :: VarType -> String
+addressStore localVar@LocalVar{}   = storeVariable localVar
+addressStore ParamVar{}            = undefined
+addressStore globalVar@GlobalVar{} = storeVariable globalVar
+
+
 -- | Load a dereferenced pointer value
 derefLoad :: VarType -> String
 derefLoad (LocalVar n m)  = derefLoadLocal (n + m)
@@ -154,21 +161,6 @@ varAddressLoad offset = loadAddOf (fromBasePointer offset) (reg RAX)
 varAddressLoadGlobal :: String -> Int -> String
 varAddressLoadGlobal label offset =
         loadAddOf (fromInstructionPointerOffset label offset) (reg RAX)
-
-
--- | Store the address of a variable
-addressStore :: String -> VarType -> String
-addressStore val (LocalVar n m)  = val ++ varAddressStore (n + m)
-addressStore _   (ParamVar _ _)  = undefined
-addressStore val (GlobalVar s o) = val ++ varAddressStoreGlobal s o
-
-
-varAddressStore :: Int -> String
-varAddressStore offset = move (reg RAX) (fromBasePointer offset)
-
-
-varAddressStoreGlobal :: String -> Int -> String
-varAddressStoreGlobal label offset = move (reg RAX) (fromInstructionPointerOffset label offset)
 
 
 addressIn :: String -> String
