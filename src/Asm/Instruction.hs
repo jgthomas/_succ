@@ -1,5 +1,5 @@
 
-module Instruction where
+module Asm.Instruction where
 
 
 data Set = Equ

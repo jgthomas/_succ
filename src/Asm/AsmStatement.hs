@@ -1,5 +1,5 @@
 
-module AsmStatement
+module Asm.AsmStatement
         (while,
          doWhile,
          forLoop,
@@ -8,9 +8,9 @@ module AsmStatement
         ) where
 
 
-import Directive   (emitLabel)
-import Instruction (Jump (..), comp, emitJump, literal)
-import Register    (Register (..), reg)
+import Asm.Directive   (emitLabel)
+import Asm.Instruction (Jump (..), comp, emitJump, literal)
+import Asm.Register    (Register (..), reg)
 
 
 -- | Output asm for while loop

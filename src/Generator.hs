@@ -11,7 +11,7 @@ import           Control.Monad       (unless)
 import           Control.Monad.Extra (concatMapM)
 import           Data.Maybe          (fromMaybe)
 
-import qualified ASM
+import qualified Asm.ASM             as ASM
 import           AST                 (ArrayNode (..), Tree (..))
 import           Error               (CompilerError (FatalError),
                                       FatalError (GeneratorBug))

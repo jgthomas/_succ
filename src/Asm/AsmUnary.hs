@@ -1,14 +1,14 @@
 
-module AsmUnary (unary) where
+module Asm.AsmUnary (unary) where
 
 
-import AsmVariables (storeVariable)
-import GenTokens    (VarType (..))
-import Instruction  (Set (..), comp, dec, inc, invertBits, literal,
-                     makeNegative, move, setBitIf)
-import Operator     (PostOpUnary (..), PreOpUnary (..), Unary (..),
-                     UnaryOp (..))
-import Register     (Register (..), reg, scratch)
+import Asm.AsmVariables (storeVariable)
+import Asm.Instruction  (Set (..), comp, dec, inc, invertBits, literal,
+                         makeNegative, move, setBitIf)
+import Asm.Register     (Register (..), reg, scratch)
+import GenTokens        (VarType (..))
+import Operator         (PostOpUnary (..), PreOpUnary (..), Unary (..),
+                         UnaryOp (..))
 
 
 -- | Output asm for unary operators

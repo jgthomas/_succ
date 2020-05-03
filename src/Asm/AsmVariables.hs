@@ -1,5 +1,5 @@
 
-module AsmVariables
+module Asm.AsmVariables
         (decNoAssign,
          assign,
          loadVariable,
@@ -12,9 +12,9 @@ module AsmVariables
         ) where
 
 
-import GenTokens   (VarType (..))
-import Instruction (literal, loadAddOf, move, sub)
-import Register    (Register (..), reg, scratch, selectRegister)
+import Asm.Instruction (literal, loadAddOf, move, sub)
+import Asm.Register    (Register (..), reg, scratch, selectRegister)
+import GenTokens       (VarType (..))
 
 
 -- | Load a literal value into return register
