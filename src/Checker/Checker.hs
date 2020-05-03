@@ -17,10 +17,10 @@ import           Error.Error        (CheckerError (..),
                                      ScopeError (..))
 import           GenState           (GenState, runGenState, throwError)
 import qualified GenState           (startState)
-import           GenTokens          (Scope (..))
 import qualified State.SymTab       as SymTab
 import           Types.AST          (ArrayNode (..), Tree (..))
 import           Types.Operator     (Operator (..), UnaryOp (..))
+import           Types.Variables    (Scope (..))
 
 
 -- | Check an AST for errors

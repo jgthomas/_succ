@@ -17,14 +17,14 @@ module Checker.ScopeCheck
         ) where
 
 
-import           Control.Monad (unless, when)
-import           Data.Maybe    (isNothing)
+import           Control.Monad   (unless, when)
+import           Data.Maybe      (isNothing)
 
-import           Error.Error   (CompilerError (ScopeError), ScopeError (..))
-import           GenState      (GenState, throwError)
-import           GenTokens     (VarLookup (..), VarType (ParamVar))
-import qualified State.SymTab  as SymTab
-import           Types.AST     (Tree (..))
+import           Error.Error     (CompilerError (ScopeError), ScopeError (..))
+import           GenState        (GenState, throwError)
+import qualified State.SymTab    as SymTab
+import           Types.AST       (Tree (..))
+import           Types.Variables (VarLookup (..), VarType (ParamVar))
 
 
 -- | Check if variable name exists in current scope

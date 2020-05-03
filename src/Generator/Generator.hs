@@ -16,11 +16,11 @@ import           Error.Error         (CompilerError (FatalError),
                                       FatalError (GeneratorBug))
 import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (getState, startState)
-import           GenTokens
 import           State.SymTab        (SymTab)
 import qualified State.SymTab        as SymTab
 import           Types.AST           (ArrayNode (..), Tree (..))
 import           Types.Operator      (BinaryOp (..), Operator (..))
+import           Types.Variables     (Scope (..), VarLookup (..), VarType (..))
 
 
 -- | Generate x86-64 asm from AST

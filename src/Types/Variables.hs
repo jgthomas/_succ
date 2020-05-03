@@ -1,5 +1,5 @@
 
-module GenTokens where
+module Types.Variables where
 
 
 data Scope = Global

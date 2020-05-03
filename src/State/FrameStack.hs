@@ -14,8 +14,8 @@ module State.FrameStack
 
 import           GenState          (GenState)
 import qualified GenState          (getFrameStack, putFrameStack)
-import           GenTokens         (Scope (..))
 import           State.SymbolTable (stackPeek, stackPop, stackPush)
+import           Types.Variables   (Scope (..))
 
 
 -- | Check if in Local or Global scope

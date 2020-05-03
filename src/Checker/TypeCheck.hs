@@ -12,15 +12,15 @@ module Checker.TypeCheck
          funcReturn
         ) where
 
-import           Control.Monad (unless, when)
+import           Control.Monad   (unless, when)
 
-import           Error.Error   (CheckerError (..), CompilerError (CheckerError, ImpossibleError, TypeError),
-                                TypeError (..))
-import           GenState      (GenState, throwError)
-import           GenTokens     (Scope (..))
-import qualified State.SymTab  as SymTab
-import           Types.AST     (ArrayNode (..), Tree (..))
-import           Types.Type    (Type (..))
+import           Error.Error     (CheckerError (..), CompilerError (CheckerError, ImpossibleError, TypeError),
+                                  TypeError (..))
+import           GenState        (GenState, throwError)
+import qualified State.SymTab    as SymTab
+import           Types.AST       (ArrayNode (..), Tree (..))
+import           Types.Type      (Type (..))
+import           Types.Variables (Scope (..))
 
 
 -- | Throw error if two lists of types don't match

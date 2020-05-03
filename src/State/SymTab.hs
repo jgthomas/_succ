@@ -17,11 +17,11 @@ module State.SymTab
 
 
 import GenState          (GenState, labelNum)
-import GenTokens         (VarLookup (..), VarType (..))
 import State.FrameStack  (currentFunc, getScope)
 import State.FuncState
 import State.GlobalScope
 import State.SymbolTable (SymTab, memOffset)
+import Types.Variables   (VarLookup (..), VarType (..))
 
 
 -- | Build variable data type from retrieved data
