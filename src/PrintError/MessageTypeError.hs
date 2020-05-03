@@ -1,11 +1,11 @@
 
-module Error.MessageTypeError (typeErrorMsg) where
+module PrintError.MessageTypeError (typeErrorMsg) where
 
 
-import Error.PrintErrorTokens (PrintRange (..), buildLineMsg)
-import Types.AST              (NodeDat (..), Tree (..))
-import Types.Error            (TypeError (..))
-import Types.Type             (Type)
+import PrintError.PrintErrorTokens (PrintRange (..), buildLineMsg)
+import Types.AST                   (NodeDat (..), Tree (..))
+import Types.Error                 (TypeError (..))
+import Types.Type                  (Type)
 
 
 typeErrorMsg :: TypeError -> (String, PrintRange)

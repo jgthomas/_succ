@@ -7,16 +7,16 @@ Controls the output of the compilation process.
 module Succ (compile) where
 
 
-import           System.Exit         (exitFailure)
+import           System.Exit           (exitFailure)
 
-import qualified Checker.Checker     as Checker (check)
-import qualified Debug.Debug         as Debug (debug)
-import qualified Error.PrintError    as PrintError (printError)
-import qualified Generator.Generator as Generator (generate)
-import qualified Lexer.Lexer         as Lexer (tokenize)
-import qualified Parser.Parser       as Parser (parse)
-import           Types.Error         (CompilerError)
-import           Types.SuccTokens    (Debug (..), Stage (..))
+import qualified Checker.Checker       as Checker (check)
+import qualified Debug.Debug           as Debug (debug)
+import qualified Generator.Generator   as Generator (generate)
+import qualified Lexer.Lexer           as Lexer (tokenize)
+import qualified Parser.Parser         as Parser (parse)
+import qualified PrintError.PrintError as PrintError (printError)
+import           Types.Error           (CompilerError)
+import           Types.SuccTokens      (Debug (..), Stage (..))
 
 
 -- | Run the compilation process

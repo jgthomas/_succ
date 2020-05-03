@@ -4,11 +4,11 @@ Description  : Generate FatalError messages
 
 Create error messages with for the FatalError error type
 -}
-module Error.MessageFatalError (fatalErrorMsg) where
+module PrintError.MessageFatalError (fatalErrorMsg) where
 
 
-import Error.PrintErrorTokens (PrintRange (..))
-import Types.Error            (FatalError (..))
+import PrintError.PrintErrorTokens (PrintRange (..))
+import Types.Error                 (FatalError (..))
 
 
 -- | Generate string for FatalError message

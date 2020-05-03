@@ -4,22 +4,23 @@ Description  : Output error messages
 
 Create and format error messages with associated code sections
 -}
-module Error.PrintError (printError) where
+module PrintError.PrintError (printError) where
 
 
-import Control.Monad            (unless)
-import Data.Map                 as M (Map, fromList, lookup)
-import Data.Maybe               (fromMaybe, isNothing)
+import Control.Monad                 (unless)
+import Data.Map                      as M (Map, fromList, lookup)
+import Data.Maybe                    (fromMaybe, isNothing)
 
-import Error.MessageFatalError  (fatalErrorMsg)
-import Error.MessageOtherError  (impossibleErrorMsg, stateErrorMsg)
-import Error.MessageScopeError  (scopeErrorMsg)
-import Error.MessageStageError  (checkerErrorMsg, lexerErrorMsg, parserErrorMsg)
-import Error.MessageSyntaxError (syntaxErrorMsg)
-import Error.MessageTypeError   (typeErrorMsg)
-import Error.PrintErrorTokens   (PrintRange (..))
-import Types.Error              (CompilerError (..))
-import Types.SuccTokens         (Debug (..))
+import PrintError.MessageFatalError  (fatalErrorMsg)
+import PrintError.MessageOtherError  (impossibleErrorMsg, stateErrorMsg)
+import PrintError.MessageScopeError  (scopeErrorMsg)
+import PrintError.MessageStageError  (checkerErrorMsg, lexerErrorMsg,
+                                      parserErrorMsg)
+import PrintError.MessageSyntaxError (syntaxErrorMsg)
+import PrintError.MessageTypeError   (typeErrorMsg)
+import PrintError.PrintErrorTokens   (PrintRange (..))
+import Types.Error                   (CompilerError (..))
+import Types.SuccTokens              (Debug (..))
 
 
 -- | Print error message with relevant section of code

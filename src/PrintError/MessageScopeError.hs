@@ -1,10 +1,10 @@
 
-module Error.MessageScopeError (scopeErrorMsg) where
+module PrintError.MessageScopeError (scopeErrorMsg) where
 
 
-import Error.PrintErrorTokens (PrintRange (..), buildLineMsg)
-import Types.AST              (NodeDat (..), Tree (..))
-import Types.Error            (ScopeError (..))
+import PrintError.PrintErrorTokens (PrintRange (..), buildLineMsg)
+import Types.AST                   (NodeDat (..), Tree (..))
+import Types.Error                 (ScopeError (..))
 
 
 scopeErrorMsg :: ScopeError -> (String, PrintRange)

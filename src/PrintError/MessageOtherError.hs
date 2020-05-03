@@ -1,9 +1,9 @@
 
-module Error.MessageOtherError (stateErrorMsg, impossibleErrorMsg) where
+module PrintError.MessageOtherError (stateErrorMsg, impossibleErrorMsg) where
 
 
-import Error.PrintErrorTokens (PrintRange (..))
-import Types.Error            (StateError (..))
+import PrintError.PrintErrorTokens (PrintRange (..))
+import Types.Error                 (StateError (..))
 
 
 stateErrorMsg :: StateError -> (String, PrintRange)
