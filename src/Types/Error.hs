@@ -2,8 +2,8 @@
 module Types.Error where
 
 
-import Lexer.LexTab   (LexDat)
 import Types.AST      (Tree)
+import Types.LexDat   (LexDat)
 import Types.Operator (Operator)
 import Types.Tokens   (Keyword, Token)
 import Types.Type     (Type)

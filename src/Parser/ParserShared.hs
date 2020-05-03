@@ -12,11 +12,11 @@ module Parser.ParserShared
 
 import Control.Monad   (unless)
 
-import Lexer.LexTab    (LexDat (..))
 import Parser.ParState (ParserState, throwError)
 import Types.AST       (NodeDat, Tree (..), mkNodeDat)
 import Types.Error     (CompilerError (ParserError, SyntaxError),
                         ParserError (..), SyntaxError (..))
+import Types.LexDat    (LexDat (..))
 import Types.Tokens    (CloseBracket (..), Keyword (..), OpTok (..),
                         OpenBracket (..), Token (..))
 import Types.Type      (Type (..))

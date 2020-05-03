@@ -15,9 +15,11 @@ module Lexer.LexState
         ) where
 
 
-import           Lexer.LexTab    (LexDat, LexTab (..))
-import qualified Lexer.LexTab    as LexTab (mkLexDat, mkLexTab)
+import           Lexer.LexTab    (LexTab (..))
+import qualified Lexer.LexTab    as LexTab (mkLexTab)
 import           Types.Error     (CompilerError)
+import           Types.LexDat    (LexDat)
+import qualified Types.LexDat    as LexDat (mkLexDat)
 import           Types.SuccState (SuccStateM, throwError)
 import qualified Types.SuccState as SuccState (getState, putState, runSuccState)
 import           Types.Tokens    (Token)
@@ -50,7 +52,7 @@ addToken tok = do
 mkLexDat :: Token -> LexerState LexDat
 mkLexDat tok = do
         lineN <- lineNum <$> SuccState.getState
-        pure $ LexTab.mkLexDat tok lineN
+        pure $ LexDat.mkLexDat tok lineN
 
 
 -- | Return the list of LexDat from the state

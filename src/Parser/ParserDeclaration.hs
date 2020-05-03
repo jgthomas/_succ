@@ -2,7 +2,6 @@
 module Parser.ParserDeclaration (parseDeclaration) where
 
 
-import           Lexer.LexTab            (LexDat (..))
 import           Parser.ParserExpression (parseExpression)
 import           Parser.ParserShared     (consumeTok, makeNodeDat, parseType,
                                           verifyAndConsume)
@@ -10,6 +9,7 @@ import           Parser.ParState         (ParserState, throwError)
 import           Types.AST               (ArrayNode (..), Tree (..))
 import           Types.Error             (CompilerError (ParserError, SyntaxError),
                                           ParserError (..), SyntaxError (..))
+import           Types.LexDat            (LexDat (..))
 import           Types.Tokens            (CloseBracket (..), OpenBracket (..),
                                           Token (..))
 import qualified Types.Tokens            as Tokens (isAssign)

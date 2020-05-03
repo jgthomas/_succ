@@ -6,10 +6,10 @@ module PrintError.MessageStageError
         ) where
 
 
-import Lexer.LexTab                (LexDat (..))
 import PrintError.PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
 import Types.Error                 (CheckerError (..), LexerError (..),
                                     ParserError (..))
+import Types.LexDat                (LexDat (..))
 
 
 lexerErrorMsg :: LexerError -> (String, PrintRange)

@@ -7,7 +7,7 @@ Data types used for the Lexer stage of succ.
 module Lexer.LexTab where
 
 
-import Types.Tokens (Token)
+import Types.LexDat (LexDat)
 
 
 -- | LexTab state data type
@@ -18,15 +18,3 @@ data LexTab = LexTab { datList :: [LexDat]
 -- | LexTab state constructor
 mkLexTab :: LexTab
 mkLexTab = LexTab [] 1
-
-
--- | LexDat state data type
-data LexDat = LexDat { tok  :: Token
-                     , line :: Int }
-            deriving (Show, Eq)
-
-
--- | LexDat state constructor
-mkLexDat :: Token -> Int -> LexDat
-mkLexDat t n = LexDat t n
-
