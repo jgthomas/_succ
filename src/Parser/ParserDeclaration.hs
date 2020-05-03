@@ -2,7 +2,6 @@
 module Parser.ParserDeclaration (parseDeclaration) where
 
 
-import           AST                     (ArrayNode (..), Tree (..))
 import           Error.Error             (CompilerError (ParserError, SyntaxError),
                                           ParserError (..), SyntaxError (..))
 import           Lexer.LexTab            (LexDat (..))
@@ -10,9 +9,10 @@ import           Parser.ParserExpression (parseExpression)
 import           Parser.ParserShared     (consumeTok, makeNodeDat, parseType,
                                           verifyAndConsume)
 import           Parser.ParState         (ParserState, throwError)
-import           Tokens                  (CloseBracket (..), OpenBracket (..),
+import           Types.AST               (ArrayNode (..), Tree (..))
+import           Types.Tokens            (CloseBracket (..), OpenBracket (..),
                                           Token (..))
-import qualified Tokens                  (isAssign)
+import qualified Types.Tokens            as Tokens (isAssign)
 
 
 data Declaration = ValueDec

@@ -12,15 +12,15 @@ import           Control.Monad.Extra (concatMapM)
 import           Data.Maybe          (fromMaybe)
 
 import qualified Asm.ASM             as ASM
-import           AST                 (ArrayNode (..), Tree (..))
 import           Error.Error         (CompilerError (FatalError),
                                       FatalError (GeneratorBug))
 import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (getState, startState)
 import           GenTokens
-import           Operator            (BinaryOp (..), Operator (..))
 import           SymTab              (SymTab)
 import qualified SymTab
+import           Types.AST           (ArrayNode (..), Tree (..))
+import           Types.Operator      (BinaryOp (..), Operator (..))
 
 
 -- | Generate x86-64 asm from AST

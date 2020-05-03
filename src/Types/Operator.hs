@@ -1,8 +1,8 @@
 
-module Operator where
+module Types.Operator where
 
 
-import Tokens (OpTok (..))
+import Types.Tokens (OpTok (..))
 
 
 data Operator = Assignment

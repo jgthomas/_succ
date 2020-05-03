@@ -29,7 +29,7 @@ import           GenState        (GenState, throwError)
 import           SymbolTable     (FuncState (paramCount, parameters, scopes),
                                   LocalVar (..), ParamVar (..))
 import qualified SymbolTable     (mkLocVar, mkParVar)
-import           Type            (Type (Label))
+import           Types.Type      (Type (Label))
 
 
 -- | Check if variable name is in use in current scope

@@ -2,7 +2,7 @@
 module Error.PrintErrorTokens where
 
 
-import Tokens (Token (..))
+import Types.Tokens (Token (..))
 
 
 data PrintRange = All

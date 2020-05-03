@@ -12,14 +12,14 @@ module Parser.ParserShared
 
 import Control.Monad   (unless)
 
-import AST             (NodeDat, Tree (..), mkNodeDat)
 import Error.Error     (CompilerError (ParserError, SyntaxError),
                         ParserError (..), SyntaxError (..))
 import Lexer.LexTab    (LexDat (..))
 import Parser.ParState (ParserState, throwError)
-import Tokens          (CloseBracket (..), Keyword (..), OpTok (..),
+import Types.AST       (NodeDat, Tree (..), mkNodeDat)
+import Types.Tokens    (CloseBracket (..), Keyword (..), OpTok (..),
                         OpenBracket (..), Token (..))
-import Type            (Type (..))
+import Types.Type      (Type (..))
 
 
 parseBracketedSeq :: [Tree]

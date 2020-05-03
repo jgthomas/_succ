@@ -7,7 +7,7 @@ import Asm.Instruction  (Set (..), comp, dec, inc, invertBits, literal,
                          makeNegative, move, setBitIf)
 import Asm.Register     (Register (..), reg, scratch)
 import GenTokens        (VarType (..))
-import Operator         (PostOpUnary (..), PreOpUnary (..), Unary (..),
+import Types.Operator   (PostOpUnary (..), PreOpUnary (..), Unary (..),
                          UnaryOp (..))
 
 

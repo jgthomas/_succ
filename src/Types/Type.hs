@@ -1,5 +1,5 @@
 
-module Type where
+module Types.Type where
 
 
 data Type = IntVar

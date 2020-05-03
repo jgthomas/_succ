@@ -8,10 +8,10 @@ traverse the abstract syntax tree.
 module SymbolTable where
 
 
-import qualified Data.Map as M
-import qualified Data.Set as S
+import qualified Data.Map   as M
+import qualified Data.Set   as S
 
-import           Type     (Type)
+import           Types.Type (Type)
 
 
 -- | SymTab state data type

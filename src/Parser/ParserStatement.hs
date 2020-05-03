@@ -2,7 +2,6 @@
 module Parser.ParserStatement (parseStatementBlock) where
 
 
-import AST                      (Tree (..))
 import Error.Error              (CompilerError (ParserError, SyntaxError),
                                  ParserError (..), SyntaxError (..))
 import Lexer.LexTab             (LexDat (..))
@@ -10,7 +9,8 @@ import Parser.ParserDeclaration (parseDeclaration)
 import Parser.ParserExpression  (parseExpression)
 import Parser.ParserShared      (makeNodeDat, nextTokIsNot, verifyAndConsume)
 import Parser.ParState          (ParserState, throwError)
-import Tokens                   (CloseBracket (..), Keyword (..), OpTok (..),
+import Types.AST                (Tree (..))
+import Types.Tokens             (CloseBracket (..), Keyword (..), OpTok (..),
                                  OpenBracket (..), Token (..))
 
 

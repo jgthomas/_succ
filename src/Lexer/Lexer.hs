@@ -16,7 +16,7 @@ import           Lexer.LexState (LexerState, runLexState, throwError)
 import qualified Lexer.LexState as LexState (addToken, getState, incLineNum,
                                              startState)
 import           Lexer.LexTab   (LexDat)
-import           Tokens         (CloseBracket (..), Keyword (..), OpTok (..),
+import           Types.Tokens   (CloseBracket (..), Keyword (..), OpTok (..),
                                  OpenBracket (..), Token (..))
 
 

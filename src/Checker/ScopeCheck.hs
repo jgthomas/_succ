@@ -20,11 +20,11 @@ module Checker.ScopeCheck
 import           Control.Monad (unless, when)
 import           Data.Maybe    (isNothing)
 
-import           AST           (Tree (..))
 import           Error.Error   (CompilerError (ScopeError), ScopeError (..))
 import           GenState      (GenState, throwError)
 import           GenTokens     (VarLookup (..), VarType (ParamVar))
 import qualified SymTab
+import           Types.AST     (Tree (..))
 
 
 -- | Check if variable name exists in current scope

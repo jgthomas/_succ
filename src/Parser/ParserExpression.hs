@@ -2,19 +2,20 @@
 module Parser.ParserExpression (parseExpression) where
 
 
-import           AST                 (ArrayNode (..), Tree (..))
 import           Error.Error         (CompilerError (ImpossibleError, ParserError, SyntaxError),
                                       ParserError (..), SyntaxError (..))
 import           Lexer.LexTab        (LexDat (..))
-import qualified Operator            (tokToAssignOp, tokToBinOp,
-                                      tokToPostUnaryOp, tokToUnaryOp)
 import           Parser.ParserShared (consumeTok, makeNodeDat,
                                       parseBracketedSeq, verifyAndConsume)
 import           Parser.ParState     (ParserState, throwError)
-import           Tokens              (CloseBracket (..), OpTok (..),
+import           Types.AST           (ArrayNode (..), Tree (..))
+import qualified Types.Operator      as Operator (tokToAssignOp, tokToBinOp,
+                                                  tokToPostUnaryOp,
+                                                  tokToUnaryOp)
+import           Types.Tokens        (CloseBracket (..), OpTok (..),
                                       OpTokType (..), OpenBracket (..),
                                       Token (..))
-import qualified Tokens              (isAssign, isPostPos, kind)
+import qualified Types.Tokens        as Tokens (isAssign, isPostPos, kind)
 
 
 parseExpression :: [LexDat] -> ParserState (Tree, [LexDat])

@@ -20,7 +20,7 @@ import           Lexer.LexTab (LexDat, LexTab (..))
 import qualified Lexer.LexTab as LexTab (mkLexDat, mkLexTab)
 import           SuccState    (SuccStateM, throwError)
 import qualified SuccState    (getState, putState, runSuccState)
-import           Tokens       (Token)
+import           Types.Tokens (Token)
 
 
 -- | State definition

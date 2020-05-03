@@ -2,10 +2,10 @@
 module Error.MessageTypeError (typeErrorMsg) where
 
 
-import AST                    (NodeDat (..), Tree (..))
 import Error.Error            (TypeError (..))
 import Error.PrintErrorTokens (PrintRange (..), buildLineMsg)
-import Type                   (Type)
+import Types.AST              (NodeDat (..), Tree (..))
+import Types.Type             (Type)
 
 
 typeErrorMsg :: TypeError -> (String, PrintRange)

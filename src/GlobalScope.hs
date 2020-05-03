@@ -32,7 +32,7 @@ import           GenState    (GenState)
 import qualified GenState    (getGlobalScope, labelNum, putGlobalScope)
 import           SymbolTable (GlobalScope (..), GlobalVar (..))
 import qualified SymbolTable (mkGloVar)
-import           Type        (Type)
+import           Types.Type  (Type)
 
 
 -- | Get the number of parameters for a declared function

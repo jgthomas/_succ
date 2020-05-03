@@ -7,7 +7,7 @@ Data types used for the Lexer stage of succ.
 module Lexer.LexTab where
 
 
-import Tokens (Token)
+import Types.Tokens (Token)
 
 
 -- | LexTab state data type

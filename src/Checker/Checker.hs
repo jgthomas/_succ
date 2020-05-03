@@ -10,7 +10,6 @@ module Checker.Checker (check) where
 import           Control.Monad      (unless, when)
 import           Data.Maybe         (isNothing)
 
-import           AST                (ArrayNode (..), Tree (..))
 import qualified Checker.ScopeCheck as ScopeCheck
 import qualified Checker.TypeCheck  as TypeCheck
 import           Error.Error        (CheckerError (..),
@@ -19,8 +18,9 @@ import           Error.Error        (CheckerError (..),
 import           GenState           (GenState, runGenState, throwError)
 import qualified GenState           (startState)
 import           GenTokens          (Scope (..))
-import           Operator           (Operator (..), UnaryOp (..))
 import qualified SymTab
+import           Types.AST          (ArrayNode (..), Tree (..))
+import           Types.Operator     (Operator (..), UnaryOp (..))
 
 
 -- | Check an AST for errors

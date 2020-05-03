@@ -1,5 +1,5 @@
 
-module Tokens where
+module Types.Tokens where
 
 
 import Data.Char (toLower)

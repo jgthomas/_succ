@@ -8,7 +8,6 @@ representing the C program.
 module Parser.Parser (parse) where
 
 
-import           AST                      (Tree (..))
 import           Error.Error              (CompilerError (ParserError, SyntaxError),
                                            ParserError (..), SyntaxError (..))
 import           Lexer.LexTab             (LexDat (..))
@@ -17,7 +16,8 @@ import           Parser.ParserFunction    (parseFunction)
 import           Parser.ParState          (ParserState, runParState, throwError)
 import qualified Parser.ParState          as ParState (getState, putState,
                                                        startState)
-import           Tokens                   (OpTok (..), OpenBracket (..),
+import           Types.AST                (Tree (..))
+import           Types.Tokens             (OpTok (..), OpenBracket (..),
                                            Token (..))
 
 

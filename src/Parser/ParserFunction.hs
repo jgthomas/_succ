@@ -2,7 +2,6 @@
 module Parser.ParserFunction (parseFunction) where
 
 
-import AST                     (Tree (..))
 import Error.Error             (CompilerError (ParserError, SyntaxError),
                                 ParserError (..), SyntaxError (..))
 import Lexer.LexTab            (LexDat (..))
@@ -11,7 +10,8 @@ import Parser.ParserShared     (consumeNToks, consumeTok, makeNodeDat,
                                 parseBracketedSeq, parseType, verifyAndConsume)
 import Parser.ParserStatement  (parseStatementBlock)
 import Parser.ParState         (ParserState, throwError)
-import Tokens                  (CloseBracket (..), OpTok (..), OpenBracket (..),
+import Types.AST               (Tree (..))
+import Types.Tokens            (CloseBracket (..), OpTok (..), OpenBracket (..),
                                 Token (..))
 
 

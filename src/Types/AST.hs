@@ -1,9 +1,9 @@
 
-module AST where
+module Types.AST where
 
 
-import Operator (BinaryOp, Operator, UnaryOp)
-import Type     (Type)
+import Types.Operator (BinaryOp, Operator, UnaryOp)
+import Types.Type     (Type)
 
 
 data Tree = ProgramNode [Tree]
