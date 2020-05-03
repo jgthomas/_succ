@@ -2,10 +2,10 @@
 module TestUtility where
 
 
-import           AST          (NodeDat)
-import qualified AST          (mkNodeDat)
 import           Lexer.LexTab (LexDat (LexDat))
-import           Tokens       (Token)
+import           Types.AST    (NodeDat)
+import qualified Types.AST    as AST (mkNodeDat)
+import           Types.Tokens (Token)
 
 
 dummyLine :: Int

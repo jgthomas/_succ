@@ -26,8 +26,9 @@ import qualified Data.Map          as M
 import           Error.Error       (CompilerError)
 import           State.SymbolTable (FuncState, GlobalScope, Stack, SymTab (..),
                                     mkSymTab)
-import           SuccState         (SuccStateM, throwError)
-import qualified SuccState         (getState, putState, runSuccState)
+import           Types.SuccState   (SuccStateM, throwError)
+import qualified Types.SuccState   as SuccState (getState, putState,
+                                                 runSuccState)
 
 
 -- | State definition

@@ -15,12 +15,12 @@ module Lexer.LexState
         ) where
 
 
-import           Error.Error  (CompilerError)
-import           Lexer.LexTab (LexDat, LexTab (..))
-import qualified Lexer.LexTab as LexTab (mkLexDat, mkLexTab)
-import           SuccState    (SuccStateM, throwError)
-import qualified SuccState    (getState, putState, runSuccState)
-import           Types.Tokens (Token)
+import           Error.Error     (CompilerError)
+import           Lexer.LexTab    (LexDat, LexTab (..))
+import qualified Lexer.LexTab    as LexTab (mkLexDat, mkLexTab)
+import           Types.SuccState (SuccStateM, throwError)
+import qualified Types.SuccState as SuccState (getState, putState, runSuccState)
+import           Types.Tokens    (Token)
 
 
 -- | State definition

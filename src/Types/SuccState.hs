@@ -7,7 +7,7 @@ a State monad with an error type.
 -}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module SuccState
+module Types.SuccState
         (SuccStateM,
          getState,
          putState,

@@ -19,7 +19,7 @@ import Error.MessageStageError  (checkerErrorMsg, lexerErrorMsg, parserErrorMsg)
 import Error.MessageSyntaxError (syntaxErrorMsg)
 import Error.MessageTypeError   (typeErrorMsg)
 import Error.PrintErrorTokens   (PrintRange (..))
-import SuccTokens               (Debug (..))
+import Types.SuccTokens         (Debug (..))
 
 
 -- | Print error message with relevant section of code

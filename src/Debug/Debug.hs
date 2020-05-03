@@ -11,7 +11,7 @@ module Debug.Debug (debug) where
 import Text.Pretty.Simple (OutputOptions (..), defaultOutputOptionsNoColor,
                            pPrint, pPrintOpt)
 
-import SuccTokens         (Debug (..), Stage (..))
+import Types.SuccTokens   (Debug (..), Stage (..))
 
 
 -- | Print debugging output

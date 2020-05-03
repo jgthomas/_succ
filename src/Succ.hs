@@ -16,7 +16,7 @@ import qualified Error.PrintError    as PrintError (printError)
 import qualified Generator.Generator as Generator (generate)
 import qualified Lexer.Lexer         as Lexer (tokenize)
 import qualified Parser.Parser       as Parser (parse)
-import           SuccTokens          (Debug (..), Stage (..))
+import           Types.SuccTokens    (Debug (..), Stage (..))
 
 
 -- | Run the compilation process

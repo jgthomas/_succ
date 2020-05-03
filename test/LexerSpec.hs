@@ -8,7 +8,7 @@ import Test.Hspec
 import Error.Error
 import Lexer.Lexer
 import Lexer.LexTab
-import Tokens
+import Types.Tokens
 
 
 lexerTest :: IO ()
