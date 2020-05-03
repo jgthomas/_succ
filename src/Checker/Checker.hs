@@ -15,8 +15,8 @@ import qualified Checker.TypeCheck  as TypeCheck
 import           Error.Error        (CheckerError (..),
                                      CompilerError (CheckerError, ScopeError),
                                      ScopeError (..))
-import           GenState           (GenState, runGenState, throwError)
-import qualified GenState           (startState)
+import           State.GenState     (GenState, runGenState, throwError)
+import qualified State.GenState     as GenState (startState)
 import qualified State.SymTab       as SymTab
 import           Types.AST          (ArrayNode (..), Tree (..))
 import           Types.Operator     (Operator (..), UnaryOp (..))

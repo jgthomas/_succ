@@ -27,9 +27,10 @@ module State.GlobalScope
 import qualified Data.Map          as M
 import qualified Data.Set          as S
 
-import           GenState          (GenState)
-import qualified GenState          (getGlobalScope, labelNum, putGlobalScope)
 import qualified State.FrameStack  as FrameStack (currentFunc)
+import           State.GenState    (GenState)
+import qualified State.GenState    as GenState (getGlobalScope, labelNum,
+                                                putGlobalScope)
 import           State.SymbolTable (GlobalScope (..), GlobalVar (..))
 import qualified State.SymbolTable as SymbolTable (mkGloVar)
 import           Types.Type        (Type)

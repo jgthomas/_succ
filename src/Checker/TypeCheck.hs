@@ -16,7 +16,7 @@ import           Control.Monad   (unless, when)
 
 import           Error.Error     (CheckerError (..), CompilerError (CheckerError, ImpossibleError, TypeError),
                                   TypeError (..))
-import           GenState        (GenState, throwError)
+import           State.GenState  (GenState, throwError)
 import qualified State.SymTab    as SymTab
 import           Types.AST       (ArrayNode (..), Tree (..))
 import           Types.Type      (Type (..))

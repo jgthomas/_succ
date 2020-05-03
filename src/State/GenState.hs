@@ -4,7 +4,7 @@ Description  : State for the code generator
 
 State holder for the code generation stage of compilation.
 -}
-module GenState
+module State.GenState
         (GenState,
          runGenState,
          throwError,

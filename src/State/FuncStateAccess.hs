@@ -4,8 +4,9 @@ module State.FuncStateAccess where
 
 import           Error.Error       (CompilerError (StateError),
                                     StateError (NoStateFound))
-import           GenState          (GenState, throwError)
-import qualified GenState          (delFuncState, getFuncState, updateFuncState)
+import           State.GenState    (GenState, throwError)
+import qualified State.GenState    as GenState (delFuncState, getFuncState,
+                                                updateFuncState)
 import           State.SymbolTable (FuncState)
 
 

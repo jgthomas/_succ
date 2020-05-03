@@ -18,13 +18,13 @@ module State.FuncState
 import           Control.Monad         (when)
 import           Data.Maybe            (isNothing)
 
-import           GenState              (GenState)
 import qualified State.FrameStack      as FrameStack (popFunc, pushFunc)
 import           State.FuncStateAccess (delFuncState, grabFuncState,
                                         setFuncState)
 import           State.FuncStateOffset (incrementOffsetByN, stackPointerValue)
 import           State.FuncStateScope  (closeScope, initScope)
 import           State.FuncStateVars
+import           State.GenState        (GenState)
 import qualified State.SymbolTable     as SymbolTable (mkFuncState)
 
 

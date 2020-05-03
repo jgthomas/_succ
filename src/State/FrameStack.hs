@@ -12,8 +12,8 @@ module State.FrameStack
         ) where
 
 
-import           GenState          (GenState)
-import qualified GenState          (getFrameStack, putFrameStack)
+import           State.GenState    (GenState)
+import qualified State.GenState    as GenState (getFrameStack, putFrameStack)
 import           State.SymbolTable (stackPeek, stackPop, stackPush)
 import           Types.Variables   (Scope (..))
 

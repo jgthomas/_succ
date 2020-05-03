@@ -14,8 +14,8 @@ import           Data.Maybe          (fromMaybe)
 import qualified Asm.ASM             as ASM
 import           Error.Error         (CompilerError (FatalError),
                                       FatalError (GeneratorBug))
-import           GenState            (GenState, runGenState, throwError)
-import qualified GenState            (getState, startState)
+import           State.GenState      (GenState, runGenState, throwError)
+import qualified State.GenState      as GenState (getState, startState)
 import           State.SymTab        (SymTab)
 import qualified State.SymTab        as SymTab
 import           Types.AST           (ArrayNode (..), Tree (..))

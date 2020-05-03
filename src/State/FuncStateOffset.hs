@@ -6,9 +6,9 @@ module State.FuncStateOffset
         ) where
 
 
-import           GenState              (GenState)
 import qualified State.FrameStack      as FrameStack (currentFunc)
 import           State.FuncStateAccess (getFuncState, setFuncState)
+import           State.GenState        (GenState)
 import           State.SymbolTable     (FuncState (funcOffset), memOffset)
 
 

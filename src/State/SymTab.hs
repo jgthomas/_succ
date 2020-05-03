@@ -16,9 +16,9 @@ module State.SymTab
         ) where
 
 
-import GenState          (GenState, labelNum)
 import State.FrameStack  (currentFunc, getScope)
 import State.FuncState
+import State.GenState    (GenState, labelNum)
 import State.GlobalScope
 import State.SymbolTable (SymTab, memOffset)
 import Types.Variables   (VarLookup (..), VarType (..))
