@@ -4,7 +4,7 @@ Description  : Produces assembly code
 
 Generates the x86-64 assembly code for a particular abstract syntax tree.
 -}
-module Generator (generate) where
+module Generator.Generator (generate) where
 
 
 import           Control.Monad       (unless)
