@@ -2,14 +2,14 @@
 module Parser.ParserStatement (parseStatementBlock) where
 
 
-import Error.Error              (CompilerError (ParserError, SyntaxError),
-                                 ParserError (..), SyntaxError (..))
 import Lexer.LexTab             (LexDat (..))
 import Parser.ParserDeclaration (parseDeclaration)
 import Parser.ParserExpression  (parseExpression)
 import Parser.ParserShared      (makeNodeDat, nextTokIsNot, verifyAndConsume)
 import Parser.ParState          (ParserState, throwError)
 import Types.AST                (Tree (..))
+import Types.Error              (CompilerError (ParserError, SyntaxError),
+                                 ParserError (..), SyntaxError (..))
 import Types.Tokens             (CloseBracket (..), Keyword (..), OpTok (..),
                                  OpenBracket (..), Token (..))
 

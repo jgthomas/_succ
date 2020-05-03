@@ -23,9 +23,9 @@ module State.GenState
 
 import qualified Data.Map          as M
 
-import           Error.Error       (CompilerError)
 import           State.SymbolTable (FuncState, GlobalScope, Stack, SymTab (..),
                                     mkSymTab)
+import           Types.Error       (CompilerError)
 import           Types.SuccState   (SuccStateM, throwError)
 import qualified Types.SuccState   as SuccState (getState, putState,
                                                  runSuccState)

@@ -11,14 +11,14 @@ import           Control.Monad       (unless)
 import           Control.Monad.Extra (concatMapM)
 import           Data.Maybe          (fromMaybe)
 
-import           Error.Error         (CompilerError (FatalError),
-                                      FatalError (GeneratorBug))
 import qualified Generator.ASM       as ASM
 import           State.GenState      (GenState, runGenState, throwError)
 import qualified State.GenState      as GenState (getState, startState)
 import           State.SymTab        (SymTab)
 import qualified State.SymTab        as SymTab
 import           Types.AST           (ArrayNode (..), Tree (..))
+import           Types.Error         (CompilerError (FatalError),
+                                      FatalError (GeneratorBug))
 import           Types.Operator      (BinaryOp (..), Operator (..))
 import           Types.Variables     (Scope (..), VarLookup (..), VarType (..))
 

@@ -2,13 +2,13 @@
 module Parser.ParserExpression (parseExpression) where
 
 
-import           Error.Error         (CompilerError (ImpossibleError, ParserError, SyntaxError),
-                                      ParserError (..), SyntaxError (..))
 import           Lexer.LexTab        (LexDat (..))
 import           Parser.ParserShared (consumeTok, makeNodeDat,
                                       parseBracketedSeq, verifyAndConsume)
 import           Parser.ParState     (ParserState, throwError)
 import           Types.AST           (ArrayNode (..), Tree (..))
+import           Types.Error         (CompilerError (ImpossibleError, ParserError, SyntaxError),
+                                      ParserError (..), SyntaxError (..))
 import qualified Types.Operator      as Operator (tokToAssignOp, tokToBinOp,
                                                   tokToPostUnaryOp,
                                                   tokToUnaryOp)

@@ -11,7 +11,6 @@ import Control.Monad            (unless)
 import Data.Map                 as M (Map, fromList, lookup)
 import Data.Maybe               (fromMaybe, isNothing)
 
-import Error.Error              (CompilerError (..))
 import Error.MessageFatalError  (fatalErrorMsg)
 import Error.MessageOtherError  (impossibleErrorMsg, stateErrorMsg)
 import Error.MessageScopeError  (scopeErrorMsg)
@@ -19,6 +18,7 @@ import Error.MessageStageError  (checkerErrorMsg, lexerErrorMsg, parserErrorMsg)
 import Error.MessageSyntaxError (syntaxErrorMsg)
 import Error.MessageTypeError   (typeErrorMsg)
 import Error.PrintErrorTokens   (PrintRange (..))
+import Types.Error              (CompilerError (..))
 import Types.SuccTokens         (Debug (..))
 
 

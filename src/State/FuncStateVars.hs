@@ -20,8 +20,6 @@ import           Data.Function         (on)
 import           Data.List             (sortBy)
 import qualified Data.Map              as M
 
-import           Error.Error           (CompilerError (StateError),
-                                        StateError (..))
 import qualified State.FrameStack      as FrameStack (currentFunc)
 import           State.FuncStateAccess (getFuncState, setFuncState)
 import           State.FuncStateOffset (currentOffset, incrementOffsetByN)
@@ -30,6 +28,8 @@ import           State.GenState        (GenState, throwError)
 import           State.SymbolTable     (FuncState (paramCount, parameters, scopes),
                                         LocalVar (..), ParamVar (..))
 import qualified State.SymbolTable     as SymbolTable (mkLocVar, mkParVar)
+import           Types.Error           (CompilerError (StateError),
+                                        StateError (..))
 import           Types.Type            (Type (Label))
 
 

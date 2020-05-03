@@ -12,13 +12,13 @@ import           Data.Maybe         (isNothing)
 
 import qualified Checker.ScopeCheck as ScopeCheck
 import qualified Checker.TypeCheck  as TypeCheck
-import           Error.Error        (CheckerError (..),
-                                     CompilerError (CheckerError, ScopeError),
-                                     ScopeError (..))
 import           State.GenState     (GenState, runGenState, throwError)
 import qualified State.GenState     as GenState (startState)
 import qualified State.SymTab       as SymTab
 import           Types.AST          (ArrayNode (..), Tree (..))
+import           Types.Error        (CheckerError (..),
+                                     CompilerError (CheckerError, ScopeError),
+                                     ScopeError (..))
 import           Types.Operator     (Operator (..), UnaryOp (..))
 import           Types.Variables    (Scope (..))
 

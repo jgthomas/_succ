@@ -14,11 +14,11 @@ module Checker.TypeCheck
 
 import           Control.Monad   (unless, when)
 
-import           Error.Error     (CheckerError (..), CompilerError (CheckerError, ImpossibleError, TypeError),
-                                  TypeError (..))
 import           State.GenState  (GenState, throwError)
 import qualified State.SymTab    as SymTab
 import           Types.AST       (ArrayNode (..), Tree (..))
+import           Types.Error     (CheckerError (..), CompilerError (CheckerError, ImpossibleError, TypeError),
+                                  TypeError (..))
 import           Types.Type      (Type (..))
 import           Types.Variables (Scope (..))
 

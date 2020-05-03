@@ -2,9 +2,9 @@
 module Error.MessageScopeError (scopeErrorMsg) where
 
 
-import Error.Error            (ScopeError (..))
 import Error.PrintErrorTokens (PrintRange (..), buildLineMsg)
 import Types.AST              (NodeDat (..), Tree (..))
+import Types.Error            (ScopeError (..))
 
 
 scopeErrorMsg :: ScopeError -> (String, PrintRange)

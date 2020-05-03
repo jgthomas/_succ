@@ -19,7 +19,7 @@ module Types.SuccState
 import Control.Monad.State        (State, evalState, get, lift, put)
 import Control.Monad.Trans.Except (ExceptT, runExceptT, throwE)
 
-import Error.Error                (CompilerError)
+import Types.Error                (CompilerError)
 
 
 -- | Wrapper type for the compiler state

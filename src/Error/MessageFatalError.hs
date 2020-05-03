@@ -7,8 +7,8 @@ Create error messages with for the FatalError error type
 module Error.MessageFatalError (fatalErrorMsg) where
 
 
-import Error.Error            (FatalError (..))
 import Error.PrintErrorTokens (PrintRange (..))
+import Types.Error            (FatalError (..))
 
 
 -- | Generate string for FatalError message

@@ -2,9 +2,9 @@
 module Error.MessageSyntaxError (syntaxErrorMsg) where
 
 
-import Error.Error            (SyntaxError (..))
 import Error.PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
 import Lexer.LexTab           (LexDat (..))
+import Types.Error            (SyntaxError (..))
 
 
 syntaxErrorMsg :: SyntaxError -> (String, PrintRange)

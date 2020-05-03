@@ -10,12 +10,12 @@ module Lexer.Lexer (tokenize) where
 
 import           Data.Char      (isAlpha, isDigit, isSpace)
 
-import           Error.Error    (CompilerError (ImpossibleError, LexerError),
-                                 LexerError (..))
 import           Lexer.LexState (LexerState, runLexState, throwError)
 import qualified Lexer.LexState as LexState (addToken, getState, incLineNum,
                                              startState)
 import           Lexer.LexTab   (LexDat)
+import           Types.Error    (CompilerError (ImpossibleError, LexerError),
+                                 LexerError (..))
 import           Types.Tokens   (CloseBracket (..), Keyword (..), OpTok (..),
                                  OpenBracket (..), Token (..))
 

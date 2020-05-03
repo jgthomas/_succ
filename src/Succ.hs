@@ -11,11 +11,11 @@ import           System.Exit         (exitFailure)
 
 import qualified Checker.Checker     as Checker (check)
 import qualified Debug.Debug         as Debug (debug)
-import           Error.Error         (CompilerError)
 import qualified Error.PrintError    as PrintError (printError)
 import qualified Generator.Generator as Generator (generate)
 import qualified Lexer.Lexer         as Lexer (tokenize)
 import qualified Parser.Parser       as Parser (parse)
+import           Types.Error         (CompilerError)
 import           Types.SuccTokens    (Debug (..), Stage (..))
 
 

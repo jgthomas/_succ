@@ -14,8 +14,8 @@ module Parser.ParState
         ) where
 
 
-import           Error.Error     (CompilerError (ImpossibleError))
 import           Types.AST       (Tree (ProgramNode))
+import           Types.Error     (CompilerError (ImpossibleError))
 import           Types.SuccState (SuccStateM, throwError)
 import qualified Types.SuccState as SuccState (getState, putState, runSuccState)
 

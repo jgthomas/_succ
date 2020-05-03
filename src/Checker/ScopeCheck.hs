@@ -20,10 +20,10 @@ module Checker.ScopeCheck
 import           Control.Monad   (unless, when)
 import           Data.Maybe      (isNothing)
 
-import           Error.Error     (CompilerError (ScopeError), ScopeError (..))
 import           State.GenState  (GenState, throwError)
 import qualified State.SymTab    as SymTab
 import           Types.AST       (Tree (..))
+import           Types.Error     (CompilerError (ScopeError), ScopeError (..))
 import           Types.Variables (VarLookup (..), VarType (ParamVar))
 
 

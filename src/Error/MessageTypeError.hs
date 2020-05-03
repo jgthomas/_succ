@@ -2,9 +2,9 @@
 module Error.MessageTypeError (typeErrorMsg) where
 
 
-import Error.Error            (TypeError (..))
 import Error.PrintErrorTokens (PrintRange (..), buildLineMsg)
 import Types.AST              (NodeDat (..), Tree (..))
+import Types.Error            (TypeError (..))
 import Types.Type             (Type)
 
 

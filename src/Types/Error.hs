@@ -1,5 +1,5 @@
 
-module Error.Error where
+module Types.Error where
 
 
 import Lexer.LexTab   (LexDat)
