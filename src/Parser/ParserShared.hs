@@ -1,5 +1,5 @@
 
-module ParserShared
+module Parser.ParserShared
         (parseBracketedSeq,
          verifyAndConsume,
          consumeTok,
@@ -10,16 +10,16 @@ module ParserShared
         ) where
 
 
-import Control.Monad (unless)
+import Control.Monad   (unless)
 
-import AST           (NodeDat, Tree (..), mkNodeDat)
-import Error         (CompilerError (ParserError, SyntaxError),
-                      ParserError (..), SyntaxError (..))
-import LexTab        (LexDat (..))
-import ParState      (ParserState, throwError)
-import Tokens        (CloseBracket (..), Keyword (..), OpTok (..),
-                      OpenBracket (..), Token (..))
-import Type          (Type (..))
+import AST             (NodeDat, Tree (..), mkNodeDat)
+import Error           (CompilerError (ParserError, SyntaxError),
+                        ParserError (..), SyntaxError (..))
+import LexTab          (LexDat (..))
+import Parser.ParState (ParserState, throwError)
+import Tokens          (CloseBracket (..), Keyword (..), OpTok (..),
+                        OpenBracket (..), Token (..))
+import Type            (Type (..))
 
 
 parseBracketedSeq :: [Tree]

@@ -5,18 +5,20 @@ Description  : Produces an abstract syntax tree
 Converts a list of tokens into an abstract syntax tree
 representing the C program.
 -}
-module Parser (parse) where
+module Parser.Parser (parse) where
 
 
-import           AST               (Tree (..))
-import           Error             (CompilerError (ParserError, SyntaxError),
-                                    ParserError (..), SyntaxError (..))
-import           LexTab            (LexDat (..))
-import           ParserDeclaration (parseDeclaration)
-import           ParserFunction    (parseFunction)
-import           ParState          (ParserState, runParState, throwError)
-import qualified ParState          (getState, putState, startState)
-import           Tokens            (OpTok (..), OpenBracket (..), Token (..))
+import           AST                      (Tree (..))
+import           Error                    (CompilerError (ParserError, SyntaxError),
+                                           ParserError (..), SyntaxError (..))
+import           LexTab                   (LexDat (..))
+import           Parser.ParserDeclaration (parseDeclaration)
+import           Parser.ParserFunction    (parseFunction)
+import           Parser.ParState          (ParserState, runParState, throwError)
+import qualified Parser.ParState          as ParState (getState, putState,
+                                                       startState)
+import           Tokens                   (OpTok (..), OpenBracket (..),
+                                           Token (..))
 
 
 -- | Convert a list of tokens into an AST

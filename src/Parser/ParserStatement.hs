@@ -1,17 +1,17 @@
 
-module ParserStatement (parseStatementBlock) where
+module Parser.ParserStatement (parseStatementBlock) where
 
 
-import AST               (Tree (..))
-import Error             (CompilerError (ParserError, SyntaxError),
-                          ParserError (..), SyntaxError (..))
-import LexTab            (LexDat (..))
-import ParserDeclaration (parseDeclaration)
-import ParserExpression  (parseExpression)
-import ParserShared      (makeNodeDat, nextTokIsNot, verifyAndConsume)
-import ParState          (ParserState, throwError)
-import Tokens            (CloseBracket (..), Keyword (..), OpTok (..),
-                          OpenBracket (..), Token (..))
+import AST                      (Tree (..))
+import Error                    (CompilerError (ParserError, SyntaxError),
+                                 ParserError (..), SyntaxError (..))
+import LexTab                   (LexDat (..))
+import Parser.ParserDeclaration (parseDeclaration)
+import Parser.ParserExpression  (parseExpression)
+import Parser.ParserShared      (makeNodeDat, nextTokIsNot, verifyAndConsume)
+import Parser.ParState          (ParserState, throwError)
+import Tokens                   (CloseBracket (..), Keyword (..), OpTok (..),
+                                 OpenBracket (..), Token (..))
 
 
 parseStatementBlock :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])

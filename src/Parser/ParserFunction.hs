@@ -1,18 +1,18 @@
 
-module ParserFunction (parseFunction) where
+module Parser.ParserFunction (parseFunction) where
 
 
-import AST              (Tree (..))
-import Error            (CompilerError (ParserError, SyntaxError),
-                         ParserError (..), SyntaxError (..))
-import LexTab           (LexDat (..))
-import ParserExpression (parseExpression)
-import ParserShared     (consumeNToks, consumeTok, makeNodeDat,
-                         parseBracketedSeq, parseType, verifyAndConsume)
-import ParserStatement  (parseStatementBlock)
-import ParState         (ParserState, throwError)
-import Tokens           (CloseBracket (..), OpTok (..), OpenBracket (..),
-                         Token (..))
+import AST                     (Tree (..))
+import Error                   (CompilerError (ParserError, SyntaxError),
+                                ParserError (..), SyntaxError (..))
+import LexTab                  (LexDat (..))
+import Parser.ParserExpression (parseExpression)
+import Parser.ParserShared     (consumeNToks, consumeTok, makeNodeDat,
+                                parseBracketedSeq, parseType, verifyAndConsume)
+import Parser.ParserStatement  (parseStatementBlock)
+import Parser.ParState         (ParserState, throwError)
+import Tokens                  (CloseBracket (..), OpTok (..), OpenBracket (..),
+                                Token (..))
 
 
 parseFunction :: [LexDat] -> ParserState (Tree, [LexDat])

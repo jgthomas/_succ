@@ -1,18 +1,18 @@
 
-module ParserDeclaration (parseDeclaration) where
+module Parser.ParserDeclaration (parseDeclaration) where
 
 
-import           AST              (ArrayNode (..), Tree (..))
-import           Error            (CompilerError (ParserError, SyntaxError),
-                                   ParserError (..), SyntaxError (..))
-import           LexTab           (LexDat (..))
-import           ParserExpression (parseExpression)
-import           ParserShared     (consumeTok, makeNodeDat, parseType,
-                                   verifyAndConsume)
-import           ParState         (ParserState, throwError)
-import           Tokens           (CloseBracket (..), OpenBracket (..),
-                                   Token (..))
-import qualified Tokens           (isAssign)
+import           AST                     (ArrayNode (..), Tree (..))
+import           Error                   (CompilerError (ParserError, SyntaxError),
+                                          ParserError (..), SyntaxError (..))
+import           LexTab                  (LexDat (..))
+import           Parser.ParserExpression (parseExpression)
+import           Parser.ParserShared     (consumeTok, makeNodeDat, parseType,
+                                          verifyAndConsume)
+import           Parser.ParState         (ParserState, throwError)
+import           Tokens                  (CloseBracket (..), OpenBracket (..),
+                                          Token (..))
+import qualified Tokens                  (isAssign)
 
 
 data Declaration = ValueDec

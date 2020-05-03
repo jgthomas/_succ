@@ -4,7 +4,7 @@ Description  : State for the parser
 
 State holder for the parsing stage of compilation.
 -}
-module ParState
+module Parser.ParState
         (ParserState,
          runParState,
          throwError,
