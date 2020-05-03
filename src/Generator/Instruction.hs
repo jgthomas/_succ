@@ -1,5 +1,5 @@
 
-module Asm.Instruction where
+module Generator.Instruction where
 
 
 data Set = Equ

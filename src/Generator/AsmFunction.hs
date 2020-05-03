@@ -1,5 +1,5 @@
 
-module Asm.AsmFunction
+module Generator.AsmFunction
         (function,
          mainNoReturn,
          returnValue,
@@ -8,9 +8,10 @@ module Asm.AsmFunction
         ) where
 
 
-import Asm.Directive   (declareGlobl, globlLabel)
-import Asm.Instruction (call, literal, move, pop, push, returnControl)
-import Asm.Register    (Register (..), allScratch, params, reg, selectRegister)
+import Generator.Directive   (declareGlobl, globlLabel)
+import Generator.Instruction (call, literal, move, pop, push, returnControl)
+import Generator.Register    (Register (..), allScratch, params, reg,
+                              selectRegister)
 
 
 -- | Output asm for a function

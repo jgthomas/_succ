@@ -1,5 +1,5 @@
 
-module Asm.Register where
+module Generator.Register where
 
 
 data Register = RAX

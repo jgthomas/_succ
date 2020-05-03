@@ -1,10 +1,10 @@
 
-module Asm.AsmTernary (ternary) where
+module Generator.AsmTernary (ternary) where
 
 
-import Asm.Directive   (emitLabel)
-import Asm.Instruction (Jump (..), comp, emitJump, literal)
-import Asm.Register    (Register (..), reg)
+import Generator.Directive   (emitLabel)
+import Generator.Instruction (Jump (..), comp, emitJump, literal)
+import Generator.Register    (Register (..), reg)
 
 
 -- | Output asm for the ternary operator

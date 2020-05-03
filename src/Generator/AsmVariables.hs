@@ -1,5 +1,5 @@
 
-module Asm.AsmVariables
+module Generator.AsmVariables
         (decNoAssign,
          assign,
          loadVariable,
@@ -12,9 +12,9 @@ module Asm.AsmVariables
         ) where
 
 
-import Asm.Instruction (literal, loadAddOf, move, sub)
-import Asm.Register    (Register (..), reg, scratch, selectRegister)
-import Types.Variables (VarType (..))
+import Generator.Instruction (literal, loadAddOf, move, sub)
+import Generator.Register    (Register (..), reg, scratch, selectRegister)
+import Types.Variables       (VarType (..))
 
 
 -- | Load a literal value into return register

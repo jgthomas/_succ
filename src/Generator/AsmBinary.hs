@@ -1,14 +1,15 @@
 
 
-module Asm.AsmBinary (binary) where
+module Generator.AsmBinary (binary) where
 
 
-import Asm.Directive   (emitLabel)
-import Asm.Instruction (Jump (..), Set (..), add, andBits, comp, emitJump,
-                        idivq, imul, literal, move, orBits, pop, push, setBitIf,
-                        shiftBitsLeft, shiftBitsRight, sub, xorBits)
-import Asm.Register    (Register (..), reg, regModResult, scratch)
-import Types.Operator  (BinaryOp (..), ShiftOp (..))
+import Generator.Directive   (emitLabel)
+import Generator.Instruction (Jump (..), Set (..), add, andBits, comp, emitJump,
+                              idivq, imul, literal, move, orBits, pop, push,
+                              setBitIf, shiftBitsLeft, shiftBitsRight, sub,
+                              xorBits)
+import Generator.Register    (Register (..), reg, regModResult, scratch)
+import Types.Operator        (BinaryOp (..), ShiftOp (..))
 
 
 -- | Output asm for binary operators

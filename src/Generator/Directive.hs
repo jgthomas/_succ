@@ -1,5 +1,5 @@
 
-module Asm.Directive
+module Generator.Directive
         (outputInit,
          initializedGlobal,
          uninitializedGlobal,
