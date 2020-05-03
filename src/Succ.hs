@@ -10,7 +10,7 @@ module Succ (compile) where
 import           System.Exit         (exitFailure)
 
 import qualified Checker.Checker     as Checker (check)
-import qualified Debug               (debug)
+import qualified Debug.Debug         as Debug (debug)
 import           Error.Error         (CompilerError)
 import qualified Error.PrintError    as PrintError (printError)
 import qualified Generator.Generator as Generator (generate)

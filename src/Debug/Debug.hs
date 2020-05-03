@@ -5,7 +5,7 @@ Description  : Output debugging information
 Internal debugger that outputs the results of each stage of
 the compilation process undertaken by succ.
 -}
-module Debug (debug) where
+module Debug.Debug (debug) where
 
 
 import Text.Pretty.Simple (OutputOptions (..), defaultOutputOptionsNoColor,
