@@ -1,17 +1,17 @@
 
-module FuncStateScope
+module State.FuncStateScope
         (initScope,
          closeScope,
          scopeDepth
         ) where
 
 
-import qualified Data.Map        as M
+import qualified Data.Map              as M
 
-import qualified FrameStack      (currentFunc)
-import           FuncStateAccess (getFuncState, setFuncState)
-import           GenState        (GenState)
-import           SymbolTable     (FuncState (currentScope, scopes))
+import           GenState              (GenState)
+import qualified State.FrameStack      as FrameStack (currentFunc)
+import           State.FuncStateAccess (getFuncState, setFuncState)
+import           State.SymbolTable     (FuncState (currentScope, scopes))
 
 
 -- | Initialize a new scope inside a function

@@ -4,7 +4,7 @@ Description  : Tracks current function
 
 Keeps track of the function currently being compiled.
 -}
-module FrameStack
+module State.FrameStack
         (currentFunc,
          getScope,
          popFunc,
@@ -12,10 +12,10 @@ module FrameStack
         ) where
 
 
-import           GenState    (GenState)
-import qualified GenState    (getFrameStack, putFrameStack)
-import           GenTokens   (Scope (..))
-import           SymbolTable (stackPeek, stackPop, stackPush)
+import           GenState          (GenState)
+import qualified GenState          (getFrameStack, putFrameStack)
+import           GenTokens         (Scope (..))
+import           State.SymbolTable (stackPeek, stackPop, stackPush)
 
 
 -- | Check if in Local or Global scope

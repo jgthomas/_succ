@@ -1,12 +1,12 @@
 
-module FuncStateAccess where
+module State.FuncStateAccess where
 
 
-import           Error.Error (CompilerError (StateError),
-                              StateError (NoStateFound))
-import           GenState    (GenState, throwError)
-import qualified GenState    (delFuncState, getFuncState, updateFuncState)
-import           SymbolTable (FuncState)
+import           Error.Error       (CompilerError (StateError),
+                                    StateError (NoStateFound))
+import           GenState          (GenState, throwError)
+import qualified GenState          (delFuncState, getFuncState, updateFuncState)
+import           State.SymbolTable (FuncState)
 
 
 -- | Retrieve a named function state record, without checking for errors

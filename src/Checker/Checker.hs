@@ -18,7 +18,7 @@ import           Error.Error        (CheckerError (..),
 import           GenState           (GenState, runGenState, throwError)
 import qualified GenState           (startState)
 import           GenTokens          (Scope (..))
-import qualified SymTab
+import qualified State.SymTab       as SymTab
 import           Types.AST          (ArrayNode (..), Tree (..))
 import           Types.Operator     (Operator (..), UnaryOp (..))
 

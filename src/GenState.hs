@@ -21,13 +21,13 @@ module GenState
         ) where
 
 
-import qualified Data.Map    as M
+import qualified Data.Map          as M
 
-import           Error.Error (CompilerError)
-import           SuccState   (SuccStateM, throwError)
-import qualified SuccState   (getState, putState, runSuccState)
-import           SymbolTable (FuncState, GlobalScope, Stack, SymTab (..),
-                              mkSymTab)
+import           Error.Error       (CompilerError)
+import           State.SymbolTable (FuncState, GlobalScope, Stack, SymTab (..),
+                                    mkSymTab)
+import           SuccState         (SuccStateM, throwError)
+import qualified SuccState         (getState, putState, runSuccState)
 
 
 -- | State definition

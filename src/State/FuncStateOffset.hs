@@ -1,15 +1,15 @@
 
-module FuncStateOffset
+module State.FuncStateOffset
         (currentOffset,
          incrementOffsetByN,
          stackPointerValue
         ) where
 
 
-import qualified FrameStack      (currentFunc)
-import           FuncStateAccess (getFuncState, setFuncState)
-import           GenState        (GenState)
-import           SymbolTable     (FuncState (funcOffset), memOffset)
+import           GenState              (GenState)
+import qualified State.FrameStack      as FrameStack (currentFunc)
+import           State.FuncStateAccess (getFuncState, setFuncState)
+import           State.SymbolTable     (FuncState (funcOffset), memOffset)
 
 
 -- | Retrieve current value of stack pointer

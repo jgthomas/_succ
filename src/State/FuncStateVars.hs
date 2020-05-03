@@ -1,5 +1,5 @@
 
-module FuncStateVars
+module State.FuncStateVars
         (checkVariable,
          variableOffset,
          variableType,
@@ -16,20 +16,21 @@ module FuncStateVars
         ) where
 
 
-import           Data.Function   (on)
-import           Data.List       (sortBy)
-import qualified Data.Map        as M
+import           Data.Function         (on)
+import           Data.List             (sortBy)
+import qualified Data.Map              as M
 
-import           Error.Error     (CompilerError (StateError), StateError (..))
-import qualified FrameStack      (currentFunc)
-import           FuncStateAccess (getFuncState, setFuncState)
-import           FuncStateOffset (currentOffset, incrementOffsetByN)
-import           FuncStateScope  (scopeDepth)
-import           GenState        (GenState, throwError)
-import           SymbolTable     (FuncState (paramCount, parameters, scopes),
-                                  LocalVar (..), ParamVar (..))
-import qualified SymbolTable     (mkLocVar, mkParVar)
-import           Types.Type      (Type (Label))
+import           Error.Error           (CompilerError (StateError),
+                                        StateError (..))
+import           GenState              (GenState, throwError)
+import qualified State.FrameStack      as FrameStack (currentFunc)
+import           State.FuncStateAccess (getFuncState, setFuncState)
+import           State.FuncStateOffset (currentOffset, incrementOffsetByN)
+import           State.FuncStateScope  (scopeDepth)
+import           State.SymbolTable     (FuncState (paramCount, parameters, scopes),
+                                        LocalVar (..), ParamVar (..))
+import qualified State.SymbolTable     as SymbolTable (mkLocVar, mkParVar)
+import           Types.Type            (Type (Label))
 
 
 -- | Check if variable name is in use in current scope

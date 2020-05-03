@@ -17,8 +17,8 @@ import           Error.Error         (CompilerError (FatalError),
 import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (getState, startState)
 import           GenTokens
-import           SymTab              (SymTab)
-import qualified SymTab
+import           State.SymTab        (SymTab)
+import qualified State.SymTab        as SymTab
 import           Types.AST           (ArrayNode (..), Tree (..))
 import           Types.Operator      (BinaryOp (..), Operator (..))
 

@@ -5,7 +5,7 @@ Description  : State data type for code generation
 Data type holding the state as the checker and code generator
 traverse the abstract syntax tree.
 -}
-module SymbolTable where
+module State.SymbolTable where
 
 
 import qualified Data.Map   as M

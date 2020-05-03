@@ -4,7 +4,7 @@ Description  : Control state for the global scope
 
 Functions to manipulate the state stored for the global scope of a program.
 -}
-module GlobalScope
+module State.GlobalScope
         (declareFunction,
          defineFunction,
          declareGlobal,
@@ -24,15 +24,15 @@ module GlobalScope
         ) where
 
 
-import qualified Data.Map    as M
-import qualified Data.Set    as S
+import qualified Data.Map          as M
+import qualified Data.Set          as S
 
-import qualified FrameStack  (currentFunc)
-import           GenState    (GenState)
-import qualified GenState    (getGlobalScope, labelNum, putGlobalScope)
-import           SymbolTable (GlobalScope (..), GlobalVar (..))
-import qualified SymbolTable (mkGloVar)
-import           Types.Type  (Type)
+import           GenState          (GenState)
+import qualified GenState          (getGlobalScope, labelNum, putGlobalScope)
+import qualified State.FrameStack  as FrameStack (currentFunc)
+import           State.SymbolTable (GlobalScope (..), GlobalVar (..))
+import qualified State.SymbolTable as SymbolTable (mkGloVar)
+import           Types.Type        (Type)
 
 
 -- | Get the number of parameters for a declared function
