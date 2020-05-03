@@ -13,7 +13,7 @@ import           Data.Maybe          (fromMaybe)
 
 import qualified Asm.ASM             as ASM
 import           AST                 (ArrayNode (..), Tree (..))
-import           Error               (CompilerError (FatalError),
+import           Error.Error         (CompilerError (FatalError),
                                       FatalError (GeneratorBug))
 import           GenState            (GenState, runGenState, throwError)
 import qualified GenState            (getState, startState)

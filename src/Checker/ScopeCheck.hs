@@ -21,7 +21,7 @@ import           Control.Monad (unless, when)
 import           Data.Maybe    (isNothing)
 
 import           AST           (Tree (..))
-import           Error         (CompilerError (ScopeError), ScopeError (..))
+import           Error.Error   (CompilerError (ScopeError), ScopeError (..))
 import           GenState      (GenState, throwError)
 import           GenTokens     (VarLookup (..), VarType (ParamVar))
 import qualified SymTab

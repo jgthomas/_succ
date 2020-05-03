@@ -13,7 +13,7 @@ module Parser.ParserShared
 import Control.Monad   (unless)
 
 import AST             (NodeDat, Tree (..), mkNodeDat)
-import Error           (CompilerError (ParserError, SyntaxError),
+import Error.Error     (CompilerError (ParserError, SyntaxError),
                         ParserError (..), SyntaxError (..))
 import LexTab          (LexDat (..))
 import Parser.ParState (ParserState, throwError)

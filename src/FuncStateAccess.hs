@@ -2,7 +2,7 @@
 module FuncStateAccess where
 
 
-import           Error       (CompilerError (StateError),
+import           Error.Error (CompilerError (StateError),
                               StateError (NoStateFound))
 import           GenState    (GenState, throwError)
 import qualified GenState    (delFuncState, getFuncState, updateFuncState)

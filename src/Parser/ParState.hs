@@ -14,10 +14,10 @@ module Parser.ParState
         ) where
 
 
-import           AST       (Tree (ProgramNode))
-import           Error     (CompilerError (ImpossibleError))
-import           SuccState (SuccStateM, throwError)
-import qualified SuccState (getState, putState, runSuccState)
+import           AST         (Tree (ProgramNode))
+import           Error.Error (CompilerError (ImpossibleError))
+import           SuccState   (SuccStateM, throwError)
+import qualified SuccState   (getState, putState, runSuccState)
 
 
 -- | State definition

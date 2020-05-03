@@ -13,7 +13,7 @@ import           Data.Maybe         (isNothing)
 import           AST                (ArrayNode (..), Tree (..))
 import qualified Checker.ScopeCheck as ScopeCheck
 import qualified Checker.TypeCheck  as TypeCheck
-import           Error              (CheckerError (..),
+import           Error.Error        (CheckerError (..),
                                      CompilerError (CheckerError, ScopeError),
                                      ScopeError (..))
 import           GenState           (GenState, runGenState, throwError)

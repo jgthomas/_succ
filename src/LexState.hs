@@ -15,12 +15,12 @@ module LexState
         ) where
 
 
-import           Error     (CompilerError)
-import           LexTab    (LexDat, LexTab (..))
-import qualified LexTab    (mkLexDat, mkLexTab)
-import           SuccState (SuccStateM, throwError)
-import qualified SuccState (getState, putState, runSuccState)
-import           Tokens    (Token)
+import           Error.Error (CompilerError)
+import           LexTab      (LexDat, LexTab (..))
+import qualified LexTab      (mkLexDat, mkLexTab)
+import           SuccState   (SuccStateM, throwError)
+import qualified SuccState   (getState, putState, runSuccState)
+import           Tokens      (Token)
 
 
 -- | State definition

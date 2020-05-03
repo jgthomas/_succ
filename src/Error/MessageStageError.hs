@@ -1,14 +1,15 @@
 
-module MessageStageError
+module Error.MessageStageError
         (lexerErrorMsg,
          parserErrorMsg,
          checkerErrorMsg
         ) where
 
 
-import Error            (CheckerError (..), LexerError (..), ParserError (..))
-import LexTab           (LexDat (..))
-import PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
+import Error.Error            (CheckerError (..), LexerError (..),
+                               ParserError (..))
+import Error.PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
+import LexTab                 (LexDat (..))
 
 
 lexerErrorMsg :: LexerError -> (String, PrintRange)

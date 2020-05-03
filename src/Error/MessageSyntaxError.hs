@@ -1,10 +1,10 @@
 
-module MessageSyntaxError (syntaxErrorMsg) where
+module Error.MessageSyntaxError (syntaxErrorMsg) where
 
 
-import Error            (SyntaxError (..))
-import LexTab           (LexDat (..))
-import PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
+import Error.Error            (SyntaxError (..))
+import Error.PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
+import LexTab                 (LexDat (..))
 
 
 syntaxErrorMsg :: SyntaxError -> (String, PrintRange)

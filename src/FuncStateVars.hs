@@ -20,7 +20,7 @@ import           Data.Function   (on)
 import           Data.List       (sortBy)
 import qualified Data.Map        as M
 
-import           Error           (CompilerError (StateError), StateError (..))
+import           Error.Error     (CompilerError (StateError), StateError (..))
 import qualified FrameStack      (currentFunc)
 import           FuncStateAccess (getFuncState, setFuncState)
 import           FuncStateOffset (currentOffset, incrementOffsetByN)

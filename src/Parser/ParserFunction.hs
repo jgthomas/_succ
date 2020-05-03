@@ -3,7 +3,7 @@ module Parser.ParserFunction (parseFunction) where
 
 
 import AST                     (Tree (..))
-import Error                   (CompilerError (ParserError, SyntaxError),
+import Error.Error             (CompilerError (ParserError, SyntaxError),
                                 ParserError (..), SyntaxError (..))
 import LexTab                  (LexDat (..))
 import Parser.ParserExpression (parseExpression)

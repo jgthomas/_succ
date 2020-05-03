@@ -23,7 +23,7 @@ module GenState
 
 import qualified Data.Map    as M
 
-import           Error       (CompilerError)
+import           Error.Error (CompilerError)
 import           SuccState   (SuccStateM, throwError)
 import qualified SuccState   (getState, putState, runSuccState)
 import           SymbolTable (FuncState, GlobalScope, Stack, SymTab (..),

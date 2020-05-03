@@ -3,7 +3,7 @@ module Parser.ParserExpression (parseExpression) where
 
 
 import           AST                 (ArrayNode (..), Tree (..))
-import           Error               (CompilerError (ImpossibleError, ParserError, SyntaxError),
+import           Error.Error         (CompilerError (ImpossibleError, ParserError, SyntaxError),
                                       ParserError (..), SyntaxError (..))
 import           LexTab              (LexDat (..))
 import qualified Operator            (tokToAssignOp, tokToBinOp,

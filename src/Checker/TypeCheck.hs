@@ -15,7 +15,7 @@ module Checker.TypeCheck
 import           Control.Monad (unless, when)
 
 import           AST           (ArrayNode (..), Tree (..))
-import           Error         (CheckerError (..), CompilerError (CheckerError, ImpossibleError, TypeError),
+import           Error.Error   (CheckerError (..), CompilerError (CheckerError, ImpossibleError, TypeError),
                                 TypeError (..))
 import           GenState      (GenState, throwError)
 import           GenTokens     (Scope (..))

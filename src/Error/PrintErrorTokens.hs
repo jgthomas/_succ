@@ -1,5 +1,5 @@
 
-module PrintErrorTokens where
+module Error.PrintErrorTokens where
 
 
 import Tokens (Token (..))

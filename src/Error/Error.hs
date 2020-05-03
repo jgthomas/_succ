@@ -1,5 +1,5 @@
 
-module Error where
+module Error.Error where
 
 
 import AST      (Tree)
