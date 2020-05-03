@@ -2,9 +2,9 @@
 module TestUtility where
 
 
-import           Lexer.LexTab (LexDat (LexDat))
 import           Types.AST    (NodeDat)
 import qualified Types.AST    as AST (mkNodeDat)
+import           Types.LexDat (LexDat (LexDat))
 import           Types.Tokens (Token)
 
 
