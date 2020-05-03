@@ -2,11 +2,11 @@
 module Error.Error where
 
 
-import AST      (Tree)
-import LexTab   (LexDat)
-import Operator (Operator)
-import Tokens   (Keyword, Token)
-import Type     (Type)
+import AST          (Tree)
+import Lexer.LexTab (LexDat)
+import Operator     (Operator)
+import Tokens       (Keyword, Token)
+import Type         (Type)
 
 
 data CompilerError = LexerError LexerError

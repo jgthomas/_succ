@@ -4,7 +4,7 @@ Description  : State for the lexer
 
 State holder for the lexing stage of compilation.
 -}
-module LexState
+module Lexer.LexState
         (LexerState,
          runLexState,
          throwError,
@@ -15,12 +15,12 @@ module LexState
         ) where
 
 
-import           Error.Error (CompilerError)
-import           LexTab      (LexDat, LexTab (..))
-import qualified LexTab      (mkLexDat, mkLexTab)
-import           SuccState   (SuccStateM, throwError)
-import qualified SuccState   (getState, putState, runSuccState)
-import           Tokens      (Token)
+import           Error.Error  (CompilerError)
+import           Lexer.LexTab (LexDat, LexTab (..))
+import qualified Lexer.LexTab as LexTab (mkLexDat, mkLexTab)
+import           SuccState    (SuccStateM, throwError)
+import qualified SuccState    (getState, putState, runSuccState)
+import           Tokens       (Token)
 
 
 -- | State definition

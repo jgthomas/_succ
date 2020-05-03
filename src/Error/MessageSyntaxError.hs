@@ -4,7 +4,7 @@ module Error.MessageSyntaxError (syntaxErrorMsg) where
 
 import Error.Error            (SyntaxError (..))
 import Error.PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
-import LexTab                 (LexDat (..))
+import Lexer.LexTab           (LexDat (..))
 
 
 syntaxErrorMsg :: SyntaxError -> (String, PrintRange)

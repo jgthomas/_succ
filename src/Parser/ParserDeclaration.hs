@@ -5,7 +5,7 @@ module Parser.ParserDeclaration (parseDeclaration) where
 import           AST                     (ArrayNode (..), Tree (..))
 import           Error.Error             (CompilerError (ParserError, SyntaxError),
                                           ParserError (..), SyntaxError (..))
-import           LexTab                  (LexDat (..))
+import           Lexer.LexTab            (LexDat (..))
 import           Parser.ParserExpression (parseExpression)
 import           Parser.ParserShared     (consumeTok, makeNodeDat, parseType,
                                           verifyAndConsume)

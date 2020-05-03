@@ -5,9 +5,9 @@ module LexerSpec (lexerTest) where
 import Data.Either
 import Test.Hspec
 
-import Error
-import Lexer
-import LexTab
+import Error.Error
+import Lexer.Lexer
+import Lexer.LexTab
 import Tokens
 
 

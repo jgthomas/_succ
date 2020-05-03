@@ -5,18 +5,19 @@ Description  : Tokenizes an input string
 Processes a string representing a program written in C into
 a list of tokens.
 -}
-module Lexer (tokenize) where
+module Lexer.Lexer (tokenize) where
 
 
-import           Data.Char   (isAlpha, isDigit, isSpace)
+import           Data.Char      (isAlpha, isDigit, isSpace)
 
-import           Error.Error (CompilerError (ImpossibleError, LexerError),
-                              LexerError (..))
-import           LexState    (LexerState, runLexState, throwError)
-import qualified LexState    (addToken, getState, incLineNum, startState)
-import           LexTab      (LexDat)
-import           Tokens      (CloseBracket (..), Keyword (..), OpTok (..),
-                              OpenBracket (..), Token (..))
+import           Error.Error    (CompilerError (ImpossibleError, LexerError),
+                                 LexerError (..))
+import           Lexer.LexState (LexerState, runLexState, throwError)
+import qualified Lexer.LexState as LexState (addToken, getState, incLineNum,
+                                             startState)
+import           Lexer.LexTab   (LexDat)
+import           Tokens         (CloseBracket (..), Keyword (..), OpTok (..),
+                                 OpenBracket (..), Token (..))
 
 
 -- | Convert a string representing a C program to a list of tokens

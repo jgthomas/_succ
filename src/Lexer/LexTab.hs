@@ -4,7 +4,7 @@ Description  : State data types for Lexer
 
 Data types used for the Lexer stage of succ.
 -}
-module LexTab where
+module Lexer.LexTab where
 
 
 import Tokens (Token)

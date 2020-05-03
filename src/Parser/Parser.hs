@@ -11,7 +11,7 @@ module Parser.Parser (parse) where
 import           AST                      (Tree (..))
 import           Error.Error              (CompilerError (ParserError, SyntaxError),
                                            ParserError (..), SyntaxError (..))
-import           LexTab                   (LexDat (..))
+import           Lexer.LexTab             (LexDat (..))
 import           Parser.ParserDeclaration (parseDeclaration)
 import           Parser.ParserFunction    (parseFunction)
 import           Parser.ParState          (ParserState, runParState, throwError)

@@ -9,7 +9,7 @@ module Error.MessageStageError
 import Error.Error            (CheckerError (..), LexerError (..),
                                ParserError (..))
 import Error.PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
-import LexTab                 (LexDat (..))
+import Lexer.LexTab           (LexDat (..))
 
 
 lexerErrorMsg :: LexerError -> (String, PrintRange)

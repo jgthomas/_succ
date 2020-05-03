@@ -5,7 +5,7 @@ module Parser.ParserExpression (parseExpression) where
 import           AST                 (ArrayNode (..), Tree (..))
 import           Error.Error         (CompilerError (ImpossibleError, ParserError, SyntaxError),
                                       ParserError (..), SyntaxError (..))
-import           LexTab              (LexDat (..))
+import           Lexer.LexTab        (LexDat (..))
 import qualified Operator            (tokToAssignOp, tokToBinOp,
                                       tokToPostUnaryOp, tokToUnaryOp)
 import           Parser.ParserShared (consumeTok, makeNodeDat,
