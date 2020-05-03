@@ -4,7 +4,7 @@ Description  : Checks for scope errors
 
 Checks for scope errors in variables and function calls
 -}
-module ScopeCheck
+module Checker.ScopeCheck
         (checkIfUsedInScope,
          validateCall,
          checkIfFuncDefined,

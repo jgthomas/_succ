@@ -4,23 +4,23 @@ Description  : Check AST for errors
 
 Checks the AST for scope, type and other errors
 -}
-module Checker (check) where
+module Checker.Checker (check) where
 
 
-import           Control.Monad (unless, when)
-import           Data.Maybe    (isNothing)
+import           Control.Monad      (unless, when)
+import           Data.Maybe         (isNothing)
 
-import           AST           (ArrayNode (..), Tree (..))
-import           Error         (CheckerError (..),
-                                CompilerError (CheckerError, ScopeError),
-                                ScopeError (..))
-import           GenState      (GenState, runGenState, throwError)
-import qualified GenState      (startState)
-import           GenTokens     (Scope (..))
-import           Operator      (Operator (..), UnaryOp (..))
-import qualified ScopeCheck
+import           AST                (ArrayNode (..), Tree (..))
+import qualified Checker.ScopeCheck as ScopeCheck
+import qualified Checker.TypeCheck  as TypeCheck
+import           Error              (CheckerError (..),
+                                     CompilerError (CheckerError, ScopeError),
+                                     ScopeError (..))
+import           GenState           (GenState, runGenState, throwError)
+import qualified GenState           (startState)
+import           GenTokens          (Scope (..))
+import           Operator           (Operator (..), UnaryOp (..))
 import qualified SymTab
-import qualified TypeCheck
 
 
 -- | Check an AST for errors
