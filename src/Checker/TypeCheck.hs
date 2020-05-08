@@ -17,7 +17,8 @@ import           Control.Monad   (unless, when)
 import           State.GenState  (GenState, throwError)
 import qualified State.SymTab    as SymTab
 import           Types.AST       (ArrayNode (..), Tree (..))
-import           Types.Error     (CheckerError (..), CompilerError (CheckerError, ImpossibleError, TypeError),
+import           Types.Error     (CheckerError (..),
+                                  CompilerError (CheckerError, TypeError),
                                   TypeError (..))
 import           Types.Type      (Type (..))
 import           Types.Variables (Scope (..))
@@ -188,7 +189,7 @@ permitted typ =
              IntVar     -> pure [IntVar, IntPointer]
              IntPointer -> pure [IntVar, IntPointer]
              IntArray   -> pure [IntArray]
-             Label      -> throwError ImpossibleError
+             Label      -> undefined
 
 
 getFuncType :: Tree -> String -> GenState Type
