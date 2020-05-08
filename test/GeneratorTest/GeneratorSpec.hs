@@ -1,5 +1,9 @@
 
-module GeneratorSpec where
+module GeneratorTest.GeneratorSpec where
+
+
+generatorTest :: IO ()
+generatorTest = pure ()
 
 
 --import           Data.Either

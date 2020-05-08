@@ -1,5 +1,9 @@
 
-module CheckerSpec where
+module CheckerTest.CheckerSpec where
+
+
+checkerTest :: IO ()
+checkerTest = pure ()
 
 
 --import           Data.Either
