@@ -5,13 +5,11 @@ module Parser.ParserExpression (parseExpression) where
 import           Parser.ParserShared (consumeTok, makeNodeDat,
                                       parseBracketedSeq, verifyAndConsume)
 import           Parser.ParState     (ParserState, throwError)
+import qualified Parser.TokConvert   as TokConvert
 import           Types.AST           (ArrayNode (..), Tree (..))
 import           Types.Error         (CompilerError (ImpossibleError, ParserError, SyntaxError),
                                       ParserError (..), SyntaxError (..))
 import           Types.LexDat        (LexDat (..))
-import qualified Types.Operator      as Operator (tokToAssignOp, tokToBinOp,
-                                                  tokToPostUnaryOp,
-                                                  tokToUnaryOp)
 import           Types.Tokens        (CloseBracket (..), OpTok (..),
                                       OpTokType (..), OpenBracket (..),
                                       Token (..))
@@ -26,7 +24,7 @@ parseExpression lexData = do
                 | Tokens.isAssign op  -> parseAssignment tree lexData'
                 | Tokens.isPostPos op -> do
                         dat <- makeNodeDat lexData'
-                        let unOp = Operator.tokToPostUnaryOp op
+                        let unOp = TokConvert.tokToPostUnaryOp op
                         pure (UnaryNode tree unOp dat, rest)
                 | otherwise ->
                         throwError $ SyntaxError (UnexpectedLexDat d)
@@ -36,7 +34,7 @@ parseExpression lexData = do
 parseAssignment :: Tree -> [LexDat] -> ParserState (Tree, [LexDat])
 parseAssignment tree (LexDat{tok=OpTok op}:rest) = do
                    (asgn, lexData') <- parseExpression rest
-                   let asgnOp = Operator.tokToAssignOp op
+                   let asgnOp = TokConvert.tokToAssignOp op
                    dat <- makeNodeDat lexData'
                    case tree of
                      arrPosNode@(ArrayNode ArrayItemAssign{}) ->
@@ -201,7 +199,7 @@ parseUnary :: [LexDat] -> ParserState (Tree, [LexDat])
 parseUnary lexData@(LexDat{tok=OpTok op}:rest) = do
         dat              <- makeNodeDat lexData
         (tree, lexData') <- parseFactor rest
-        let unOp = Operator.tokToUnaryOp op
+        let unOp = TokConvert.tokToUnaryOp op
         pure (UnaryNode tree unOp dat, lexData')
 parseUnary lexData = throwError $ ParserError (LexDataError lexData)
 
@@ -291,7 +289,7 @@ parseBinaryExp tree lexData@(LexDat{tok=OpTok op}:rest) f ops
         | op `elem` ops = do
                 dat                <- makeNodeDat lexData
                 (ntree, lexData'') <- f rest
-                let binOp = Operator.tokToBinOp op
+                let binOp = TokConvert.tokToBinOp op
                 parseBinaryExp (BinaryNode tree ntree binOp dat) lexData'' f ops
         | otherwise = pure (tree, lexData)
 parseBinaryExp tree lexData _ _ = pure (tree, lexData)
