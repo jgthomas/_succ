@@ -15,8 +15,6 @@ module Lexer.LexState
         ) where
 
 
-import           Lexer.LexTab    (LexTab (..))
-import qualified Lexer.LexTab    as LexTab (mkLexTab)
 import           Types.Error     (CompilerError)
 import           Types.LexDat    (LexDat)
 import qualified Types.LexDat    as LexDat (mkLexDat)
@@ -25,13 +23,17 @@ import qualified Types.SuccState as SuccState (getState, putState, runSuccState)
 import           Types.Tokens    (Token)
 
 
+data LexTab = LexTab { datList :: [LexDat]
+                     , lineNum :: Int }
+
+
 -- | State definition
 type LexerState = SuccStateM LexTab
 
 
 -- | Initial state
 startState :: LexTab
-startState = LexTab.mkLexTab
+startState = LexTab [] 1
 
 
 -- | Increment the line number in the state
