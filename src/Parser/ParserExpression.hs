@@ -5,15 +5,15 @@ module Parser.ParserExpression (parseExpression) where
 import           Parser.ParserShared (consumeTok, makeNodeDat,
                                       parseBracketedSeq, verifyAndConsume)
 import           Parser.ParState     (ParserState, throwError)
+import           Parser.TokClass     (OpTokType (..))
+import qualified Parser.TokClass     as TokClass
 import qualified Parser.TokConvert   as TokConvert
 import           Types.AST           (ArrayNode (..), Tree (..))
 import           Types.Error         (CompilerError (ImpossibleError, ParserError, SyntaxError),
                                       ParserError (..), SyntaxError (..))
 import           Types.LexDat        (LexDat (..))
 import           Types.Tokens        (CloseBracket (..), OpTok (..),
-                                      OpTokType (..), OpenBracket (..),
-                                      Token (..))
-import qualified Types.Tokens        as Tokens (isAssign, isPostPos, kind)
+                                      OpenBracket (..), Token (..))
 
 
 parseExpression :: [LexDat] -> ParserState (Tree, [LexDat])
@@ -21,8 +21,8 @@ parseExpression lexData = do
         (tree, lexData') <- parseTernaryExp lexData
         case lexData' of
              (d@LexDat{tok=OpTok op}:rest)
-                | Tokens.isAssign op  -> parseAssignment tree lexData'
-                | Tokens.isPostPos op -> do
+                | TokClass.isAssign op  -> parseAssignment tree lexData'
+                | TokClass.isPostPos op -> do
                         dat <- makeNodeDat lexData'
                         let unOp = TokConvert.tokToPostUnaryOp op
                         pure (UnaryNode tree unOp dat, rest)
@@ -63,61 +63,61 @@ parseTernaryExp lexData = do
 parseLogicalOrExp :: [LexDat] -> ParserState (Tree, [LexDat])
 parseLogicalOrExp lexData = do
         (orTree, lexData') <- parseLogicalAndExp lexData
-        parseBinaryExp orTree lexData' parseLogicalAndExp (Tokens.kind LogicalOR)
+        parseBinaryExp orTree lexData' parseLogicalAndExp (TokClass.kind LogicalOR)
 
 
 parseLogicalAndExp :: [LexDat] -> ParserState (Tree, [LexDat])
 parseLogicalAndExp lexData = do
         (andTree, lexData') <- parseBitwiseOR lexData
-        parseBinaryExp andTree lexData' parseBitwiseOR (Tokens.kind LogicalAND)
+        parseBinaryExp andTree lexData' parseBitwiseOR (TokClass.kind LogicalAND)
 
 
 parseBitwiseOR :: [LexDat] -> ParserState (Tree, [LexDat])
 parseBitwiseOR lexData = do
         (orTree, lexData') <- parseBitwiseXOR lexData
-        parseBinaryExp orTree lexData' parseBitwiseXOR (Tokens.kind BitwiseOR)
+        parseBinaryExp orTree lexData' parseBitwiseXOR (TokClass.kind BitwiseOR)
 
 
 parseBitwiseXOR :: [LexDat] -> ParserState (Tree, [LexDat])
 parseBitwiseXOR lexData = do
         (xorTree, lexData') <- parseBitwiseAND lexData
-        parseBinaryExp xorTree lexData' parseBitwiseAND (Tokens.kind BitwiseXOR)
+        parseBinaryExp xorTree lexData' parseBitwiseAND (TokClass.kind BitwiseXOR)
 
 
 parseBitwiseAND :: [LexDat] -> ParserState (Tree, [LexDat])
 parseBitwiseAND lexData = do
         (andTree, lexData') <- parseEqualityExp lexData
-        parseBinaryExp andTree lexData' parseEqualityExp (Tokens.kind BitwiseAND)
+        parseBinaryExp andTree lexData' parseEqualityExp (TokClass.kind BitwiseAND)
 
 
 parseEqualityExp :: [LexDat] -> ParserState (Tree, [LexDat])
 parseEqualityExp lexData = do
         (equTree, lexData') <- parseRelationalExp lexData
-        parseBinaryExp equTree lexData' parseRelationalExp (Tokens.kind Equality)
+        parseBinaryExp equTree lexData' parseRelationalExp (TokClass.kind Equality)
 
 
 parseRelationalExp :: [LexDat] -> ParserState (Tree, [LexDat])
 parseRelationalExp lexData = do
         (relaTree, lexData') <- parseBitShiftExp lexData
-        parseBinaryExp relaTree lexData' parseBitShiftExp (Tokens.kind Relational)
+        parseBinaryExp relaTree lexData' parseBitShiftExp (TokClass.kind Relational)
 
 
 parseBitShiftExp :: [LexDat] -> ParserState (Tree, [LexDat])
 parseBitShiftExp lexData = do
         (shiftTree, lexData') <- parseAdditiveExp lexData
-        parseBinaryExp shiftTree lexData' parseAdditiveExp (Tokens.kind Shift)
+        parseBinaryExp shiftTree lexData' parseAdditiveExp (TokClass.kind Shift)
 
 
 parseAdditiveExp :: [LexDat] -> ParserState (Tree, [LexDat])
 parseAdditiveExp lexData = do
         (termTree, lexData') <- parseTerm lexData
-        parseBinaryExp termTree lexData' parseTerm (Tokens.kind Term)
+        parseBinaryExp termTree lexData' parseTerm (TokClass.kind Term)
 
 
 parseTerm :: [LexDat] -> ParserState (Tree, [LexDat])
 parseTerm lexData = do
         (facTree, lexData') <- parseFactor lexData
-        parseBinaryExp facTree lexData' parseFactor (Tokens.kind Factor)
+        parseBinaryExp facTree lexData' parseFactor (TokClass.kind Factor)
 
 
 parseFactor :: [LexDat] -> ParserState (Tree, [LexDat])

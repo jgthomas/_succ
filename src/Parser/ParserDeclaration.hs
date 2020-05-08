@@ -6,13 +6,13 @@ import           Parser.ParserExpression (parseExpression)
 import           Parser.ParserShared     (consumeTok, makeNodeDat, parseType,
                                           verifyAndConsume)
 import           Parser.ParState         (ParserState, throwError)
+import qualified Parser.TokClass         as TokClass (isAssign)
 import           Types.AST               (ArrayNode (..), Tree (..))
 import           Types.Error             (CompilerError (ParserError, SyntaxError),
                                           ParserError (..), SyntaxError (..))
 import           Types.LexDat            (LexDat (..))
 import           Types.Tokens            (CloseBracket (..), OpenBracket (..),
                                           Token (..))
-import qualified Types.Tokens            as Tokens (isAssign)
 
 
 data Declaration = ValueDec
@@ -109,7 +109,7 @@ parseOptionalAssign lexData = do
 
 parseAssign :: LexDat -> [LexDat] -> ParserState (Maybe Tree, [LexDat])
 parseAssign opDat@LexDat{tok=OpTok op} lexData
-        | Tokens.isAssign op = do
+        | TokClass.isAssign op = do
                 (tree, lexData') <- parseExpression lexData
                 pure (Just tree, lexData')
         | otherwise = throwError $ SyntaxError (UnexpectedLexDat opDat)
