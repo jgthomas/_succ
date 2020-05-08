@@ -1,5 +1,5 @@
 
-module LexerSpec (lexerTest) where
+module LexerTest.LexerSpec (lexerTest) where
 
 
 import Data.Either

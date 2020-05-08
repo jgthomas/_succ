@@ -4,13 +4,13 @@ module Main where
 
 --import CheckerSpec
 --import GeneratorSpec
-import LexerSpec
---import ParserSpec
+import LexerTest.LexerSpec   (lexerTest)
+import ParserTest.ParserSpec (parserTest)
 
 
 main :: IO ()
 main = do
         lexerTest
-        --parserTest
+        parserTest
         --checkerTest
         --generatorTest
