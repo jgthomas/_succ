@@ -13,8 +13,8 @@ import Types.LexDat
 import Types.Tokens
 
 
-getParsed :: Either CompilerError Tree -> Maybe Tree
-getParsed (Right tree) = Just tree
+getParsed :: Either CompilerError Tree -> Tree
+getParsed (Right tree) = tree
 getParsed (Left err)   = error $ show err
 
 
@@ -23,17 +23,15 @@ extractParsed lexData = runParState runTheParse lexData startState
 
 
 runTheParse :: [LexDat] -> ParserState Tree
-runTheParse [] = ProgramNode . reverse <$> getState
 runTheParse lexData = do
-        items            <- getState
-        (item, lexData') <- parseExpression lexData
-        putState $ ProgramNode (item:items)
-        runTheParse lexData'
+        (item, _) <- parseExpression lexData
+        putState $ ProgramNode [item]
+        ProgramNode .reverse <$> getState
 
 
 
 lexDataSample :: [LexDat]
-lexDataSample = makeLexData [Ident "a"]
+lexDataSample = makeLexData [Ident "a", SemiColon]
 
 
 parserExpressionTest :: IO ()
@@ -42,5 +40,5 @@ parserExpressionTest = hspec $ do
                 it "Should print dummy data" $
                   (getParsed . extractParsed $ lexDataSample)
                   `shouldBe`
-                  Just (ProgramNode [VarNode "a" makeNodeDat])
+                  ProgramNode [VarNode "a" makeNodeDat]
 
