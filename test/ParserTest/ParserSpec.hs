@@ -2,9 +2,11 @@
 module ParserTest.ParserSpec where
 
 
-import ParserTest.TokClassSpec (tokClassTest)
+import ParserTest.ParserExpressionSpec (parserExpressionTest)
+import ParserTest.TokClassSpec         (tokClassTest)
 
 
 parserTest :: IO ()
 parserTest = do
+        parserExpressionTest
         tokClassTest

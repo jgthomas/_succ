@@ -12,10 +12,13 @@ dummyLine :: Int
 dummyLine = 0
 
 
-mkLexDat :: Token -> LexDat
-mkLexDat t = LexDat t dummyLine
+makeLexDat :: Token -> LexDat
+makeLexDat t = LexDat t dummyLine
 
 
-mkNodeDat :: NodeDat
-mkNodeDat = AST.mkNodeDat dummyLine dummyLine
+makeLexData :: [Token] -> [LexDat]
+makeLexData toks = map makeLexDat toks
 
+
+makeNodeDat :: NodeDat
+makeNodeDat = AST.mkNodeDat dummyLine dummyLine
