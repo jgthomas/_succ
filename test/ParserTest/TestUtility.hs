@@ -13,7 +13,15 @@ import Types.Tokens
 
 -- | Extracts the abstract syntax tree for an expression
 extractExpressionTree :: [Token] -> Tree
-extractExpressionTree toks = extractTree parseExpression toks
+extractExpressionTree toks = extractTree parseExpression $ addExtraToken toks
+
+
+{-
+- Some parsers throw an error if the list of tokens becomes empty, so add
+- an extra token here to prevent that error.
+-}
+addExtraToken :: [Token] -> [Token]
+addExtraToken toks = toks ++ [SemiColon]
 
 
 makeLexData :: [Token] -> [LexDat]

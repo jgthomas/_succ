@@ -16,12 +16,12 @@ parserExpressionTest = hspec $ do
         describe "Build abstract syntax trees for expressions" $ do
 
                 it "Should build a variable syntax tree" $
-                  (extractExpressionTree [Ident "a", SemiColon])
+                  (extractExpressionTree [Ident "a"])
                   `shouldBe`
                   ProgramNode [VarNode "a" makeNodeDat]
 
                 it "Should build unary node tree" $
-                  (extractExpressionTree [OpTok MinusSign, Ident "a", SemiColon])
+                  (extractExpressionTree [OpTok MinusSign, Ident "a"])
                   `shouldBe`
                   ProgramNode [UnaryNode
                                (VarNode "a" makeNodeDat)
@@ -29,7 +29,7 @@ parserExpressionTest = hspec $ do
                                makeNodeDat]
 
                 it "Should build basic assignment tree" $
-                  (extractExpressionTree [Ident "a", OpTok EqualSign, ConstInt 2, SemiColon])
+                  (extractExpressionTree [Ident "a", OpTok EqualSign, ConstInt 2])
                   `shouldBe`
                   ProgramNode [AssignmentNode
                                (VarNode "a" makeNodeDat)
