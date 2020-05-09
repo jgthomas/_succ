@@ -2,8 +2,8 @@
 module ParserTest.TestUtility (extractExpressionTree) where
 
 
-import Parser.ParserExpression
-import Parser.ParState         as ParState
+import Parser.ParserExpression (parseExpression)
+import Parser.ParState
 import TestUtility             (makeLexDat)
 import Types.AST
 import Types.Error

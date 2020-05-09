@@ -22,5 +22,17 @@ parserExpressionTest = hspec $ do
                 it "Should build unary node tree" $
                   (extractExpressionTree [OpTok MinusSign, Ident "a", SemiColon])
                   `shouldBe`
-                  ProgramNode [UnaryNode (VarNode "a" makeNodeDat) (Unary Negate) makeNodeDat]
+                  ProgramNode [UnaryNode
+                               (VarNode "a" makeNodeDat)
+                               (Unary Negate)
+                               makeNodeDat]
+
+                it "Should build basic assignment tree" $
+                  (extractExpressionTree [Ident "a", OpTok EqualSign, ConstInt 2, SemiColon])
+                  `shouldBe`
+                  ProgramNode [AssignmentNode
+                               (VarNode "a" makeNodeDat)
+                               (ConstantNode 2 makeNodeDat)
+                               Assignment
+                               makeNodeDat]
 
