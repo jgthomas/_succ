@@ -7,6 +7,7 @@ import Test.Hspec
 import ParserTest.TestUtility (extractExpressionTree)
 import TestUtility            (makeNodeDat)
 import Types.AST
+import Types.Operator
 import Types.Tokens
 
 
@@ -17,4 +18,9 @@ parserExpressionTest = hspec $ do
                   (extractExpressionTree [Ident "a", SemiColon])
                   `shouldBe`
                   ProgramNode [VarNode "a" makeNodeDat]
+
+                it "Should build unary node tree" $
+                  (extractExpressionTree [OpTok MinusSign, Ident "a", SemiColon])
+                  `shouldBe`
+                  ProgramNode [UnaryNode (VarNode "a" makeNodeDat) (Unary Negate) makeNodeDat]
 
