@@ -6,7 +6,8 @@ import Test.Hspec
 
 import Parser.ParserExpression
 import Parser.ParState         as ParState
-import TestUtility             (makeLexData, makeNodeDat)
+import ParserTest.TestUtility
+import TestUtility             (makeNodeDat)
 import Types.AST
 import Types.Error
 import Types.LexDat
@@ -29,16 +30,11 @@ runTheParse lexData = do
         ProgramNode .reverse <$> getState
 
 
-
-lexDataSample :: [LexDat]
-lexDataSample = makeLexData [Ident "a", SemiColon]
-
-
 parserExpressionTest :: IO ()
 parserExpressionTest = hspec $ do
         describe "Dummy test" $ do
                 it "Should print dummy data" $
-                  (getParsed . extractParsed $ lexDataSample)
+                  (getParsed . extractParsed . makeLexData $ [Ident "a", SemiColon])
                   `shouldBe`
                   ProgramNode [VarNode "a" makeNodeDat]
 
