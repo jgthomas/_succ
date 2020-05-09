@@ -15,6 +15,11 @@ makeLexData :: [Token] -> [LexDat]
 makeLexData toks = map makeLexDat toks
 
 
+extractTree :: [Token] -> Tree
+extractTree toks = do
+        getParsed . extractParsed . makeLexData $ toks
+
+
 getParsed :: Either CompilerError Tree -> Tree
 getParsed (Right tree) = tree
 getParsed (Left err)   = error $ show err

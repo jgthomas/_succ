@@ -14,7 +14,7 @@ parserExpressionTest :: IO ()
 parserExpressionTest = hspec $ do
         describe "Dummy test" $ do
                 it "Should print dummy data" $
-                  (getParsed . extractParsed . makeLexData $ [Ident "a", SemiColon])
+                  (extractTree [Ident "a", SemiColon])
                   `shouldBe`
                   ProgramNode [VarNode "a" makeNodeDat]
 
