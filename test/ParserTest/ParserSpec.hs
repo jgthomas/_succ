@@ -7,6 +7,7 @@ import Test.Hspec
 import ParserTest.TestUtility (extractFullProgramTree)
 import TestUtility            (makeNodeDat)
 import Types.AST
+import Types.Operator
 import Types.Tokens
 import Types.Type
 
@@ -76,6 +77,45 @@ fullParserTest = hspec $ do
                                        []
                                        makeNodeDat)
                                       makeNodeDat
+                                     ]
+                               )
+                               makeNodeDat]
+
+                it "Should build a tree for a program with a global variable and a function" $
+                  (extractFullProgramTree [Keyword Int,
+                                           Ident "a",
+                                           OpTok EqualSign,
+                                           ConstInt 2,
+                                           SemiColon,
+                                           Keyword Int,
+                                           Ident "main",
+                                           OpenBracket OpenParen,
+                                           CloseBracket CloseParen,
+                                           OpenBracket OpenBrace,
+                                           Keyword Return,
+                                           Ident "a",
+                                           SemiColon,
+                                           CloseBracket CloseBrace])
+                  `shouldBe`
+                  ProgramNode [DeclarationNode
+                               (VarNode "a" makeNodeDat)
+                               IntVar
+                               (Just (AssignmentNode
+                                      (VarNode "a" makeNodeDat)
+                                      (ConstantNode 2 makeNodeDat)
+                                      Assignment
+                                      makeNodeDat)
+                               )
+                               makeNodeDat,
+                               FunctionNode
+                               IntVar
+                               "main"
+                               []
+                               (Just [(ReturnNode
+                                      (VarNode
+                                       "a"
+                                       makeNodeDat)
+                                      makeNodeDat)
                                      ]
                                )
                                makeNodeDat]
