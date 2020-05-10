@@ -1,5 +1,8 @@
 
-module ParserTest.TestUtility (extractExpressionTree) where
+module ParserTest.TestUtility
+        (extractExpressionTree,
+         extractExpressionError
+        ) where
 
 
 import Parser.ParserExpression (parseExpression)
@@ -14,6 +17,10 @@ import Types.Tokens
 -- | Extracts the abstract syntax tree for an expression
 extractExpressionTree :: [Token] -> Tree
 extractExpressionTree toks = extractTree parseExpression $ addExtraToken toks
+
+-- | Extracts the error message from parsing an expression
+extractExpressionError :: [Token] -> CompilerError
+extractExpressionError toks = extractError parseExpression toks
 
 
 {-
@@ -32,14 +39,28 @@ extractTree :: ([LexDat] -> ParserState (Tree, [LexDat]))
             -> [Token]
             -> Tree
 extractTree f toks = do
-        getParsed . extract . makeLexData $ toks
+        getTree . extract . makeLexData $ toks
         where
                 extract = extractParsed f
 
 
-getParsed :: Either CompilerError Tree -> Tree
-getParsed (Right tree) = tree
-getParsed (Left err)   = error $ show err
+getTree :: Either CompilerError Tree -> Tree
+getTree (Right tree) = tree
+getTree (Left err)   = error $ show err
+
+
+extractError :: ([LexDat] -> ParserState (Tree, [LexDat]))
+            -> [Token]
+            -> CompilerError
+extractError f toks = do
+        getError . extract . makeLexData $ toks
+        where
+                extract = extractParsed f
+
+
+getError :: Either CompilerError Tree -> CompilerError
+getError (Right tree) = error $ show tree
+getError (Left err)   = err
 
 
 extractParsed :: ([LexDat] -> ParserState (Tree, [LexDat]))

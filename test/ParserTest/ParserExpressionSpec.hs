@@ -4,9 +4,10 @@ module ParserTest.ParserExpressionSpec (parserExpressionTest) where
 
 import Test.Hspec
 
-import ParserTest.TestUtility (extractExpressionTree)
+import ParserTest.TestUtility (extractExpressionError, extractExpressionTree)
 import TestUtility            (makeNodeDat)
 import Types.AST
+import Types.Error
 import Types.Operator
 import Types.Tokens
 
@@ -36,4 +37,11 @@ parserExpressionTest = hspec $ do
                                (ConstantNode 2 makeNodeDat)
                                Assignment
                                makeNodeDat]
+
+        describe "Throw errors on bad input" $ do
+
+                it "Should throw error on empty input" $
+                  (extractExpressionError [])
+                  `shouldBe`
+                  ParserError (LexDataError [])
 
