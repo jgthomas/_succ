@@ -52,6 +52,25 @@ parserDeclarationTest = hspec $ do
                                Nothing
                                makeNodeDat]
 
+                it "Should build a tree for a pointer declaration and assignment" $
+                  (extractDeclarationTree [Keyword Int,
+                                           OpTok Asterisk,
+                                           Ident "a",
+                                           OpTok EqualSign,
+                                           OpTok Ampersand,
+                                           Ident "b"])
+                  `shouldBe`
+                  ProgramNode [PointerNode
+                               (VarNode "a" makeNodeDat)
+                               IntPointer
+                               (Just (AssignmentNode
+                                (VarNode "a" makeNodeDat)
+                                (AddressOfNode "b" makeNodeDat)
+                                Assignment
+                                makeNodeDat)
+                               )
+                               makeNodeDat]
+
                 it "Should build a tree for an array declaration" $
                   (extractDeclarationTree [Keyword Int,
                                            Ident "a",
