@@ -1,5 +1,5 @@
 
-module ParserTest.ParserSpec where
+module ParserTest.ParserTestSpec where
 
 
 import ParserTest.ParserDeclarationSpec (parserDeclarationTest)

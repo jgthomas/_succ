@@ -2,10 +2,10 @@
 module Main where
 
 
-import CheckerTest.CheckerSpec     (checkerTest)
-import GeneratorTest.GeneratorSpec (generatorTest)
-import LexerTest.LexerSpec         (lexerTest)
-import ParserTest.ParserSpec       (parserTest)
+import CheckerTest.CheckerTestSpec     (checkerTest)
+import GeneratorTest.GeneratorTestSpec (generatorTest)
+import LexerTest.LexerTestSpec         (lexerTest)
+import ParserTest.ParserTestSpec       (parserTest)
 
 
 main :: IO ()

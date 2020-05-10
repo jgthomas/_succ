@@ -1,5 +1,5 @@
 
-module CheckerTest.CheckerSpec where
+module CheckerTest.CheckerTestSpec where
 
 
 checkerTest :: IO ()

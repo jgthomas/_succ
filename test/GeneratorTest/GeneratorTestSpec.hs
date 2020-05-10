@@ -1,5 +1,5 @@
 
-module GeneratorTest.GeneratorSpec where
+module GeneratorTest.GeneratorTestSpec where
 
 
 generatorTest :: IO ()
