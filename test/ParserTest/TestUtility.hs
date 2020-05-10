@@ -1,13 +1,15 @@
 
 module ParserTest.TestUtility
         (extractExpressionTree,
-         extractExpressionError
+         extractExpressionError,
+         extractDeclarationTree
         ) where
 
 
-import Parser.ParserExpression (parseExpression)
+import Parser.ParserDeclaration (parseDeclaration)
+import Parser.ParserExpression  (parseExpression)
 import Parser.ParState
-import TestUtility             (makeLexDat)
+import TestUtility              (makeLexDat)
 import Types.AST
 import Types.Error
 import Types.LexDat
@@ -21,6 +23,10 @@ extractExpressionTree toks = extractTree parseExpression $ addExtraToken toks
 -- | Extracts the error message from parsing an expression
 extractExpressionError :: [Token] -> CompilerError
 extractExpressionError toks = extractError parseExpression toks
+
+
+extractDeclarationTree :: [Token] -> Tree
+extractDeclarationTree toks = extractTree parseDeclaration $ addExtraToken toks
 
 
 {-
