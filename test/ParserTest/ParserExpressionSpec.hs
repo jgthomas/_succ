@@ -16,18 +16,10 @@ parserExpressionTest :: IO ()
 parserExpressionTest = hspec $ do
         describe "Build abstract syntax trees for expressions" $ do
 
-                it "Should build a variable syntax tree" $
+                it "Should build a variable tree" $
                   (extractExpressionTree [Ident "a"])
                   `shouldBe`
                   ProgramNode [VarNode "a" makeNodeDat]
-
-                it "Should build unary node tree" $
-                  (extractExpressionTree [OpTok MinusSign, Ident "a"])
-                  `shouldBe`
-                  ProgramNode [UnaryNode
-                               (VarNode "a" makeNodeDat)
-                               (Unary Negate)
-                               makeNodeDat]
 
                 it "Should build basic assignment tree" $
                   (extractExpressionTree [Ident "a", OpTok EqualSign, ConstInt 2])
@@ -36,6 +28,23 @@ parserExpressionTest = hspec $ do
                                (VarNode "a" makeNodeDat)
                                (ConstantNode 2 makeNodeDat)
                                Assignment
+                               makeNodeDat]
+
+                it "Should build unary operator tree" $
+                  (extractExpressionTree [OpTok MinusSign, Ident "a"])
+                  `shouldBe`
+                  ProgramNode [UnaryNode
+                               (VarNode "a" makeNodeDat)
+                               (Unary Negate)
+                               makeNodeDat]
+
+                it "Should build binary operator tree" $
+                  (extractExpressionTree [Ident "a", OpTok PlusSign, ConstInt 2])
+                  `shouldBe`
+                  ProgramNode [BinaryNode
+                               (VarNode "a" makeNodeDat)
+                               (ConstantNode 2 makeNodeDat)
+                               Plus
                                makeNodeDat]
 
         describe "Throw errors on bad input" $ do
