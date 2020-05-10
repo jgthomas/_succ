@@ -25,6 +25,7 @@ extractExpressionError :: [Token] -> CompilerError
 extractExpressionError toks = extractError parseExpression toks
 
 
+-- | Extracts the abstract syntax tree for a declaration
 extractDeclarationTree :: [Token] -> Tree
 extractDeclarationTree toks = extractTree parseDeclaration $ addExtraToken toks
 
