@@ -32,3 +32,50 @@ fullParserTest = hspec $ do
                                []
                                (Just [ReturnNode (ConstantNode 2 makeNodeDat) makeNodeDat])
                                makeNodeDat]
+
+                it "Should build a tree for a program with two functions" $
+                  (extractFullProgramTree [Keyword Int,
+                                           Ident "dog",
+                                           OpenBracket OpenParen,
+                                           CloseBracket CloseParen,
+                                           OpenBracket OpenBrace,
+                                           Keyword Return,
+                                           ConstInt 2,
+                                           SemiColon,
+                                           CloseBracket CloseBrace,
+                                           Keyword Int,
+                                           Ident "main",
+                                           OpenBracket OpenParen,
+                                           CloseBracket CloseParen,
+                                           OpenBracket OpenBrace,
+                                           Keyword Return,
+                                           Ident "dog",
+                                           OpenBracket OpenParen,
+                                           CloseBracket CloseParen,
+                                           SemiColon,
+                                           CloseBracket CloseBrace])
+                  `shouldBe`
+                  ProgramNode [FunctionNode
+                               IntVar
+                               "dog"
+                               []
+                               (Just [ReturnNode
+                                      (ConstantNode
+                                       2
+                                       makeNodeDat)
+                                      makeNodeDat]
+                               )
+                               makeNodeDat,
+                               FunctionNode
+                               IntVar
+                               "main"
+                               []
+                               (Just [ReturnNode
+                                      (FuncCallNode
+                                       "dog"
+                                       []
+                                       makeNodeDat)
+                                      makeNodeDat
+                                     ]
+                               )
+                               makeNodeDat]
