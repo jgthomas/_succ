@@ -1,5 +1,5 @@
 
-module TestUtility where
+module TestUtility (makeLexDat, makeNodeDat) where
 
 
 import           Types.AST    (NodeDat)
@@ -14,10 +14,6 @@ dummyLine = 0
 
 makeLexDat :: Token -> LexDat
 makeLexDat t = LexDat t dummyLine
-
-
-makeLexData :: [Token] -> [LexDat]
-makeLexData toks = map makeLexDat toks
 
 
 makeNodeDat :: NodeDat
