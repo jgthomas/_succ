@@ -2,11 +2,11 @@
 module Parser.ParserExpression (parseExpression) where
 
 
-import           Parser.ParserShared (consumeTok, makeNodeDat,
-                                      parseBracketedSeq, verifyAndConsume)
+import           Parser.ParserShared (makeNodeDat, parseBracketedSeq)
 import           Parser.ParState     (ParserState, throwError)
 import           Parser.TokClass     (OpTokType (..))
 import qualified Parser.TokClass     as TokClass
+import           Parser.TokConsume   (consumeTok, verifyAndConsume)
 import qualified Parser.TokConvert   as TokConvert
 import           Types.AST           (ArrayNode (..), Tree (..))
 import           Types.Error         (CompilerError (ImpossibleError, ParserError, SyntaxError),

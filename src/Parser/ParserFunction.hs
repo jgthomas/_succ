@@ -3,11 +3,11 @@ module Parser.ParserFunction (parseFunction) where
 
 
 import Parser.ParserExpression (parseExpression)
-import Parser.ParserShared     (consumeNToks, consumeTok, makeNodeDat,
-                                parseBracketedSeq, verifyAndConsume)
+import Parser.ParserShared     (makeNodeDat, parseBracketedSeq)
 import Parser.ParserStatement  (parseStatementBlock)
 import Parser.ParserType       (parseType)
 import Parser.ParState         (ParserState, throwError)
+import Parser.TokConsume       (consumeNToks, consumeTok, verifyAndConsume)
 import Types.AST               (Tree (..))
 import Types.Error             (CompilerError (ParserError, SyntaxError),
                                 ParserError (..), SyntaxError (..))

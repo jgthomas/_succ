@@ -6,8 +6,9 @@ import Control.Monad            (unless)
 
 import Parser.ParserDeclaration (parseDeclaration)
 import Parser.ParserExpression  (parseExpression)
-import Parser.ParserShared      (makeNodeDat, verifyAndConsume)
+import Parser.ParserShared      (makeNodeDat)
 import Parser.ParState          (ParserState, throwError)
+import Parser.TokConsume        (verifyAndConsume)
 import Types.AST                (Tree (..))
 import Types.Error              (CompilerError (ParserError, SyntaxError),
                                  ParserError (..), SyntaxError (..))
