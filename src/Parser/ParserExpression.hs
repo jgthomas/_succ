@@ -1,4 +1,9 @@
+{-|
+Module       : ParserExpression
+Description  : Parses expression
 
+Parses lexed tokens representing expressions.
+-}
 module Parser.ParserExpression (parseExpression) where
 
 
@@ -16,6 +21,7 @@ import           Types.LexDat          (LexDat (..))
 import           Types.Tokens
 
 
+-- | Parse tokens for an expression into an AST
 parseExpression :: [LexDat] -> ParserState (Tree, [LexDat])
 parseExpression lexData = do
         (tree, lexData') <- parseTernaryExp lexData

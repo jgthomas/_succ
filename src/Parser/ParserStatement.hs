@@ -1,4 +1,9 @@
+{-|
+Module       : ParserStatement
+Description  : Parses statements
 
+Parses lexed tokens representing statements.
+-}
 module Parser.ParserStatement (parseStatementBlock) where
 
 
@@ -16,6 +21,7 @@ import Types.LexDat             (LexDat (..))
 import Types.Tokens
 
 
+-- | Parse tokens for a block of statements into an AST
 parseStatementBlock :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
 parseStatementBlock stmts lexData@(LexDat{tok=CloseBracket CloseBrace}:_) =
         pure (reverse stmts, lexData)

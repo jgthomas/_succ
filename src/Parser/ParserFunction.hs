@@ -1,4 +1,9 @@
+{-|
+Module       : ParserFunction
+Description  : Parses functions
 
+Parses lexed tokens representing functions.
+-}
 module Parser.ParserFunction (parseFunction) where
 
 
@@ -16,6 +21,7 @@ import Types.LexDat            (LexDat (..))
 import Types.Tokens
 
 
+-- | Parse tokens for a function into an AST
 parseFunction :: [LexDat] -> ParserState (Tree, [LexDat])
 parseFunction lexData = do
         nodeDat            <- makeNodeDat lexData
