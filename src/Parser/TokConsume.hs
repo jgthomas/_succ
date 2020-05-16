@@ -10,7 +10,7 @@ module Parser.TokConsume (verifyAndConsume, consumeNToks, consumeTok) where
 import Control.Monad   (unless)
 
 import Parser.ParState (ParserState, throwError)
-import Types.Error     (CompilerError (ParserError, SyntaxError),
+import Types.Error     (CompilerError (ImpossibleError, ParserError, SyntaxError),
                         ParserError (..), SyntaxError (..))
 import Types.LexDat    (LexDat (..))
 import Types.Tokens    (Token)
@@ -25,17 +25,16 @@ verifyAndConsume t lexData = do
 
 -- | Consumes the next token in the list
 consumeTok :: [LexDat] -> ParserState [LexDat]
-consumeTok []          = throwError $ ParserError (LexDataError [])
-consumeTok [_]         = pure []
-consumeTok (_:lexData) = pure lexData
+consumeTok lexData = consumeNToks 1 lexData
 
 
 -- | Consumes the next N tokens in the list
 consumeNToks :: Int -> [LexDat] -> ParserState [LexDat]
-consumeNToks 0 lexData = pure lexData
-consumeNToks n lexData = do
-        lexData' <- consumeTok lexData
-        consumeNToks (pred n) lexData'
+consumeNToks _ [] = throwError $ ParserError (LexDataError [])
+consumeNToks n lexData
+        | n < 1              = throwError ImpossibleError
+        | n > length lexData = throwError $ ParserError (LexDataError lexData)
+        | otherwise          = pure . drop n $ lexData
 
 
 nextTokIs :: Token -> [LexDat] -> ParserState ()
