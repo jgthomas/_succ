@@ -16,8 +16,7 @@ import qualified Lexer.LexState as LexState (addToken, getState, incLineNum,
 import           Types.Error    (CompilerError (ImpossibleError, LexerError),
                                  LexerError (..))
 import           Types.LexDat   (LexDat)
-import           Types.Tokens   (CloseBracket (..), Keyword (..), OpTok (..),
-                                 OpenBracket (..), Token (..))
+import           Types.Tokens
 
 
 -- | Convert a string representing a C program to a list of tokens
