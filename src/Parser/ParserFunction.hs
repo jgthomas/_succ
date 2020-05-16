@@ -3,17 +3,17 @@ module Parser.ParserFunction (parseFunction) where
 
 
 import Parser.ParserExpression (parseExpression)
-import Parser.ParserShared     (makeNodeDat, parseBracketedSeq)
+import Parser.ParserShared     (parseBracketedSeq)
 import Parser.ParserStatement  (parseStatementBlock)
 import Parser.ParserType       (parseType)
 import Parser.ParState         (ParserState, throwError)
 import Parser.TokConsume       (consumeNToks, consumeTok, verifyAndConsume)
+import Parser.TokToNodeData    (makeNodeDat)
 import Types.AST               (Tree (..))
 import Types.Error             (CompilerError (ParserError, SyntaxError),
                                 ParserError (..), SyntaxError (..))
 import Types.LexDat            (LexDat (..))
-import Types.Tokens            (CloseBracket (..), OpTok (..), OpenBracket (..),
-                                Token (..))
+import Types.Tokens
 
 
 parseFunction :: [LexDat] -> ParserState (Tree, [LexDat])

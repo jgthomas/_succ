@@ -9,11 +9,11 @@ module Parser.ParserDeclaration (parseDeclaration) where
 
 
 import           Parser.ParserExpression (parseExpression)
-import           Parser.ParserShared     (makeNodeDat)
 import           Parser.ParserType       (parseType)
 import           Parser.ParState         (ParserState, throwError)
 import qualified Parser.TokClass         as TokClass (isAssign)
 import           Parser.TokConsume       (consumeTok, verifyAndConsume)
+import           Parser.TokToNodeData    (makeNodeDat)
 import           Types.AST               (ArrayNode (..), Tree (..))
 import           Types.Error             (CompilerError (ParserError, SyntaxError),
                                           ParserError (..), SyntaxError (..))

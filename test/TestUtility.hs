@@ -2,10 +2,9 @@
 module TestUtility (makeLexDat, makeNodeDat) where
 
 
-import           Types.AST    (NodeDat)
-import qualified Types.AST    as AST (mkNodeDat)
-import           Types.LexDat (LexDat (LexDat))
-import           Types.Tokens (Token)
+import Types.AST    (NodeDat (..))
+import Types.LexDat (LexDat (LexDat))
+import Types.Tokens (Token)
 
 
 dummyLine :: Int
@@ -17,4 +16,4 @@ makeLexDat t = LexDat t dummyLine
 
 
 makeNodeDat :: NodeDat
-makeNodeDat = AST.mkNodeDat dummyLine dummyLine
+makeNodeDat = NodeDat dummyLine dummyLine
