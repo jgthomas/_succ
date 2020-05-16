@@ -2,17 +2,17 @@
 module Parser.ParserExpression (parseExpression) where
 
 
-import           Parser.ParserShared  (parseBracketedSeq)
-import           Parser.ParState      (ParserState, throwError)
-import           Parser.TokClass      (OpTokType (..))
-import qualified Parser.TokClass      as TokClass
-import           Parser.TokConsume    (consumeTok, verifyAndConsume)
-import qualified Parser.TokConvert    as TokConvert
-import           Parser.TokToNodeData (makeNodeDat)
-import           Types.AST            (ArrayNode (..), Tree (..))
-import           Types.Error          (CompilerError (ImpossibleError, ParserError, SyntaxError),
-                                       ParserError (..), SyntaxError (..))
-import           Types.LexDat         (LexDat (..))
+import           Parser.ParserSequence (parseBracketedSeq)
+import           Parser.ParState       (ParserState, throwError)
+import           Parser.TokClass       (OpTokType (..))
+import qualified Parser.TokClass       as TokClass
+import           Parser.TokConsume     (consumeTok, verifyAndConsume)
+import qualified Parser.TokConvert     as TokConvert
+import           Parser.TokToNodeData  (makeNodeDat)
+import           Types.AST             (ArrayNode (..), Tree (..))
+import           Types.Error           (CompilerError (ImpossibleError, ParserError, SyntaxError),
+                                        ParserError (..), SyntaxError (..))
+import           Types.LexDat          (LexDat (..))
 import           Types.Tokens
 
 

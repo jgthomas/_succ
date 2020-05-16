@@ -3,7 +3,7 @@ module Parser.ParserFunction (parseFunction) where
 
 
 import Parser.ParserExpression (parseExpression)
-import Parser.ParserShared     (parseBracketedSeq)
+import Parser.ParserSequence   (parseBracketedSeq)
 import Parser.ParserStatement  (parseStatementBlock)
 import Parser.ParserType       (parseType)
 import Parser.ParState         (ParserState, throwError)
