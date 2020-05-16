@@ -9,7 +9,7 @@ module Parser.ParserFunction (parseFunction) where
 
 import Parser.ParserExpression (parseExpression)
 import Parser.ParserSequence   (parseBracketedSeq)
-import Parser.ParserStatement  (parseStatementBlock)
+import Parser.ParserStatement  (parseStatements)
 import Parser.ParserType       (parseType)
 import Parser.ParState         (ParserState, throwError)
 import Parser.TokConsume       (consumeNToks, consumeTok, verifyAndConsume)
@@ -87,7 +87,7 @@ parseParamValue lexData = throwError $ ParserError (LexDataError lexData)
 parseFuncBody :: [LexDat] -> ParserState (Maybe [Tree], [LexDat])
 parseFuncBody (LexDat{tok=SemiColon}:rest) = pure (Nothing, rest)
 parseFuncBody (LexDat{tok=OpenBracket OpenBrace}:rest) = do
-        (tree, lexData') <- parseStatementBlock [] rest
+        (tree, lexData') <- parseStatements rest
         lexData''        <- verifyAndConsume (CloseBracket CloseBrace) lexData'
         pure (Just tree, lexData'')
 parseFuncBody lexData = throwError $ ParserError (LexDataError lexData)

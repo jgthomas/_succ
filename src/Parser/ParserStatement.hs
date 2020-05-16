@@ -4,7 +4,7 @@ Description  : Parses statements
 
 Parses lexed tokens representing statements.
 -}
-module Parser.ParserStatement (parseStatementBlock) where
+module Parser.ParserStatement (parseStatements) where
 
 
 import Control.Monad            (unless)
@@ -22,6 +22,10 @@ import Types.Tokens
 
 
 -- | Parse tokens for a block of statements into an AST
+parseStatements :: [LexDat] -> ParserState ([Tree], [LexDat])
+parseStatements lexData = parseStatementBlock [] lexData
+
+
 parseStatementBlock :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
 parseStatementBlock stmts lexData@(LexDat{tok=CloseBracket CloseBrace}:_) =
         pure (reverse stmts, lexData)
