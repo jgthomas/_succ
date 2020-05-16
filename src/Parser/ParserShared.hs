@@ -4,7 +4,6 @@ module Parser.ParserShared
          verifyAndConsume,
          consumeTok,
          consumeNToks,
-         parseType,
          makeNodeDat
         ) where
 
@@ -17,7 +16,6 @@ import Types.Error     (CompilerError (ParserError, SyntaxError),
                         ParserError (..), SyntaxError (..))
 import Types.LexDat    (LexDat (..))
 import Types.Tokens
-import Types.Type      (Type (..))
 
 
 parseBracketedSeq :: [Tree]
@@ -66,24 +64,6 @@ consumeNToks 0 lexData = pure lexData
 consumeNToks n lexData = do
         lexData' <- consumeTok lexData
         consumeNToks (pred n) lexData'
-
-
-parseType :: [LexDat] -> ParserState Type
-parseType (LexDat{tok=Keyword Int}:rest) = parseIntType rest
-parseType (a:_)    = throwError $ SyntaxError (BadType a)
-parseType lexData  = throwError $ ParserError (LexDataError lexData)
-
-
-parseIntType :: [LexDat] -> ParserState Type
-parseIntType (LexDat{tok=OpTok Asterisk}:_) = pure IntPointer
-parseIntType (_:LexDat{tok=OpenBracket OpenSqBracket}:
-              LexDat{tok=CloseBracket CloseSqBracket}:
-              _) = pure IntArray
-parseIntType (_:LexDat{tok=OpenBracket OpenSqBracket}:
-              LexDat{tok=ConstInt _}:
-              LexDat{tok=CloseBracket CloseSqBracket}:
-              _) = pure IntArray
-parseIntType _   = pure IntVar
 
 
 makeNodeDat :: [LexDat] -> ParserState NodeDat

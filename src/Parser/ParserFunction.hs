@@ -4,8 +4,9 @@ module Parser.ParserFunction (parseFunction) where
 
 import Parser.ParserExpression (parseExpression)
 import Parser.ParserShared     (consumeNToks, consumeTok, makeNodeDat,
-                                parseBracketedSeq, parseType, verifyAndConsume)
+                                parseBracketedSeq, verifyAndConsume)
 import Parser.ParserStatement  (parseStatementBlock)
+import Parser.ParserType       (parseType)
 import Parser.ParState         (ParserState, throwError)
 import Types.AST               (Tree (..))
 import Types.Error             (CompilerError (ParserError, SyntaxError),

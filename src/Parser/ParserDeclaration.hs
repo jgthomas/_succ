@@ -9,8 +9,9 @@ module Parser.ParserDeclaration (parseDeclaration) where
 
 
 import           Parser.ParserExpression (parseExpression)
-import           Parser.ParserShared     (consumeTok, makeNodeDat, parseType,
+import           Parser.ParserShared     (consumeTok, makeNodeDat,
                                           verifyAndConsume)
+import           Parser.ParserType       (parseType)
 import           Parser.ParState         (ParserState, throwError)
 import qualified Parser.TokClass         as TokClass (isAssign)
 import           Types.AST               (ArrayNode (..), Tree (..))
