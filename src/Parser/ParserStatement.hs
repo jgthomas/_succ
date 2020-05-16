@@ -2,16 +2,17 @@
 module Parser.ParserStatement (parseStatementBlock) where
 
 
+import Control.Monad            (unless)
+
 import Parser.ParserDeclaration (parseDeclaration)
 import Parser.ParserExpression  (parseExpression)
-import Parser.ParserShared      (makeNodeDat, nextTokIsNot, verifyAndConsume)
+import Parser.ParserShared      (makeNodeDat, verifyAndConsume)
 import Parser.ParState          (ParserState, throwError)
 import Types.AST                (Tree (..))
 import Types.Error              (CompilerError (ParserError, SyntaxError),
                                  ParserError (..), SyntaxError (..))
 import Types.LexDat             (LexDat (..))
-import Types.Tokens             (CloseBracket (..), Keyword (..), OpTok (..),
-                                 OpenBracket (..), Token (..))
+import Types.Tokens
 
 
 parseStatementBlock :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
@@ -192,3 +193,14 @@ parseNullStatement lexData = do
         dat      <- makeNodeDat lexData
         lexData' <- verifyAndConsume SemiColon lexData
         pure (NullExprNode dat, lexData')
+
+
+
+nextTokIsNot :: Token -> [LexDat] -> ParserState ()
+nextTokIsNot _ []    = throwError $ ParserError (LexDataError [])
+nextTokIsNot t [a]   = isNotTok t a
+nextTokIsNot t (a:_) = isNotTok t a
+
+
+isNotTok :: Token -> LexDat -> ParserState ()
+isNotTok t a = unless (t /= tok a) $ throwError $ SyntaxError (UnexpectedLexDat a)

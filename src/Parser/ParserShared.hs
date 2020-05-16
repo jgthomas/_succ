@@ -5,8 +5,7 @@ module Parser.ParserShared
          consumeTok,
          consumeNToks,
          parseType,
-         makeNodeDat,
-         nextTokIsNot
+         makeNodeDat
         ) where
 
 
@@ -17,8 +16,7 @@ import Types.AST       (NodeDat, Tree (..), mkNodeDat)
 import Types.Error     (CompilerError (ParserError, SyntaxError),
                         ParserError (..), SyntaxError (..))
 import Types.LexDat    (LexDat (..))
-import Types.Tokens    (CloseBracket (..), Keyword (..), OpTok (..),
-                        OpenBracket (..), Token (..))
+import Types.Tokens
 import Types.Type      (Type (..))
 
 
@@ -53,18 +51,8 @@ nextTokIs t [a]   = isTok t a
 nextTokIs t (a:_) = isTok t a
 
 
-nextTokIsNot :: Token -> [LexDat] -> ParserState ()
-nextTokIsNot _ []    = throwError $ ParserError (LexDataError [])
-nextTokIsNot t [a]   = isNotTok t a
-nextTokIsNot t (a:_) = isNotTok t a
-
-
 isTok :: Token -> LexDat -> ParserState ()
 isTok t a = unless (t == tok a) $ throwError $ SyntaxError (MissingToken t a)
-
-
-isNotTok :: Token -> LexDat -> ParserState ()
-isNotTok t a = unless (t /= tok a) $ throwError $ SyntaxError (UnexpectedLexDat a)
 
 
 consumeTok :: [LexDat] -> ParserState [LexDat]

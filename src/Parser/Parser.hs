@@ -42,9 +42,9 @@ parseTopLevelItems lexData = throwError $ ParserError (LexDataError lexData)
 
 
 parseTopLevelItem :: [LexDat] -> ParserState (Tree, [LexDat])
-parseTopLevelItem lexData@(_:_:_:LexDat{tok=OpenBracket OpenParen}:_)  = parseFunction lexData
-parseTopLevelItem lexData@(_:_:LexDat{tok=OpenBracket OpenParen}:_)    = parseFunction lexData
-parseTopLevelItem lexData@(_:LexDat{tok=Ident _}:_)        = parseDeclaration lexData
-parseTopLevelItem lexData@(_:LexDat{tok=OpTok Asterisk}:_) = parseDeclaration lexData
+parseTopLevelItem lexData@(_:_:_:LexDat{tok=OpenBracket OpenParen}:_) = parseFunction lexData
+parseTopLevelItem lexData@(_:_:LexDat{tok=OpenBracket OpenParen}:_)   = parseFunction lexData
+parseTopLevelItem lexData@(_:LexDat{tok=Ident _}:_)                   = parseDeclaration lexData
+parseTopLevelItem lexData@(_:LexDat{tok=OpTok Asterisk}:_)            = parseDeclaration lexData
 parseTopLevelItem (_:b:_) = throwError $ SyntaxError (NonValidIdentifier b)
 parseTopLevelItem lexData = throwError $ ParserError (LexDataError lexData)

@@ -1,4 +1,10 @@
+{-|
+Module       : ParserDeclaration
+Description  : Parses declarations
 
+Converts a list of tokens into an abstract syntax tree
+representing a declaration
+-}
 module Parser.ParserDeclaration (parseDeclaration) where
 
 
@@ -27,6 +33,7 @@ data ArrayLen = Undeclared
               deriving (Eq)
 
 
+-- | Parse tokens for a declaration into an AST
 parseDeclaration :: [LexDat] -> ParserState (Tree, [LexDat])
 parseDeclaration lexData@(
         _:LexDat{tok=Ident name}:
@@ -73,8 +80,8 @@ findArraylen node Undeclared Undeclared = throwError $ SyntaxError (UndeclaredLe
 
 inferredLen ::  Maybe Tree -> ArrayLen
 inferredLen (Just (ArrayNode (ArrayItemsNode _ items _))) = Declared (length items)
-inferredLen Nothing = Undeclared
-inferredLen _       = Undeclared
+inferredLen Nothing                                       = Undeclared
+inferredLen _                                             = Undeclared
 
 
 parseOptAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
