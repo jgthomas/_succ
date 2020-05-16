@@ -42,9 +42,9 @@ data ArrayNode = ArrayDeclareNode Int Tree Type (Maybe Tree) NodeDat
                | ArrayItemAccess Int Tree NodeDat
                | ArrayItemAssign Int Tree NodeDat
                | ArrayAssignPosNode Tree Tree Operator NodeDat
-               deriving (Eq, Show)
+               deriving (Show, Eq)
 
 
 data NodeDat = NodeDat { startLine :: Int
                        , endLine   :: Int }
-             deriving (Eq, Show)
+             deriving (Show, Eq)
