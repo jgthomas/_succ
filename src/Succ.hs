@@ -51,13 +51,8 @@ setDebugLevel (Just dbug)
 
 
 debugOut :: (Show a, Show b) => Debug -> IO (a, b) -> IO (a, b)
-debugOut debugLevel out = do
-        (asm, symTab) <- out
-        _ <- debugState (pure symTab)
-        _ <- debugOutput (pure asm)
-        out
-        where
-                debugState  = Debug.debug debugLevel State
-                debugOutput = Debug.debug debugLevel Output
-
-
+debugOut debugLevel output = do
+        (asm, symTab) <- output
+        _ <- Debug.debug debugLevel State (pure symTab)
+        _ <- Debug.debug debugLevel Output (pure asm)
+        output
