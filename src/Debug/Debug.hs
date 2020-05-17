@@ -22,11 +22,11 @@ debugIt :: Show a => Stage -> IO a -> IO a
 debugIt stage x = do
         y <- x
         case stage of
-             Input  -> printString inputTitle y
+             Input  -> printSourceFile inputTitle y
              Lexer  -> printDataTypeSimple lexTitle y
              Parser -> printDataType parTitle y
              State  -> printDataType stateTitle y
-             Output -> printString outTitle y
+             Output -> printSourceFile outTitle y
         x
         where
                 inputTitle = "C CODE"

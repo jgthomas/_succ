@@ -5,7 +5,7 @@ Description  : Print debug output
 Formats and prints the output of the internal debugger.
 -}
 module Debug.DebugPrint
-        (printString,
+        (printSourceFile,
          printDataType,
          printDataTypeSimple
         ) where
@@ -16,8 +16,8 @@ import Text.Pretty.Simple (OutputOptions (..), defaultOutputOptionsNoColor,
 
 
 -- | Prints a source file string
-printString :: Show a => String -> a -> IO ()
-printString title content = do
+printSourceFile :: Show a => String -> a -> IO ()
+printSourceFile title content = do
         putStrLn title
         pPrintOpt options content
         putStr "\n"
