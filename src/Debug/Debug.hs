@@ -8,10 +8,8 @@ the compilation process undertaken by succ.
 module Debug.Debug (debug) where
 
 
-import Text.Pretty.Simple (OutputOptions (..), defaultOutputOptionsNoColor,
-                           pPrint, pPrintOpt)
-
-import Types.SuccTokens   (Debug (..), Stage (..))
+import Debug.DebugPrint
+import Types.SuccTokens (Debug (..), Stage (..))
 
 
 -- | Print debugging output
@@ -24,11 +22,11 @@ debugIt :: Show a => Stage -> IO a -> IO a
 debugIt stage x = do
         y <- x
         case stage of
-             Input  -> debugString inputTitle y
-             Lexer  -> debugDataTypeSimple lexTitle y
-             Parser -> debugDataType parTitle y
-             State  -> debugDataType stateTitle y
-             Output -> debugString outTitle y
+             Input  -> printString inputTitle y
+             Lexer  -> printDataTypeSimple lexTitle y
+             Parser -> printDataType parTitle y
+             State  -> printDataType stateTitle y
+             Output -> printString outTitle y
         x
         where
                 inputTitle = "C CODE"
@@ -36,26 +34,3 @@ debugIt stage x = do
                 parTitle   = "ABSTRACT SYNTAX TREE"
                 stateTitle = "SYMBOL TABLE"
                 outTitle   = "ASSEMBLY CODE"
-
-
-debugString :: Show a => String -> a -> IO ()
-debugString title content = do
-        putStrLn title
-        pPrintOpt options content
-        putStr "\n"
-        where
-                options = defaultOutputOptionsNoColor {outputOptionsIndentAmount = 0}
-
-
-debugDataType :: Show a => String -> a -> IO ()
-debugDataType title dat = do
-        putStrLn title
-        pPrint dat
-        putStr "\n"
-
-
-debugDataTypeSimple :: Show a => String -> a -> IO ()
-debugDataTypeSimple title dat = do
-        putStrLn title
-        print dat
-        putStr "\n"
