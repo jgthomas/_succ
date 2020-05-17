@@ -1,4 +1,9 @@
+{-|
+Module       : FuncStateVars
+Description  : Manages local variables
 
+Functions for creating and managing local variables.
+-}
 module State.FuncStateVars
         (checkVariable,
          variableOffset,

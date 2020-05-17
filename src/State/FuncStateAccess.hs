@@ -1,4 +1,10 @@
+{-|
+Module       : FuncStateAccess
+Description  : Access function state
 
+Provides access to the state data structure for a particular function, allowing
+it to be retrieved, updated, and deleted.
+-}
 module State.FuncStateAccess where
 
 

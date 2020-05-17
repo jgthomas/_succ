@@ -1,4 +1,9 @@
+{-|
+Module       : FuncStateOffset
+Description  : Manages function offset
 
+Functions for managing the currently compiling function's offset on the stack.
+-}
 module State.FuncStateOffset
         (currentOffset,
          incrementOffsetByN,

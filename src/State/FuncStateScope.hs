@@ -1,4 +1,10 @@
+{-|
+Module       : FuncStateScope
+Description  : Manages nested scopes
 
+Functions for creating and managing nested scopes within functions under
+compilation.
+-}
 module State.FuncStateScope
         (initScope,
          closeScope,
