@@ -8,12 +8,13 @@ module Succ (compile) where
 
 
 import qualified Checker.Checker       as Checker (check)
-import qualified Debug.Debug           as Debug (debug, setDebugLevel)
+import qualified Debug.Debug           as Debug (debug, debugPair,
+                                                 setDebugLevel)
 import qualified Generator.Generator   as Generator (generate)
 import qualified Lexer.Lexer           as Lexer (tokenize)
 import qualified Parser.Parser         as Parser (parse)
 import qualified PrintError.PrintError as PrintError (handleError)
-import           Types.SuccTokens      (Debug, Stage (..))
+import           Types.SuccTokens      (Stage (..))
 
 
 -- | Run the compilation process
@@ -26,16 +27,8 @@ compile input debugSet = do
         fmap fst . debugOutput . errorHandler . Generator.generate $ ast'
         where
                 debugLevel   = Debug.setDebugLevel debugSet
-                debugInput   = Debug.debug debugLevel Input
-                debugLexer   = Debug.debug debugLevel Lexer
-                debugParser  = Debug.debug debugLevel Parser
-                debugOutput  = debugOut debugLevel
+                debugInput   = Debug.debug debugSet Input
+                debugLexer   = Debug.debug debugSet Lexer
+                debugParser  = Debug.debug debugSet Parser
+                debugOutput  = Debug.debugPair debugSet (Output, State)
                 errorHandler = PrintError.handleError debugLevel input
-
-
-debugOut :: (Show a, Show b) => Debug -> IO (a, b) -> IO (a, b)
-debugOut debugLevel output = do
-        (asm, symTab) <- output
-        _ <- Debug.debug debugLevel State (pure symTab)
-        _ <- Debug.debug debugLevel Output (pure asm)
-        output
