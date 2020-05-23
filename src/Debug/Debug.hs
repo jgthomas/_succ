@@ -8,7 +8,7 @@ the compilation process undertaken by succ.
 module Debug.Debug (debug, debugPair) where
 
 
-import Debug.DebugPrint
+import Debug.DebugPrint (printDebug)
 import Types.SuccTokens (Stage (..))
 
 
@@ -77,16 +77,5 @@ debugMultiple debugLevel (s1, s2) output = do
 debugIt :: Show a => Stage -> IO a -> IO a
 debugIt stage x = do
         y <- x
-        case stage of
-             Input  -> printSourceFile inputTitle y
-             Lexer  -> printDataTypeSimple lexTitle y
-             Parser -> printDataType parTitle y
-             State  -> printDataType stateTitle y
-             Output -> printSourceFile outTitle y
+        printDebug stage y
         x
-        where
-                inputTitle = "C CODE"
-                lexTitle   = "LEXED TOKENS"
-                parTitle   = "ABSTRACT SYNTAX TREE"
-                stateTitle = "SYMBOL TABLE"
-                outTitle   = "ASSEMBLY CODE"
