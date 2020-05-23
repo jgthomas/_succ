@@ -13,6 +13,8 @@ import Types.SuccTokens (Stage (..))
 
 
 data Debug = DebugOn
+           | DebugLexer
+           | DebugParser
            | DebugOff
            deriving (Eq)
 
@@ -33,13 +35,19 @@ debugPair debugSet (s1, s2) = debugMultiple (setDebugLevel debugSet) (s1, s2)
 setDebugLevel :: Maybe String -> Debug
 setDebugLevel Nothing = DebugOff
 setDebugLevel (Just dbug)
-        | dbug == "debug" = DebugOn
-        | otherwise       = DebugOff
+        | dbug == "debug"       = DebugOn
+        | dbug == "debugLexer"  = DebugLexer
+        | dbug == "debugParser" = DebugParser
+        | otherwise             = DebugOff
 
 
 debugSingle :: Show a => Debug -> Stage -> IO a -> IO a
-debugSingle DebugOff _ x    = x
-debugSingle DebugOn stage x = debugIt stage x
+debugSingle DebugLexer Lexer x   = debugIt Lexer x
+debugSingle DebugLexer _ x       = x
+debugSingle DebugParser Parser x = debugIt Parser x
+debugSingle DebugParser _ x      = x
+debugSingle DebugOn stage x      = debugIt stage x
+debugSingle DebugOff _ x         = x
 
 
 debugMultiple :: (Show a, Show b) =>
