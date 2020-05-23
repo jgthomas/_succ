@@ -8,12 +8,12 @@ module Succ (compile) where
 
 
 import qualified Checker.Checker       as Checker (check)
-import qualified Debug.Debug           as Debug (debug)
+import qualified Debug.Debug           as Debug (debug, setDebugLevel)
 import qualified Generator.Generator   as Generator (generate)
 import qualified Lexer.Lexer           as Lexer (tokenize)
 import qualified Parser.Parser         as Parser (parse)
 import qualified PrintError.PrintError as PrintError (handleError)
-import           Types.SuccTokens      (Debug (..), Stage (..))
+import           Types.SuccTokens      (Debug, Stage (..))
 
 
 -- | Run the compilation process
@@ -25,19 +25,12 @@ compile input debugSet = do
         ast'   <- errorHandler . Checker.check $ ast
         fmap fst . debugOutput . errorHandler . Generator.generate $ ast'
         where
-                debugLevel   = setDebugLevel debugSet
+                debugLevel   = Debug.setDebugLevel debugSet
                 debugInput   = Debug.debug debugLevel Input
                 debugLexer   = Debug.debug debugLevel Lexer
                 debugParser  = Debug.debug debugLevel Parser
                 debugOutput  = debugOut debugLevel
                 errorHandler = PrintError.handleError debugLevel input
-
-
-setDebugLevel :: Maybe String -> Debug
-setDebugLevel Nothing = DebugOff
-setDebugLevel (Just dbug)
-        | dbug == "debug" = DebugOn
-        | otherwise       = DebugOff
 
 
 debugOut :: (Show a, Show b) => Debug -> IO (a, b) -> IO (a, b)

@@ -7,11 +7,10 @@ Create and format error messages with associated code sections
 module PrintError.PrintError (handleError) where
 
 
-import System.Exit                   (exitFailure)
-
 import Control.Monad                 (unless)
 import Data.Map                      as M (Map, fromList, lookup)
 import Data.Maybe                    (fromMaybe, isNothing)
+import System.Exit                   (exitFailure)
 
 import PrintError.MessageFatalError  (fatalErrorMsg)
 import PrintError.MessageOtherError  (impossibleErrorMsg, stateErrorMsg)

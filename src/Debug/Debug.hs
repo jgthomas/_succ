@@ -5,7 +5,7 @@ Description  : Output debugging information
 Internal debugger that outputs the results of each stage of
 the compilation process undertaken by succ.
 -}
-module Debug.Debug (debug) where
+module Debug.Debug (debug, setDebugLevel) where
 
 
 import Debug.DebugPrint
@@ -16,6 +16,14 @@ import Types.SuccTokens (Debug (..), Stage (..))
 debug :: Show a => Debug -> Stage -> IO a -> IO a
 debug DebugOff _ x    = x
 debug DebugOn stage x = debugIt stage x
+
+
+-- | Set debug level based on input from user
+setDebugLevel :: Maybe String -> Debug
+setDebugLevel Nothing = DebugOff
+setDebugLevel (Just dbug)
+        | dbug == "debug" = DebugOn
+        | otherwise       = DebugOff
 
 
 debugIt :: Show a => Stage -> IO a -> IO a
