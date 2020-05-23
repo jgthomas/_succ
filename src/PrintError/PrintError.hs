@@ -4,8 +4,10 @@ Description  : Output error messages
 
 Create and format error messages with associated code sections
 -}
-module PrintError.PrintError (printError) where
+module PrintError.PrintError (handleError) where
 
+
+import System.Exit                   (exitFailure)
 
 import Control.Monad                 (unless)
 import Data.Map                      as M (Map, fromList, lookup)
@@ -23,7 +25,14 @@ import Types.Error                   (CompilerError (..))
 import Types.SuccTokens              (Debug (..))
 
 
--- | Print error message with relevant section of code
+-- | Print any errors and exit compilation process
+handleError :: Debug -> String -> Either CompilerError a -> IO a
+handleError _ _ (Right out) = pure out
+handleError debugSet input (Left err)  = do
+        printError debugSet input err
+        exitFailure
+
+
 printError :: Debug -> String -> CompilerError -> IO ()
 printError DebugOn input err  = printDebugError input err
 printError DebugOff input err = printUserError input err

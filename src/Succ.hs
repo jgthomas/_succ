@@ -7,15 +7,12 @@ Controls the output of the compilation process.
 module Succ (compile) where
 
 
-import           System.Exit           (exitFailure)
-
 import qualified Checker.Checker       as Checker (check)
 import qualified Debug.Debug           as Debug (debug)
 import qualified Generator.Generator   as Generator (generate)
 import qualified Lexer.Lexer           as Lexer (tokenize)
 import qualified Parser.Parser         as Parser (parse)
-import qualified PrintError.PrintError as PrintError (printError)
-import           Types.Error           (CompilerError)
+import qualified PrintError.PrintError as PrintError (handleError)
 import           Types.SuccTokens      (Debug (..), Stage (..))
 
 
@@ -33,14 +30,7 @@ compile input debugSet = do
                 debugLexer   = Debug.debug debugLevel Lexer
                 debugParser  = Debug.debug debugLevel Parser
                 debugOutput  = debugOut debugLevel
-                errorHandler = handleError debugLevel input
-
-
-handleError :: Debug -> String -> Either CompilerError a -> IO a
-handleError _ _ (Right out) = pure out
-handleError debugSet input (Left err)  = do
-        PrintError.printError debugSet input err
-        exitFailure
+                errorHandler = PrintError.handleError debugLevel input
 
 
 setDebugLevel :: Maybe String -> Debug
