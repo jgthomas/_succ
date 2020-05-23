@@ -5,11 +5,16 @@ Description  : Output debugging information
 Internal debugger that outputs the results of each stage of
 the compilation process undertaken by succ.
 -}
-module Debug.Debug (debug, setDebugLevel, debugPair) where
+module Debug.Debug (debug, debugPair) where
 
 
 import Debug.DebugPrint
-import Types.SuccTokens (Debug (..), Stage (..))
+import Types.SuccTokens (Stage (..))
+
+
+data Debug = DebugOn
+           | DebugOff
+           deriving (Eq)
 
 
 -- | Print debugging output
@@ -25,7 +30,6 @@ debugPair :: (Show a, Show b) =>
 debugPair debugSet (s1, s2) = debugMultiple (setDebugLevel debugSet) (s1, s2)
 
 
--- | Set debug level based on input from user
 setDebugLevel :: Maybe String -> Debug
 setDebugLevel Nothing = DebugOff
 setDebugLevel (Just dbug)

@@ -12,7 +12,6 @@ import Data.Map                      as M (Map, fromList, lookup)
 import Data.Maybe                    (fromMaybe, isNothing)
 import System.Exit                   (exitFailure)
 
-import Debug.Debug                   (setDebugLevel)
 import PrintError.MessageFatalError  (fatalErrorMsg)
 import PrintError.MessageOtherError  (impossibleErrorMsg, stateErrorMsg)
 import PrintError.MessageScopeError  (scopeErrorMsg)
@@ -22,20 +21,22 @@ import PrintError.MessageSyntaxError (syntaxErrorMsg)
 import PrintError.MessageTypeError   (typeErrorMsg)
 import PrintError.PrintErrorTokens   (PrintRange (..))
 import Types.Error                   (CompilerError (..))
-import Types.SuccTokens              (Debug (..))
+
+
+data DebugStatus = Debugging | NotDebugging
 
 
 -- | Print any errors and exit compilation process
 handleError :: Maybe String -> String -> Either CompilerError a -> IO a
 handleError _ _ (Right out) = pure out
 handleError debugSet input (Left err)  = do
-        printError (setDebugLevel debugSet) input err
+        printError (debuggingOn debugSet) input err
         exitFailure
 
 
-printError :: Debug -> String -> CompilerError -> IO ()
-printError DebugOn input err  = printDebugError input err
-printError DebugOff input err = printUserError input err
+printError :: DebugStatus -> String -> CompilerError -> IO ()
+printError Debugging input err    = printDebugError input err
+printError NotDebugging input err = printUserError input err
 
 
 printUserError :: String -> CompilerError -> IO ()
@@ -97,3 +98,8 @@ toLineMap input = M.fromList $ zip [1..] $ lines input
 
 lineCount :: String -> Int
 lineCount input = length $ filter (== '\n') input
+
+
+debuggingOn :: Maybe String -> DebugStatus
+debuggingOn Nothing  = NotDebugging
+debuggingOn (Just _) = Debugging
