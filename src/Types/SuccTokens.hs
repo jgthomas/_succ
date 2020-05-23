@@ -11,6 +11,7 @@ module Types.SuccTokens where
 data Stage = Input
            | Lexer
            | Parser
+           | Check
            | State
            | Output
            deriving (Eq)

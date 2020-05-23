@@ -22,11 +22,12 @@ compile input debugOption = do
         input' <- debugInput . pure $ input
         toks   <- debugLexer . errorHandler . Lexer.tokenize $ input'
         ast    <- debugParser . errorHandler . Parser.parse $ toks
-        ast'   <- errorHandler . Checker.check $ ast
+        ast'   <- debugChecker . errorHandler . Checker.check $ ast
         fmap fst . debugOutput . errorHandler . Generator.generate $ ast'
         where
                 debugInput   = Debug.debug debugOption Input
                 debugLexer   = Debug.debug debugOption Lexer
                 debugParser  = Debug.debug debugOption Parser
+                debugChecker = Debug.debug debugOption Check
                 debugOutput  = Debug.debugPair debugOption (Output, State)
                 errorHandler = PrintError.handleError debugOption input
