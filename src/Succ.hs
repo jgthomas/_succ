@@ -8,8 +8,7 @@ module Succ (compile) where
 
 
 import qualified Checker.Checker       as Checker (check)
-import qualified Debug.Debug           as Debug (debug, debugPair,
-                                                 setDebugLevel)
+import qualified Debug.Debug           as Debug (debug, debugPair)
 import qualified Generator.Generator   as Generator (generate)
 import qualified Lexer.Lexer           as Lexer (tokenize)
 import qualified Parser.Parser         as Parser (parse)
@@ -26,9 +25,8 @@ compile input debugSet = do
         ast'   <- errorHandler . Checker.check $ ast
         fmap fst . debugOutput . errorHandler . Generator.generate $ ast'
         where
-                debugLevel   = Debug.setDebugLevel debugSet
                 debugInput   = Debug.debug debugSet Input
                 debugLexer   = Debug.debug debugSet Lexer
                 debugParser  = Debug.debug debugSet Parser
                 debugOutput  = Debug.debugPair debugSet (Output, State)
-                errorHandler = PrintError.handleError debugLevel input
+                errorHandler = PrintError.handleError debugSet input

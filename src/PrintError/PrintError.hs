@@ -12,6 +12,7 @@ import Data.Map                      as M (Map, fromList, lookup)
 import Data.Maybe                    (fromMaybe, isNothing)
 import System.Exit                   (exitFailure)
 
+import Debug.Debug                   (setDebugLevel)
 import PrintError.MessageFatalError  (fatalErrorMsg)
 import PrintError.MessageOtherError  (impossibleErrorMsg, stateErrorMsg)
 import PrintError.MessageScopeError  (scopeErrorMsg)
@@ -25,10 +26,10 @@ import Types.SuccTokens              (Debug (..))
 
 
 -- | Print any errors and exit compilation process
-handleError :: Debug -> String -> Either CompilerError a -> IO a
+handleError :: Maybe String -> String -> Either CompilerError a -> IO a
 handleError _ _ (Right out) = pure out
 handleError debugSet input (Left err)  = do
-        printError debugSet input err
+        printError (setDebugLevel debugSet) input err
         exitFailure
 
 

@@ -18,9 +18,10 @@ debug debugSet = debugSingle (setDebugLevel debugSet)
 
 
 -- | Print debugging output for pair of values
-debugPair :: (Show a, Show b) => Maybe String
-              -> (Stage, Stage)
-              -> (IO (a, b) -> IO (a, b))
+debugPair :: (Show a, Show b) =>
+          Maybe String
+          -> (Stage, Stage)
+          -> (IO (a, b) -> IO (a, b))
 debugPair debugSet (s1, s2) = debugMultiple (setDebugLevel debugSet) (s1, s2)
 
 
