@@ -18,15 +18,15 @@ import           Types.SuccTokens      (Stage (..))
 
 -- | Run the compilation process
 compile :: String -> Maybe String -> IO String
-compile input debugSet = do
+compile input debugOption = do
         input' <- debugInput . pure $ input
         toks   <- debugLexer . errorHandler . Lexer.tokenize $ input'
         ast    <- debugParser . errorHandler . Parser.parse $ toks
         ast'   <- errorHandler . Checker.check $ ast
         fmap fst . debugOutput . errorHandler . Generator.generate $ ast'
         where
-                debugInput   = Debug.debug debugSet Input
-                debugLexer   = Debug.debug debugSet Lexer
-                debugParser  = Debug.debug debugSet Parser
-                debugOutput  = Debug.debugPair debugSet (Output, State)
-                errorHandler = PrintError.handleError debugSet input
+                debugInput   = Debug.debug debugOption Input
+                debugLexer   = Debug.debug debugOption Lexer
+                debugParser  = Debug.debug debugOption Parser
+                debugOutput  = Debug.debugPair debugOption (Output, State)
+                errorHandler = PrintError.handleError debugOption input

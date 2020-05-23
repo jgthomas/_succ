@@ -23,7 +23,7 @@ data Debug = DebugOn
 
 -- | Print debugging output
 debug :: Show a => Maybe String -> Stage -> (IO a -> IO a)
-debug debugSet = debugSingle (setDebugLevel debugSet)
+debug debugOption = debugSingle (setDebugLevel debugOption)
 
 
 -- | Print debugging output for pair of values
@@ -31,7 +31,7 @@ debugPair :: (Show a, Show b) =>
           Maybe String
           -> (Stage, Stage)
           -> (IO (a, b) -> IO (a, b))
-debugPair debugSet (s1, s2) = debugMultiple (setDebugLevel debugSet) (s1, s2)
+debugPair debugOption (s1, s2) = debugMultiple (setDebugLevel debugOption) (s1, s2)
 
 
 setDebugLevel :: Maybe String -> Debug
