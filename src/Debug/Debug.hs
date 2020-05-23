@@ -15,8 +15,10 @@ import Types.SuccTokens (Stage (..))
 data Debug = DebugOn
            | DebugLexer
            | DebugParser
+           | DebugState
+           | DebugAsm
+           | DebugCode
            | DebugOff
-           deriving (Eq)
 
 
 -- | Print debugging output
@@ -38,14 +40,24 @@ setDebugLevel (Just dbug)
         | dbug == "debug"       = DebugOn
         | dbug == "debugLexer"  = DebugLexer
         | dbug == "debugParser" = DebugParser
+        | dbug == "debugAsm"    = DebugAsm
+        | dbug == "debugState"  = DebugState
+        | dbug == "debugCode"   = DebugCode
         | otherwise             = DebugOff
 
 
 debugSingle :: Show a => Debug -> Stage -> IO a -> IO a
+debugSingle DebugCode Input x    = debugIt Input x
+debugSingle DebugCode Output x   = debugIt Output x
+debugSingle DebugCode _ x        = x
 debugSingle DebugLexer Lexer x   = debugIt Lexer x
 debugSingle DebugLexer _ x       = x
 debugSingle DebugParser Parser x = debugIt Parser x
 debugSingle DebugParser _ x      = x
+debugSingle DebugAsm Output x    = debugIt Output x
+debugSingle DebugAsm _ x         = x
+debugSingle DebugState State x   = debugIt State x
+debugSingle DebugState _ x       = x
 debugSingle DebugOn stage x      = debugIt stage x
 debugSingle DebugOff _ x         = x
 
