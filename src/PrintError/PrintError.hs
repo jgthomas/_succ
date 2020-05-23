@@ -29,8 +29,8 @@ data DebugStatus = Debugging | NotDebugging
 -- | Print any errors and exit compilation process
 handleError :: Maybe String -> String -> Either CompilerError a -> IO a
 handleError _ _ (Right out) = pure out
-handleError debugSet input (Left err)  = do
-        printError (debuggingOn debugSet) input err
+handleError debugOption input (Left err)  = do
+        printError (debuggingOn debugOption) input err
         exitFailure
 
 
