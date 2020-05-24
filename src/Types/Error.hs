@@ -16,6 +16,7 @@ data CompilerError = LexerError LexerError
                    | CheckerError CheckerError
                    | ScopeError ScopeError
                    | TypeError TypeError
+                   | LogicError LogicError
                    | FatalError FatalError
                    | ImpossibleError
                    deriving (Show, Eq)
@@ -69,6 +70,11 @@ data TypeError = TypeMismatch [Type] [Type] Tree
                | NotTyped Tree
                | TypeCheckingImpossible Tree
                deriving (Show, Eq)
+
+
+data LogicError = OperatorUseError Tree Operator
+                | MalformedNode Tree
+                deriving (Show, Eq)
 
 
 data FatalError = LexerBug String

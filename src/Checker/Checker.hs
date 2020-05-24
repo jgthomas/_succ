@@ -9,6 +9,7 @@ module Checker.Checker (check) where
 
 import           Control.Monad      (unless)
 
+import qualified Checker.LogicCheck as LogicCheck
 import qualified Checker.ScopeCheck as ScopeCheck
 import qualified Checker.TypeCheck  as TypeCheck
 import           State.GenState     (GenState, runGenState, throwError)
@@ -155,14 +156,14 @@ checkAST (BinaryNode lft rgt _ _) = do
         checkAST lft
         checkAST rgt
 
-checkAST (UnaryNode node@VarNode{} _ _) = do
-        checkAST node
-        ScopeCheck.variableExists node
-checkAST node@(UnaryNode _ unOp@(PreOpUnary _) _) =
-        throwError $ CheckerError (OperatorError (UnaryOp unOp) node)
-checkAST node@(UnaryNode _ unOp@(PostOpUnary _) _) =
-        throwError $ CheckerError (OperatorError (UnaryOp unOp) node)
-checkAST (UnaryNode tree (Unary _) _) = checkAST tree
+checkAST node@(UnaryNode varNode@VarNode{} _ _) = do
+        LogicCheck.checkUnaryLogic node
+        checkAST varNode
+        ScopeCheck.variableExists varNode
+checkAST node@(UnaryNode tree (Unary _) _) = do
+        LogicCheck.checkUnaryLogic node
+        checkAST tree
+checkAST node@UnaryNode{} = LogicCheck.checkUnaryLogic node
 
 checkAST node@VarNode{} = ScopeCheck.variableExists node
 

@@ -88,6 +88,7 @@ errorMsg (CheckerError err) = checkerErrorMsg err
 errorMsg (SyntaxError err)  = syntaxErrorMsg err
 errorMsg (ScopeError err)   = scopeErrorMsg err
 errorMsg (TypeError err)    = typeErrorMsg err
+errorMsg (LogicError err)   = error $ show err
 errorMsg (FatalError err)   = fatalErrorMsg err
 errorMsg ImpossibleError    = impossibleErrorMsg
 
