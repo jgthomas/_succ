@@ -74,6 +74,8 @@ data TypeError = TypeMismatch [Type] [Type] Tree
 
 data LogicError = OperatorUseError Tree Operator
                 | MalformedNode Tree
+                | AssignmentLogicError Tree Operator
+                | AssignmentTreeError Tree
                 deriving (Show, Eq)
 
 

@@ -16,8 +16,8 @@ import           State.GenState     (GenState, runGenState, throwError)
 import qualified State.GenState     as GenState (startState)
 import qualified State.SymTab       as SymTab
 import           Types.AST          (ArrayNode (..), Tree (..))
-import           Types.Error        (CheckerError (..),
-                                     CompilerError (CheckerError))
+import           Types.Error        (CompilerError (FatalError),
+                                     FatalError (CheckerBug))
 import           Types.Operator     (Operator (..), UnaryOp (..))
 import           Types.Variables    (Scope (..))
 
@@ -50,7 +50,7 @@ checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
 checkAST (ParamNode typ (VarNode name _) _) =
         SymTab.addParameter name typ
 checkAST node@ParamNode{} =
-        throwError $ CheckerError (InvalidNode node)
+        throwError $ FatalError (CheckerBug node)
 
 checkAST node@(FuncCallNode name argList _) = do
         paramCount <- SymTab.decParamCount name
@@ -281,11 +281,14 @@ checkPrevDecGlob name node = ScopeCheck.validatePrevDecGlobal name node
 
 
 checkAssignLocal :: Tree -> Tree -> Operator -> GenState ()
-checkAssignLocal _ valTree Assignment = checkAST valTree
-checkAssignLocal varTree@(DereferenceNode _ dat) valTree (BinaryOp binOp) =
+checkAssignLocal varTree valTree Assignment = do
+        LogicCheck.checkAssignLocalLogic varTree valTree Assignment
+        checkAST valTree
+checkAssignLocal varTree@(DereferenceNode _ dat) valTree op@(BinaryOp binOp) = do
+        LogicCheck.checkAssignLocalLogic varTree valTree op
         checkAST (BinaryNode varTree valTree binOp dat)
-checkAssignLocal varTree@(VarNode _ dat) valTree (BinaryOp binOp) =
+checkAssignLocal varTree@(VarNode _ dat) valTree op@(BinaryOp binOp) = do
+        LogicCheck.checkAssignLocalLogic varTree valTree op
         checkAST (BinaryNode varTree valTree binOp dat)
-checkAssignLocal node _ op@(UnaryOp _) =
-        throwError $ CheckerError (OperatorError op node)
-checkAssignLocal node _ _ = throwError $ CheckerError (InvalidNode node)
+checkAssignLocal varTree valTree op =
+        LogicCheck.checkAssignLocalLogic varTree valTree op
