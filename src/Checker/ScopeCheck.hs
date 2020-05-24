@@ -14,7 +14,8 @@ module Checker.ScopeCheck
          checkArguments,
          validateGlobalDeclaration,
          variableExists,
-         checkGotoJump
+         checkGotoJump,
+         validatePrevDecGlobal
         ) where
 
 
@@ -143,3 +144,12 @@ checkGotoJump node@ContinueNode{} = do
         when (isNothing continueLabel) $
             throwError $ ScopeError (UnexpectedNode node)
 checkGotoJump node = throwError $ ScopeError (UnexpectedNode node)
+
+
+validatePrevDecGlobal :: Maybe String -> Tree -> GenState ()
+validatePrevDecGlobal Nothing node =
+        throwError $ ScopeError (UndeclaredNode node)
+validatePrevDecGlobal _ (AssignmentNode _ valNode _ _) =
+        throwError $ ScopeError (UnexpectedNode valNode)
+validatePrevDecGlobal _ tree =
+        throwError $ ScopeError (UnexpectedNode tree)

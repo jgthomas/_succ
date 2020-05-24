@@ -16,8 +16,7 @@ import qualified State.GenState     as GenState (startState)
 import qualified State.SymTab       as SymTab
 import           Types.AST          (ArrayNode (..), Tree (..))
 import           Types.Error        (CheckerError (..),
-                                     CompilerError (CheckerError, ScopeError),
-                                     ScopeError (..))
+                                     CompilerError (CheckerError))
 import           Types.Operator     (Operator (..), UnaryOp (..))
 import           Types.Variables    (Scope (..))
 
@@ -275,12 +274,9 @@ checkDefineGlobal node = ScopeCheck.checkIfDefined node
 
 
 checkPrevDecGlob :: Maybe String -> Tree -> GenState ()
-checkPrevDecGlob Nothing node = throwError $ ScopeError (UndeclaredNode node)
 checkPrevDecGlob (Just _) (AssignmentNode _ node@ConstantNode{} _ _)  = checkAST node
 checkPrevDecGlob (Just _) (AssignmentNode _ node@AddressOfNode{} _ _) = checkAST node
-checkPrevDecGlob _ (AssignmentNode _ valNode _ _) =
-        throwError $ ScopeError (UnexpectedNode valNode)
-checkPrevDecGlob _ tree = throwError $ ScopeError (UnexpectedNode tree)
+checkPrevDecGlob name node = ScopeCheck.validatePrevDecGlobal name node
 
 
 checkAssignLocal :: Tree -> Tree -> Operator -> GenState ()
