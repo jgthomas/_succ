@@ -13,7 +13,8 @@ module Checker.ScopeCheck
          checkCountsMatch,
          checkArguments,
          validateGlobalDeclaration,
-         variableExists
+         variableExists,
+         checkGotoJump
         ) where
 
 
@@ -130,3 +131,15 @@ addressableVarExists node name = do
              VarType ParamVar{} -> throwError $ ScopeError (Unaddressable node)
              _                  -> varExists node name
 
+
+-- | Check break or continue have been defined for scope
+checkGotoJump :: Tree -> GenState ()
+checkGotoJump node@BreakNode{} = do
+        breakLabel <- SymTab.getBreak
+        when (isNothing breakLabel) $
+            throwError $ ScopeError (UnexpectedNode node)
+checkGotoJump node@ContinueNode{} = do
+        continueLabel <- SymTab.getContinue
+        when (isNothing continueLabel) $
+            throwError $ ScopeError (UnexpectedNode node)
+checkGotoJump node = throwError $ ScopeError (UnexpectedNode node)

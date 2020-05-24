@@ -7,8 +7,7 @@ Checks the AST for scope, type and other errors
 module Checker.Checker (check) where
 
 
-import           Control.Monad      (unless, when)
-import           Data.Maybe         (isNothing)
+import           Control.Monad      (unless)
 
 import qualified Checker.ScopeCheck as ScopeCheck
 import qualified Checker.TypeCheck  as TypeCheck
@@ -51,7 +50,7 @@ checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
 checkAST (ParamNode typ (VarNode name _) _) =
         SymTab.addParameter name typ
 checkAST node@ParamNode{} =
-        throwError $ ScopeError (UnexpectedNode node)
+        throwError $ CheckerError (InvalidNode node)
 
 checkAST node@(FuncCallNode name argList _) = do
         paramCount <- SymTab.decParamCount name
@@ -136,15 +135,9 @@ checkAST node@(AssignDereferenceNode derefNode value op _) = do
 
 checkAST (ExprStmtNode expression _) = checkAST expression
 
-checkAST node@(ContinueNode _) = do
-        continueLabel <- SymTab.getContinue
-        when (isNothing continueLabel) $
-            throwError $ ScopeError (UnexpectedNode node)
+checkAST node@(ContinueNode _) = ScopeCheck.checkGotoJump node
 
-checkAST node@(BreakNode _) = do
-        breakLabel <- SymTab.getBreak
-        when (isNothing breakLabel) $
-            throwError $ ScopeError (UnexpectedNode node)
+checkAST node@(BreakNode _) = ScopeCheck.checkGotoJump node
 
 checkAST node@(ReturnNode tree _) = do
         checkAST tree
