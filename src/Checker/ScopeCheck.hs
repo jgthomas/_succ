@@ -9,10 +9,10 @@ module Checker.ScopeCheck
          validateCall,
          checkIfFuncDefined,
          checkIfDefined,
-         checkIfVariable,
+         validateFuncDeclaration,
          checkCountsMatch,
          checkArguments,
-         checkIfFunction,
+         validateGlobalDeclaration,
          variableExists
         ) where
 
@@ -73,12 +73,12 @@ checkIfDefined tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 -- | Check if an identifier is a variable
-checkIfVariable :: Tree -> GenState ()
-checkIfVariable node@(FunctionNode _ name _ _ _) = do
+validateFuncDeclaration :: Tree -> GenState ()
+validateFuncDeclaration node@(FunctionNode _ name _ _ _) = do
         label <- SymTab.globalLabel name
         unless (isNothing label) $
             throwError $ ScopeError (DoubleDefinedNode node)
-checkIfVariable tree = throwError $ ScopeError (UnexpectedNode tree)
+validateFuncDeclaration tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 -- | Check parameter counts match in two function declarations
@@ -100,12 +100,12 @@ checkArguments Nothing tree  = throwError $ ScopeError (UndeclaredNode tree)
 
 
 -- | Check if an identifier is a function
-checkIfFunction :: Tree -> GenState ()
-checkIfFunction node@(DeclarationNode (VarNode name _) _ _ _) = do
+validateGlobalDeclaration :: Tree -> GenState ()
+validateGlobalDeclaration node@(DeclarationNode (VarNode name _) _ _ _) = do
         paramNum <- SymTab.decParamCount name
         unless (isNothing paramNum) $
             throwError $ ScopeError (DoubleDeclaredNode node)
-checkIfFunction tree = throwError $ ScopeError (UnexpectedNode tree)
+validateGlobalDeclaration tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
 -- | Check an identifier is linked to real variable

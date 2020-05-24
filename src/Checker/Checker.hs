@@ -208,19 +208,19 @@ checkArrayAST (ArrayAssignPosNode varNode valNode _ _) = do
 
 checkFuncDec :: Tree -> GenState ()
 checkFuncDec node@(FunctionNode _ funcName _ _ _) = do
-        ScopeCheck.checkIfVariable node
+        ScopeCheck.validateFuncDeclaration node
         prevParamCount <- SymTab.decParamCount funcName
         case prevParamCount of
              Nothing -> checkNewFuncDec node
              Just ns -> checkRepeatFuncDec ns node
-checkFuncDec tree = throwError $ ScopeError (UnexpectedNode tree)
+checkFuncDec node = ScopeCheck.validateFuncDeclaration node
 
 
 checkNewFuncDec :: Tree -> GenState ()
 checkNewFuncDec (FunctionNode typ funcName paramList _ _) = do
         SymTab.declareFunction typ funcName (length paramList)
         checkParams funcName paramList
-checkNewFuncDec tree = throwError $ ScopeError (UnexpectedNode tree)
+checkNewFuncDec node = ScopeCheck.validateFuncDeclaration node
 
 
 checkRepeatFuncDec :: Int -> Tree -> GenState ()
@@ -233,7 +233,7 @@ checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _ _) = do
         unless defined $ do
             SymTab.delFuncState funcName
             checkParams funcName paramList
-checkRepeatFuncDec _ tree = throwError $ ScopeError (UnexpectedNode tree)
+checkRepeatFuncDec _ node = ScopeCheck.validateFuncDeclaration node
 
 
 checkParams :: String -> [Tree] -> GenState ()
@@ -245,7 +245,7 @@ checkParams name params = do
 
 checkDeclareGlobal :: Tree -> GenState ()
 checkDeclareGlobal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
-        ScopeCheck.checkIfFunction node
+        ScopeCheck.validateGlobalDeclaration node
         currLabel <- SymTab.globalLabel name
         case currLabel of
              Just _  -> TypeCheck.globalDeclaration node
@@ -253,7 +253,7 @@ checkDeclareGlobal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
                      globLab <- SymTab.mkGlobLabel name
                      SymTab.declareGlobal name typ globLab
                      checkAssignment toAssign
-checkDeclareGlobal tree = throwError $ ScopeError (UnexpectedNode tree)
+checkDeclareGlobal node = ScopeCheck.validateGlobalDeclaration node
 
 
 checkAssignment :: Maybe Tree -> GenState ()
@@ -269,7 +269,7 @@ checkDeclareLocal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
         case toAssign of
              Just val -> checkAST val
              Nothing  -> pure ()
-checkDeclareLocal tree = throwError $ ScopeError (UnexpectedNode tree)
+checkDeclareLocal node = ScopeCheck.checkIfUsedInScope node
 
 
 checkDefineGlobal :: Tree -> GenState ()
@@ -278,7 +278,7 @@ checkDefineGlobal node@(AssignmentNode (VarNode name _) _ _ _) = do
         label <- SymTab.globalLabel name
         SymTab.defineGlobal name
         checkPrevDecGlob label node
-checkDefineGlobal tree = throwError $ ScopeError (UnexpectedNode tree)
+checkDefineGlobal node = ScopeCheck.checkIfDefined node
 
 
 checkPrevDecGlob :: Maybe String -> Tree -> GenState ()
