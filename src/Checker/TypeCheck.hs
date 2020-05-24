@@ -17,9 +17,7 @@ import           Control.Monad   (unless, when)
 import           State.GenState  (GenState, throwError)
 import qualified State.SymTab    as SymTab
 import           Types.AST       (ArrayNode (..), Tree (..))
-import           Types.Error     (CheckerError (..),
-                                  CompilerError (CheckerError, TypeError),
-                                  TypeError (..))
+import           Types.Error     (CompilerError (TypeError), TypeError (..))
 import           Types.Type      (Type (..))
 import           Types.Variables (Scope (..))
 
@@ -30,7 +28,7 @@ typesMatch node@(FuncCallNode name argList _) =
         checkTypesMatch node name argList
 typesMatch node@(FunctionNode _ name paramList _ _) =
         checkTypesMatch node name paramList
-typesMatch tree = throwError $ CheckerError (InvalidNode tree)
+typesMatch tree = throwError $ TypeError (TypeCheckingImpossible tree)
 
 
 checkTypesMatch :: Tree -> String -> [Tree] -> GenState ()
@@ -44,7 +42,7 @@ funcDeclaration :: Tree -> GenState ()
 funcDeclaration node@(FunctionNode typ name _ _ _) = do
         oldTyp <- getFuncType node name
         checkTypes node [oldTyp] [typ]
-funcDeclaration tree = throwError $ CheckerError (InvalidNode tree)
+funcDeclaration tree = throwError $ TypeError (TypeCheckingImpossible tree)
 
 
 -- | Throw error if global variable type declarations don't match
@@ -52,7 +50,7 @@ globalDeclaration :: Tree -> GenState ()
 globalDeclaration node@(DeclarationNode varNode typ _ _) = do
         oldTyp <- getType varNode
         checkTypes node [oldTyp] [typ]
-globalDeclaration tree = throwError $ CheckerError (InvalidNode tree)
+globalDeclaration tree = throwError $ TypeError (TypeCheckingImpossible tree)
 
 
 -- | Throw error if types of assignment and declaration don't match
@@ -61,7 +59,7 @@ assignment (AssignmentNode varNode value _ _) =
         checkAssignmentType varNode value
 assignment (AssignDereferenceNode varNode value _ _) =
         checkAssignmentType varNode value
-assignment node = throwError $ CheckerError (InvalidNode node)
+assignment node = throwError $ TypeError (TypeCheckingImpossible node)
 
 
 checkAssignmentType :: Tree -> Tree -> GenState ()

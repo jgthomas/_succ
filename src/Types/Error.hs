@@ -67,6 +67,7 @@ data TypeError = TypeMismatch [Type] [Type] Tree
                | MissingType Tree
                | UnexpectedType Type Tree
                | NotTyped Tree
+               | TypeCheckingImpossible Tree
                deriving (Show, Eq)
 
 
