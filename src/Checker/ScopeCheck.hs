@@ -10,7 +10,7 @@ module Checker.ScopeCheck
          checkIfFuncDefined,
          checkIfDefined,
          validateFuncDeclaration,
-         checkCountsMatch,
+         checkParameters,
          checkArguments,
          validateGlobalDeclaration,
          variableExists,
@@ -83,7 +83,19 @@ validateFuncDeclaration node@(FunctionNode _ name _ _ _) = do
 validateFuncDeclaration tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
--- | Throw error if parameter or argument counts do not match
+-- | Throw error if number of arguments do not match number of parameters
+checkArguments :: Maybe Int -> Tree -> GenState ()
+checkArguments (Just paramCount) node@FuncCallNode{} = checkCountsMatch paramCount node
+checkArguments (Just _) tree = throwError $ ScopeError (UnexpectedNode tree)
+checkArguments Nothing tree  = throwError $ ScopeError (UndeclaredNode tree)
+
+
+-- | Throw error if number of parameters do not match previous declaration
+checkParameters :: Int -> Tree -> GenState ()
+checkParameters prevCount node@FunctionNode{} = checkCountsMatch prevCount node
+checkParameters _ node = throwError $ ScopeError (UnexpectedNode node)
+
+
 checkCountsMatch :: Int -> Tree -> GenState ()
 checkCountsMatch count node@(FunctionNode _ _ paramList _ _) =
         when (count /= length paramList) $
@@ -92,13 +104,6 @@ checkCountsMatch count node@(FuncCallNode _ argList _) =
         when (count /= length argList) $
            throwError $ ScopeError (MisMatchNode count node)
 checkCountsMatch _ tree = throwError $ ScopeError (UnexpectedNode tree)
-
-
--- | Throw error if number of arguments do not match number of parameters
-checkArguments :: Maybe Int -> Tree -> GenState ()
-checkArguments (Just n) node@FuncCallNode{} = checkCountsMatch n node
-checkArguments (Just _) tree = throwError $ ScopeError (UnexpectedNode tree)
-checkArguments Nothing tree  = throwError $ ScopeError (UndeclaredNode tree)
 
 
 -- | Throw error if global variable identifier already used for function
@@ -146,6 +151,7 @@ checkGotoJump node@ContinueNode{} = do
 checkGotoJump node = throwError $ ScopeError (UnexpectedNode node)
 
 
+-- | Throw error if attempting to assign invalid node to global variable
 validatePrevDecGlobal :: Maybe String -> Tree -> GenState ()
 validatePrevDecGlobal Nothing node =
         throwError $ ScopeError (UndeclaredNode node)

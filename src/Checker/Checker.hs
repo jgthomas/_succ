@@ -218,7 +218,7 @@ checkNewFuncDec node = ScopeCheck.validateFuncDeclaration node
 
 checkRepeatFuncDec :: Int -> Tree -> GenState ()
 checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _ _) = do
-        ScopeCheck.checkCountsMatch count node
+        ScopeCheck.checkParameters count node
         TypeCheck.typesMatch node
         TypeCheck.funcDeclaration node
         SymTab.declareFunction typ funcName (length paramList)
