@@ -1,14 +1,12 @@
 
 module PrintError.MessageStageError
         (lexerErrorMsg,
-         parserErrorMsg,
-         checkerErrorMsg
+         parserErrorMsg
         ) where
 
 
 import PrintError.PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
-import Types.Error                 (CheckerError (..), LexerError (..),
-                                    ParserError (..))
+import Types.Error                 (LexerError (..), ParserError (..))
 import Types.LexDat                (LexDat (..))
 
 
@@ -45,8 +43,3 @@ parserErrorMsg (LexDataError (d:_)) = (msg, From $ line d)
         where msg = buildLineMsg (line d)
                     ++ "Unexpected input starting at '"
                     ++ buildTokMsg (tok d) ++ "'"
-
-
-checkerErrorMsg :: CheckerError -> (String, PrintRange)
-checkerErrorMsg err = (show err, All)
-

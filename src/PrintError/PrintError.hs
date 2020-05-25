@@ -13,10 +13,10 @@ import Data.Maybe                    (fromMaybe, isNothing)
 import System.Exit                   (exitFailure)
 
 import PrintError.MessageFatalError  (fatalErrorMsg)
+import PrintError.MessageLogicError  (logicErrorMsg)
 import PrintError.MessageOtherError  (impossibleErrorMsg, stateErrorMsg)
 import PrintError.MessageScopeError  (scopeErrorMsg)
-import PrintError.MessageStageError  (checkerErrorMsg, lexerErrorMsg,
-                                      parserErrorMsg)
+import PrintError.MessageStageError  (lexerErrorMsg, parserErrorMsg)
 import PrintError.MessageSyntaxError (syntaxErrorMsg)
 import PrintError.MessageTypeError   (typeErrorMsg)
 import PrintError.PrintErrorTokens   (PrintRange (..))
@@ -81,16 +81,15 @@ printSourceLine lineMap n =
 
 
 errorMsg :: CompilerError -> (String, PrintRange)
-errorMsg (LexerError err)   = lexerErrorMsg err
-errorMsg (ParserError err)  = parserErrorMsg err
-errorMsg (StateError err)   = stateErrorMsg err
-errorMsg (CheckerError err) = checkerErrorMsg err
-errorMsg (SyntaxError err)  = syntaxErrorMsg err
-errorMsg (ScopeError err)   = scopeErrorMsg err
-errorMsg (TypeError err)    = typeErrorMsg err
-errorMsg (LogicError err)   = error $ show err
-errorMsg (FatalError err)   = fatalErrorMsg err
-errorMsg ImpossibleError    = impossibleErrorMsg
+errorMsg (LexerError err)  = lexerErrorMsg err
+errorMsg (ParserError err) = parserErrorMsg err
+errorMsg (StateError err)  = stateErrorMsg err
+errorMsg (SyntaxError err) = syntaxErrorMsg err
+errorMsg (ScopeError err)  = scopeErrorMsg err
+errorMsg (TypeError err)   = typeErrorMsg err
+errorMsg (LogicError err)  = logicErrorMsg err
+errorMsg (FatalError err)  = fatalErrorMsg err
+errorMsg ImpossibleError   = impossibleErrorMsg
 
 
 toLineMap :: String -> M.Map Int String

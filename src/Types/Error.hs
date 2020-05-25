@@ -13,7 +13,6 @@ data CompilerError = LexerError LexerError
                    | ParserError ParserError
                    | SyntaxError SyntaxError
                    | StateError StateError
-                   | CheckerError CheckerError
                    | ScopeError ScopeError
                    | TypeError TypeError
                    | LogicError LogicError
@@ -45,11 +44,6 @@ data SyntaxError = NonValidIdentifier LexDat
 data StateError = NoStateFound String
                 | UndefinedScope String Int
                 deriving (Show, Eq)
-
-
-data CheckerError = InvalidNode Tree
-                  | OperatorError Operator Tree
-                  deriving (Show, Eq)
 
 
 data ScopeError = UndeclaredNode Tree
