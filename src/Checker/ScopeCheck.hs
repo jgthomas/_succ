@@ -29,7 +29,7 @@ import           Types.Error     (CompilerError (ScopeError), ScopeError (..))
 import           Types.Variables (VarLookup (..), VarType (ParamVar))
 
 
--- | Check if variable name exists in current scope
+-- | Throw error if variable name exists in current scope
 checkIfUsedInScope :: Tree -> GenState ()
 checkIfUsedInScope node@(DeclarationNode (VarNode name _) _ _ _) = do
         localDec <- SymTab.checkVariable name
@@ -39,7 +39,7 @@ checkIfUsedInScope node@(DeclarationNode (VarNode name _) _ _ _) = do
 checkIfUsedInScope tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
--- | Validate a function call sequence
+-- | Throw error if function call sequence is invalid
 validateCall :: Tree -> GenState ()
 validateCall node@(FuncCallNode name _ _) = do
         callee <- SymTab.decSeqNumber name
@@ -56,7 +56,7 @@ validSeq (Just _) Nothing  = False
 validSeq (Just a) (Just b) = a <= b
 
 
--- | Check if a function is already defined
+-- | Throw error if a function is already defined
 checkIfFuncDefined :: Tree -> GenState ()
 checkIfFuncDefined node@(FunctionNode _ name _ _ _) = do
         defined <- SymTab.checkFuncDefined name
@@ -65,7 +65,7 @@ checkIfFuncDefined node@(FunctionNode _ name _ _ _) = do
 checkIfFuncDefined tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
--- | Check if a variable has been defined
+-- | Throw error if a variable is already defined
 checkIfDefined :: Tree -> GenState ()
 checkIfDefined node@(AssignmentNode (VarNode name _) _ _ _) = do
         defined <- SymTab.checkVarDefined name
@@ -74,7 +74,7 @@ checkIfDefined node@(AssignmentNode (VarNode name _) _ _ _) = do
 checkIfDefined tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
--- | Check if an identifier is a variable
+-- | Throw error if declared function identifier is already used
 validateFuncDeclaration :: Tree -> GenState ()
 validateFuncDeclaration node@(FunctionNode _ name _ _ _) = do
         label <- SymTab.globalLabel name
@@ -83,7 +83,7 @@ validateFuncDeclaration node@(FunctionNode _ name _ _ _) = do
 validateFuncDeclaration tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
--- | Check parameter counts match in two function declarations
+-- | Throw error if parameter or argument counts do not match
 checkCountsMatch :: Int -> Tree -> GenState ()
 checkCountsMatch count node@(FunctionNode _ _ paramList _ _) =
         when (count /= length paramList) $
@@ -94,14 +94,14 @@ checkCountsMatch count node@(FuncCallNode _ argList _) =
 checkCountsMatch _ tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
--- | Check argument counts match in two function calls
+-- | Throw error if number of arguments do not match number of parameters
 checkArguments :: Maybe Int -> Tree -> GenState ()
 checkArguments (Just n) node@FuncCallNode{} = checkCountsMatch n node
 checkArguments (Just _) tree = throwError $ ScopeError (UnexpectedNode tree)
 checkArguments Nothing tree  = throwError $ ScopeError (UndeclaredNode tree)
 
 
--- | Check if an identifier is a function
+-- | Throw error if global variable identifier already used for function
 validateGlobalDeclaration :: Tree -> GenState ()
 validateGlobalDeclaration node@(DeclarationNode (VarNode name _) _ _ _) = do
         paramNum <- SymTab.decParamCount name
@@ -110,7 +110,7 @@ validateGlobalDeclaration node@(DeclarationNode (VarNode name _) _ _ _) = do
 validateGlobalDeclaration tree = throwError $ ScopeError (UnexpectedNode tree)
 
 
--- | Check an identifier is linked to real variable
+-- | Throw error if trying to use an indentifier that has not been declared
 variableExists :: Tree -> GenState ()
 variableExists node@(VarNode a _)         = varExists node a
 variableExists node@(AddressOfNode a _)   = addressableVarExists node a
@@ -133,7 +133,7 @@ addressableVarExists node name = do
              _                  -> varExists node name
 
 
--- | Check break or continue have been defined for scope
+-- | Throw error if break or continue have not been defined for scope
 checkGotoJump :: Tree -> GenState ()
 checkGotoJump node@BreakNode{} = do
         breakLabel <- SymTab.getBreak
