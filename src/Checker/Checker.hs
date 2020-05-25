@@ -12,19 +12,17 @@ import           Control.Monad      (unless)
 import qualified Checker.LogicCheck as LogicCheck
 import qualified Checker.ScopeCheck as ScopeCheck
 import qualified Checker.TypeCheck  as TypeCheck
-import           State.GenState     (GenState, runGenState, throwError)
-import qualified State.GenState     as GenState (startState)
+import           State.GenState     (GenState, runGenState, startState)
 import qualified State.SymTab       as SymTab
 import           Types.AST          (ArrayNode (..), Tree (..))
-import           Types.Error        (CompilerError (FatalError),
-                                     FatalError (CheckerBug))
+import           Types.Error        (CompilerError)
 import           Types.Operator     (Operator (..), UnaryOp (..))
 import           Types.Variables    (Scope (..))
 
 
 -- | Check an AST for errors
 check :: Tree -> Either CompilerError Tree
-check ast = runGenState checker ast GenState.startState
+check ast = runGenState checker ast startState
 
 
 checker :: Tree -> GenState Tree
@@ -50,7 +48,7 @@ checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
 checkAST (ParamNode typ (VarNode name _) _) =
         SymTab.addParameter name typ
 checkAST node@ParamNode{} =
-        throwError $ FatalError (CheckerBug node)
+        LogicCheck.validateNode node
 
 checkAST node@(FuncCallNode name argList _) = do
         paramCount <- SymTab.decParamCount name
