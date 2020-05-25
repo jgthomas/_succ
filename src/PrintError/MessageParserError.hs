@@ -1,33 +1,18 @@
+{-|
+Module       : MessageParserError
+Description  : Format parser error messages
 
-module PrintError.MessageStageError
-        (lexerErrorMsg,
-         parserErrorMsg
-        ) where
+Formats error messages of the parser error type
+-}
+module PrintError.MessageParserError (parserErrorMsg) where
 
 
 import PrintError.PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
-import Types.Error                 (LexerError (..), ParserError (..))
+import Types.Error                 (ParserError (..))
 import Types.LexDat                (LexDat (..))
 
 
-lexerErrorMsg :: LexerError -> (String, PrintRange)
-
-lexerErrorMsg (UnexpectedInput s) = (msg, All)
-        where msg = lexerUnexpectedMsg s
-
-lexerErrorMsg EmptyInput = (msg, None)
-        where msg = "Empty input file"
-
-
-lexerUnexpectedMsg :: String -> String
-lexerUnexpectedMsg str =
-        case str of
-             []    -> msg ++ "Empty file"
-             [c]   -> msg ++ "'" ++ [c] ++ "'"
-             (c:_) -> msg ++ "'" ++ [c] ++ "'"
-        where msg = "Unexpected input: "
-
-
+-- | Generate parser error message
 parserErrorMsg :: ParserError -> (String, PrintRange)
 
 parserErrorMsg err@(TreeError _) = (show err, All)
