@@ -4,9 +4,10 @@ module ParserTest.ParserFunctionSpec (parserFunctionTest) where
 
 import Test.Hspec
 
-import ParserTest.TestUtility (extractFunctionTree)
-import TestUtility            (mockNodeDat)
+import ParserTest.TestUtility (extractFunctionError, extractFunctionTree)
+import TestUtility            (makeLexDat, mockNodeDat)
 import Types.AST
+import Types.Error
 import Types.Tokens
 import Types.Type
 
@@ -31,7 +32,7 @@ parserFunctionTest = hspec $ do
                                mockNodeDat
                               ]
 
-                it "Should build a simple function definition tree" $
+                it "Should build a function definition tree" $
                   (extractFunctionTree [Keyword Int,
                                         Ident "main",
                                         OpenBracket OpenParen,
@@ -99,3 +100,21 @@ parserFunctionTest = hspec $ do
                                 ]
                                )
                                mockNodeDat]
+
+        describe "Throw errors on bad input" $ do
+
+                it "Should throw error on missing function identifier" $
+                  (extractFunctionError [Keyword Int,
+                                         Comma,
+                                         OpenBracket OpenParen,
+                                         CloseBracket CloseParen,
+                                         OpenBracket OpenBrace,
+                                         CloseBracket CloseBrace
+                                        ])
+                  `shouldBe`
+                  SyntaxError (NonValidIdentifier $ makeLexDat (Keyword Int))
+
+                it "Should throw error on unfinished function" $
+                  (extractFunctionError [Keyword Int, Ident "a"])
+                  `shouldBe`
+                  ParserError (LexDataError [(makeLexDat $ Keyword Int), (makeLexDat $ Ident "a")])
