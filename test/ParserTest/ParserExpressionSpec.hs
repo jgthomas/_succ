@@ -52,6 +52,26 @@ parserExpressionTest = hspec $ do
                                Plus
                                makeNodeDat]
 
+                it "Should build a simple function call tree" $
+                  (extractExpressionTree [Ident "dog", OpenBracket OpenParen, CloseBracket CloseParen])
+                  `shouldBe`
+                  ProgramNode [FuncCallNode "dog" [] makeNodeDat]
+
+                it "Should build a function call node with arguments tree" $
+                  (extractExpressionTree [Ident "cat",
+                                          OpenBracket OpenParen,
+                                          ConstInt 3,
+                                          Comma,
+                                          ConstInt 4,
+                                          CloseBracket CloseParen
+                                         ])
+                  `shouldBe`
+                  ProgramNode [FuncCallNode "cat"
+                               [ArgNode (ConstantNode 3 makeNodeDat) makeNodeDat,
+                                ArgNode (ConstantNode 4 makeNodeDat) makeNodeDat
+                               ]
+                               makeNodeDat]
+
         describe "Throw errors on bad input" $ do
 
                 it "Should throw error on empty input" $
