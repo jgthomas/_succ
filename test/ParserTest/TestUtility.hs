@@ -3,6 +3,7 @@ module ParserTest.TestUtility
         (extractExpressionTree,
          extractExpressionError,
          extractDeclarationTree,
+         extractFunctionTree,
          extractFullProgramTree
         ) where
 
@@ -10,6 +11,7 @@ module ParserTest.TestUtility
 import Parser.Parser            (parse)
 import Parser.ParserDeclaration (parseDeclaration)
 import Parser.ParserExpression  (parseExpression)
+import Parser.ParserFunction    (parseFunction)
 import Parser.ParState
 import TestUtility              (makeLexDat)
 import Types.AST
@@ -32,6 +34,12 @@ extractDeclarationTree :: [Token] -> Tree
 extractDeclarationTree toks = extractTree parseDeclaration $ addExtraToken toks
 
 
+-- | Extracts the abstract syntax tree for a function
+extractFunctionTree :: [Token] -> Tree
+extractFunctionTree toks = extractTree parseFunction $ addExtraToken toks
+
+
+-- | Extracts the abstract syntax tree for a full program
 extractFullProgramTree :: [Token] -> Tree
 extractFullProgramTree toks = getTree . parse . makeLexData $ toks
 
