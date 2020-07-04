@@ -16,6 +16,11 @@ parserExpressionTest :: IO ()
 parserExpressionTest = hspec $ do
         describe "Build abstract syntax trees for expressions" $ do
 
+                it "Should build a constant tree" $
+                  (extractExpressionTree [ConstInt 3])
+                  `shouldBe`
+                  ProgramNode [ConstantNode 3 makeNodeDat]
+
                 it "Should build a variable tree" $
                   (extractExpressionTree [Ident "a"])
                   `shouldBe`
