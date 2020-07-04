@@ -5,7 +5,7 @@ module ParserTest.ParserExpressionSpec (parserExpressionTest) where
 import Test.Hspec
 
 import ParserTest.TestUtility (extractExpressionError, extractExpressionTree)
-import TestUtility            (makeNodeDat)
+import TestUtility            (mockNodeDat)
 import Types.AST
 import Types.Error
 import Types.Operator
@@ -19,43 +19,43 @@ parserExpressionTest = hspec $ do
                 it "Should build a constant tree" $
                   (extractExpressionTree [ConstInt 3])
                   `shouldBe`
-                  ProgramNode [ConstantNode 3 makeNodeDat]
+                  ProgramNode [ConstantNode 3 mockNodeDat]
 
                 it "Should build a variable tree" $
                   (extractExpressionTree [Ident "a"])
                   `shouldBe`
-                  ProgramNode [VarNode "a" makeNodeDat]
+                  ProgramNode [VarNode "a" mockNodeDat]
 
                 it "Should build basic assignment tree" $
                   (extractExpressionTree [Ident "a", OpTok EqualSign, ConstInt 2])
                   `shouldBe`
                   ProgramNode [AssignmentNode
-                               (VarNode "a" makeNodeDat)
-                               (ConstantNode 2 makeNodeDat)
+                               (VarNode "a" mockNodeDat)
+                               (ConstantNode 2 mockNodeDat)
                                Assignment
-                               makeNodeDat]
+                               mockNodeDat]
 
                 it "Should build unary operator tree" $
                   (extractExpressionTree [OpTok MinusSign, Ident "a"])
                   `shouldBe`
                   ProgramNode [UnaryNode
-                               (VarNode "a" makeNodeDat)
+                               (VarNode "a" mockNodeDat)
                                (Unary Negate)
-                               makeNodeDat]
+                               mockNodeDat]
 
                 it "Should build binary operator tree" $
                   (extractExpressionTree [Ident "a", OpTok PlusSign, ConstInt 2])
                   `shouldBe`
                   ProgramNode [BinaryNode
-                               (VarNode "a" makeNodeDat)
-                               (ConstantNode 2 makeNodeDat)
+                               (VarNode "a" mockNodeDat)
+                               (ConstantNode 2 mockNodeDat)
                                Plus
-                               makeNodeDat]
+                               mockNodeDat]
 
                 it "Should build a simple function call tree" $
                   (extractExpressionTree [Ident "dog", OpenBracket OpenParen, CloseBracket CloseParen])
                   `shouldBe`
-                  ProgramNode [FuncCallNode "dog" [] makeNodeDat]
+                  ProgramNode [FuncCallNode "dog" [] mockNodeDat]
 
                 it "Should build a function call node with arguments tree" $
                   (extractExpressionTree [Ident "cat",
@@ -67,15 +67,15 @@ parserExpressionTest = hspec $ do
                                          ])
                   `shouldBe`
                   ProgramNode [FuncCallNode "cat"
-                               [ArgNode (ConstantNode 3 makeNodeDat) makeNodeDat,
-                                ArgNode (ConstantNode 4 makeNodeDat) makeNodeDat
+                               [ArgNode (ConstantNode 3 mockNodeDat) mockNodeDat,
+                                ArgNode (ConstantNode 4 mockNodeDat) mockNodeDat
                                ]
-                               makeNodeDat]
+                               mockNodeDat]
 
                 it "Should build a pointer dereference tree" $
                   (extractExpressionTree [OpTok Asterisk, Ident "b"])
                   `shouldBe`
-                  ProgramNode [DereferenceNode "b" makeNodeDat]
+                  ProgramNode [DereferenceNode "b" mockNodeDat]
 
         describe "Throw errors on bad input" $ do
 

@@ -5,7 +5,7 @@ module ParserTest.ParserDeclarationSpec (parserDeclarationTest) where
 import Test.Hspec
 
 import ParserTest.TestUtility (extractDeclarationTree)
-import TestUtility            (makeNodeDat)
+import TestUtility            (mockNodeDat)
 import Types.AST
 import Types.Operator
 import Types.Tokens
@@ -20,10 +20,10 @@ parserDeclarationTest = hspec $ do
                   (extractDeclarationTree [Keyword Int, Ident "a"])
                   `shouldBe`
                   ProgramNode [DeclarationNode
-                               (VarNode "a" makeNodeDat)
+                               (VarNode "a" mockNodeDat)
                                IntVar
                                Nothing
-                               makeNodeDat]
+                               mockNodeDat]
 
                 it "Should build a tree for variable declaration and assignment" $
                   (extractDeclarationTree [Keyword Int,
@@ -32,14 +32,14 @@ parserDeclarationTest = hspec $ do
                                            ConstInt 2])
                   `shouldBe`
                   ProgramNode [DeclarationNode
-                               (VarNode "a" makeNodeDat)
+                               (VarNode "a" mockNodeDat)
                                IntVar
                                (Just (AssignmentNode
-                                (VarNode "a" makeNodeDat)
-                                (ConstantNode 2 makeNodeDat)
+                                (VarNode "a" mockNodeDat)
+                                (ConstantNode 2 mockNodeDat)
                                 Assignment
-                                makeNodeDat))
-                               makeNodeDat]
+                                mockNodeDat))
+                               mockNodeDat]
 
                 it "Should build a tree for a pointer declaration" $
                   (extractDeclarationTree [Keyword Int,
@@ -47,10 +47,10 @@ parserDeclarationTest = hspec $ do
                                            Ident "a"])
                   `shouldBe`
                   ProgramNode [PointerNode
-                               (VarNode "a" makeNodeDat)
+                               (VarNode "a" mockNodeDat)
                                IntPointer
                                Nothing
-                               makeNodeDat]
+                               mockNodeDat]
 
                 it "Should build a tree for a pointer declaration and assignment" $
                   (extractDeclarationTree [Keyword Int,
@@ -61,15 +61,15 @@ parserDeclarationTest = hspec $ do
                                            Ident "b"])
                   `shouldBe`
                   ProgramNode [PointerNode
-                               (VarNode "a" makeNodeDat)
+                               (VarNode "a" mockNodeDat)
                                IntPointer
                                (Just (AssignmentNode
-                                (VarNode "a" makeNodeDat)
-                                (AddressOfNode "b" makeNodeDat)
+                                (VarNode "a" mockNodeDat)
+                                (AddressOfNode "b" mockNodeDat)
                                 Assignment
-                                makeNodeDat)
+                                mockNodeDat)
                                )
-                               makeNodeDat]
+                               mockNodeDat]
 
                 it "Should build a tree for an array declaration" $
                   (extractDeclarationTree [Keyword Int,
@@ -80,8 +80,8 @@ parserDeclarationTest = hspec $ do
                   `shouldBe`
                   ProgramNode [ArrayNode
                                (ArrayDeclareNode 2
-                                (VarNode "a" makeNodeDat)
+                                (VarNode "a" mockNodeDat)
                                 IntArray
                                 Nothing
-                                makeNodeDat)]
+                                mockNodeDat)]
 

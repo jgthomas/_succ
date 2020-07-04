@@ -5,7 +5,7 @@ module ParserTest.ParserSpec (fullParserTest) where
 import Test.Hspec
 
 import ParserTest.TestUtility (extractFullProgramTree)
-import TestUtility            (makeNodeDat)
+import TestUtility            (mockNodeDat)
 import Types.AST
 import Types.Operator
 import Types.Tokens
@@ -31,8 +31,8 @@ fullParserTest = hspec $ do
                                IntVar
                                "main"
                                []
-                               (Just [ReturnNode (ConstantNode 2 makeNodeDat) makeNodeDat])
-                               makeNodeDat]
+                               (Just [ReturnNode (ConstantNode 2 mockNodeDat) mockNodeDat])
+                               mockNodeDat]
 
                 it "Should build a tree for a program with two functions" $
                   (extractFullProgramTree [Keyword Int,
@@ -63,10 +63,10 @@ fullParserTest = hspec $ do
                                (Just [ReturnNode
                                       (ConstantNode
                                        2
-                                       makeNodeDat)
-                                      makeNodeDat]
+                                       mockNodeDat)
+                                      mockNodeDat]
                                )
-                               makeNodeDat,
+                               mockNodeDat,
                                FunctionNode
                                IntVar
                                "main"
@@ -75,11 +75,11 @@ fullParserTest = hspec $ do
                                       (FuncCallNode
                                        "dog"
                                        []
-                                       makeNodeDat)
-                                      makeNodeDat
+                                       mockNodeDat)
+                                      mockNodeDat
                                      ]
                                )
-                               makeNodeDat]
+                               mockNodeDat]
 
                 it "Should build a tree for a program with a global variable and a function" $
                   (extractFullProgramTree [Keyword Int,
@@ -98,15 +98,15 @@ fullParserTest = hspec $ do
                                            CloseBracket CloseBrace])
                   `shouldBe`
                   ProgramNode [DeclarationNode
-                               (VarNode "a" makeNodeDat)
+                               (VarNode "a" mockNodeDat)
                                IntVar
                                (Just (AssignmentNode
-                                      (VarNode "a" makeNodeDat)
-                                      (ConstantNode 2 makeNodeDat)
+                                      (VarNode "a" mockNodeDat)
+                                      (ConstantNode 2 mockNodeDat)
                                       Assignment
-                                      makeNodeDat)
+                                      mockNodeDat)
                                )
-                               makeNodeDat,
+                               mockNodeDat,
                                FunctionNode
                                IntVar
                                "main"
@@ -114,8 +114,8 @@ fullParserTest = hspec $ do
                                (Just [(ReturnNode
                                       (VarNode
                                        "a"
-                                       makeNodeDat)
-                                      makeNodeDat)
+                                       mockNodeDat)
+                                      mockNodeDat)
                                      ]
                                )
-                               makeNodeDat]
+                               mockNodeDat]
