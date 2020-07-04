@@ -56,6 +56,7 @@ parserFunctionTest = hspec $ do
                                         Ident "a",
                                         Comma,
                                         Keyword Int,
+                                        OpTok Asterisk,
                                         Ident "b",
                                         CloseBracket CloseParen,
                                         OpenBracket OpenBrace,
@@ -70,7 +71,7 @@ parserFunctionTest = hspec $ do
                                 (VarNode "a" mockNodeDat)
                                 mockNodeDat,
                                 ParamNode
-                                IntVar
+                                IntPointer
                                 (VarNode "b" mockNodeDat)
                                 mockNodeDat
                                ]
