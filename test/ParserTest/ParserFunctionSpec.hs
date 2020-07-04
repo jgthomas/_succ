@@ -16,7 +16,7 @@ parserFunctionTest :: IO ()
 parserFunctionTest = hspec $ do
         describe "Build abstract syntax trees for functions" $ do
 
-                it "Should build a function declaration tree" $
+                it "Should build a tree for a function declaration" $
                   (extractFunctionTree [Keyword Int,
                                         Ident "dog",
                                         OpenBracket OpenParen,
@@ -32,7 +32,7 @@ parserFunctionTest = hspec $ do
                                mockNodeDat
                               ]
 
-                it "Should build a function definition tree" $
+                it "Should build a tree for a function definition" $
                   (extractFunctionTree [Keyword Int,
                                         Ident "main",
                                         OpenBracket OpenParen,
@@ -48,7 +48,7 @@ parserFunctionTest = hspec $ do
                                (Just [])
                                mockNodeDat]
 
-                it "Should build a function with arguments tree" $
+                it "Should build a tree for a function with arguments" $
                   (extractFunctionTree [Keyword Int,
                                         Ident "main",
                                         OpenBracket OpenParen,
@@ -77,7 +77,7 @@ parserFunctionTest = hspec $ do
                                (Just [])
                                mockNodeDat]
 
-                it "Should build a function returning a pointer tree" $
+                it "Should build a tree for a function returning a pointer" $
                   (extractFunctionTree [Keyword Int,
                                         OpTok Asterisk,
                                         Ident "dog",
@@ -100,7 +100,7 @@ parserFunctionTest = hspec $ do
                                (Just [])
                                mockNodeDat]
 
-                it "Should build a function with body statement tree" $
+                it "Should build a tree for a function with body statements" $
                   (extractFunctionTree [Keyword Int,
                                         Ident "main",
                                         OpenBracket OpenParen,
