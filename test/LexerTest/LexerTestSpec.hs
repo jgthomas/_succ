@@ -199,6 +199,11 @@ lexerTest = hspec $ do
                               SemiColon,
                               CloseBracket CloseBrace]
 
+                it "Should record the correct line for each token" $
+                  (map line $
+                  fromRight [] (tokenize "int main() { \n return 2;\n}"))
+                  `shouldBe` [1,1,1,1,1,2,2,2,3]
+
         describe "Throw errors on bad input" $ do
                 it "Should throw error for unrecognised character" $
                   fromLeft ImpossibleError (tokenize "$")
