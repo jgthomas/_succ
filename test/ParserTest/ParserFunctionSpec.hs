@@ -47,10 +47,15 @@ parserFunctionTest = hspec $ do
                                (Just [])
                                mockNodeDat]
 
-                it "Should build a function definition with arguments tree" $
+                it "Should build a function with arguments tree" $
                   (extractFunctionTree [Keyword Int,
                                         Ident "main",
                                         OpenBracket OpenParen,
+                                        Keyword Int,
+                                        Ident "a",
+                                        Comma,
+                                        Keyword Int,
+                                        Ident "b",
                                         CloseBracket CloseParen,
                                         OpenBracket OpenBrace,
                                         CloseBracket CloseBrace
@@ -59,6 +64,38 @@ parserFunctionTest = hspec $ do
                   ProgramNode [FunctionNode
                                IntVar
                                "main"
-                               []
+                               [ParamNode
+                                IntVar
+                                (VarNode "a" mockNodeDat)
+                                mockNodeDat,
+                                ParamNode
+                                IntVar
+                                (VarNode "b" mockNodeDat)
+                                mockNodeDat
+                               ]
                                (Just [])
+                               mockNodeDat]
+
+                it "Should build a function with body statement tree" $
+                  (extractFunctionTree [Keyword Int,
+                                        Ident "main",
+                                        OpenBracket OpenParen,
+                                        CloseBracket CloseParen,
+                                        OpenBracket OpenBrace,
+                                        Keyword Return,
+                                        ConstInt 2,
+                                        SemiColon,
+                                        CloseBracket CloseBrace
+                                       ])
+                  `shouldBe`
+                  ProgramNode [FunctionNode
+                               IntVar
+                               "main"
+                               []
+                               (Just
+                                [ReturnNode
+                                 (ConstantNode 2 mockNodeDat)
+                                 mockNodeDat
+                                ]
+                               )
                                mockNodeDat]
