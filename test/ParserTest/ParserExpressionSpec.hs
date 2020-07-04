@@ -72,6 +72,11 @@ parserExpressionTest = hspec $ do
                                ]
                                makeNodeDat]
 
+                it "Should build a pointer dereference tree" $
+                  (extractExpressionTree [OpTok Asterisk, Ident "b"])
+                  `shouldBe`
+                  ProgramNode [DereferenceNode "b" makeNodeDat]
+
         describe "Throw errors on bad input" $ do
 
                 it "Should throw error on empty input" $
