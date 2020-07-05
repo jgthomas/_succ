@@ -20,7 +20,7 @@ generatorTest = hspec $ do
                   `shouldBe`
                   "2"
 
-                it "Should output assembly for a null expression" $ do
+                it "Should output assembly for a null expression" $
                   (extractAssembly (NullExprNode mockNodeDat))
                   `shouldBe`
                   ""
@@ -44,20 +44,20 @@ generatorTest = hspec $ do
                   )
                   `shouldBe`
                   unlines [
-                           "init:",
-                           "jmp init_done",
-                           ".globl main",
-                           "main:",
-                           "jmp init",
-                           "init_done:",
-                           "pushq %rbp",
-                           "movq %rsp, %rbp",
-                           "pushq %r12",
-                           "movq $2, %rax",
-                           "popq %r12",
-                           "movq %rbp, %rsp",
-                           "popq %rbp",
-                           "ret"
+                          "init:",
+                          "jmp init_done",
+                          ".globl main",
+                          "main:",
+                          "jmp init",
+                          "init_done:",
+                          "pushq %rbp",
+                          "movq %rsp, %rbp",
+                          "pushq %r12",
+                          "movq $2, %rax",
+                          "popq %r12",
+                          "movq %rbp, %rsp",
+                          "popq %rbp",
+                          "ret"
                           ]
 
 
@@ -84,19 +84,19 @@ generatorTest = hspec $ do
                                    )
                   `shouldBe`
                   unlines [
-                           "init:",
-                           "jmp init_done",
-                           ".globl main",
-                           "main:",
-                           "jmp init",
-                           "init_done:",
-                           "pushq %rbp",
-                           "movq %rsp, %rbp",
-                           "pushq %r12",
-                           "movq $2, %rax",
-                           "neg %rax",
-                           "popq %r12",
-                           "movq %rbp, %rsp",
-                           "popq %rbp",
-                           "ret"
+                          "init:",
+                          "jmp init_done",
+                          ".globl main",
+                          "main:",
+                          "jmp init",
+                          "init_done:",
+                          "pushq %rbp",
+                          "movq %rsp, %rbp",
+                          "pushq %r12",
+                          "movq $2, %rax",
+                          "neg %rax",
+                          "popq %r12",
+                          "movq %rbp, %rsp",
+                          "popq %rbp",
+                          "ret"
                           ]
