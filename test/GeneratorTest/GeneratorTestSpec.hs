@@ -100,3 +100,72 @@ generatorTest = hspec $ do
                           "popq %rbp",
                           "ret"
                           ]
+
+                it "Should output assembly for program with two functions" $
+                  (extractAssembly (ProgramNode
+                                    [FunctionNode
+                                     IntVar
+                                     "dog"
+                                     []
+                                     (Just $ CompoundStmtNode
+                                      [ReturnNode
+                                       (ConstantNode 2 mockNodeDat)
+                                       mockNodeDat
+                                      ]
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat,
+                                     FunctionNode
+                                     IntVar
+                                     "main"
+                                     []
+                                     (Just $ CompoundStmtNode
+                                      [ReturnNode
+                                       (FuncCallNode "dog" [] mockNodeDat)
+                                       mockNodeDat
+                                      ]
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat
+                                     ]
+                                    )
+                                   )
+                  `shouldBe`
+                  unlines [
+                          "init:",
+                          "jmp init_done",
+                          ".globl dog",
+                          "dog:",
+                          "pushq %rbp",
+                          "movq %rsp, %rbp",
+                          "pushq %r12",
+                          "movq $2, %rax",
+                          "popq %r12",
+                          "movq %rbp, %rsp",
+                          "popq %rbp",
+                          "ret",
+                          ".globl main",
+                          "main:",
+                          "jmp init",
+                          "init_done:",
+                          "pushq %rbp",
+                          "movq %rsp, %rbp",
+                          "pushq %r12",
+                          "pushq %rdi",
+                          "pushq %rsi",
+                          "pushq %rdx",
+                          "pushq %rcx",
+                          "pushq %r8",
+                          "pushq %r9",
+                          "call dog",
+                          "popq %r9",
+                          "popq %r8",
+                          "popq %rcx",
+                          "popq %rdx",
+                          "popq %rsi",
+                          "popq %rdi",
+                          "popq %r12",
+                          "movq %rbp, %rsp",
+                          "popq %rbp",
+                          "ret"
+                          ]
