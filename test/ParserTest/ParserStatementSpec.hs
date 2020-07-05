@@ -160,3 +160,51 @@ parserStatementTest = hspec $ do
                                mockNodeDat
                               ]
 
+                it "Should build a tree for an if statement with an else clause and a block" $
+                  (extractStatementTree [Keyword If,
+                                         OpenBracket OpenParen,
+                                         Ident "a",
+                                         CloseBracket CloseParen,
+                                         OpenBracket OpenBrace,
+                                         Ident "b",
+                                         OpTok EqualSign,
+                                         ConstInt 1,
+                                         SemiColon,
+                                         CloseBracket CloseBrace,
+                                         Keyword Else,
+                                         OpenBracket OpenBrace,
+                                         Ident "b",
+                                         OpTok EqualSign,
+                                         ConstInt 2,
+                                         SemiColon,
+                                         CloseBracket CloseBrace
+                                        ])
+                  `shouldBe`
+                  ProgramNode [IfNode
+                               (VarNode "a" mockNodeDat)
+                               (CompoundStmtNode
+                                [ExprStmtNode
+                                 (AssignmentNode
+                                  (VarNode "b" mockNodeDat)
+                                  (ConstantNode 1 mockNodeDat)
+                                  Assignment
+                                  mockNodeDat
+                                 )
+                                 mockNodeDat
+                                ]
+                                mockNodeDat
+                               )
+                               (Just $ CompoundStmtNode
+                                [ExprStmtNode
+                                 (AssignmentNode
+                                  (VarNode "b" mockNodeDat)
+                                  (ConstantNode 2 mockNodeDat)
+                                  Assignment
+                                  mockNodeDat
+                                 )
+                                 mockNodeDat
+                                ]
+                                mockNodeDat
+                               )
+                               mockNodeDat
+                              ]
