@@ -43,7 +43,7 @@ parserExpressionTest = hspec $ do
                                (Unary Negate)
                                mockNodeDat]
 
-                it "Should build binary operator tree" $
+                it "Should build a binary plus operator tree" $
                   (extractExpressionTree [Ident "a", OpTok PlusSign, ConstInt 2])
                   `shouldBe`
                   ProgramNode [BinaryNode
@@ -52,7 +52,34 @@ parserExpressionTest = hspec $ do
                                Plus
                                mockNodeDat]
 
-                it "Should build ternary operator tree" $
+                it "Should build a binary minus operator tree" $
+                  (extractExpressionTree [Ident "a", OpTok MinusSign, ConstInt 2])
+                  `shouldBe`
+                  ProgramNode [BinaryNode
+                               (VarNode "a" mockNodeDat)
+                               (ConstantNode 2 mockNodeDat)
+                               Minus
+                               mockNodeDat]
+
+                it "Should build a binary divide operator tree" $
+                  (extractExpressionTree [Ident "a", OpTok Backslash, ConstInt 2])
+                  `shouldBe`
+                  ProgramNode [BinaryNode
+                               (VarNode "a" mockNodeDat)
+                               (ConstantNode 2 mockNodeDat)
+                               Divide
+                               mockNodeDat]
+
+                it "Should build a binary multiply operator tree" $
+                  (extractExpressionTree [Ident "a", OpTok Asterisk, ConstInt 2])
+                  `shouldBe`
+                  ProgramNode [BinaryNode
+                               (VarNode "a" mockNodeDat)
+                               (ConstantNode 2 mockNodeDat)
+                               Multiply
+                               mockNodeDat]
+
+                it "Should build a ternary operator tree" $
                   (extractExpressionTree [ConstInt 2,
                                           OpTok EqualEqual,
                                           ConstInt 2,
