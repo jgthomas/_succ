@@ -4,9 +4,10 @@ module CheckerTest.CheckerTestSpec (checkerTest) where
 
 import Test.Hspec
 
-import CheckerTest.TestUtility (extractTree)
+import CheckerTest.TestUtility (extractError, extractTree)
 import TestUtility             (mockNodeDat)
 import Types.AST
+import Types.Error
 import Types.Type
 
 
@@ -46,94 +47,51 @@ checkerTest = hspec $ do
                                ]
 
 
---import           Data.Either
---import           Test.Hspec
---
---import qualified TestUtility (mkNodeDat)
---
---import           AST
---import           Checker
---import           Error
---import           Type
---
---
---checkerTest :: IO ()
---checkerTest = hspec $ do
---        describe "Check valid AST" $ do
---                it "Should return a valid AST unchanged" $
---                  fromRight
---                  (ProgramNode [])
---                  (check
---                    (ProgramNode
---                     [FunctionNode
---                      IntVar
---                      "main"
---                      []
---                      (Just [
---                       ReturnNode
---                        (ConstantNode 2)
---                      ])
---                      TestUtility.mkNodeDat
---                     ]
---                    )
---                   )
---                  `shouldBe`
---                  (ProgramNode
---                   [FunctionNode
---                    IntVar
---                    "main"
---                    []
---                    (Just [
---                     ReturnNode
---                      (ConstantNode 2)
---                    ])
---                    TestUtility.mkNodeDat
---                   ]
---                  )
---
---        describe "Check invalid AST" $ do
---                it "Should error if return type doesn't match function declaration" $
---                  fromLeft
---                  ImpossibleError
---                  (check
---                   (ProgramNode
---                    [PointerNode
---                     "a"
---                     IntPointer
---                     Nothing,
---                     FunctionNode
---                     IntVar
---                     "dog"
---                     []
---                     (Just
---                      [ReturnNode
---                       (VarNode "a")
---                      ]
---                     )
---                     TestUtility.mkNodeDat
---                    ]
---                   )
---                  )
---                  `shouldBe`
---                  TypeError (TypeMismatch [IntVar] [IntPointer] (ReturnNode (VarNode "a")))
---
---                it "Should error if returning undeclared variable" $
---                  fromLeft
---                  ImpossibleError
---                  (check
---                   (ProgramNode
---                    [FunctionNode
---                     IntVar
---                     "dog"
---                     []
---                     (Just
---                      [ReturnNode
---                       (VarNode "a")
---                      ]
---                     )
---                     TestUtility.mkNodeDat
---                    ]
---                   )
---                  )
---                  `shouldBe`
---                  ScopeError (UnrecognisedNode (VarNode "a"))
+                it "Should throw error if returning an undeclared variable" $
+                  (extractError $ (ProgramNode
+                                   [FunctionNode
+                                    IntVar
+                                    "dog"
+                                    []
+                                    (Just $ CompoundStmtNode
+                                     [ReturnNode
+                                      (VarNode "a" mockNodeDat)
+                                      mockNodeDat
+                                     ]
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat
+                                   ]
+                                  )
+                  )
+                  `shouldBe`
+                  ScopeError (UnrecognisedNode (VarNode "a" mockNodeDat))
+
+                it "Should throw error if return type doesn't match function declaration" $
+                  (extractError $ (ProgramNode
+                                   [PointerNode
+                                    (VarNode "a" mockNodeDat)
+                                    IntPointer
+                                    Nothing
+                                    mockNodeDat,
+                                    FunctionNode
+                                    IntVar
+                                    "dog"
+                                    []
+                                    (Just $ CompoundStmtNode
+                                     [ReturnNode
+                                      (VarNode "a" mockNodeDat)
+                                      mockNodeDat
+                                     ]
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat
+                                   ]
+                                  )
+                  )
+                  `shouldBe`
+                  TypeError (TypeMismatch
+                             [IntVar]
+                             [IntPointer]
+                             (ReturnNode (VarNode "a" mockNodeDat) mockNodeDat)
+                            )
