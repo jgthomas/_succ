@@ -147,7 +147,10 @@ binaryOpTokens = [
                  RightArrowEqual,
                  LeftArrowEqual,
                  PipePipe,
-                 AmpAmp
+                 AmpAmp,
+                 Caret,
+                 Ampersand,
+                 Pipe
                  ]
 
 binaryShadowAssignTokens :: [OpTok]
@@ -156,5 +159,10 @@ binaryShadowAssignTokens = [
                            MinusEqual,
                            AsteriskEqual,
                            BackslashEqual,
-                           PercentEqual
+                           PercentEqual,
+                           CaretEqual,
+                           AmpEqual,
+                           PipeEqual,
+                           DoubleLArrowEqual,
+                           DoubleRArrowEqual
                            ]
