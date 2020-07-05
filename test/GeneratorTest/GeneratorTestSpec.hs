@@ -25,7 +25,7 @@ generatorTest = hspec $ do
                   `shouldBe`
                   ""
 
-                it "Should output assembly for a single main function" $
+                it "Should output assembly for a main function" $
                   (extractAssembly (ProgramNode
                                     [FunctionNode
                                      IntVar
@@ -60,6 +60,34 @@ generatorTest = hspec $ do
                           "ret"
                           ]
 
+                it "Should output assembly for a main function with no return statement" $
+                  (extractAssembly (ProgramNode
+                                    [FunctionNode
+                                     IntVar
+                                     "main"
+                                     []
+                                     (Just $ CompoundStmtNode [] mockNodeDat)
+                                     mockNodeDat
+                                    ]
+                                   )
+                  )
+                  `shouldBe`
+                  unlines [
+                          "init:",
+                          "jmp init_done",
+                          ".globl main",
+                          "main:",
+                          "jmp init",
+                          "init_done:",
+                          "pushq %rbp",
+                          "movq %rsp, %rbp",
+                          "pushq %r12",
+                          "movq $0, %rax",
+                          "popq %r12",
+                          "movq %rbp, %rsp",
+                          "popq %rbp",
+                          "ret"
+                          ]
 
                 it "Should output assembly for main function with a unary operator" $
                   (extractAssembly (ProgramNode
