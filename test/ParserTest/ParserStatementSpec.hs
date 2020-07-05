@@ -50,3 +50,16 @@ parserStatementTest = hspec $ do
                                ]
                                mockNodeDat
                               ]
+
+                it "Should build a tree for a return statement" $
+                  (extractStatementTree [Keyword Return, ConstInt 2, SemiColon])
+                  `shouldBe`
+                  ProgramNode [ReturnNode
+                               (ConstantNode 2 mockNodeDat)
+                               mockNodeDat
+                              ]
+
+                it "Should build a tree for a null statement" $
+                  (extractStatementTree [SemiColon])
+                  `shouldBe`
+                  ProgramNode [NullExprNode mockNodeDat]
