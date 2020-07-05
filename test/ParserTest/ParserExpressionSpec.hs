@@ -4,6 +4,7 @@ module ParserTest.ParserExpressionSpec (parserExpressionTest) where
 
 import Test.Hspec
 
+import Parser.TokConvert
 import ParserTest.TestUtility (extractExpressionError, extractExpressionTree)
 import TestUtility            (mockNodeDat)
 import Types.AST
@@ -43,41 +44,15 @@ parserExpressionTest = hspec $ do
                                (Unary Negate)
                                mockNodeDat]
 
-                it "Should build a binary plus operator tree" $
-                  (extractExpressionTree [Ident "a", OpTok PlusSign, ConstInt 2])
+                it "Should build binary operator trees" $
+                  (map (extractExpressionTree . makeBinaryTokenList) binaryOpTokens)
                   `shouldBe`
-                  ProgramNode [BinaryNode
-                               (VarNode "a" mockNodeDat)
-                               (ConstantNode 2 mockNodeDat)
-                               Plus
-                               mockNodeDat]
+                  (map makeBinaryTree binaryOpTokens)
 
-                it "Should build a binary minus operator tree" $
-                  (extractExpressionTree [Ident "a", OpTok MinusSign, ConstInt 2])
+                it "Should build binary shadow assignment trees" $
+                  (map (extractExpressionTree . makeBinaryTokenList) binaryShadowAssignTokens)
                   `shouldBe`
-                  ProgramNode [BinaryNode
-                               (VarNode "a" mockNodeDat)
-                               (ConstantNode 2 mockNodeDat)
-                               Minus
-                               mockNodeDat]
-
-                it "Should build a binary divide operator tree" $
-                  (extractExpressionTree [Ident "a", OpTok Backslash, ConstInt 2])
-                  `shouldBe`
-                  ProgramNode [BinaryNode
-                               (VarNode "a" mockNodeDat)
-                               (ConstantNode 2 mockNodeDat)
-                               Divide
-                               mockNodeDat]
-
-                it "Should build a binary multiply operator tree" $
-                  (extractExpressionTree [Ident "a", OpTok Asterisk, ConstInt 2])
-                  `shouldBe`
-                  ProgramNode [BinaryNode
-                               (VarNode "a" mockNodeDat)
-                               (ConstantNode 2 mockNodeDat)
-                               Multiply
-                               mockNodeDat]
+                  (map makeBinaryShadowAssignTree binaryShadowAssignTokens)
 
                 it "Should build a ternary operator tree" $
                   (extractExpressionTree [ConstInt 2,
@@ -135,3 +110,51 @@ parserExpressionTest = hspec $ do
                   `shouldBe`
                   ParserError (LexDataError [])
 
+
+makeBinaryTokenList :: OpTok -> [Token]
+makeBinaryTokenList tok = [Ident "a", OpTok tok, ConstInt 2]
+
+
+makeBinaryTree :: OpTok -> Tree
+makeBinaryTree opTok =
+        ProgramNode [BinaryNode
+                     (VarNode "a" mockNodeDat)
+                     (ConstantNode 2 mockNodeDat)
+                     (tokToBinOp opTok)
+                     mockNodeDat]
+
+
+makeBinaryShadowAssignTree :: OpTok -> Tree
+makeBinaryShadowAssignTree opTok =
+        ProgramNode [AssignmentNode
+                     (VarNode "a" mockNodeDat)
+                     (ConstantNode 2 mockNodeDat)
+                     (BinaryOp $ tokToBinOp opTok)
+                     mockNodeDat]
+
+
+binaryOpTokens :: [OpTok]
+binaryOpTokens = [
+                 PlusSign,
+                 MinusSign,
+                 Backslash,
+                 Asterisk,
+                 Percent,
+                 EqualEqual,
+                 BangEqual,
+                 RightArrow,
+                 LeftArrow,
+                 RightArrowEqual,
+                 LeftArrowEqual,
+                 PipePipe,
+                 AmpAmp
+                 ]
+
+binaryShadowAssignTokens :: [OpTok]
+binaryShadowAssignTokens = [
+                           PlusEqual,
+                           MinusEqual,
+                           AsteriskEqual,
+                           BackslashEqual,
+                           PercentEqual
+                           ]
