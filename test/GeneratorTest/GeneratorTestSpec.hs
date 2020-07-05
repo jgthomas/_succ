@@ -43,7 +43,8 @@ generatorTest = hspec $ do
                                    )
                   )
                   `shouldBe`
-                  unlines ["init:",
+                  unlines [
+                           "init:",
                            "jmp init_done",
                            ".globl main",
                            "main:",
