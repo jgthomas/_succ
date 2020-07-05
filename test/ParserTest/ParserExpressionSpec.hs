@@ -52,6 +52,30 @@ parserExpressionTest = hspec $ do
                                Plus
                                mockNodeDat]
 
+                it "Should build ternary operator tree" $
+                  (extractExpressionTree [ConstInt 2,
+                                          OpTok EqualEqual,
+                                          ConstInt 2,
+                                          QuestMark,
+                                          ConstInt 10,
+                                          Colon,
+                                          ConstInt 6,
+                                          SemiColon
+                                         ]
+                  )
+                  `shouldBe`
+                  ProgramNode [TernaryNode
+                               (BinaryNode
+                                (ConstantNode 2 mockNodeDat)
+                                (ConstantNode 2 mockNodeDat)
+                                Equal
+                                mockNodeDat
+                               )
+                               (ConstantNode 10 mockNodeDat)
+                               (ConstantNode 6 mockNodeDat)
+                               mockNodeDat
+                              ]
+
                 it "Should build a simple function call tree" $
                   (extractExpressionTree [Ident "dog", OpenBracket OpenParen, CloseBracket CloseParen])
                   `shouldBe`
