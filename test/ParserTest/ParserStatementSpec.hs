@@ -102,7 +102,6 @@ parserStatementTest = hspec $ do
                                mockNodeDat
                               ]
 
-
                 it "Should build a tree for a simple if statement" $
                   (extractStatementTree [Keyword If,
                                          OpenBracket OpenParen,
