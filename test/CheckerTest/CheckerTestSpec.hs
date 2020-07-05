@@ -1,9 +1,49 @@
 
-module CheckerTest.CheckerTestSpec where
+module CheckerTest.CheckerTestSpec (checkerTest) where
+
+
+import Test.Hspec
+
+import CheckerTest.TestUtility (extractTree)
+import TestUtility             (mockNodeDat)
+import Types.AST
+import Types.Type
 
 
 checkerTest :: IO ()
-checkerTest = pure ()
+checkerTest = hspec $ do
+        describe "Check abstract syntax tree for errors" $ do
+
+                it "Should return a valid tree unchanged" $
+                  (extractTree $ ProgramNode
+                                [FunctionNode
+                                 IntVar
+                                 "main"
+                                 []
+                                 (Just $ CompoundStmtNode
+                                  [ReturnNode
+                                   (ConstantNode 2 mockNodeDat)
+                                   mockNodeDat
+                                  ]
+                                  mockNodeDat
+                                 )
+                                 mockNodeDat
+                                ]
+                  )
+                  `shouldBe`
+                   ProgramNode [FunctionNode
+                                IntVar
+                                "main"
+                                []
+                                (Just $ CompoundStmtNode
+                                 [ReturnNode
+                                  (ConstantNode 2 mockNodeDat)
+                                  mockNodeDat
+                                 ]
+                                 mockNodeDat
+                                )
+                                mockNodeDat
+                               ]
 
 
 --import           Data.Either
