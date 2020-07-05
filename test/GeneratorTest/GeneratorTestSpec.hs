@@ -274,3 +274,54 @@ generatorTest = hspec $ do
                           "popq %rbp",
                           "ret"
                           ]
+
+                it "Should place initialised global variables in the data section" $
+                  (extractAssembly (ProgramNode
+                                    [DeclarationNode
+                                     (VarNode "cat" mockNodeDat)
+                                     IntVar
+                                     (Just $ AssignmentNode
+                                      (VarNode "cat" mockNodeDat)
+                                      (ConstantNode 3 mockNodeDat)
+                                      Assignment
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat,
+                                     FunctionNode
+                                     IntVar
+                                     "main"
+                                     []
+                                     (Just $ CompoundStmtNode
+                                      [ReturnNode
+                                       (VarNode "cat" mockNodeDat)
+                                       mockNodeDat
+                                      ]
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat
+                                    ]
+                                   )
+                  )
+                  `shouldBe`
+                  unlines [
+                          "init:",
+                          "jmp init_done",
+                          ".globl _cat1",
+                          ".data",
+                          ".align 4",
+                          "_cat1:",
+                          ".long 3",
+                          ".text",
+                          ".globl main",
+                          "main:",
+                          "jmp init",
+                          "init_done:",
+                          "pushq %rbp",
+                          "movq %rsp, %rbp",
+                          "pushq %r12",
+                          "movq _cat1+0(%rip), %rax",
+                          "popq %r12",
+                          "movq %rbp, %rsp",
+                          "popq %rbp",
+                          "ret"
+                          ]
