@@ -229,3 +229,48 @@ generatorTest = hspec $ do
                           "popq %rbp",
                           "ret"
                           ]
+
+                it "Should place any uninitialised global variables in the bss section" $
+                  (extractAssembly (ProgramNode
+                                    [DeclarationNode
+                                     (VarNode "dog" mockNodeDat)
+                                     IntVar
+                                     Nothing
+                                     mockNodeDat,
+                                     FunctionNode
+                                     IntVar
+                                     "main"
+                                     []
+                                     (Just $ CompoundStmtNode
+                                      [ReturnNode
+                                       (VarNode "dog" mockNodeDat)
+                                       mockNodeDat
+                                      ]
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat
+                                    ]
+                                   )
+                  )
+                  `shouldBe`
+                  unlines [
+                          "init:",
+                          "jmp init_done",
+                          ".globl _dog1",
+                          ".bss",
+                          ".align 4",
+                          "_dog1:",
+                          ".text",
+                          ".globl main",
+                          "main:",
+                          "jmp init",
+                          "init_done:",
+                          "pushq %rbp",
+                          "movq %rsp, %rbp",
+                          "pushq %r12",
+                          "movq _dog1+0(%rip), %rax",
+                          "popq %r12",
+                          "movq %rbp, %rsp",
+                          "popq %rbp",
+                          "ret"
+                          ]
