@@ -45,7 +45,7 @@ parserFunctionTest = hspec $ do
                                IntVar
                                "main"
                                []
-                               (Just [])
+                               (Just $ CompoundStmtNode [] mockNodeDat)
                                mockNodeDat]
 
                 it "Should build a tree for a function with arguments" $
@@ -75,7 +75,7 @@ parserFunctionTest = hspec $ do
                                 (VarNode "b" mockNodeDat)
                                 mockNodeDat
                                ]
-                               (Just [])
+                               (Just $ CompoundStmtNode [] mockNodeDat)
                                mockNodeDat]
 
                 it "Should build a tree for a function returning a pointer" $
@@ -98,7 +98,7 @@ parserFunctionTest = hspec $ do
                                 (VarNode "a" mockNodeDat)
                                 mockNodeDat
                                ]
-                               (Just [])
+                               (Just $ CompoundStmtNode [] mockNodeDat)
                                mockNodeDat]
 
                 it "Should build a tree for a function with body statements" $
@@ -117,11 +117,12 @@ parserFunctionTest = hspec $ do
                                IntVar
                                "main"
                                []
-                               (Just
+                               (Just $ CompoundStmtNode
                                 [ReturnNode
                                  (ConstantNode 2 mockNodeDat)
                                  mockNodeDat
                                 ]
+                                mockNodeDat
                                )
                                mockNodeDat]
 

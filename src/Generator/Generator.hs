@@ -49,7 +49,7 @@ genASM node@(FunctionNode _ _ _ Nothing _) = do
 genASM node@(FunctionNode _ name _ (Just stmts) _) = do
         declareFunction node
         SymTab.initFunction name
-        statements <- concatMapM genASM stmts
+        statements <- genASM stmts
         SymTab.closeFunction
         SymTab.defineFunction name
         if hasReturn stmts || name /= "main"
@@ -399,12 +399,13 @@ processParameters name params = do
         SymTab.closeFunction
 
 
-hasReturn :: [Tree] -> Bool
-hasReturn [] = False
-hasReturn items =
+hasReturn :: Tree -> Bool
+hasReturn (CompoundStmtNode [] _) = False
+hasReturn (CompoundStmtNode items _) =
         case last items of
              ReturnNode{} -> True
              _            -> False
+hasReturn _ = False
 
 
 processArgs :: [Tree] -> GenState String

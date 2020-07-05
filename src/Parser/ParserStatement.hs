@@ -4,7 +4,7 @@ Description  : Parses statements
 
 Parses lexed tokens representing statements.
 -}
-module Parser.ParserStatement (parseStatements) where
+module Parser.ParserStatement (parseStatement) where
 
 
 import Control.Monad            (unless)
@@ -21,9 +21,28 @@ import Types.LexDat             (LexDat (..))
 import Types.Tokens
 
 
--- | Parse tokens for a block of statements into an AST
-parseStatements :: [LexDat] -> ParserState ([Tree], [LexDat])
-parseStatements lexData = parseStatementBlock [] lexData
+parseStatement :: [LexDat] -> ParserState (Tree, [LexDat])
+parseStatement [] = throwError $ ParserError (LexDataError [])
+parseStatement lexData@(first:_) =
+        case first of
+             LexDat{tok=Keyword Return}        -> parseReturnStmt lexData
+             LexDat{tok=Keyword If}            -> parseIfStatement lexData
+             LexDat{tok=Keyword While}         -> parseWhileStatement lexData
+             LexDat{tok=Keyword Do}            -> parseDoWhile lexData
+             LexDat{tok=Keyword For}           -> parseForLoop lexData
+             LexDat{tok=Keyword Break}         -> parseBreak lexData
+             LexDat{tok=Keyword Continue}      -> parseContinue lexData
+             LexDat{tok=OpenBracket OpenBrace} -> parseCompoundStmt lexData
+             _                                 -> parseExprStatement lexData
+
+
+parseCompoundStmt :: [LexDat] -> ParserState (Tree, [LexDat])
+parseCompoundStmt lexData = do
+        dat                <- makeNodeDat lexData
+        lexData'           <- verifyAndConsume (OpenBracket OpenBrace) lexData
+        (items, lexData'') <- parseStatementBlock [] lexData'
+        lexData'''         <- verifyAndConsume (CloseBracket CloseBrace) lexData''
+        pure (CompoundStmtNode items dat, lexData''')
 
 
 parseStatementBlock :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
@@ -40,21 +59,6 @@ parseBlockItem lexData@(LexDat{tok=Keyword Int}:LexDat{tok=Ident _}:_) =
 parseBlockItem lexData@(LexDat{tok=Keyword Int}:LexDat{tok=OpTok Asterisk}:_) =
         parseDeclaration lexData
 parseBlockItem lexData = parseStatement lexData
-
-
-parseStatement :: [LexDat] -> ParserState (Tree, [LexDat])
-parseStatement [] = throwError $ ParserError (LexDataError [])
-parseStatement lexData@(first:_) =
-        case first of
-             LexDat{tok=Keyword Return}        -> parseReturnStmt lexData
-             LexDat{tok=Keyword If}            -> parseIfStatement lexData
-             LexDat{tok=Keyword While}         -> parseWhileStatement lexData
-             LexDat{tok=Keyword Do}            -> parseDoWhile lexData
-             LexDat{tok=Keyword For}           -> parseForLoop lexData
-             LexDat{tok=Keyword Break}         -> parseBreak lexData
-             LexDat{tok=Keyword Continue}      -> parseContinue lexData
-             LexDat{tok=OpenBracket OpenBrace} -> parseCompoundStmt lexData
-             _                                 -> parseExprStatement lexData
 
 
 {-
@@ -92,15 +96,6 @@ parseContinue lexData@(LexDat{tok=Keyword Continue}:LexDat{tok=SemiColon}:rest) 
 parseContinue (LexDat{tok=Keyword Continue}:d:_) =
         throwError $ SyntaxError (MissingToken SemiColon d)
 parseContinue lexData = throwError $ ParserError (LexDataError lexData)
-
-
-parseCompoundStmt :: [LexDat] -> ParserState (Tree, [LexDat])
-parseCompoundStmt lexData = do
-        dat                <- makeNodeDat lexData
-        lexData'           <- verifyAndConsume (OpenBracket OpenBrace) lexData
-        (items, lexData'') <- parseStatementBlock [] lexData'
-        lexData'''         <- verifyAndConsume (CloseBracket CloseBrace) lexData''
-        pure (CompoundStmtNode items dat, lexData''')
 
 
 parseForLoop :: [LexDat] -> ParserState (Tree, [LexDat])

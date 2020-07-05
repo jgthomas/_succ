@@ -7,7 +7,7 @@ import Types.Type     (Type)
 
 
 data Tree = ProgramNode [Tree]
-          | FunctionNode Type String [Tree] (Maybe [Tree]) NodeDat
+          | FunctionNode Type String [Tree] (Maybe Tree) NodeDat
           | DeclarationNode Tree Type (Maybe Tree) NodeDat
           | PointerNode Tree Type (Maybe Tree) NodeDat
           | ArrayNode ArrayNode

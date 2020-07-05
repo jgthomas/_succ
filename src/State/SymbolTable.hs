@@ -78,7 +78,7 @@ data ParamVar = ParVar { paramNum  :: Int
 
 -- | Local scope state constructor
 mkFuncState :: FuncState
-mkFuncState = Fs 0 memOffset 0 M.empty (M.singleton 0 M.empty)
+mkFuncState = Fs 0 memOffset (-1) M.empty M.empty
 
 
 -- | Local variable state constructor

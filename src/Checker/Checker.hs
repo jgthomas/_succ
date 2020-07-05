@@ -41,7 +41,7 @@ checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
         ScopeCheck.checkIfFuncDefined node
         checkFuncDec node
         SymTab.initFunction name
-        mapM_ checkAST stmts
+        checkAST stmts
         SymTab.closeFunction
         SymTab.defineFunction name
 

@@ -31,7 +31,12 @@ fullParserTest = hspec $ do
                                IntVar
                                "main"
                                []
-                               (Just [ReturnNode (ConstantNode 2 mockNodeDat) mockNodeDat])
+                               (Just $ CompoundStmtNode
+                                [ReturnNode
+                                 (ConstantNode 2 mockNodeDat)
+                                 mockNodeDat]
+                                mockNodeDat
+                               )
                                mockNodeDat]
 
                 it "Should build a tree for a program with two functions" $
@@ -60,24 +65,27 @@ fullParserTest = hspec $ do
                                IntVar
                                "dog"
                                []
-                               (Just [ReturnNode
-                                      (ConstantNode
-                                       2
-                                       mockNodeDat)
-                                      mockNodeDat]
+                               (Just $ CompoundStmtNode
+                                [ReturnNode
+                                 (ConstantNode
+                                  2
+                                  mockNodeDat)
+                                 mockNodeDat]
+                                mockNodeDat
                                )
                                mockNodeDat,
                                FunctionNode
                                IntVar
                                "main"
                                []
-                               (Just [ReturnNode
-                                      (FuncCallNode
-                                       "dog"
-                                       []
-                                       mockNodeDat)
-                                      mockNodeDat
-                                     ]
+                               (Just $ CompoundStmtNode
+                                [ReturnNode
+                                  (FuncCallNode
+                                   "dog"
+                                   []
+                                   mockNodeDat)
+                                  mockNodeDat]
+                                mockNodeDat
                                )
                                mockNodeDat]
 
@@ -100,22 +108,23 @@ fullParserTest = hspec $ do
                   ProgramNode [DeclarationNode
                                (VarNode "a" mockNodeDat)
                                IntVar
-                               (Just (AssignmentNode
-                                      (VarNode "a" mockNodeDat)
-                                      (ConstantNode 2 mockNodeDat)
-                                      Assignment
-                                      mockNodeDat)
+                               (Just
+                                (AssignmentNode
+                                 (VarNode "a" mockNodeDat)
+                                 (ConstantNode 2 mockNodeDat)
+                                 Assignment
+                                 mockNodeDat
+                                )
                                )
                                mockNodeDat,
                                FunctionNode
                                IntVar
                                "main"
                                []
-                               (Just [(ReturnNode
-                                      (VarNode
-                                       "a"
-                                       mockNodeDat)
-                                      mockNodeDat)
-                                     ]
+                               (Just $ CompoundStmtNode
+                                [(ReturnNode
+                                  (VarNode "a" mockNodeDat)
+                                  mockNodeDat)]
+                                mockNodeDat
                                )
                                mockNodeDat]
