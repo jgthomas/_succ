@@ -1,21 +1,29 @@
 
-module GeneratorTest.GeneratorTestSpec where
+module GeneratorTest.GeneratorTestSpec (generatorTest) where
+
+
+import Test.Hspec
+
+import GeneratorTest.TestUtility (extractAssembly)
+import TestUtility               (mockNodeDat)
+import Types.AST
 
 
 generatorTest :: IO ()
-generatorTest = pure ()
+generatorTest = hspec $ do
+        describe "Generate assembly code from an abstract syntax tree" $ do
+
+                it "Should output assembly for a constant" $
+                  (extractAssembly (ConstantNode 2 mockNodeDat))
+                  `shouldBe`
+                  "2"
+
+                it "Should output assembly for a null expression" $ do
+                  (extractAssembly (NullExprNode mockNodeDat))
+                  `shouldBe`
+                  ""
 
 
---import           Data.Either
---import           Test.Hspec
---
---import qualified TestUtility (mkNodeDat)
---
---import           AST
---import           Generator
---import           Operator
---import           Type
---
 --
 --generatorTest :: IO ()
 --generatorTest = hspec $ do
