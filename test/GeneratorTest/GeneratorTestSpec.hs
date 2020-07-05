@@ -15,13 +15,45 @@ generatorTest :: IO ()
 generatorTest = hspec $ do
         describe "Generate assembly code from an abstract syntax tree" $ do
 
-                it "Should output assembly for a constant" $
+                it "Should output the literal integer in assembly for a constant" $
                   (extractAssembly (ConstantNode 2 mockNodeDat))
                   `shouldBe`
                   "2"
 
-                it "Should output assembly for a null expression" $
+                it "Should output no assembly code for a null expression" $
                   (extractAssembly (NullExprNode mockNodeDat))
+                  `shouldBe`
+                  ""
+
+                it "Should output no assembly code for a function declaration" $
+                  (extractAssembly (FunctionNode
+                                    IntVar
+                                    "dog"
+                                    []
+                                    Nothing
+                                    mockNodeDat
+                                   )
+                  )
+                  `shouldBe`
+                  ""
+
+                it "Should output no assembly code for a function declaration with parameters" $
+                  (extractAssembly (FunctionNode
+                                    IntVar
+                                    "dog"
+                                    [ParamNode
+                                     IntVar
+                                     (VarNode "a" mockNodeDat)
+                                     mockNodeDat,
+                                     ParamNode
+                                     IntVar
+                                     (VarNode "b" mockNodeDat)
+                                     mockNodeDat
+                                    ]
+                                    Nothing
+                                    mockNodeDat
+                                   )
+                  )
                   `shouldBe`
                   ""
 
