@@ -7,6 +7,8 @@ import Test.Hspec
 import GeneratorTest.TestUtility (extractAssembly)
 import TestUtility               (mockNodeDat)
 import Types.AST
+import Types.Operator
+import Types.Type
 
 
 generatorTest :: IO ()
@@ -23,85 +25,77 @@ generatorTest = hspec $ do
                   `shouldBe`
                   ""
 
+                it "Should output assembly for a single main function" $
+                  (extractAssembly (ProgramNode
+                                    [FunctionNode
+                                     IntVar
+                                     "main"
+                                     []
+                                     (Just $ CompoundStmtNode
+                                      [ReturnNode
+                                       (ConstantNode 2 mockNodeDat)
+                                       mockNodeDat
+                                      ]
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat
+                                    ]
+                                   )
+                  )
+                  `shouldBe`
+                  unlines ["init:",
+                           "jmp init_done",
+                           ".globl main",
+                           "main:",
+                           "jmp init",
+                           "init_done:",
+                           "pushq %rbp",
+                           "movq %rsp, %rbp",
+                           "pushq %r12",
+                           "movq $2, %rax",
+                           "popq %r12",
+                           "movq %rbp, %rsp",
+                           "popq %rbp",
+                           "ret"
+                          ]
 
---
---generatorTest :: IO ()
---generatorTest = hspec $ do
---        describe "Build output string from AST" $ do
---                it "Should output ASM for global constant" $
---                  fromRight "FAIL" (generate (ConstantNode 2))
---                  `shouldBe`
---                  "2"
---
---                it "Should output ASM for null expression" $
---                  fromRight "FAIL" (generate (NullExprNode))
---                  `shouldBe`
---                  ""
---
---                it "Should output ASM for main function" $
---                  fromRight "FAIL" (generate
---                                    (ProgramNode
---                                     [FunctionNode
---                                      IntVar
---                                      "main"
---                                      []
---                                      (Just [
---                                       ReturnNode
---                                        (ConstantNode 2)
---                                      ])
---                                      TestUtility.mkNodeDat
---                                     ]
---                                    )
---                                   )
---                  `shouldBe`
---                  unlines [".globl main",
---                           "main:",
---                           "jmp init",
---                           "init_done:",
---                           "pushq %rbp",
---                           "movq %rsp, %rbp",
---                           "pushq %r12",
---                           "movq $2, %rax",
---                           "popq %r12",
---                           "movq %rbp, %rsp",
---                           "popq %rbp",
---                           "ret",
---                           "init:",
---                           "jmp init_done"
---                          ]
---
---                it "Should output ASM for main function with unary operator" $
---                  fromRight "FAIL" (generate
---                                    (ProgramNode
---                                     [FunctionNode
---                                      IntVar
---                                      "main"
---                                      []
---                                      (Just [
---                                       ReturnNode
---                                        (UnaryNode
---                                         (ConstantNode 2)
---                                         (Unary Negate)
---                                        )
---                                      ])
---                                      TestUtility.mkNodeDat
---                                     ]
---                                    )
---                                   )
---                  `shouldBe`
---                  unlines [".globl main",
---                           "main:",
---                           "jmp init",
---                           "init_done:",
---                           "pushq %rbp",
---                           "movq %rsp, %rbp",
---                           "pushq %r12",
---                           "movq $2, %rax",
---                           "neg %rax",
---                           "popq %r12",
---                           "movq %rbp, %rsp",
---                           "popq %rbp",
---                           "ret",
---                           "init:",
---                           "jmp init_done"
---                          ]
+
+                it "Should output assembly for main function with a unary operator" $
+                  (extractAssembly (ProgramNode
+                                    [FunctionNode
+                                     IntVar
+                                     "main"
+                                     []
+                                     (Just $ CompoundStmtNode
+                                      [ReturnNode
+                                       (UnaryNode
+                                        (ConstantNode 2 mockNodeDat)
+                                        (Unary Negate)
+                                        mockNodeDat
+                                       )
+                                       mockNodeDat
+                                      ]
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat
+                                     ]
+                                    )
+                                   )
+                  `shouldBe`
+                  unlines [
+                           "init:",
+                           "jmp init_done",
+                           ".globl main",
+                           "main:",
+                           "jmp init",
+                           "init_done:",
+                           "pushq %rbp",
+                           "movq %rsp, %rbp",
+                           "pushq %r12",
+                           "movq $2, %rax",
+                           "neg %rax",
+                           "popq %r12",
+                           "movq %rbp, %rsp",
+                           "popq %rbp",
+                           "ret"
+                          ]
