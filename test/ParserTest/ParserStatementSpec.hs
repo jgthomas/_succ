@@ -63,3 +63,60 @@ parserStatementTest = hspec $ do
                   (extractStatementTree [SemiColon])
                   `shouldBe`
                   ProgramNode [NullExprNode mockNodeDat]
+
+                it "Should build a tree for a simple if statement" $
+                  (extractStatementTree [Keyword If,
+                                         OpenBracket OpenParen,
+                                         Ident "a",
+                                         CloseBracket CloseParen,
+                                         Ident "b",
+                                         OpTok EqualSign,
+                                         ConstInt 1,
+                                         SemiColon
+                                        ])
+                  `shouldBe`
+                  ProgramNode [IfNode
+                               (VarNode "a" mockNodeDat)
+                               (ExprStmtNode
+                                (AssignmentNode
+                                 (VarNode "b" mockNodeDat)
+                                 (ConstantNode 1 mockNodeDat)
+                                 Assignment
+                                 mockNodeDat
+                                )
+                                mockNodeDat
+                               )
+                               Nothing
+                               mockNodeDat
+                              ]
+
+                it "Should build a tree for an if statement with a block" $
+                  (extractStatementTree [Keyword If,
+                                         OpenBracket OpenParen,
+                                         Ident "a",
+                                         CloseBracket CloseParen,
+                                         OpenBracket OpenBrace,
+                                         Ident "b",
+                                         OpTok EqualSign,
+                                         ConstInt 1,
+                                         SemiColon,
+                                         CloseBracket CloseBrace
+                                        ])
+                  `shouldBe`
+                  ProgramNode [IfNode
+                               (VarNode "a" mockNodeDat)
+                               (CompoundStmtNode
+                                [ExprStmtNode
+                                 (AssignmentNode
+                                  (VarNode "b" mockNodeDat)
+                                  (ConstantNode 1 mockNodeDat)
+                                  Assignment
+                                  mockNodeDat
+                                 )
+                                 mockNodeDat
+                                ]
+                                mockNodeDat
+                               )
+                               Nothing
+                               mockNodeDat
+                              ]
