@@ -120,3 +120,43 @@ parserStatementTest = hspec $ do
                                Nothing
                                mockNodeDat
                               ]
+
+                it "Should build a tree for a simple if statement with an else clause" $
+                  (extractStatementTree [Keyword If,
+                                         OpenBracket OpenParen,
+                                         Ident "a",
+                                         CloseBracket CloseParen,
+                                         Ident "b",
+                                         OpTok EqualSign,
+                                         ConstInt 1,
+                                         SemiColon,
+                                         Keyword Else,
+                                         Ident "b",
+                                         OpTok EqualSign,
+                                         ConstInt 2,
+                                         SemiColon
+                                        ])
+                  `shouldBe`
+                  ProgramNode [IfNode
+                               (VarNode "a" mockNodeDat)
+                               (ExprStmtNode
+                                (AssignmentNode
+                                 (VarNode "b" mockNodeDat)
+                                 (ConstantNode 1 mockNodeDat)
+                                 Assignment
+                                 mockNodeDat
+                                )
+                                mockNodeDat
+                               )
+                               (Just $ ExprStmtNode
+                                (AssignmentNode
+                                 (VarNode "b" mockNodeDat)
+                                 (ConstantNode 2 mockNodeDat)
+                                 Assignment
+                                 mockNodeDat
+                                )
+                                mockNodeDat
+                               )
+                               mockNodeDat
+                              ]
+
