@@ -9,8 +9,8 @@ TEST_DIR="$HOME/Code/succ-functional-tests"
 TEST_SCRIPT="./test_compiler.sh"
 ALL_TEST_CASES="literals \
                 unary \
-                3 \
-                4 \
+                binary_I \
+                binary_II \
                 locals \
                 conditionals \
                 compound \
