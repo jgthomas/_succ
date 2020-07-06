@@ -11,7 +11,7 @@ ALL_TEST_CASES="literals \
                 unary \
                 3 \
                 4 \
-                5 \
+                locals \
                 conditionals \
                 compound \
                 loops \
