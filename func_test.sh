@@ -5,7 +5,7 @@ TESTS=$@
 SUCC_BIN="succ-exe"
 SUCC_BIN_PATH=$(stack exec which $SUCC_BIN)
 
-TEST_DIR="$HOME/Code/write_a_c_compiler"
+TEST_DIR="$HOME/Code/succ-functional-tests"
 TEST_SCRIPT="./test_compiler.sh"
 ALL_TEST_CASES="1 \
                 2 \
