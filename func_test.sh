@@ -7,8 +7,8 @@ SUCC_BIN_PATH=$(stack exec which $SUCC_BIN)
 
 TEST_DIR="$HOME/Code/succ-functional-tests"
 TEST_SCRIPT="./test_compiler.sh"
-ALL_TEST_CASES="1 \
-                2 \
+ALL_TEST_CASES="literals \
+                unary \
                 3 \
                 4 \
                 5 \
