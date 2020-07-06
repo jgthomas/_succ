@@ -12,11 +12,11 @@ ALL_TEST_CASES="literals \
                 3 \
                 4 \
                 5 \
-                6 \
-                7 \
-                8 \
-                9 \
-                10 \
+                conditionals \
+                compound \
+                loops \
+                functions \
+                globals \
                 ops \
                 pointers \
                 types \
