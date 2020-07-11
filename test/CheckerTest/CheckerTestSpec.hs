@@ -338,3 +338,28 @@ checkerTest = hspec $ do
                                                  mockNodeDat
                                                 )
                              )
+
+                it "Should throw an error if global identifier already used for a function" $
+                  (extractError (ProgramNode
+                                 [FunctionNode
+                                  IntVar
+                                  "dog"
+                                  []
+                                  Nothing
+                                  mockNodeDat,
+                                  DeclarationNode
+                                  (VarNode "dog" mockNodeDat)
+                                  IntVar
+                                  Nothing
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  ScopeError (DoubleDeclaredNode (DeclarationNode
+                                                  (VarNode "dog" mockNodeDat)
+                                                  IntVar
+                                                  Nothing
+                                                  mockNodeDat
+                                                 )
+                             )
