@@ -519,3 +519,30 @@ checkerTest = hspec $ do
                   )
                   `shouldBe`
                   TypeError (TypeMismatch [IntArray] [IntVar] (VarNode "b" mockNodeDat))
+
+                it "Should throw an error if variable re-declarations have different types" $
+                  (extractError (ProgramNode
+                                 [DeclarationNode
+                                  (VarNode "a" mockNodeDat)
+                                  IntVar
+                                  Nothing
+                                  mockNodeDat,
+                                  DeclarationNode
+                                  (VarNode "a" mockNodeDat)
+                                  IntPointer
+                                  Nothing
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  TypeError (TypeMismatch
+                             [IntVar]
+                             [IntPointer]
+                             (DeclarationNode
+                              (VarNode "a" mockNodeDat)
+                              IntPointer
+                              Nothing
+                              mockNodeDat
+                             )
+                            )
