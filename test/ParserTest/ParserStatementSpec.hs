@@ -286,3 +286,40 @@ parserStatementTest = hspec $ do
                                )
                                mockNodeDat
                               ]
+
+                it "Should build a tree for a while loop" $
+                  (extractStatementTree [Keyword While,
+                                         OpenBracket OpenParen,
+                                         Ident "a",
+                                         OpTok LeftArrow,
+                                         ConstInt 3,
+                                         CloseBracket CloseParen,
+                                         OpenBracket OpenBrace,
+                                         Ident "a",
+                                         OpTok PlusEqual,
+                                         ConstInt 1,
+                                         SemiColon,
+                                         CloseBracket CloseBrace]
+                  )
+                  `shouldBe`
+                  ProgramNode [WhileNode
+                               (BinaryNode
+                                (VarNode "a" mockNodeDat)
+                                (ConstantNode 3 mockNodeDat)
+                                LessThan
+                                mockNodeDat
+                               )
+                               (CompoundStmtNode
+                                [ExprStmtNode
+                                 (AssignmentNode
+                                  (VarNode "a" mockNodeDat)
+                                  (ConstantNode 1 mockNodeDat)
+                                  (BinaryOp Plus)
+                                  mockNodeDat
+                                 )
+                                 mockNodeDat
+                                ]
+                                mockNodeDat
+                               )
+                               mockNodeDat
+                              ]
