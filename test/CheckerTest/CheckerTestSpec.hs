@@ -47,7 +47,7 @@ checkerTest = hspec $ do
                                ]
 
 
-                it "Should throw error if returning an undeclared variable" $
+                it "Should throw error if attempting to use an undeclared variable" $
                   (extractError $ (ProgramNode
                                    [FunctionNode
                                     IntVar
@@ -66,6 +66,30 @@ checkerTest = hspec $ do
                   )
                   `shouldBe`
                   ScopeError (UnrecognisedNode (VarNode "a" mockNodeDat))
+
+                it "Should throw error if attempting to get the address of a variable in a register" $
+                  (extractError (ProgramNode
+                                 [FunctionNode
+                                  IntVar
+                                  "dog"
+                                  [ParamNode
+                                   IntVar
+                                   (VarNode "a" mockNodeDat)
+                                   mockNodeDat
+                                  ]
+                                  (Just $ CompoundStmtNode
+                                   [ReturnNode
+                                    (AddressOfNode "a" mockNodeDat)
+                                    mockNodeDat
+                                   ]
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  ScopeError (Unaddressable (AddressOfNode "a" mockNodeDat))
 
                 it "Should throw error if return type doesn't match function declaration" $
                   (extractError $ (ProgramNode
