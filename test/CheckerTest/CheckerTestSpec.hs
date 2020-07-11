@@ -95,3 +95,56 @@ checkerTest = hspec $ do
                              [IntPointer]
                              (ReturnNode (VarNode "a" mockNodeDat) mockNodeDat)
                             )
+
+                it "Should throw an error if parameter and argument counts don't match" $
+                  (extractError (ProgramNode
+                                 [FunctionNode
+                                  IntVar
+                                  "dog"
+                                  [ParamNode
+                                   IntVar
+                                   (VarNode "a" mockNodeDat)
+                                   mockNodeDat,
+                                   ParamNode
+                                   IntVar
+                                   (VarNode "b" mockNodeDat)
+                                   mockNodeDat
+                                  ]
+                                  (Just $ CompoundStmtNode
+                                   [ReturnNode
+                                    (VarNode "a" mockNodeDat)
+                                    mockNodeDat
+                                   ]
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat,
+                                  FunctionNode
+                                  IntVar
+                                  "main"
+                                  []
+                                  (Just $ CompoundStmtNode
+                                   [ReturnNode
+                                    (FuncCallNode
+                                     "dog"
+                                     [ArgNode
+                                      (ConstantNode 2 mockNodeDat)
+                                      mockNodeDat
+                                     ]
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat
+                                   ]
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  ScopeError (MisMatchNode 2 (FuncCallNode
+                                              "dog"
+                                              [(ArgNode
+                                                (ConstantNode 2 mockNodeDat))
+                                               mockNodeDat
+                                              ]
+                                              mockNodeDat))
