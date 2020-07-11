@@ -137,7 +137,17 @@ fullParserTest = hspec $ do
                   `shouldBe`
                   ParserError (LexDataError [])
 
-                it "Should throw an error when a top level item doesn't start with a keyword" $
+                it "Should throw error on junk input" $
+                  (extractFullProgramError [Keyword Int])
+                  `shouldBe`
+                  ParserError (LexDataError $ map makeLexDat [Keyword Int])
+
+                it "Should throw an error on invalid top level items" $
                   (extractFullProgramError [SemiColon, OpTok PlusSign])
                   `shouldBe`
                   ParserError (LexDataError $ map makeLexDat [SemiColon, OpTok PlusSign])
+
+                it "Should throw error on invalid identifier for top level item" $
+                  (extractFullProgramError [Keyword Int, SemiColon, OpTok PlusSign])
+                  `shouldBe`
+                  SyntaxError (NonValidIdentifier $ makeLexDat SemiColon)
