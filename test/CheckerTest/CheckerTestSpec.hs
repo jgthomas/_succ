@@ -597,3 +597,33 @@ checkerTest = hspec $ do
                   )
                   `shouldBe`
                   TypeError (TypeMismatch [IntArray] [IntVar] (VarNode "b" mockNodeDat))
+
+                it "Should throw error if function declaration types don't match" $
+                  (extractError (ProgramNode
+                                 [FunctionNode
+                                  IntVar
+                                  "dog"
+                                  []
+                                  Nothing
+                                  mockNodeDat,
+                                  FunctionNode
+                                  IntPointer
+                                  "dog"
+                                  []
+                                  Nothing
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  TypeError (TypeMismatch
+                             [IntVar]
+                             [IntPointer]
+                             (FunctionNode
+                              IntPointer
+                              "dog"
+                              []
+                              Nothing
+                              mockNodeDat
+                             )
+                            )
