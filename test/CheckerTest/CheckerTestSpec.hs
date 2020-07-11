@@ -546,3 +546,26 @@ checkerTest = hspec $ do
                               mockNodeDat
                              )
                             )
+
+                it "Should throw an error if attempting to assign a binary node of the wrong type" $
+                  (extractError (ProgramNode
+                                 [DeclarationNode
+                                  (VarNode "b" mockNodeDat)
+                                  IntArray
+                                  (Just $ AssignmentNode
+                                   (VarNode "b" mockNodeDat)
+                                   (BinaryNode
+                                    (ConstantNode 12 mockNodeDat)
+                                    (ConstantNode 3 mockNodeDat)
+                                    Plus
+                                    mockNodeDat
+                                   )
+                                   Assignment
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  TypeError (TypeMismatch [IntArray] [IntVar] (VarNode "b" mockNodeDat))
