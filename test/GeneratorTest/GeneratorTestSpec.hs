@@ -325,3 +325,67 @@ generatorTest = hspec $ do
                           "popq %rbp",
                           "ret"
                           ]
+
+                it "Should output assembly for program with simple if statement" $
+                  (extractAssembly (ProgramNode
+                                    [FunctionNode
+                                     IntVar
+                                     "main"
+                                     []
+                                     (Just $ CompoundStmtNode
+                                      [IfNode
+                                       (BinaryNode
+                                        (ConstantNode 2 mockNodeDat)
+                                        (ConstantNode 2 mockNodeDat)
+                                        Equal
+                                        mockNodeDat
+                                       )
+                                       (ReturnNode
+                                        (ConstantNode 3 mockNodeDat)
+                                        mockNodeDat
+                                       )
+                                       Nothing
+                                       mockNodeDat,
+                                       (ReturnNode
+                                        (ConstantNode 2 mockNodeDat)
+                                        mockNodeDat
+                                       )
+                                      ]
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat
+                                    ]
+                                   )
+                  )
+                  `shouldBe`
+                  unlines [
+                          "init:",
+                          "jmp init_done",
+                          ".globl main",
+                          "main:",
+                          "jmp init",
+                          "init_done:",
+                          "pushq %rbp",
+                          "movq %rsp, %rbp",
+                          "pushq %r12",
+                          "movq $2, %rax",
+                          "pushq %rax",
+                          "movq $2, %rax",
+                          "popq %r12",
+                          "cmpq %rax, %r12",
+                          "movq $0, %rax",
+                          "sete %al",
+                          "cmpq $0, %rax",
+                          "je _label_3",
+                          "movq $3, %rax",
+                          "popq %r12",
+                          "movq %rbp, %rsp",
+                          "popq %rbp",
+                          "ret",
+                          "_label_3:",
+                          "movq $2, %rax",
+                          "popq %r12",
+                          "movq %rbp, %rsp",
+                          "popq %rbp",
+                          "ret"
+                          ]
