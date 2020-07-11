@@ -4,9 +4,10 @@ module ParserTest.ParserStatementSpec (parserStatementTest) where
 
 import Test.Hspec
 
-import ParserTest.TestUtility (extractStatementTree)
-import TestUtility            (mockNodeDat)
+import ParserTest.TestUtility (extractStatementError, extractStatementTree)
+import TestUtility            (makeLexDat, mockNodeDat)
 import Types.AST
+import Types.Error
 import Types.Operator
 import Types.Tokens
 import Types.Type
@@ -388,3 +389,25 @@ parserStatementTest = hspec $ do
                                )
                                mockNodeDat
                               ]
+
+        describe "Throw errors on bad input" $ do
+
+                it "Should throw error for do-while loop missing while keyword" $
+                  let toks = [Keyword Do,
+                              OpenBracket OpenBrace,
+                              Ident "a",
+                              OpTok PlusEqual,
+                              ConstInt 2,
+                              SemiColon,
+                              CloseBracket CloseBrace,
+                              SemiColon,
+                              OpenBracket OpenParen,
+                              Ident "a",
+                              OpTok LeftArrowEqual,
+                              ConstInt 10,
+                              CloseBracket CloseParen,
+                              SemiColon]
+                      in
+                  (extractStatementError toks)
+                  `shouldBe`
+                  SyntaxError (MissingKeyword While $ makeLexDat (OpenBracket OpenParen))
