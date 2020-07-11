@@ -148,3 +148,49 @@ checkerTest = hspec $ do
                                                mockNodeDat
                                               ]
                                               mockNodeDat))
+
+                it "Should throw an error if a function is defined twice" $
+                  (extractError (ProgramNode
+                                 [FunctionNode
+                                  IntVar
+                                  "dog"
+                                  []
+                                  (Just $ CompoundStmtNode
+                                   [ReturnNode
+                                    (ConstantNode 2 mockNodeDat)
+                                    mockNodeDat
+                                   ]
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat,
+                                  FunctionNode
+                                  IntVar
+                                  "dog"
+                                  []
+                                  (Just $ CompoundStmtNode
+                                   [ReturnNode
+                                    (ConstantNode 12 mockNodeDat)
+                                    mockNodeDat
+                                   ]
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  ScopeError (DoubleDefinedNode $
+                              (FunctionNode
+                               IntVar
+                               "dog"
+                                []
+                                (Just $ CompoundStmtNode
+                                 [ReturnNode
+                                  (ConstantNode 12 mockNodeDat)
+                                  mockNodeDat
+                                 ]
+                                 mockNodeDat
+                                )
+                                mockNodeDat
+                              )
+                             )
