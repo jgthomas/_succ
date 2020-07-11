@@ -434,3 +434,23 @@ parserStatementTest = hspec $ do
                                (OpenBracket OpenParen)
                                $ makeLexDat (Keyword While)
                               )
+
+                it "Should throw error for do-while loop missing semicolon after while" $
+                  let toks = [Keyword Do,
+                              OpenBracket OpenBrace,
+                              Ident "a",
+                              OpTok PlusEqual,
+                              ConstInt 2,
+                              SemiColon,
+                              CloseBracket CloseBrace,
+                              Keyword While,
+                              OpenBracket OpenParen,
+                              Ident "a",
+                              OpTok LeftArrowEqual,
+                              ConstInt 10,
+                              CloseBracket CloseParen,
+                              Colon]
+                      in
+                  (extractStatementError toks)
+                  `shouldBe`
+                  SyntaxError (MissingToken SemiColon $ makeLexDat Colon)
