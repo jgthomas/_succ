@@ -363,3 +363,36 @@ checkerTest = hspec $ do
                                                   mockNodeDat
                                                  )
                              )
+
+                it "Should throw an error if two variables in same scope have the same identifier" $
+                  (extractError (ProgramNode
+                                 [FunctionNode
+                                  IntVar
+                                  "dog"
+                                  []
+                                  (Just $ CompoundStmtNode
+                                   [DeclarationNode
+                                    (VarNode "a" mockNodeDat)
+                                    IntVar
+                                    Nothing
+                                    mockNodeDat,
+                                    DeclarationNode
+                                    (VarNode "a" mockNodeDat)
+                                    IntVar
+                                    Nothing
+                                    mockNodeDat
+                                   ]
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  ScopeError (DoubleDeclaredNode (DeclarationNode
+                                                  (VarNode "a" mockNodeDat)
+                                                  IntVar
+                                                  Nothing
+                                                  mockNodeDat
+                                                 )
+                             )
