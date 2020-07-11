@@ -238,3 +238,57 @@ checkerTest = hspec $ do
                                 mockNodeDat
                               )
                              )
+
+                it "Should throw an error if parameter counts differ between declarations" $
+                  (extractError (ProgramNode
+                                 [FunctionNode
+                                  IntVar
+                                  "dog"
+                                  [ParamNode
+                                   IntVar
+                                   (VarNode "a" mockNodeDat)
+                                   mockNodeDat,
+                                   ParamNode
+                                   IntVar
+                                   (VarNode "b" mockNodeDat)
+                                   mockNodeDat
+                                  ]
+                                  Nothing
+                                  mockNodeDat,
+                                  FunctionNode
+                                  IntVar
+                                  "dog"
+                                  [ParamNode
+                                   IntVar
+                                   (VarNode "a" mockNodeDat)
+                                   mockNodeDat
+                                  ]
+                                  (Just $ CompoundStmtNode
+                                   [ReturnNode
+                                    (ConstantNode 12 mockNodeDat)
+                                    mockNodeDat
+                                   ]
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  ScopeError (MisMatchNode 2 (FunctionNode
+                                             IntVar
+                                             "dog"
+                                             [ParamNode
+                                              IntVar
+                                              (VarNode "a" mockNodeDat)
+                                              mockNodeDat
+                                             ]
+                                             (Just $ CompoundStmtNode
+                                              [ReturnNode
+                                               (ConstantNode 12 mockNodeDat)
+                                               mockNodeDat
+                                              ]
+                                              mockNodeDat
+                                             )
+                                             mockNodeDat)
+                             )
