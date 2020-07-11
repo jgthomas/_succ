@@ -246,3 +246,43 @@ parserStatementTest = hspec $ do
                                )
                                mockNodeDat
                               ]
+
+                it "Should build a tree for a do-while loop" $
+                  (extractStatementTree [Keyword Do,
+                                         OpenBracket OpenBrace,
+                                         Ident "a",
+                                         OpTok PlusEqual,
+                                         ConstInt 2,
+                                         SemiColon,
+                                         CloseBracket CloseBrace,
+                                         Keyword While,
+                                         OpenBracket OpenParen,
+                                         Ident "a",
+                                         OpTok LeftArrowEqual,
+                                         ConstInt 10,
+                                         CloseBracket CloseParen,
+                                         SemiColon]
+                  )
+                  `shouldBe`
+                  ProgramNode [DoWhileNode
+                               (CompoundStmtNode
+                                [(ExprStmtNode
+                                  (AssignmentNode
+                                   (VarNode "a" mockNodeDat)
+                                   (ConstantNode 2 mockNodeDat)
+                                   (BinaryOp Plus)
+                                   mockNodeDat
+                                 )
+                                 mockNodeDat
+                                 )
+                                ]
+                                mockNodeDat
+                               )
+                               (BinaryNode
+                                (VarNode "a" mockNodeDat)
+                                (ConstantNode 10 mockNodeDat)
+                                LThanOrEqu
+                                mockNodeDat
+                               )
+                               mockNodeDat
+                              ]
