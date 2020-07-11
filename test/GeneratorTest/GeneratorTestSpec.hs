@@ -389,3 +389,72 @@ generatorTest = hspec $ do
                           "popq %rbp",
                           "ret"
                           ]
+
+                it "Should output assembly for a program with a ternay expression" $
+                  (extractAssembly (ProgramNode
+                                    [FunctionNode
+                                     IntVar
+                                     "main"
+                                     []
+                                     (Just $ CompoundStmtNode
+                                      [DeclarationNode
+                                       (VarNode "b" mockNodeDat)
+                                       IntVar
+                                       (Just $ AssignmentNode
+                                        (VarNode "b" mockNodeDat)
+                                        (TernaryNode
+                                         (BinaryNode
+                                          (ConstantNode 12 mockNodeDat)
+                                          (ConstantNode 3 mockNodeDat)
+                                          GreaterThan
+                                          mockNodeDat
+                                         )
+                                         (ConstantNode 1 mockNodeDat)
+                                         (ConstantNode 2 mockNodeDat)
+                                         mockNodeDat
+                                        )
+                                        Assignment
+                                        mockNodeDat
+                                       )
+                                       mockNodeDat
+                                      ]
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat
+                                    ]
+                                   )
+                  )
+                  `shouldBe`
+                  unlines [
+                          "init:",
+                          "jmp init_done",
+                          ".globl main",
+                          "main:",
+                          "jmp init",
+                          "init_done:",
+                          "pushq %rbp",
+                          "movq %rsp, %rbp",
+                          "pushq %r12",
+                          "movq $12, %rax",
+                          "pushq %rax",
+                          "movq $3, %rax",
+                          "popq %r12",
+                          "cmpq %rax, %r12",
+                          "movq $0, %rax",
+                          "setg %al",
+                          "cmpq $0, %rax",
+                          "je _label_4",
+                          "movq $1, %rax",
+                          "jmp _label_3",
+                          "_label_4:",
+                          "movq $2, %rax",
+                          "_label_3:",
+                          "movq %rax, -8(%rbp)",
+                          "movq %rbp, %rsp",
+                          "subq $16, %rsp",
+                          "movq $0, %rax",
+                          "popq %r12",
+                          "movq %rbp, %rsp",
+                          "popq %rbp",
+                          "ret"
+                          ]
