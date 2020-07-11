@@ -13,7 +13,7 @@ import Types.Type
 
 checkerTest :: IO ()
 checkerTest = hspec $ do
-        describe "Check abstract syntax tree for errors" $ do
+        describe "Check abstract syntax tree for scope errors" $ do
 
                 it "Should return a valid tree unchanged" $
                   (extractTree $ ProgramNode
@@ -45,7 +45,6 @@ checkerTest = hspec $ do
                                 )
                                 mockNodeDat
                                ]
-
 
                 it "Should throw error if attempting to use an undeclared variable" $
                   (extractError $ (ProgramNode
@@ -111,34 +110,6 @@ checkerTest = hspec $ do
                   `shouldBe`
                   ScopeError (UnrecognisedNode (DereferenceNode "a" mockNodeDat))
 
-                it "Should throw error if return type doesn't match function declaration" $
-                  (extractError $ (ProgramNode
-                                   [PointerNode
-                                    (VarNode "a" mockNodeDat)
-                                    IntPointer
-                                    Nothing
-                                    mockNodeDat,
-                                    FunctionNode
-                                    IntVar
-                                    "dog"
-                                    []
-                                    (Just $ CompoundStmtNode
-                                     [ReturnNode
-                                      (VarNode "a" mockNodeDat)
-                                      mockNodeDat
-                                     ]
-                                     mockNodeDat
-                                    )
-                                    mockNodeDat
-                                   ]
-                                  )
-                  )
-                  `shouldBe`
-                  TypeError (TypeMismatch
-                             [IntVar]
-                             [IntPointer]
-                             (ReturnNode (VarNode "a" mockNodeDat) mockNodeDat)
-                            )
 
                 it "Should throw an error if parameter and argument counts don't match" $
                   (extractError (ProgramNode
@@ -396,3 +367,136 @@ checkerTest = hspec $ do
                                                   mockNodeDat
                                                  )
                              )
+
+
+        describe "Check abstract syntax tree for type errors" $ do
+
+                it "Should throw error if return type doesn't match function declaration" $
+                  (extractError $ (ProgramNode
+                                   [PointerNode
+                                    (VarNode "a" mockNodeDat)
+                                    IntPointer
+                                    Nothing
+                                    mockNodeDat,
+                                    FunctionNode
+                                    IntVar
+                                    "dog"
+                                    []
+                                    (Just $ CompoundStmtNode
+                                     [ReturnNode
+                                      (VarNode "a" mockNodeDat)
+                                      mockNodeDat
+                                     ]
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat
+                                   ]
+                                  )
+                  )
+                  `shouldBe`
+                  TypeError (TypeMismatch
+                             [IntVar]
+                             [IntPointer]
+                             (ReturnNode (VarNode "a" mockNodeDat) mockNodeDat)
+                            )
+
+                it "Should throw an error if types differ between function declarations" $
+                  (extractError (ProgramNode
+                                 [FunctionNode
+                                  IntVar
+                                  "dog"
+                                  [ParamNode
+                                   IntVar
+                                   (VarNode "a" mockNodeDat)
+                                   mockNodeDat,
+                                   ParamNode
+                                   IntPointer
+                                   (VarNode "b" mockNodeDat)
+                                   mockNodeDat
+                                  ]
+                                  Nothing
+                                  mockNodeDat,
+                                  FunctionNode
+                                  IntVar
+                                  "dog"
+                                  [ParamNode
+                                   IntPointer
+                                   (VarNode "a" mockNodeDat)
+                                   mockNodeDat,
+                                   ParamNode
+                                   IntVar
+                                   (VarNode "b" mockNodeDat)
+                                   mockNodeDat
+                                  ]
+                                  Nothing
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  TypeError (TypeMismatch
+                             [IntVar, IntPointer]
+                             [IntPointer, IntVar]
+                             (FunctionNode
+                             IntVar
+                             "dog"
+                             [ParamNode
+                              IntPointer
+                              (VarNode "a" mockNodeDat)
+                              mockNodeDat,
+                              ParamNode
+                              IntVar
+                              (VarNode "b" mockNodeDat)
+                              mockNodeDat
+                             ]
+                             Nothing
+                             mockNodeDat)
+                            )
+
+                it "Should throw an error if types differ between function declaration and calling" $
+                  (extractError (ProgramNode
+                                 [FunctionNode
+                                  IntVar
+                                  "dog"
+                                  [ParamNode
+                                   IntPointer
+                                   (VarNode "a" mockNodeDat)
+                                   mockNodeDat
+                                  ]
+                                  Nothing
+                                  mockNodeDat,
+                                  FunctionNode
+                                  IntVar
+                                  "main"
+                                  []
+                                  (Just $ CompoundStmtNode
+                                   [ReturnNode
+                                    (FuncCallNode
+                                     "dog"
+                                     [ArgNode
+                                      (ConstantNode 2 mockNodeDat)
+                                      mockNodeDat
+                                     ]
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat
+                                   ]
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  TypeError (TypeMismatch
+                             [IntPointer]
+                             [IntVar]
+                             (FuncCallNode
+                              "dog"
+                              [ArgNode
+                               (ConstantNode 2 mockNodeDat)
+                               mockNodeDat
+                              ]
+                              mockNodeDat
+                             )
+                            )
