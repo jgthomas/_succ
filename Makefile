@@ -28,7 +28,7 @@ lint:
 
 
 coverage: clean
-	stack test --coverage
+	stack test --coverage && stack hpc report ${PROJECT} --open
 
 
 clean:
