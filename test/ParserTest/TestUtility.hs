@@ -6,7 +6,8 @@ module ParserTest.TestUtility
          extractFunctionTree,
          extractFunctionError,
          extractStatementTree,
-         extractFullProgramTree
+         extractFullProgramTree,
+         extractFullProgramError
         ) where
 
 
@@ -53,6 +54,10 @@ extractFunctionError toks = extractError parseFunction toks
 -- | Extracts the abstract syntax tree for a full program
 extractFullProgramTree :: [Token] -> Tree
 extractFullProgramTree toks = getTree . parse . makeLexData $ toks
+
+
+extractFullProgramError :: [Token] -> CompilerError
+extractFullProgramError toks = getError . parse . makeLexData $ toks
 
 
 {-

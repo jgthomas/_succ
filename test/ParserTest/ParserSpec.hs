@@ -4,9 +4,10 @@ module ParserTest.ParserSpec (fullParserTest) where
 
 import Test.Hspec
 
-import ParserTest.TestUtility (extractFullProgramTree)
-import TestUtility            (mockNodeDat)
+import ParserTest.TestUtility (extractFullProgramError, extractFullProgramTree)
+import TestUtility            (makeLexDat, mockNodeDat)
 import Types.AST
+import Types.Error
 import Types.Operator
 import Types.Tokens
 import Types.Type
@@ -128,3 +129,15 @@ fullParserTest = hspec $ do
                                 mockNodeDat
                                )
                                mockNodeDat]
+
+        describe "Throw errors on bad input" $ do
+
+                it "Should throw an error on empty input" $
+                  (extractFullProgramError [])
+                  `shouldBe`
+                  ParserError (LexDataError [])
+
+                it "Should throw an error when a top level item doesn't start with a keyword" $
+                  (extractFullProgramError [SemiColon, OpTok PlusSign])
+                  `shouldBe`
+                  ParserError (LexDataError $ map makeLexDat [SemiColon, OpTok PlusSign])
