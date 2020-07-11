@@ -17,7 +17,6 @@ data OpTokType = LogicalOR
                | BitwiseAND
                | BitwiseOR
                | Shift
-               deriving (Eq)
 
 
 isAssign :: OpTok -> Bool
