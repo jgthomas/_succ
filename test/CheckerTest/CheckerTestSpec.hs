@@ -8,6 +8,7 @@ import CheckerTest.TestUtility (extractError, extractTree)
 import TestUtility             (mockNodeDat)
 import Types.AST
 import Types.Error
+import Types.Operator
 import Types.Type
 
 
@@ -500,3 +501,21 @@ checkerTest = hspec $ do
                               mockNodeDat
                              )
                             )
+
+                it "Should throw an error if types differ between variable declaration and assignment" $
+                  (extractError (ProgramNode
+                                 [DeclarationNode
+                                  (VarNode "b" mockNodeDat)
+                                  IntArray
+                                  (Just $ AssignmentNode
+                                   (VarNode "b" mockNodeDat)
+                                   (ConstantNode 10 mockNodeDat)
+                                   Assignment
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  TypeError (TypeMismatch [IntArray] [IntVar] (VarNode "b" mockNodeDat))
