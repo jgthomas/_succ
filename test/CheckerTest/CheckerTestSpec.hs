@@ -292,3 +292,49 @@ checkerTest = hspec $ do
                                              )
                                              mockNodeDat)
                              )
+
+                it "Should throw an error if function identifier already used for a global variable" $
+                  (extractError (ProgramNode
+                                 [DeclarationNode
+                                  (VarNode "dog" mockNodeDat)
+                                  IntVar
+                                  Nothing
+                                  mockNodeDat,
+                                  FunctionNode
+                                  IntVar
+                                  "dog"
+                                  [ParamNode
+                                   IntVar
+                                   (VarNode "a" mockNodeDat)
+                                   mockNodeDat
+                                  ]
+                                  (Just $ CompoundStmtNode
+                                   [ReturnNode
+                                    (ConstantNode 12 mockNodeDat)
+                                    mockNodeDat
+                                   ]
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  ScopeError (DoubleDefinedNode (FunctionNode
+                                                 IntVar
+                                                 "dog"
+                                                 [ParamNode
+                                                  IntVar
+                                                  (VarNode "a" mockNodeDat)
+                                                  mockNodeDat
+                                                 ]
+                                                 (Just $ CompoundStmtNode
+                                                  [ReturnNode
+                                                   (ConstantNode 12 mockNodeDat)
+                                                   mockNodeDat
+                                                  ]
+                                                  mockNodeDat
+                                                 )
+                                                 mockNodeDat
+                                                )
+                             )
