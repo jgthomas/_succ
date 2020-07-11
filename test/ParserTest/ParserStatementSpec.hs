@@ -323,3 +323,68 @@ parserStatementTest = hspec $ do
                                )
                                mockNodeDat
                               ]
+
+                it "Should build a tree for a conventional for loop" $
+                  (extractStatementTree [Keyword For,
+                                         OpenBracket OpenParen,
+                                         Keyword Int,
+                                         Ident "i",
+                                         OpTok EqualSign,
+                                         ConstInt 0,
+                                         SemiColon,
+                                         Ident "i",
+                                         OpTok LeftArrow,
+                                         ConstInt 10,
+                                         SemiColon,
+                                         Ident "i",
+                                         OpTok PlusPlus,
+                                         CloseBracket CloseParen,
+                                         OpenBracket OpenBrace,
+                                         Ident "a",
+                                         OpTok PlusEqual,
+                                         ConstInt 1,
+                                         SemiColon,
+                                         CloseBracket CloseBrace
+                                        ]
+                  )
+                  `shouldBe`
+                  ProgramNode [ForLoopNode
+                               (DeclarationNode
+                                (VarNode "i" mockNodeDat)
+                                IntVar
+                                (Just $ AssignmentNode
+                                 (VarNode "i" mockNodeDat)
+                                 (ConstantNode 0 mockNodeDat)
+                                 Assignment
+                                 mockNodeDat
+                                )
+                                mockNodeDat
+                               )
+                               (ExprStmtNode
+                                (BinaryNode
+                                 (VarNode "i" mockNodeDat)
+                                 (ConstantNode 10 mockNodeDat)
+                                 LessThan
+                                 mockNodeDat
+                                )
+                                mockNodeDat
+                               )
+                               (UnaryNode
+                                (VarNode "i" mockNodeDat)
+                                (PostOpUnary PostIncrement)
+                                mockNodeDat
+                               )
+                               (CompoundStmtNode
+                                [ExprStmtNode
+                                 (AssignmentNode
+                                  (VarNode "a" mockNodeDat)
+                                  (ConstantNode 1 mockNodeDat)
+                                  (BinaryOp Plus)
+                                  mockNodeDat
+                                 )
+                                 mockNodeDat
+                                ]
+                                mockNodeDat
+                               )
+                               mockNodeDat
+                              ]
