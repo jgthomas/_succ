@@ -569,3 +569,31 @@ checkerTest = hspec $ do
                   )
                   `shouldBe`
                   TypeError (TypeMismatch [IntArray] [IntVar] (VarNode "b" mockNodeDat))
+
+                it "Should throw an error if attempting to assign a ternary node of the wrong type" $
+                  (extractError (ProgramNode
+                                 [DeclarationNode
+                                  (VarNode "b" mockNodeDat)
+                                  IntArray
+                                  (Just $ AssignmentNode
+                                   (VarNode "b" mockNodeDat)
+                                   (TernaryNode
+                                    (BinaryNode
+                                     (ConstantNode 12 mockNodeDat)
+                                     (ConstantNode 3 mockNodeDat)
+                                     GreaterThan
+                                     mockNodeDat
+                                    )
+                                    (ConstantNode 1 mockNodeDat)
+                                    (ConstantNode 2 mockNodeDat)
+                                    mockNodeDat
+                                   )
+                                   Assignment
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  TypeError (TypeMismatch [IntArray] [IntVar] (VarNode "b" mockNodeDat))
