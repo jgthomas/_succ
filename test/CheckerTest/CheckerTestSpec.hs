@@ -67,7 +67,7 @@ checkerTest = hspec $ do
                   `shouldBe`
                   ScopeError (UnrecognisedNode (VarNode "a" mockNodeDat))
 
-                it "Should throw error if attempting to get the address of a variable in a register" $
+                it "Should throw error if accessing the address of a variable in a register" $
                   (extractError (ProgramNode
                                  [FunctionNode
                                   IntVar
@@ -90,6 +90,26 @@ checkerTest = hspec $ do
                   )
                   `shouldBe`
                   ScopeError (Unaddressable (AddressOfNode "a" mockNodeDat))
+
+                it "Should throw an error if dereferencing a pointer that doesn't exist" $
+                  (extractError (ProgramNode
+                                 [FunctionNode
+                                  IntVar
+                                  "dog"
+                                  []
+                                  (Just $ CompoundStmtNode
+                                   [ReturnNode
+                                    (DereferenceNode "a" mockNodeDat)
+                                    mockNodeDat
+                                   ]
+                                   mockNodeDat
+                                  )
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  ScopeError (UnrecognisedNode (DereferenceNode "a" mockNodeDat))
 
                 it "Should throw error if return type doesn't match function declaration" $
                   (extractError $ (ProgramNode
