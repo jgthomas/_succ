@@ -453,6 +453,48 @@ checkerTest = hspec $ do
                   `shouldBe`
                   ScopeError (UnrecognisedNode (AddressOfNode "b" mockNodeDat))
 
+                it "Should throw error if an if test refers to a non-existent variable" $
+                  (extractError (ProgramNode
+                                 [IfNode
+                                  (BinaryNode
+                                   (VarNode "a" mockNodeDat)
+                                   (ConstantNode 10 mockNodeDat)
+                                   GreaterThan
+                                   mockNodeDat
+                                  )
+                                  (ReturnNode
+                                   (ConstantNode 10 mockNodeDat)
+                                   mockNodeDat
+                                  )
+                                  Nothing
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  ScopeError (UnrecognisedNode (VarNode "a" mockNodeDat))
+
+                it "Should throw error if an if body refers to a non-existent variable" $
+                  (extractError (ProgramNode
+                                 [IfNode
+                                  (BinaryNode
+                                   (ConstantNode 20 mockNodeDat)
+                                   (ConstantNode 10 mockNodeDat)
+                                   GreaterThan
+                                   mockNodeDat
+                                  )
+                                  (ReturnNode
+                                   (VarNode "b" mockNodeDat)
+                                   mockNodeDat
+                                  )
+                                  Nothing
+                                  mockNodeDat
+                                 ]
+                                )
+                  )
+                  `shouldBe`
+                  ScopeError (UnrecognisedNode (VarNode "b" mockNodeDat))
+
         describe "Check abstract syntax tree for type errors" $ do
 
                 it "Should throw error if return type doesn't match function declaration" $
