@@ -191,6 +191,22 @@ parserExpressionTest = hspec $ do
                                )
                               ]
 
+                it "Should build a tree for assigning from a dereferenced node" $
+                  (extractExpressionTree [OpTok Asterisk,
+                                          Ident "b",
+                                          OpTok PlusEqual,
+                                          ConstInt 10,
+                                          SemiColon
+                                         ]
+                  )
+                  `shouldBe`
+                  ProgramNode [AssignDereferenceNode
+                               (DereferenceNode "b" mockNodeDat)
+                               (ConstantNode 10 mockNodeDat)
+                               (BinaryOp Plus)
+                               mockNodeDat
+                              ]
+
         describe "Throw errors on bad input" $ do
 
                 it "Should throw error on empty input" $
