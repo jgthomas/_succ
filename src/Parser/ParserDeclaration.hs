@@ -26,12 +26,10 @@ data Declaration = ValueDec
                  | PointerDec
                  | ArrayDec
                  | ArrayDecExplicit Int
-                 deriving (Eq)
 
 
 data ArrayLen = Undeclared
               | Declared Int
-              deriving (Eq)
 
 
 -- | Parse tokens for a declaration into an AST
