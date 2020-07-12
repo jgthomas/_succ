@@ -453,8 +453,6 @@ checkerTest = hspec $ do
                   `shouldBe`
                   ScopeError (UnrecognisedNode (AddressOfNode "b" mockNodeDat))
 
-
-
         describe "Check abstract syntax tree for type errors" $ do
 
                 it "Should throw error if return type doesn't match function declaration" $
