@@ -105,9 +105,6 @@ parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
                      LexDat{tok=ConstInt _}:
                      LexDat{tok=CloseBracket CloseSqBracket}:
                      rest) = pure (Nothing, rest)
-parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
-                     LexDat{tok=CloseBracket CloseSqBracket}:
-                     rest) = pure (Nothing, rest)
 parseOptionalAssign lexData = do
         lexData' <- consumeTok lexData
         pure (Nothing, lexData')
