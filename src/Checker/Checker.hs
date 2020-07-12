@@ -118,13 +118,13 @@ checkAST node@DeclarationNode{} = do
              Local  -> checkDeclareLocal node
 
 checkAST node@(AssignmentNode varNode value op _) = do
+        ScopeCheck.variableExists varNode
+        checkAST value
         TypeCheck.assignment node
         currScope <- SymTab.getScope
         case currScope of
              Global -> checkDefineGlobal node
-             Local  -> do
-                     ScopeCheck.variableExists varNode
-                     checkAssignLocal varNode value op
+             Local  -> checkAssignLocal varNode value op
 
 checkAST node@(AssignDereferenceNode derefNode value op _) = do
         ScopeCheck.variableExists derefNode

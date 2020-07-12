@@ -398,6 +398,33 @@ checkerTest = hspec $ do
                                                 )
                              )
 
+                it "Should throw error if attempting to assign to a variable not in scope" $
+                  (extractError $ (ProgramNode
+                                   [FunctionNode
+                                    IntVar
+                                    "main"
+                                    []
+                                    (Just $ CompoundStmtNode
+                                     [DeclarationNode
+                                      (VarNode "a" mockNodeDat)
+                                      IntVar
+                                      (Just $ AssignmentNode
+                                       (VarNode "a" mockNodeDat)
+                                       (VarNode "b" mockNodeDat)
+                                       Assignment
+                                       mockNodeDat
+                                      )
+                                      mockNodeDat
+                                     ]
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat
+                                   ]
+                                  )
+                  )
+                  `shouldBe`
+                  ScopeError (UnrecognisedNode (VarNode "b" mockNodeDat))
+
 
         describe "Check abstract syntax tree for type errors" $ do
 
