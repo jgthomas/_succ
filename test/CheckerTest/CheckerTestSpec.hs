@@ -425,6 +425,16 @@ checkerTest = hspec $ do
                   `shouldBe`
                   ScopeError (UnrecognisedNode (VarNode "b" mockNodeDat))
 
+                it "Should throw an error if break node found with no defined break point" $
+                  (extractError $ ProgramNode [BreakNode mockNodeDat])
+                  `shouldBe`
+                  ScopeError (UnexpectedNode (BreakNode mockNodeDat))
+
+                it "Should throw an error if continue node found with no defined continue point" $
+                  (extractError $ ProgramNode [ContinueNode mockNodeDat])
+                  `shouldBe`
+                  ScopeError (UnexpectedNode (ContinueNode mockNodeDat))
+
 
         describe "Check abstract syntax tree for type errors" $ do
 
