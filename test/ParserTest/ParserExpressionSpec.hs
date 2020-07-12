@@ -141,6 +141,56 @@ parserExpressionTest = hspec $ do
                                mockNodeDat
                               ]
 
+                it "Should build a tree assigning item from an array" $
+                  (extractExpressionTree [Ident "a",
+                                          OpTok EqualSign,
+                                          Ident "arr",
+                                          OpenBracket OpenSqBracket,
+                                          ConstInt 1,
+                                          CloseBracket CloseSqBracket,
+                                          SemiColon
+                                         ]
+                  )
+                  `shouldBe`
+                  ProgramNode [AssignmentNode
+                               (VarNode "a" mockNodeDat)
+                               (ArrayNode
+                                (ArrayItemAccess
+                                 1
+                                 (VarNode "arr" mockNodeDat)
+                                 mockNodeDat
+                                )
+                               )
+                               Assignment
+                               mockNodeDat
+                              ]
+
+                it "Should build a tree assigning an item to an array index" $
+                  (extractExpressionTree [Ident "arr",
+                                          OpenBracket OpenSqBracket,
+                                          ConstInt 1,
+                                          CloseBracket CloseSqBracket,
+                                          OpTok EqualSign,
+                                          ConstInt 10,
+                                          SemiColon
+                                         ]
+                  )
+                  `shouldBe`
+                  ProgramNode [ArrayNode
+                               (ArrayAssignPosNode
+                                (ArrayNode
+                                 (ArrayItemAssign
+                                  1
+                                  (VarNode "arr" mockNodeDat)
+                                  mockNodeDat
+                                 )
+                                )
+                                (ConstantNode 10 mockNodeDat)
+                                Assignment
+                                mockNodeDat
+                               )
+                              ]
+
         describe "Throw errors on bad input" $ do
 
                 it "Should throw error on empty input" $
