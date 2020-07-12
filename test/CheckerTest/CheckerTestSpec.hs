@@ -435,6 +435,25 @@ checkerTest = hspec $ do
                   `shouldBe`
                   ScopeError (UnexpectedNode (ContinueNode mockNodeDat))
 
+                it "Should throw error if trying to assign variable address to pointer that doesn't exist" $
+                  (extractError $ (ProgramNode
+                                   [PointerNode
+                                    (VarNode "a" mockNodeDat)
+                                    IntPointer
+                                    (Just $ AssignmentNode
+                                     (VarNode "a" mockNodeDat)
+                                     (AddressOfNode "b" mockNodeDat)
+                                     Assignment
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat
+                                   ]
+                                  )
+                  )
+                  `shouldBe`
+                  ScopeError (UnrecognisedNode (AddressOfNode "b" mockNodeDat))
+
+
 
         describe "Check abstract syntax tree for type errors" $ do
 
