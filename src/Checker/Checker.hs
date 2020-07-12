@@ -118,7 +118,7 @@ checkAST node@DeclarationNode{} = do
              Local  -> checkDeclareLocal node
 
 checkAST node@(AssignmentNode varNode value op _) = do
-        ScopeCheck.variableExists varNode
+        checkAST varNode
         checkAST value
         TypeCheck.assignment node
         currScope <- SymTab.getScope
