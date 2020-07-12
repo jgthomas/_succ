@@ -85,3 +85,44 @@ parserDeclarationTest = hspec $ do
                                 Nothing
                                 mockNodeDat)]
 
+                it "Should build a tree for an array declaration and assignment" $
+                  (extractDeclarationTree [Keyword Int,
+                                           Ident "a",
+                                           OpenBracket OpenSqBracket,
+                                           ConstInt 2,
+                                           CloseBracket CloseSqBracket,
+                                           OpTok EqualSign,
+                                           OpenBracket OpenBrace,
+                                           ConstInt 10,
+                                           Comma,
+                                           ConstInt 20,
+                                           CloseBracket CloseBrace,
+                                           SemiColon
+                                          ]
+                  )
+                  `shouldBe`
+                  ProgramNode [ArrayNode
+                               (ArrayDeclareNode
+                                2
+                                (VarNode "a" mockNodeDat)
+                                IntArray
+                                (Just $ ArrayNode
+                                 (ArrayItemsNode
+                                  (VarNode "a" mockNodeDat)
+                                  [ArrayNode
+                                   (ArraySingleItemNode
+                                    (ConstantNode 10 mockNodeDat)
+                                    mockNodeDat),
+                                   ArrayNode
+                                   (ArraySingleItemNode
+                                    (ConstantNode 20 mockNodeDat)
+                                    mockNodeDat
+                                   )
+                                  ]
+                                  mockNodeDat
+                                 )
+                                )
+                                mockNodeDat
+                               )
+                              ]
+
