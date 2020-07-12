@@ -3,6 +3,7 @@ module ParserTest.TestUtility
         (extractExpressionTree,
          extractExpressionError,
          extractDeclarationTree,
+         extractDeclarationError,
          extractFunctionTree,
          extractFunctionError,
          extractStatementTree,
@@ -37,6 +38,9 @@ extractExpressionError toks = extractError parseExpression toks
 -- | Extracts the abstract syntax tree for a declaration
 extractDeclarationTree :: [Token] -> Tree
 extractDeclarationTree toks = extractTree parseDeclaration $ addExtraToken toks
+
+extractDeclarationError :: [Token] -> CompilerError
+extractDeclarationError toks = extractError parseDeclaration toks
 
 
 extractStatementTree :: [Token] -> Tree

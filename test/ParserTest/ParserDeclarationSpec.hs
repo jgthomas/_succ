@@ -4,9 +4,10 @@ module ParserTest.ParserDeclarationSpec (parserDeclarationTest) where
 
 import Test.Hspec
 
-import ParserTest.TestUtility (extractDeclarationTree)
+import ParserTest.TestUtility (extractDeclarationError, extractDeclarationTree)
 import TestUtility            (mockNodeDat)
 import Types.AST
+import Types.Error
 import Types.Operator
 import Types.Tokens
 import Types.Type
@@ -165,3 +166,24 @@ parserDeclarationTest = hspec $ do
                                 mockNodeDat
                                )
                               ]
+
+        describe "Throw errors on bad input" $ do
+
+                -- This should probably be a warning not an error, like in gcc
+                it "Should throw error if explicit and implicit array length differ" $
+                  (extractDeclarationError [Keyword Int,
+                                            Ident "a",
+                                            OpenBracket OpenSqBracket,
+                                            ConstInt 1,
+                                            CloseBracket CloseSqBracket,
+                                            OpTok EqualSign,
+                                            OpenBracket OpenBrace,
+                                            ConstInt 10,
+                                            Comma,
+                                            ConstInt 20,
+                                            CloseBracket CloseBrace,
+                                            SemiColon
+                                           ]
+                  )
+                  `shouldBe`
+                  SyntaxError (LengthMismatch (VarNode "a" mockNodeDat) 2 1)
