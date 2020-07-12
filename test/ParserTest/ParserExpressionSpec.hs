@@ -108,6 +108,37 @@ parserExpressionTest = hspec $ do
                   `shouldBe`
                   ProgramNode [DereferenceNode "b" mockNodeDat]
 
+                it "Should build a tree with a parenthesised calculation" $
+                  (extractExpressionTree [Ident "a",
+                                          OpTok EqualSign,
+                                          OpenBracket OpenParen,
+                                          ConstInt 2,
+                                          OpTok MinusSign,
+                                          ConstInt 1,
+                                          CloseBracket CloseParen,
+                                          OpTok Asterisk,
+                                          ConstInt 3,
+                                          SemiColon
+                                         ]
+                  )
+                  `shouldBe`
+                  ProgramNode [AssignmentNode
+                               (VarNode "a" mockNodeDat)
+                               (BinaryNode
+                                (BinaryNode
+                                 (ConstantNode 2 mockNodeDat)
+                                 (ConstantNode 1 mockNodeDat)
+                                 Minus
+                                 mockNodeDat
+                                )
+                                (ConstantNode 3 mockNodeDat)
+                                Multiply
+                                mockNodeDat
+                               )
+                               Assignment
+                               mockNodeDat
+                              ]
+
         describe "Throw errors on bad input" $ do
 
                 it "Should throw error on empty input" $
@@ -155,7 +186,9 @@ binaryOpTokens = [
                  AmpAmp,
                  Caret,
                  Ampersand,
-                 Pipe
+                 Pipe,
+                 DoubleLeftArrow,
+                 DoubleRightArrow
                  ]
 
 binaryShadowAssignTokens :: [OpTok]
