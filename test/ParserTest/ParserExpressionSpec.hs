@@ -36,6 +36,11 @@ parserExpressionTest = hspec $ do
                                Assignment
                                mockNodeDat]
 
+                it "Should build a null expression tree" $
+                  (extractExpressionTree [SemiColon])
+                  `shouldBe`
+                  ProgramNode [NullExprNode mockNodeDat]
+
                 it "Should build unary operator tree" $
                   (extractExpressionTree [OpTok MinusSign, Ident "a"])
                   `shouldBe`
