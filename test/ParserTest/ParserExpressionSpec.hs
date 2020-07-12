@@ -41,13 +41,15 @@ parserExpressionTest = hspec $ do
                   `shouldBe`
                   ProgramNode [NullExprNode mockNodeDat]
 
-                it "Should build unary operator tree" $
-                  (extractExpressionTree [OpTok MinusSign, Ident "a"])
+                it "Should build unary operator trees" $
+                  (map (extractExpressionTree . makeUnaryTokenList) unaryOpTokens)
                   `shouldBe`
-                  ProgramNode [UnaryNode
-                               (VarNode "a" mockNodeDat)
-                               (Unary Negate)
-                               mockNodeDat]
+                  (map makeUnaryTree unaryOpTokens)
+
+                it "Should build unary post operator trees" $
+                  (map (extractExpressionTree . makeUnaryPostOpTokenList) unaryPostOpTokens)
+                  `shouldBe`
+                  (map makeUnaryPostOpTree unaryPostOpTokens)
 
                 it "Should build binary operator trees" $
                   (map (extractExpressionTree . makeBinaryTokenList) binaryOpTokens)
@@ -145,6 +147,48 @@ parserExpressionTest = hspec $ do
                   (extractExpressionError [])
                   `shouldBe`
                   ParserError (LexDataError [])
+
+
+unaryPostOpTokens :: [OpTok]
+unaryPostOpTokens = [
+                    PlusPlus,
+                    MinusMinus
+                    ]
+
+
+makeUnaryPostOpTree :: OpTok -> Tree
+makeUnaryPostOpTree opTok =
+        ProgramNode [UnaryNode
+                     (VarNode "a" mockNodeDat)
+                     (tokToPostUnaryOp opTok)
+                     mockNodeDat]
+
+
+makeUnaryPostOpTokenList :: OpTok -> [Token]
+makeUnaryPostOpTokenList tok = [Ident "a", OpTok tok]
+
+
+unaryOpTokens :: [OpTok]
+unaryOpTokens = [
+                MinusSign,
+                PlusSign,
+                Bang,
+                Tilde,
+                PlusPlus,
+                MinusMinus
+                ]
+
+
+makeUnaryTokenList :: OpTok -> [Token]
+makeUnaryTokenList tok = [OpTok tok, Ident "a"]
+
+
+makeUnaryTree :: OpTok -> Tree
+makeUnaryTree opTok =
+        ProgramNode [UnaryNode
+                     (VarNode "a" mockNodeDat)
+                     (tokToUnaryOp opTok)
+                     mockNodeDat]
 
 
 makeBinaryTokenList :: OpTok -> [Token]
