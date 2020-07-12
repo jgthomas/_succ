@@ -369,6 +369,35 @@ checkerTest = hspec $ do
                                                  )
                              )
 
+                it "Should throw an error if trying to assign to an already defined global" $
+                  (extractError $ (ProgramNode
+                                   [DeclarationNode
+                                    (VarNode "dog" mockNodeDat)
+                                    IntVar
+                                    (Just $ AssignmentNode
+                                     (VarNode "dog" mockNodeDat)
+                                     (ConstantNode 12 mockNodeDat)
+                                     Assignment
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat,
+                                    AssignmentNode
+                                    (VarNode "dog" mockNodeDat)
+                                    (ConstantNode 22 mockNodeDat)
+                                    Assignment
+                                    mockNodeDat
+                                   ]
+                                  )
+                  )
+                  `shouldBe`
+                  ScopeError (DoubleDefinedNode (AssignmentNode
+                                                 (VarNode "dog" mockNodeDat)
+                                                 (ConstantNode 22 mockNodeDat)
+                                                 Assignment
+                                                 mockNodeDat
+                                                )
+                             )
+
 
         describe "Check abstract syntax tree for type errors" $ do
 
