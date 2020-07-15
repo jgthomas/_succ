@@ -29,14 +29,12 @@ convertWithState ast = do
 
 convertToSchema :: Tree -> GenState ExpressionData
 
-convertToSchema (ConstantNode n _) = do
-        currScope <- SymTab.getScope
-        pure (Literal n currScope)
+convertToSchema (ConstantNode n _) = Literal n <$> SymTab.getScope
 
 convertToSchema node@(VarNode name _) = do
         var <- SymTab.getVariable name
         case var of
              NotFound  -> throwError $ FatalError (GeneratorBug node)
-             VarType a -> pure $ (Variable a)
+             VarType a -> pure (Variable a)
 
 convertToSchema tree = throwError $ FatalError (GeneratorBug tree)
