@@ -4,6 +4,7 @@ module Types.AssemblySchema where
 
 data AssemblySchema = StatementSchema StatementSchema
                     | ExpressionSchema ExpressionSchema
+                    deriving (Eq, Show)
 
 
 data StatementSchema = IfSchema
@@ -11,6 +12,7 @@ data StatementSchema = IfSchema
                      | WhileSchema
                      | DoWhileSchema
                      | ReturnSchema ExpressionSchema
+                     deriving (Eq, Show)
 
 
 data ExpressionSchema = Literal Int
@@ -18,3 +20,4 @@ data ExpressionSchema = Literal Int
                       | Unary
                       | Binary
                       | Ternary
+                      deriving (Eq, Show)
