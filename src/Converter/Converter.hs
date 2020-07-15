@@ -27,8 +27,9 @@ convertToSchema :: Tree -> GenState AssemblySchema
 convertToSchema (ReturnNode val _) = do
         retVal <- convertToSchema val
         case retVal of
-             (ExpressionSchema schema) -> pure (StatementSchema $ ReturnSchema schema)
-             _                         -> undefined
+             (ExpressionSchema valSchema) ->
+                     pure (StatementSchema $ ReturnSchema valSchema)
+             _ -> undefined
 
 convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ Literal n)
 
