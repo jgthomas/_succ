@@ -33,4 +33,9 @@ data ExpressionSchema = LiteralSchema Int
                          String
                          String
                       | TernarySchema
+                         ExpressionSchema
+                         ExpressionSchema
+                         ExpressionSchema
+                         String
+                         String
                       deriving (Eq, Show)
