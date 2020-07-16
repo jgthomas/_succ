@@ -39,8 +39,8 @@ convertToSchema (ReturnNode val _) = do
                      pure (StatementSchema $ ReturnSchema valSchema)
              _ -> undefined
 
-convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ Literal n)
+convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ LiteralSchema n)
 
-convertToSchema (VarNode name _) = pure (ExpressionSchema $ Variable name)
+convertToSchema (VarNode name _) = pure (ExpressionSchema $ VariableSchema name)
 
 convertToSchema tree = throwError $ FatalError (GeneratorBug tree)

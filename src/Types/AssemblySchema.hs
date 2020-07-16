@@ -18,9 +18,9 @@ data StatementSchema = IfSchema
                      deriving (Eq, Show)
 
 
-data ExpressionSchema = Literal Int
-                      | Variable String
-                      | Unary
-                      | Binary
-                      | Ternary
+data ExpressionSchema = LiteralSchema Int
+                      | VariableSchema String
+                      | UnarySchema
+                      | BinarySchema
+                      | TernarySchema
                       deriving (Eq, Show)

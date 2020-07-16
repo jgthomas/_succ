@@ -17,12 +17,12 @@ converterTest = hspec $ do
                 it "Should create a constant schema" $
                   (extractSchema $ (ConstantNode 2 mockNodeDat))
                   `shouldBe`
-                  ExpressionSchema (Literal 2)
+                  ExpressionSchema (LiteralSchema 2)
 
                 it "Should create a variable schema" $
                   (extractSchema $ (VarNode "a" mockNodeDat))
                   `shouldBe`
-                  ExpressionSchema (Variable "a")
+                  ExpressionSchema (VariableSchema "a")
 
                 it "Should create a return statement schema" $
                   (extractSchema $ (ReturnNode
@@ -31,7 +31,7 @@ converterTest = hspec $ do
                                    )
                   )
                   `shouldBe`
-                  StatementSchema (ReturnSchema (Literal 2))
+                  StatementSchema (ReturnSchema (LiteralSchema 2))
 
                 it "Should create a function schema" $
                   (extractSchema (FunctionNode
@@ -48,8 +48,8 @@ converterTest = hspec $ do
                   )
                   `shouldBe`
                   FunctionSchema "main"
-                                 [ExpressionSchema (Variable "a"),
-                                  StatementSchema (ReturnSchema (Literal 2))
+                                 [ExpressionSchema (VariableSchema "a"),
+                                  StatementSchema (ReturnSchema (LiteralSchema 2))
                                  ]
 
                 it "Should create a program schema" $
@@ -71,8 +71,8 @@ converterTest = hspec $ do
                   )
                   `shouldBe`
                   ProgramSchema [FunctionSchema "main"
-                                 [ExpressionSchema (Variable "a"),
-                                  StatementSchema (ReturnSchema (Literal 2))
+                                 [ExpressionSchema (VariableSchema "a"),
+                                  StatementSchema (ReturnSchema (LiteralSchema 2))
                                  ],
-                                 ExpressionSchema (Variable "a")
+                                 ExpressionSchema (VariableSchema "a")
                                 ]
