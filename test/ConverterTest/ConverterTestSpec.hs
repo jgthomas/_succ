@@ -17,3 +17,17 @@ converterTest = hspec $ do
                   (extractSchema $ (ConstantNode 2 mockNodeDat))
                   `shouldBe`
                   ExpressionSchema (Literal 2)
+
+                it "Should create a variable schema" $
+                  (extractSchema $ (VarNode "a" mockNodeDat))
+                  `shouldBe`
+                  ExpressionSchema (Variable "a")
+
+                it "Should create a return statement schema" $
+                  (extractSchema $ (ReturnNode
+                                    (ConstantNode 2 mockNodeDat)
+                                    mockNodeDat
+                                   )
+                  )
+                  `shouldBe`
+                  StatementSchema (ReturnSchema (Literal 2))
