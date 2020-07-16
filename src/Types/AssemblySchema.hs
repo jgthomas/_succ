@@ -2,6 +2,9 @@
 module Types.AssemblySchema where
 
 
+import Types.Operator
+
+
 data AssemblySchema = ProgramSchema [AssemblySchema]
                     | FunctionSchema String [AssemblySchema]
                     | DeclarationSchema AssemblySchema (Maybe AssemblySchema)
@@ -20,7 +23,7 @@ data StatementSchema = IfSchema
 
 data ExpressionSchema = LiteralSchema Int
                       | VariableSchema String
-                      | UnarySchema
+                      | UnarySchema ExpressionSchema UnaryOp
                       | BinarySchema
                       | TernarySchema
                       deriving (Eq, Show)

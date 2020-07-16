@@ -33,14 +33,16 @@ convertToSchema (FunctionNode _ name trees _ _) = do
         pure (FunctionSchema name schemas)
 
 convertToSchema (ReturnNode val _) = do
-        retVal <- convertToSchema val
-        case retVal of
-             (ExpressionSchema valSchema) ->
-                     pure (StatementSchema $ ReturnSchema valSchema)
-             _ -> undefined
+        retVal <- getExpressionSchema <$> convertToSchema val
+        pure (StatementSchema $ ReturnSchema retVal)
 
 convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ LiteralSchema n)
 
 convertToSchema (VarNode name _) = pure (ExpressionSchema $ VariableSchema name)
 
 convertToSchema tree = throwError $ FatalError (GeneratorBug tree)
+
+
+getExpressionSchema :: AssemblySchema -> ExpressionSchema
+getExpressionSchema (ExpressionSchema schema) = schema
+getExpressionSchema _                         = undefined
