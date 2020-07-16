@@ -23,7 +23,14 @@ data StatementSchema = IfSchema
 
 data ExpressionSchema = LiteralSchema Int
                       | VariableSchema String
-                      | UnarySchema ExpressionSchema UnaryOp
+                      | UnarySchema
+                         ExpressionSchema
+                         UnaryOp
                       | BinarySchema
+                         ExpressionSchema
+                         ExpressionSchema
+                         BinaryOp
+                         String
+                         String
                       | TernarySchema
                       deriving (Eq, Show)
