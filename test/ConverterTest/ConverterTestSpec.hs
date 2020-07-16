@@ -47,7 +47,8 @@ converterTest = hspec $ do
                                  )
                   )
                   `shouldBe`
-                  FunctionSchema [ExpressionSchema (Variable "a"),
+                  FunctionSchema "main"
+                                 [ExpressionSchema (Variable "a"),
                                   StatementSchema (ReturnSchema (Literal 2))
                                  ]
 
@@ -69,7 +70,7 @@ converterTest = hspec $ do
                                 ]
                   )
                   `shouldBe`
-                  ProgramSchema [FunctionSchema
+                  ProgramSchema [FunctionSchema "main"
                                  [ExpressionSchema (Variable "a"),
                                   StatementSchema (ReturnSchema (Literal 2))
                                  ],

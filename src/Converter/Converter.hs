@@ -28,9 +28,9 @@ convertToSchema (ProgramNode trees) = do
         schemas <- mapM convertToSchema trees
         pure (ProgramSchema schemas)
 
-convertToSchema (FunctionNode _ _ trees _ _) = do
+convertToSchema (FunctionNode _ name trees _ _) = do
         schemas <- mapM convertToSchema trees
-        pure (FunctionSchema schemas)
+        pure (FunctionSchema name schemas)
 
 convertToSchema (ReturnNode val _) = do
         retVal <- convertToSchema val
