@@ -2,7 +2,10 @@
 module Types.AssemblySchema where
 
 
-data AssemblySchema = StatementSchema StatementSchema
+data AssemblySchema = ProgramSchema [AssemblySchema]
+                    | FunctionSchema [StatementSchema]
+                    | DeclarationSchema ExpressionSchema (Maybe ExpressionSchema)
+                    | StatementSchema StatementSchema
                     | ExpressionSchema ExpressionSchema
                     deriving (Eq, Show)
 
