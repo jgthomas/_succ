@@ -33,8 +33,12 @@ convertToSchema (FunctionNode _ name trees _ _) = do
         pure (FunctionSchema name schemas)
 
 convertToSchema (ReturnNode val _) = do
-        retVal <- getExpressionSchema <$> convertToSchema val
-        pure (StatementSchema $ ReturnSchema retVal)
+        value <- getExpressionSchema <$> convertToSchema val
+        pure (StatementSchema $ ReturnSchema value)
+
+convertToSchema (UnaryNode val unOp _) = do
+        value <- getExpressionSchema <$> convertToSchema val
+        pure (ExpressionSchema $ UnarySchema value unOp)
 
 convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ LiteralSchema n)
 

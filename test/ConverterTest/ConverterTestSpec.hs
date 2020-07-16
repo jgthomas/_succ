@@ -7,6 +7,7 @@ import Test.Hspec
 import TestUtility               (mockNodeDat)
 import Types.AssemblySchema
 import Types.AST
+import Types.Operator
 import Types.Type
 
 
@@ -32,6 +33,20 @@ converterTest = hspec $ do
                   )
                   `shouldBe`
                   StatementSchema (ReturnSchema (LiteralSchema 2))
+
+                it "Should create a unary schema" $
+                  (extractSchema (UnaryNode
+                                  (VarNode "a" mockNodeDat)
+                                  (Unary Negate)
+                                  mockNodeDat
+                                 )
+                  )
+                  `shouldBe`
+                  ExpressionSchema (UnarySchema
+                                    (VariableSchema "a")
+                                    (Unary Negate)
+                                   )
+
 
                 it "Should create a function schema" $
                   (extractSchema (FunctionNode
