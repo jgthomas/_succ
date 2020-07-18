@@ -21,6 +21,23 @@ converterTest = hspec $ do
                                     DeclarationNode
                                     (VarNode "a" mockNodeDat)
                                     IntVar
+                                    Nothing
+                                    mockNodeDat
+                                   ]
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                   [DeclarationSchema
+                    (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0 ))
+                    SkipSchema
+                    Global
+                   ]
+
+                it "Should create a global declaration schema with assignment" $
+                  (extractSchema $ ProgramNode [
+                                    DeclarationNode
+                                    (VarNode "a" mockNodeDat)
+                                    IntVar
                                     (Just $ AssignmentNode
                                      (VarNode "a" mockNodeDat)
                                      (ConstantNode 10 mockNodeDat)
