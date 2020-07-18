@@ -28,9 +28,14 @@ convertToSchema (ProgramNode trees) = do
         schemas <- mapM convertToSchema trees
         pure (ProgramSchema schemas)
 
-convertToSchema (FunctionNode _ name trees _ _) = do
-        schemas <- mapM convertToSchema trees
-        pure (FunctionSchema name schemas)
+convertToSchema (FunctionNode _ _ _ Nothing _) = pure SkipSchema
+convertToSchema (FunctionNode _ name _ (Just body) _) = do
+        bodySchema <- convertToSchema body
+        pure (FunctionSchema name bodySchema)
+
+convertToSchema (CompoundStmtNode statements _) = do
+        statementsSchema <- mapM convertToSchema statements
+        pure (StatementSchema $ CompoundStatementSchema statementsSchema)
 
 convertToSchema (ReturnNode val _) = do
         value <- getExpressionSchema <$> convertToSchema val

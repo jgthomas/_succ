@@ -9,7 +9,7 @@ data AssemblySchema = ProgramSchema
                        [AssemblySchema]
                     | FunctionSchema
                        String
-                       [AssemblySchema]
+                       AssemblySchema
                     | DeclarationSchema
                        AssemblySchema
                        (Maybe AssemblySchema)
@@ -17,6 +17,7 @@ data AssemblySchema = ProgramSchema
                        StatementSchema
                     | ExpressionSchema
                        ExpressionSchema
+                    | SkipSchema
                     deriving (Eq, Show)
 
 
@@ -26,6 +27,8 @@ data StatementSchema = IfSchema
                      | DoWhileSchema
                      | ReturnSchema
                         ExpressionSchema
+                     | CompoundStatementSchema
+                        [AssemblySchema]
                      deriving (Eq, Show)
 
 

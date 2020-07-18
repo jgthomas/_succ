@@ -52,20 +52,27 @@ converterTest = hspec $ do
                   (extractSchema (FunctionNode
                                   IntVar
                                   "main"
-                                  [(VarNode "a" mockNodeDat),
-                                   ReturnNode
-                                   (ConstantNode 2 mockNodeDat)
+                                  []
+                                  (Just $ CompoundStmtNode
+                                   [(VarNode "a" mockNodeDat),
+                                    ReturnNode
+                                    (ConstantNode 2 mockNodeDat)
+                                    mockNodeDat
+                                   ]
                                    mockNodeDat
-                                  ]
-                                  Nothing
+                                  )
                                   mockNodeDat
                                  )
                   )
                   `shouldBe`
                   FunctionSchema "main"
-                                 [ExpressionSchema (VariableSchema "a"),
-                                  StatementSchema (ReturnSchema (LiteralSchema 2))
-                                 ]
+                                 (StatementSchema
+                                  (CompoundStatementSchema
+                                   [ExpressionSchema (VariableSchema "a"),
+                                    StatementSchema (ReturnSchema (LiteralSchema 2))
+                                   ]
+                                  )
+                                 )
 
                 it "Should create a program schema" $
                   (extractSchema $ ProgramNode
@@ -73,21 +80,29 @@ converterTest = hspec $ do
                                  (FunctionNode
                                   IntVar
                                   "main"
-                                  [(VarNode "a" mockNodeDat),
-                                   ReturnNode
-                                   (ConstantNode 2 mockNodeDat)
+                                  []
+                                  (Just $ CompoundStmtNode
+                                   [(VarNode "a" mockNodeDat),
+                                    ReturnNode
+                                    (ConstantNode 2 mockNodeDat)
+                                    mockNodeDat
+                                   ]
                                    mockNodeDat
-                                  ]
-                                  Nothing
+                                  )
                                   mockNodeDat
                                  ),
                                  (VarNode "a" mockNodeDat)
                                 ]
                   )
                   `shouldBe`
-                  ProgramSchema [FunctionSchema "main"
-                                 [ExpressionSchema (VariableSchema "a"),
-                                  StatementSchema (ReturnSchema (LiteralSchema 2))
-                                 ],
+                  ProgramSchema [FunctionSchema
+                                 "main"
+                                 (StatementSchema
+                                  (CompoundStatementSchema
+                                   [ExpressionSchema (VariableSchema "a"),
+                                    StatementSchema (ReturnSchema (LiteralSchema 2))
+                                   ]
+                                  )
+                                 ),
                                  ExpressionSchema (VariableSchema "a")
                                 ]
