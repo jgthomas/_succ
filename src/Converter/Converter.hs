@@ -2,9 +2,12 @@
 module Converter.Converter (convert) where
 
 
+import           Control.Monad        (unless)
+
 import           State.GenState       (GenState, runGenState, throwError)
 import qualified State.GenState       as GenState (getState, startState)
 import           State.SymTab         (SymTab)
+import qualified State.SymTab         as SymTab
 import           Types.AssemblySchema
 import           Types.AST            (Tree (..))
 import           Types.Error          (CompilerError (FatalError),
@@ -28,9 +31,15 @@ convertToSchema (ProgramNode trees) = do
         schemas <- mapM convertToSchema trees
         pure (ProgramSchema schemas)
 
-convertToSchema (FunctionNode _ _ _ Nothing _) = pure SkipSchema
-convertToSchema (FunctionNode _ name _ (Just body) _) = do
+convertToSchema funcNode@(FunctionNode _ _ _ Nothing _) = do
+        declareFunction funcNode
+        pure SkipSchema
+convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
+        declareFunction funcNode
+        SymTab.initFunction name
         bodySchema <- convertToSchema body
+        SymTab.closeFunction
+        SymTab.defineFunction name
         pure (FunctionSchema name bodySchema)
 
 convertToSchema (CompoundStmtNode statements _) = do
@@ -55,3 +64,39 @@ convertToSchema tree = throwError $ FatalError (GeneratorBug tree)
 getExpressionSchema :: AssemblySchema -> ExpressionSchema
 getExpressionSchema (ExpressionSchema schema) = schema
 getExpressionSchema _                         = undefined
+
+
+
+-- Function
+
+declareFunction :: Tree -> GenState ()
+declareFunction node@(FunctionNode _ funcName _ _ _) = do
+        prevParamCount <- SymTab.decParamCount funcName
+        case prevParamCount of
+             Nothing -> declareNewFunction node
+             Just _  -> declareRepeatFunction node
+declareFunction tree = throwError $ FatalError (GeneratorBug tree)
+
+
+declareNewFunction :: Tree -> GenState ()
+declareNewFunction (FunctionNode typ funcName paramList _ _) = do
+        SymTab.declareFunction typ funcName (length paramList)
+        processParameters funcName paramList
+declareNewFunction tree = throwError $ FatalError (GeneratorBug tree)
+
+
+declareRepeatFunction :: Tree -> GenState ()
+declareRepeatFunction (FunctionNode typ funcName paramList _ _) = do
+        SymTab.declareFunction typ funcName (length paramList)
+        defined <- SymTab.checkFuncDefined funcName
+        unless defined $
+           do SymTab.delFuncState funcName
+              processParameters funcName paramList
+declareRepeatFunction tree = throwError $ FatalError (GeneratorBug tree)
+
+
+processParameters :: String -> [Tree] -> GenState ()
+processParameters name params = do
+        SymTab.initFunction name
+        mapM_ convertToSchema params
+        SymTab.closeFunction
