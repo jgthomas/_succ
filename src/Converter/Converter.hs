@@ -91,6 +91,8 @@ convertToSchema (DoWhileNode body test _) = do
               )
              )
 
+convertToSchema (ExprStmtNode exprStatement _) = convertToSchema exprStatement
+
 convertToSchema ContinueNode{} = do
         contineLabel <- LocalLabel . fromMaybe (-1) <$> SymTab.getContinue
         pure (StatementSchema $ ContinueSchema contineLabel)
