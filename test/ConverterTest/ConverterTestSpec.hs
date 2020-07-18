@@ -9,7 +9,6 @@ import Types.AssemblySchema
 import Types.AST
 import Types.Operator
 import Types.Type
-import Types.Variables
 
 
 converterTest :: IO ()
@@ -19,7 +18,7 @@ converterTest = hspec $ do
                 it "Should create a constant schema" $
                   (extractSchema $ (ConstantNode 2 mockNodeDat))
                   `shouldBe`
-                  ExpressionSchema (LiteralSchema 2 Global)
+                  ExpressionSchema (LiteralSchema 2)
 
                 it "Should create a variable schema" $
                   (extractSchema $ (VarNode "a" mockNodeDat))
@@ -33,7 +32,7 @@ converterTest = hspec $ do
                                    )
                   )
                   `shouldBe`
-                  StatementSchema (ReturnSchema (LiteralSchema 2 Global))
+                  StatementSchema (ReturnSchema (LiteralSchema 2))
 
                 it "Should create a unary schema" $
                   (extractSchema (UnaryNode
@@ -70,7 +69,7 @@ converterTest = hspec $ do
                                  (StatementSchema
                                   (CompoundStatementSchema
                                    [ExpressionSchema (VariableSchema "a"),
-                                    StatementSchema (ReturnSchema (LiteralSchema 2 Local))
+                                    StatementSchema (ReturnSchema (LiteralSchema 2))
                                    ]
                                   )
                                  )
@@ -101,7 +100,7 @@ converterTest = hspec $ do
                                  (StatementSchema
                                   (CompoundStatementSchema
                                    [ExpressionSchema (VariableSchema "a"),
-                                    StatementSchema (ReturnSchema (LiteralSchema 2 Local))
+                                    StatementSchema (ReturnSchema (LiteralSchema 2))
                                    ]
                                   )
                                  ),

@@ -123,9 +123,7 @@ convertToSchema (UnaryNode val unOp _) = do
         value <- getExpressionSchema <$> convertToSchema val
         pure (ExpressionSchema $ UnarySchema value unOp)
 
-convertToSchema (ConstantNode n _) = do
-        currScope <- SymTab.getScope
-        pure (ExpressionSchema $ LiteralSchema n currScope)
+convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ LiteralSchema n)
 
 convertToSchema (VarNode name _) = pure (ExpressionSchema $ VariableSchema name)
 
