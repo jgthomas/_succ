@@ -212,11 +212,6 @@ declareGlobal (DeclarationNode varNode@(VarNode name _) typ assignNode _) = do
 declareGlobal tree = throwError $ FatalError (GeneratorBug tree)
 
 
-processAssignment :: Maybe Tree -> GenState AssemblySchema
-processAssignment Nothing           = pure SkipSchema
-processAssignment (Just assignNode) = convertToSchema assignNode
-
-
 defineGlobal :: Tree -> GenState AssemblySchema
 defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ _) = do
         SymTab.defineGlobal name
@@ -231,8 +226,24 @@ defineGlobal tree = throwError $ FatalError (GeneratorBug tree)
 -- Local Variables
 
 declareLocal :: Tree -> GenState AssemblySchema
-declareLocal = undefined
+declareLocal (DeclarationNode varNode@(VarNode name _) typ value _) = do
+        _ <- SymTab.addVariable name typ
+        currScope <- SymTab.getScope
+        varSchema <- convertToSchema varNode
+        valSchema <- processAssignment value
+        pure (DeclarationSchema varSchema valSchema currScope)
+declareLocal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 defineLocal :: Tree -> GenState AssemblySchema
-defineLocal = undefined
+defineLocal (AssignmentNode varNode value _ _) = do
+        currScope <- SymTab.getScope
+        varSchema <- getExpressionSchema <$> convertToSchema varNode
+        valSchema <- getExpressionSchema <$> convertToSchema value
+        pure (StatementSchema $ AssignmentSchema varSchema valSchema currScope)
+defineLocal tree = throwError $ FatalError (GeneratorBug tree)
+
+
+processAssignment :: Maybe Tree -> GenState AssemblySchema
+processAssignment Nothing           = pure SkipSchema
+processAssignment (Just assignNode) = convertToSchema assignNode
