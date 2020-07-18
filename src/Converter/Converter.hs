@@ -13,6 +13,7 @@ import           Types.AssemblySchema
 import           Types.AST            (Tree (..))
 import           Types.Error          (CompilerError (FatalError),
                                        FatalError (GeneratorBug))
+import           Types.Variables      (Scope (..), VarLookup (..))
 
 
 convert :: Tree -> Either CompilerError (AssemblySchema, SymTab)
@@ -91,6 +92,18 @@ convertToSchema (DoWhileNode body test _) = do
               )
              )
 
+convertToSchema node@DeclarationNode{} = do
+        currScope <- SymTab.getScope
+        case currScope of
+             Local  -> declareLocal node
+             Global -> declareGlobal node
+
+convertToSchema node@AssignmentNode{} = do
+        currScope <- SymTab.getScope
+        case currScope of
+             Local  -> defineLocal node
+             Global -> defineGlobal node
+
 convertToSchema (ExprStmtNode exprStatement _) = convertToSchema exprStatement
 
 convertToSchema ContinueNode{} = do
@@ -125,7 +138,11 @@ convertToSchema (UnaryNode val unOp _) = do
 
 convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ LiteralSchema n)
 
-convertToSchema (VarNode name _) = pure (ExpressionSchema $ VariableSchema name)
+convertToSchema node@(VarNode name _) = do
+        varType <- SymTab.getVariable name
+        case varType of
+             NotFound    -> throwError $ FatalError (GeneratorBug node)
+             VarType typ -> pure (ExpressionSchema $ VariableSchema typ)
 
 convertToSchema NullExprNode{} = pure SkipSchema
 
@@ -176,3 +193,46 @@ processParameters name params = do
         SymTab.initFunction name
         mapM_ convertToSchema params
         SymTab.closeFunction
+
+
+-- Global Variables
+
+declareGlobal :: Tree -> GenState AssemblySchema
+declareGlobal (DeclarationNode varNode@(VarNode name _) typ assignNode _) = do
+        currLabel    <- SymTab.globalLabel name
+        case currLabel of
+             Just _  -> pure SkipSchema
+             Nothing -> do
+                     globLab <- SymTab.mkGlobLabel name
+                     SymTab.declareGlobal name typ globLab
+                     currScope    <- SymTab.getScope
+                     varSchema    <- convertToSchema varNode
+                     assignSchema <- processAssignment assignNode
+                     pure (DeclarationSchema varSchema assignSchema currScope)
+declareGlobal tree = throwError $ FatalError (GeneratorBug tree)
+
+
+processAssignment :: Maybe Tree -> GenState AssemblySchema
+processAssignment Nothing           = pure SkipSchema
+processAssignment (Just assignNode) = convertToSchema assignNode
+
+
+defineGlobal :: Tree -> GenState AssemblySchema
+defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ _) = do
+        SymTab.defineGlobal name
+        currScope <- SymTab.getScope
+        varSchema <- getExpressionSchema <$> convertToSchema varNode
+        valSchema <- getExpressionSchema <$> convertToSchema valNode
+        pure (StatementSchema $ AssignmentSchema varSchema valSchema currScope)
+defineGlobal tree = throwError $ FatalError (GeneratorBug tree)
+
+
+
+-- Local Variables
+
+declareLocal :: Tree -> GenState AssemblySchema
+declareLocal = undefined
+
+
+defineLocal :: Tree -> GenState AssemblySchema
+defineLocal = undefined

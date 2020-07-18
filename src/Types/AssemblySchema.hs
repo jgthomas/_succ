@@ -3,7 +3,7 @@ module Types.AssemblySchema where
 
 
 import Types.Operator
-import Types.Variables (Scope (..))
+import Types.Variables
 
 
 data AssemblySchema = ProgramSchema
@@ -13,7 +13,7 @@ data AssemblySchema = ProgramSchema
                        AssemblySchema
                     | DeclarationSchema
                        AssemblySchema
-                       (Maybe AssemblySchema)
+                       AssemblySchema
                        Scope
                     | StatementSchema
                        StatementSchema
@@ -54,7 +54,7 @@ data StatementSchema = IfSchema
 data ExpressionSchema = LiteralSchema
                          Int
                       | VariableSchema
-                         String
+                         VarType
                       | UnarySchema
                          ExpressionSchema
                          UnaryOp

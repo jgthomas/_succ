@@ -9,10 +9,10 @@ data Scope = Global
 
 data VarLookup = NotFound
                | VarType VarType
-               deriving (Eq)
+               deriving (Eq, Show)
 
 
 data VarType = LocalVar Int Int Int
              | ParamVar Int Int
              | GlobalVar String Int
-             deriving (Eq)
+             deriving (Eq, Show)
