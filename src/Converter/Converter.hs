@@ -121,9 +121,13 @@ convertToSchema (UnaryNode val unOp _) = do
         value <- getExpressionSchema <$> convertToSchema val
         pure (ExpressionSchema $ UnarySchema value unOp)
 
-convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ LiteralSchema n)
+convertToSchema (ConstantNode n _) = do
+        currScope <- SymTab.getScope
+        pure (ExpressionSchema $ LiteralSchema n currScope)
 
 convertToSchema (VarNode name _) = pure (ExpressionSchema $ VariableSchema name)
+
+convertToSchema NullExprNode{} = pure SkipSchema
 
 convertToSchema tree = throwError $ FatalError (GeneratorBug tree)
 

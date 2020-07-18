@@ -4,7 +4,7 @@ module Types.Variables where
 
 data Scope = Global
            | Local
-           deriving (Eq)
+           deriving (Eq, Show)
 
 
 data VarLookup = NotFound
