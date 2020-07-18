@@ -58,6 +58,30 @@ convertToSchema (CompoundStmtNode statements _) = do
         SymTab.closeScope
         pure (StatementSchema $ CompoundStatementSchema statementsSchema)
 
+convertToSchema (ForLoopNode ini test iter body _) = do
+        SymTab.initScope
+        passLabel <- SymTab.labelNum
+        failLabel <- SymTab.labelNum
+        contLabel <- SymTab.labelNum
+        SymTab.setBreak failLabel
+        SymTab.setContinue contLabel
+        iniSchema  <- convertToSchema ini
+        testSchema <- getExpressionSchema <$> convertToSchema test
+        iterSchema <- getExpressionSchema <$> convertToSchema iter
+        bodySchema <- getStatementSchema <$> convertToSchema body
+        SymTab.closeScope
+        pure (StatementSchema
+              (ForSchema
+               iniSchema
+               testSchema
+               iterSchema
+               bodySchema
+               (LocalLabel passLabel)
+               (LocalLabel failLabel)
+               (LocalLabel contLabel)
+              )
+             )
+
 convertToSchema (WhileNode test body _) = do
         loopLabel  <- SymTab.labelNum
         testLabel  <- SymTab.labelNum
