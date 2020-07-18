@@ -3,6 +3,7 @@ module Converter.Converter (convert) where
 
 
 import           Control.Monad        (unless)
+import           Data.Maybe           (fromMaybe)
 
 import           State.GenState       (GenState, runGenState, throwError)
 import qualified State.GenState       as GenState (getState, startState)
@@ -89,6 +90,14 @@ convertToSchema (DoWhileNode body test _) = do
                 (LocalLabel testLabel)
               )
              )
+
+convertToSchema ContinueNode{} = do
+        contineLabel <- LocalLabel . fromMaybe (-1) <$> SymTab.getContinue
+        pure (StatementSchema $ ContinueSchema contineLabel)
+
+convertToSchema BreakNode{} = do
+        breakLabel <- LocalLabel . fromMaybe (-1) <$> SymTab.getBreak
+        pure (StatementSchema $ BreakSchema breakLabel)
 
 convertToSchema (ReturnNode val _) = do
         value <- getExpressionSchema <$> convertToSchema val

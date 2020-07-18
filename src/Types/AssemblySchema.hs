@@ -34,6 +34,10 @@ data StatementSchema = IfSchema
                         Label
                         Label
                         Label
+                     | ContinueSchema
+                        Label
+                     | BreakSchema
+                        Label
                      | ReturnSchema
                         ExpressionSchema
                      | CompoundStatementSchema
