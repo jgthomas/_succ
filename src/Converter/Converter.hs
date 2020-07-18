@@ -42,6 +42,14 @@ convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
         SymTab.defineFunction name
         pure (FunctionSchema name bodySchema)
 
+convertToSchema (ParamNode typ (VarNode name _) _) = do
+        SymTab.addParameter name typ
+        pure SkipSchema
+convertToSchema node@ParamNode{} =
+        throwError $ FatalError (GeneratorBug node)
+
+convertToSchema (ArgNode arg _) = convertToSchema arg
+
 convertToSchema (CompoundStmtNode statements _) = do
         SymTab.initScope
         statementsSchema <- mapM convertToSchema statements
