@@ -1,5 +1,4 @@
-{-|
-Module       : Generator
+{-| Module   : Generator
 Description  : Produces assembly code
 
 Generates the x86-64 assembly code for a particular abstract syntax tree.
@@ -178,7 +177,7 @@ genASM (UnaryNode node@(VarNode name _) op _) = do
              (VarType a) -> pure $ ASM.unary unaryASM op a
 genASM (UnaryNode tree  op _) = do
         unode <- genASM tree
-        pure $ ASM.unary unode op (LocalVar 0 0)
+        pure $ ASM.unary unode op (LocalVar 0 0 0)
 
 genASM node@(VarNode name _) = do
         var <- SymTab.getVariable name
@@ -357,7 +356,7 @@ defineLocal node@(AssignmentNode varNode@(VarNode name _) value op _) = do
         assign <- buildAssignmentASM varNode value op
         var <- SymTab.getVariable name
         case var of
-             (VarType (LocalVar n m))   -> ASM.assign assign (n + m) <$> SymTab.stackPointerValue
+             (VarType (LocalVar n m _)) -> ASM.assign assign (n + m) <$> SymTab.stackPointerValue
              (VarType param@ParamVar{}) -> pure $ assign ++ ASM.storeVariable param
              (VarType glob@GlobalVar{}) -> pure $ assign ++ ASM.storeVariable glob
              NotFound                   -> throwError $ FatalError (GeneratorBug node)
@@ -431,9 +430,9 @@ buildAssignmentASM varTree _ _ =
 
 
 adjustVarOffset :: Int -> VarType -> GenState VarType
-adjustVarOffset x (LocalVar n _)  = pure (LocalVar n (x * SymTab.memOffset))
-adjustVarOffset x (ParamVar n _)  = pure (ParamVar n x)
-adjustVarOffset x (GlobalVar s _) = pure (GlobalVar s x)
+adjustVarOffset x (LocalVar n _ sp)  = pure (LocalVar n (x * SymTab.memOffset) sp)
+adjustVarOffset x (ParamVar n _)     = pure (ParamVar n x)
+adjustVarOffset x (GlobalVar s _)    = pure (GlobalVar s x)
 
 
 -- Operators

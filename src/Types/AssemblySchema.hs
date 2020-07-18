@@ -3,6 +3,7 @@ module Types.AssemblySchema where
 
 
 import Types.Operator
+import Types.Variables (Scope (..))
 
 
 data AssemblySchema = ProgramSchema
@@ -13,6 +14,7 @@ data AssemblySchema = ProgramSchema
                     | DeclarationSchema
                        AssemblySchema
                        (Maybe AssemblySchema)
+                       Scope
                     | StatementSchema
                        StatementSchema
                     | ExpressionSchema
@@ -43,6 +45,7 @@ data StatementSchema = IfSchema
                      | AssignmentSchema
                         ExpressionSchema
                         ExpressionSchema
+                        Scope
                      | CompoundStatementSchema
                         [AssemblySchema]
                      deriving (Eq, Show)

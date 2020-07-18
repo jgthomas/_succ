@@ -50,9 +50,9 @@ assign toAssign off adj =
 
 -- | Load a variable value to %rax
 loadVariable :: VarType -> String
-loadVariable (LocalVar n m)  = varOffStack (n + m)
-loadVariable (ParamVar n _)  = getFromRegister n
-loadVariable (GlobalVar s o) = loadGlobal s o
+loadVariable (LocalVar n m _) = varOffStack (n + m)
+loadVariable (ParamVar n _)   = getFromRegister n
+loadVariable (GlobalVar s o)  = loadGlobal s o
 
 
 varOffStack :: Int -> String
@@ -75,9 +75,9 @@ loadGlobal label offset = move (fromInstructionPointerOffset label offset) (reg 
 
 -- | Store a variable value currently held in %rax
 storeVariable :: VarType -> String
-storeVariable (LocalVar n m)  = varOnStack (n + m)
-storeVariable (ParamVar n _)  = updateParam n
-storeVariable (GlobalVar s o) = saveGlobal s o
+storeVariable (LocalVar n m _) = varOnStack (n + m)
+storeVariable (ParamVar n _)   = updateParam n
+storeVariable (GlobalVar s o)  = saveGlobal s o
 
 
 varOnStack :: Int -> String
@@ -101,9 +101,9 @@ addressStore globalVar@GlobalVar{} = storeVariable globalVar
 
 -- | Load a dereferenced pointer value
 derefLoad :: VarType -> String
-derefLoad (LocalVar n m)  = derefLoadLocal (n + m)
-derefLoad (ParamVar n _)  = derefLoadParam n
-derefLoad (GlobalVar s o) = derefLoadGlobal s o
+derefLoad (LocalVar n m _) = derefLoadLocal (n + m)
+derefLoad (ParamVar n _)   = derefLoadParam n
+derefLoad (GlobalVar s o)  = derefLoadGlobal s o
 
 
 derefLoadLocal :: Int -> String
@@ -125,9 +125,9 @@ derefLoadGlobal label offset =
 
 -- | Store a dereferenced pointer value
 derefStore :: VarType -> String
-derefStore (LocalVar n m)  = derefStoreLocal (n + m)
-derefStore (ParamVar n _)  = derefStoreParam n
-derefStore (GlobalVar s o) = derefStoreGlobal s o
+derefStore (LocalVar n m _) = derefStoreLocal (n + m)
+derefStore (ParamVar n _)   = derefStoreParam n
+derefStore (GlobalVar s o)  = derefStoreGlobal s o
 
 
 derefStoreLocal :: Int -> String
@@ -149,9 +149,9 @@ derefStoreGlobal label offset =
 
 -- | Load the address of a variable
 addressOf :: VarType -> String
-addressOf (LocalVar n m)  = varAddressLoad (n + m)
-addressOf (ParamVar _ _)  = undefined
-addressOf (GlobalVar s o) = varAddressLoadGlobal s o
+addressOf (LocalVar n m _) = varAddressLoad (n + m)
+addressOf (ParamVar _ _)   = undefined
+addressOf (GlobalVar s o)  = varAddressLoadGlobal s o
 
 
 varAddressLoad :: Int -> String

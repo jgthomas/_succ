@@ -12,7 +12,7 @@ data VarLookup = NotFound
                deriving (Eq)
 
 
-data VarType = LocalVar Int Int
+data VarType = LocalVar Int Int Int
              | ParamVar Int Int
              | GlobalVar String Int
              deriving (Eq)
