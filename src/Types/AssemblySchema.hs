@@ -29,6 +29,11 @@ data StatementSchema = IfSchema
                         Int
                         Int
                      | DoWhileSchema
+                        StatementSchema
+                        ExpressionSchema
+                        Int
+                        Int
+                        Int
                      | ReturnSchema
                         ExpressionSchema
                      | CompoundStatementSchema

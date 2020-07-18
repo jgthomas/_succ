@@ -63,7 +63,32 @@ convertToSchema (WhileNode test body _) = do
         bodySchema <- getStatementSchema <$> convertToSchema body
         SymTab.setContinue loopLabel
         SymTab.setBreak testLabel
-        pure (StatementSchema $ WhileSchema testSchema bodySchema loopLabel testLabel)
+        pure (StatementSchema
+              (WhileSchema
+                testSchema
+                bodySchema
+                loopLabel
+                testLabel
+              )
+             )
+
+convertToSchema (DoWhileNode body test _) = do
+        loopLabel  <- SymTab.labelNum
+        contLabel  <- SymTab.labelNum
+        testLabel  <- SymTab.labelNum
+        bodySchema <- getStatementSchema <$> convertToSchema body
+        testSchema <- getExpressionSchema <$> convertToSchema test
+        SymTab.setContinue contLabel
+        SymTab.setBreak testLabel
+        pure (StatementSchema
+              (DoWhileSchema
+                bodySchema
+                testSchema
+                loopLabel
+                contLabel
+                testLabel
+              )
+             )
 
 convertToSchema (ReturnNode val _) = do
         value <- getExpressionSchema <$> convertToSchema val
