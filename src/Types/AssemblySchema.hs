@@ -74,8 +74,8 @@ data ExpressionSchema = LiteralSchema
                          ExpressionSchema
                          ExpressionSchema
                          BinaryOp
-                         String
-                         String
+                         Label
+                         Label
                       | TernarySchema
                          ExpressionSchema
                          ExpressionSchema
