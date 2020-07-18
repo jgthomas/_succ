@@ -43,7 +43,9 @@ convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
         pure (FunctionSchema name bodySchema)
 
 convertToSchema (CompoundStmtNode statements _) = do
+        SymTab.initScope
         statementsSchema <- mapM convertToSchema statements
+        SymTab.closeScope
         pure (StatementSchema $ CompoundStatementSchema statementsSchema)
 
 convertToSchema (ReturnNode val _) = do
