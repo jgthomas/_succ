@@ -24,6 +24,10 @@ data AssemblySchema = ProgramSchema
 data StatementSchema = IfSchema
                      | ForSchema
                      | WhileSchema
+                        ExpressionSchema
+                        StatementSchema
+                        Int
+                        Int
                      | DoWhileSchema
                      | ReturnSchema
                         ExpressionSchema

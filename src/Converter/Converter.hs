@@ -56,6 +56,15 @@ convertToSchema (CompoundStmtNode statements _) = do
         SymTab.closeScope
         pure (StatementSchema $ CompoundStatementSchema statementsSchema)
 
+convertToSchema (WhileNode test body _) = do
+        loopLabel  <- SymTab.labelNum
+        testLabel  <- SymTab.labelNum
+        testSchema <- getExpressionSchema <$> convertToSchema test
+        bodySchema <- getStatementSchema <$> convertToSchema body
+        SymTab.setContinue loopLabel
+        SymTab.setBreak testLabel
+        pure (StatementSchema $ WhileSchema testSchema bodySchema loopLabel testLabel)
+
 convertToSchema (ReturnNode val _) = do
         value <- getExpressionSchema <$> convertToSchema val
         pure (StatementSchema $ ReturnSchema value)
@@ -74,6 +83,11 @@ convertToSchema tree = throwError $ FatalError (GeneratorBug tree)
 getExpressionSchema :: AssemblySchema -> ExpressionSchema
 getExpressionSchema (ExpressionSchema schema) = schema
 getExpressionSchema _                         = undefined
+
+
+getStatementSchema :: AssemblySchema -> StatementSchema
+getStatementSchema (StatementSchema schema) = schema
+getStatementSchema _                        = undefined
 
 
 
