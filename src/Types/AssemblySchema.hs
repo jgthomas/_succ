@@ -62,8 +62,7 @@ data ExpressionSchema = LiteralSchema
                          ExpressionSchema
                          ExpressionSchema
                          ExpressionSchema
-                         String
-                         String
+                         Label
                       deriving (Eq, Show)
 
 

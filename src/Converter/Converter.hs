@@ -66,10 +66,10 @@ convertToSchema (WhileNode test body _) = do
         SymTab.setBreak testLabel
         pure (StatementSchema
               (WhileSchema
-                testSchema
-                bodySchema
-                (LocalLabel loopLabel)
-                (LocalLabel testLabel)
+               testSchema
+               bodySchema
+               (LocalLabel loopLabel)
+               (LocalLabel testLabel)
               )
              )
 
@@ -83,11 +83,11 @@ convertToSchema (DoWhileNode body test _) = do
         SymTab.setBreak testLabel
         pure (StatementSchema
               (DoWhileSchema
-                bodySchema
-                testSchema
-                (LocalLabel loopLabel)
-                (LocalLabel contLabel)
-                (LocalLabel testLabel)
+               bodySchema
+               testSchema
+               (LocalLabel loopLabel)
+               (LocalLabel contLabel)
+               (LocalLabel testLabel)
               )
              )
 
@@ -102,6 +102,20 @@ convertToSchema BreakNode{} = do
 convertToSchema (ReturnNode val _) = do
         value <- getExpressionSchema <$> convertToSchema val
         pure (StatementSchema $ ReturnSchema value)
+
+convertToSchema (TernaryNode test true false _) = do
+        testSchema  <- getExpressionSchema <$> convertToSchema test
+        trueSchema  <- getExpressionSchema <$> convertToSchema true
+        falseSchema <- getExpressionSchema <$> convertToSchema false
+        trueLabel   <- LocalLabel <$> SymTab.labelNum
+        pure (ExpressionSchema
+              (TernarySchema
+               testSchema
+               trueSchema
+               falseSchema
+               trueLabel
+              )
+             )
 
 convertToSchema (UnaryNode val unOp _) = do
         value <- getExpressionSchema <$> convertToSchema val
