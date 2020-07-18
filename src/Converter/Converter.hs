@@ -195,7 +195,7 @@ processParameters name params = do
         SymTab.closeFunction
 
 
--- Global Variables
+-- Variables Global
 
 declareGlobal :: Tree -> GenState AssemblySchema
 declareGlobal (DeclarationNode varNode@(VarNode name _) typ assignNode _) = do
@@ -223,7 +223,7 @@ defineGlobal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 
--- Local Variables
+-- Variables Local
 
 declareLocal :: Tree -> GenState AssemblySchema
 declareLocal (DeclarationNode varNode@(VarNode name _) typ value _) = do
@@ -243,6 +243,9 @@ defineLocal (AssignmentNode varNode value _ _) = do
         pure (StatementSchema $ AssignmentSchema varSchema valSchema currScope)
 defineLocal tree = throwError $ FatalError (GeneratorBug tree)
 
+
+
+-- Variables Shared
 
 processAssignment :: Maybe Tree -> GenState AssemblySchema
 processAssignment Nothing           = pure SkipSchema

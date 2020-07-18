@@ -42,7 +42,7 @@ converterTest = hspec $ do
                     Global
                    ]
 
-                it "Should create a function schema with local declaration" $
+                it "Should create a function schema with local declaration and assignment" $
                   (extractSchema (ProgramNode
                                   [FunctionNode
                                    IntVar
