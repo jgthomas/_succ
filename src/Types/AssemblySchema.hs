@@ -26,14 +26,14 @@ data StatementSchema = IfSchema
                      | WhileSchema
                         ExpressionSchema
                         StatementSchema
-                        Int
-                        Int
+                        Label
+                        Label
                      | DoWhileSchema
                         StatementSchema
                         ExpressionSchema
-                        Int
-                        Int
-                        Int
+                        Label
+                        Label
+                        Label
                      | ReturnSchema
                         ExpressionSchema
                      | CompoundStatementSchema
@@ -41,8 +41,10 @@ data StatementSchema = IfSchema
                      deriving (Eq, Show)
 
 
-data ExpressionSchema = LiteralSchema Int
-                      | VariableSchema String
+data ExpressionSchema = LiteralSchema
+                         Int
+                      | VariableSchema
+                         String
                       | UnarySchema
                          ExpressionSchema
                          UnaryOp
@@ -59,3 +61,8 @@ data ExpressionSchema = LiteralSchema Int
                          String
                          String
                       deriving (Eq, Show)
+
+
+data Label = LocalLabel Int
+           | GlobalLabel String
+           deriving (Eq, Show)

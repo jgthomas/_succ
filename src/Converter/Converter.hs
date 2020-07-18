@@ -67,8 +67,8 @@ convertToSchema (WhileNode test body _) = do
               (WhileSchema
                 testSchema
                 bodySchema
-                loopLabel
-                testLabel
+                (LocalLabel loopLabel)
+                (LocalLabel testLabel)
               )
              )
 
@@ -84,9 +84,9 @@ convertToSchema (DoWhileNode body test _) = do
               (DoWhileSchema
                 bodySchema
                 testSchema
-                loopLabel
-                contLabel
-                testLabel
+                (LocalLabel loopLabel)
+                (LocalLabel contLabel)
+                (LocalLabel testLabel)
               )
              )
 
