@@ -42,7 +42,43 @@ converterTest = hspec $ do
                     Global
                    ]
 
-                it "Should create a function schema with local declaration and assignment" $
+                it "Should create a function schema with local declaration" $
+                  (extractSchema (ProgramNode
+                                  [FunctionNode
+                                   IntVar
+                                   "main"
+                                   []
+                                   (Just $ CompoundStmtNode
+                                    [DeclarationNode
+                                     (VarNode "a" mockNodeDat)
+                                     IntVar
+                                     Nothing
+                                     mockNodeDat,
+                                     ReturnNode
+                                     (ConstantNode 190 mockNodeDat)
+                                     mockNodeDat
+                                    ]
+                                    mockNodeDat
+                                   )
+                                   mockNodeDat
+                                  ]
+                                 )
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                  [FunctionSchema
+                   "main"
+                   (StatementSchema $ CompoundStatementSchema
+                    [DeclarationSchema
+                     (ExpressionSchema $ VariableSchema (LocalVar (-8) 0 0))
+                     SkipSchema
+                     Local,
+                     StatementSchema $ ReturnSchema (LiteralSchema 190)
+                    ]
+                   )
+                  ]
+
+                it "Should create a function schema with local declaration with assignment" $
                   (extractSchema (ProgramNode
                                   [FunctionNode
                                    IntVar
