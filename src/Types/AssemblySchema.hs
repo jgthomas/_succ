@@ -24,6 +24,11 @@ data AssemblySchema = ProgramSchema
 
 
 data StatementSchema = IfSchema
+                        ExpressionSchema
+                        StatementSchema
+                        AssemblySchema
+                        Label
+                        Label
                      | ForSchema
                         AssemblySchema
                         ExpressionSchema

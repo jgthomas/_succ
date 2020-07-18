@@ -116,6 +116,22 @@ convertToSchema (DoWhileNode body test _) = do
               )
              )
 
+convertToSchema (IfNode test body possElse _) = do
+        ifLabel    <- LocalLabel <$> SymTab.labelNum
+        elseLabel  <- LocalLabel <$> SymTab.labelNum
+        testSchema <- getExpressionSchema <$> convertToSchema test
+        bodySchema <- getStatementSchema <$> convertToSchema body
+        elseSchema <- processElse possElse
+        pure (StatementSchema
+              (IfSchema
+               testSchema
+               bodySchema
+               elseSchema
+               ifLabel
+               elseLabel
+              )
+             )
+
 convertToSchema node@DeclarationNode{} = do
         currScope <- SymTab.getScope
         case currScope of
@@ -274,3 +290,10 @@ defineLocal tree = throwError $ FatalError (GeneratorBug tree)
 processAssignment :: Maybe Tree -> GenState AssemblySchema
 processAssignment Nothing           = pure SkipSchema
 processAssignment (Just assignNode) = convertToSchema assignNode
+
+
+-- Statements
+
+processElse :: Maybe Tree -> GenState AssemblySchema
+processElse Nothing  = pure SkipSchema
+processElse (Just e) = convertToSchema e
