@@ -238,29 +238,29 @@ convertToSchema node@(AddressOfNode name _) = do
 
 convertToSchema NullExprNode{} = pure SkipSchema
 
-convertToSchema (ArrayNode arrayNode) = convertToArraySchema arrayNode
+convertToSchema (ArrayNode arrayNode) = convertToSchemaArray arrayNode
 
 
-convertToArraySchema :: ArrayNode -> GenState AssemblySchema
+convertToSchemaArray :: ArrayNode -> GenState AssemblySchema
 
-convertToArraySchema (ArrayDeclareNode len var typ Nothing dat) = do
+convertToSchemaArray (ArrayDeclareNode len var typ Nothing dat) = do
         declareSchema <- convertToSchema (DeclarationNode var typ Nothing dat)
         SymTab.incrementOffsetByN (len - 1)
         pure declareSchema
-convertToArraySchema  (ArrayDeclareNode _ var typ assign dat) =
+convertToSchemaArray  (ArrayDeclareNode _ var typ assign dat) =
         convertToSchema (DeclarationNode var typ assign dat)
 
-convertToArraySchema (ArrayItemsNode varNode items _) = processArrayItems varNode items
+convertToSchemaArray (ArrayItemsNode varNode items _) = processArrayItems varNode items
 
-convertToArraySchema (ArraySingleItemNode item _) = convertToSchema item
+convertToSchemaArray (ArraySingleItemNode item _) = convertToSchema item
 
-convertToArraySchema (ArrayItemAccess pos varNode _) = do
+convertToSchemaArray (ArrayItemAccess pos varNode _) = do
         varSchema <- setArrayOffset . getExpressionSchema <$> convertToSchema varNode
         pure (ExpressionSchema varSchema)
         where
                 setArrayOffset = setSchemaOffset pos
 
-convertToArraySchema _ = undefined
+convertToSchemaArray _ = undefined
 
 
 -- Array
