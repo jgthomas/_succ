@@ -279,6 +279,7 @@ converterTest = hspec $ do
                     [DeclarationSchema
                      (ExpressionSchema $ VariableSchema (LocalVar (-8) 0 0))
                      (ExpressionSchema $ ArrayItemsSchema
+                      (16)
                       [AssignmentSchema
                        (VariableSchema (LocalVar (-8) 0 0))
                        (LiteralSchema 20)

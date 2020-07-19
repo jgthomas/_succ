@@ -262,7 +262,13 @@ convertToArraySchema _ = undefined
 processArrayItems :: Tree -> [Tree] -> GenState AssemblySchema
 processArrayItems varNode items = do
         arrayItemsSchema <- mapM processItem (zip items [0..])
-        pure (ExpressionSchema $ ArrayItemsSchema $ map getStatementSchema arrayItemsSchema)
+        adjust           <- SymTab.stackPointerValue
+        pure (ExpressionSchema
+              (ArrayItemsSchema
+               adjust
+               (map getStatementSchema arrayItemsSchema)
+              )
+             )
         where
                 processItem = processArrayItem varNode
 
