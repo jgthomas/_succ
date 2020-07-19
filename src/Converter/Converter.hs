@@ -242,7 +242,15 @@ convertToSchema (ArrayNode arrayNode) = convertToArraySchema arrayNode
 
 
 convertToArraySchema :: ArrayNode -> GenState AssemblySchema
-convertToArraySchema = undefined
+
+convertToArraySchema (ArrayDeclareNode len var typ Nothing dat) = do
+        declareSchema <- convertToSchema (DeclarationNode var typ Nothing dat)
+        SymTab.incrementOffsetByN (len - 1)
+        pure declareSchema
+convertToArraySchema  (ArrayDeclareNode _ var typ assign dat) =
+        convertToSchema (DeclarationNode var typ assign dat)
+
+convertToArraySchema _ = undefined
 
 
 -- Function

@@ -199,3 +199,41 @@ converterTest = hspec $ do
                     ]
                    )
                   ]
+
+                it "Should create a schema for a function with local array declaration" $
+                  (extractSchema (ProgramNode
+                                  [FunctionNode
+                                   IntVar
+                                   "main"
+                                   []
+                                   (Just $ CompoundStmtNode
+                                    [ArrayNode $ ArrayDeclareNode
+                                     2
+                                     (VarNode "a" mockNodeDat)
+                                     IntArray
+                                     Nothing
+                                     mockNodeDat,
+                                     ReturnNode
+                                     (ConstantNode 190 mockNodeDat)
+                                     mockNodeDat
+                                    ]
+                                    mockNodeDat
+                                   )
+                                   mockNodeDat
+                                  ]
+                                 )
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                  [FunctionSchema
+                   "main"
+                   (StatementSchema $ CompoundStatementSchema
+                    [DeclarationSchema
+                     (ExpressionSchema $ VariableSchema (LocalVar (-8) 0 0))
+                     SkipSchema
+                     Local
+                     IntArray,
+                     StatementSchema $ ReturnSchema (LiteralSchema 190)
+                    ]
+                   )
+                  ]
