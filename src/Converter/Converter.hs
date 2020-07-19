@@ -13,6 +13,7 @@ import           Types.AssemblySchema
 import           Types.AST            (ArrayNode (..), Tree (..))
 import           Types.Error          (CompilerError (FatalError),
                                        FatalError (GeneratorBug))
+import           Types.Operator
 import           Types.Variables
 
 
@@ -256,7 +257,14 @@ convertToSchemaArray (ArraySingleItemNode item _) = convertToSchema item
 
 convertToSchemaArray (ArrayItemAccess pos varNode _) = getArrayIndexItem pos varNode
 
-convertToSchemaArray ArrayAssignPosNode{} = undefined
+convertToSchemaArray node@(ArrayAssignPosNode (ArrayNode (ArrayItemAssign pos varNode _)) valNode op _) =
+        case op of
+             BinaryOp _ -> undefined
+             UnaryOp _  -> throwError $ FatalError (GeneratorBug $ ArrayNode node)
+             Assignment -> setArrayAssignment (valNode, pos)
+        where
+                setArrayAssignment = processArrayItem varNode
+convertToSchemaArray node@ArrayAssignPosNode{} = throwError $ FatalError (GeneratorBug $ ArrayNode node)
 
 convertToSchemaArray (ArrayItemAssign pos varNode _) = getArrayIndexItem pos varNode
 
