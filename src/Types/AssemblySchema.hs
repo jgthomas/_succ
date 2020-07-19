@@ -76,8 +76,8 @@ data ExpressionSchema = LiteralSchema
                       | ArgumentSchema
                          ExpressionSchema
                       | FunctionCallSchema
-                        String
-                        [ExpressionSchema]
+                         String
+                         [ExpressionSchema]
                       | UnarySchema
                          ExpressionSchema
                          UnaryOp
