@@ -270,7 +270,7 @@ processArrayItems varNode items = do
 processArrayItem :: Tree -> (Tree, Int) -> GenState AssemblySchema
 processArrayItem varNode (item, pos) = do
         currScope <- SymTab.getScope
-        varSchema <- setArrayOffset <$> getExpressionSchema <$> convertToSchema varNode
+        varSchema <- setArrayOffset . getExpressionSchema <$> convertToSchema varNode
         valSchema <- getExpressionSchema <$> convertToSchema item
         pure (StatementSchema
               (AssignmentSchema
@@ -285,7 +285,7 @@ processArrayItem varNode (item, pos) = do
 
 setSchemaOffset :: Int -> ExpressionSchema -> ExpressionSchema
 setSchemaOffset n (VariableSchema varType) =
-        (VariableSchema $ adjustVariable (Just n) Nothing varType)
+        VariableSchema $ adjustVariable (Just n) Nothing varType
 setSchemaOffset _ _ = undefined
 
 
@@ -392,9 +392,9 @@ processPossibleNode (Just node) = convertToSchema node
 
 
 adjustVariable :: Maybe Int -> Maybe Int -> VarType -> VarType
-adjustVariable (Just x) (Just y) (LocalVar n _ _) = (LocalVar n (x * SymTab.memOffset) y)
-adjustVariable (Just x) Nothing (LocalVar n _ sp) = (LocalVar n (x * SymTab.memOffset) sp)
-adjustVariable Nothing (Just y) (LocalVar n m _)  = (LocalVar n m y)
-adjustVariable (Just x) _ (ParamVar n _)          = (ParamVar n x)
-adjustVariable (Just x) _ (GlobalVar l _)         = (GlobalVar l x)
+adjustVariable (Just x) (Just y) (LocalVar n _ _) = LocalVar n (x * SymTab.memOffset) y
+adjustVariable (Just x) Nothing (LocalVar n _ sp) = LocalVar n (x * SymTab.memOffset) sp
+adjustVariable Nothing (Just y) (LocalVar n m _)  = LocalVar n m y
+adjustVariable (Just x) _ (ParamVar n _)          = ParamVar n x
+adjustVariable (Just x) _ (GlobalVar l _)         = GlobalVar l x
 adjustVariable _ _ varType                        = varType
