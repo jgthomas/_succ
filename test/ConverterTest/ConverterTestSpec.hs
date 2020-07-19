@@ -34,7 +34,7 @@ converterTest = hspec $ do
                     IntVar
                    ]
 
-                it "Should create a global declaration schema with assignment" $
+                it "Should create a schema for a global declaration with assignment" $
                   (extractSchema $ ProgramNode [
                                     DeclarationNode
                                     (VarNode "a" mockNodeDat)
@@ -61,7 +61,7 @@ converterTest = hspec $ do
                     IntVar
                    ]
 
-                it "Should create a global pointer declaration schema" $
+                it "Should create a schema for a global pointer declaration" $
                   (extractSchema $ ProgramNode [
                                     DeclarationNode
                                     (VarNode "a" mockNodeDat)
@@ -73,13 +73,50 @@ converterTest = hspec $ do
                   `shouldBe`
                   ProgramSchema
                    [DeclarationSchema
-                    (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0 ))
+                    (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0))
                     SkipSchema
                     Global
                     IntPointer
                    ]
 
-                it "Should create a function schema with local declaration" $
+                it "Should create a schema for a global pointer declaration with assignment" $
+                  (extractSchema $ ProgramNode [
+                                    DeclarationNode
+                                    (VarNode "a" mockNodeDat)
+                                    IntVar
+                                    Nothing
+                                    mockNodeDat,
+                                    DeclarationNode
+                                    (VarNode "b" mockNodeDat)
+                                    IntPointer
+                                    (Just $ AssignmentNode
+                                     (VarNode "b" mockNodeDat)
+                                     (AddressOfNode "a" mockNodeDat)
+                                     Assignment
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat
+                                   ]
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                   [DeclarationSchema
+                    (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0))
+                    SkipSchema
+                    Global
+                    IntVar,
+                    DeclarationSchema
+                    (ExpressionSchema $ VariableSchema (GlobalVar "_b2" 0))
+                    (StatementSchema $ AssignmentSchema
+                     (VariableSchema (GlobalVar "_b2" 0))
+                     (AddressOfSchema $ VariableSchema (GlobalVar "_a1" 0))
+                     Global
+                    )
+                    Global
+                    IntPointer
+                   ]
+
+                it "Should create a schema for a function with local declaration" $
                   (extractSchema (ProgramNode
                                   [FunctionNode
                                    IntVar
@@ -116,7 +153,7 @@ converterTest = hspec $ do
                    )
                   ]
 
-                it "Should create a function schema with local declaration with assignment" $
+                it "Should create a schema for a function with local declaration with assignment" $
                   (extractSchema (ProgramNode
                                   [FunctionNode
                                    IntVar
