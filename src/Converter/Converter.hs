@@ -297,7 +297,7 @@ processArrayItems varNode items = do
 processArrayItem :: Tree -> (Tree, Int) -> GenState AssemblySchema
 processArrayItem varNode (item, pos) = do
         currScope <- SymTab.getScope
-        varSchema <- setArrayOffset . getExpressionSchema <$> convertToSchema varNode
+        varSchema <- getExpressionSchema <$> getArrayIndexItem pos varNode
         valSchema <- getExpressionSchema <$> convertToSchema item
         pure (StatementSchema
               (AssignmentSchema
@@ -306,8 +306,6 @@ processArrayItem varNode (item, pos) = do
                currScope
               )
              )
-        where
-                setArrayOffset = setSchemaOffset pos
 
 
 setSchemaOffset :: Int -> ExpressionSchema -> ExpressionSchema
