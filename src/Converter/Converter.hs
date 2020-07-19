@@ -13,7 +13,7 @@ import           Types.AssemblySchema
 import           Types.AST            (ArrayNode (..), Tree (..))
 import           Types.Error          (CompilerError (FatalError),
                                        FatalError (GeneratorBug))
-import           Types.Variables      (Scope (..), VarLookup (..))
+import           Types.Variables
 
 
 convert :: Tree -> Either CompilerError (AssemblySchema, SymTab)
@@ -137,7 +137,14 @@ convertToSchema (IfNode test body possElse _) = do
               )
              )
 
-convertToSchema PointerNode{} = undefined
+convertToSchema (PointerNode varNode typ Nothing dat) =
+        convertToSchema (DeclarationNode varNode typ Nothing dat)
+convertToSchema node@(PointerNode varNode typ value dat) = do
+        varSchema <- convertToSchema varNode
+        case getExpressionSchema varSchema of
+             VariableSchema ParamVar{} -> throwError $ FatalError (GeneratorBug node)
+             _                         -> convertToSchema (DeclarationNode varNode typ value dat)
+
 
 convertToSchema node@DeclarationNode{} = do
         currScope <- SymTab.getScope
@@ -232,8 +239,6 @@ convertToSchema node@(AddressOfNode name _) = do
 convertToSchema NullExprNode{} = pure SkipSchema
 
 convertToSchema (ArrayNode arrayNode) = convertToArraySchema arrayNode
-
---convertToSchema tree = throwError $ FatalError (GeneratorBug tree)
 
 
 convertToArraySchema :: ArrayNode -> GenState AssemblySchema
