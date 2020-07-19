@@ -345,3 +345,68 @@ converterTest = hspec $ do
                      [StatementSchema $ ReturnSchema (LiteralSchema 10)]
                     )
                    ]
+
+                it "Should create a schema for a function with local array access" $
+                  (extractSchema (ProgramNode
+                                  [FunctionNode
+                                   IntVar
+                                   "main"
+                                   []
+                                   (Just $ CompoundStmtNode
+                                    [ArrayNode $ ArrayDeclareNode
+                                     2
+                                     (VarNode "a" mockNodeDat)
+                                     IntArray
+                                     (Just $ ArrayNode $ ArrayItemsNode
+                                      (VarNode "a" mockNodeDat)
+                                      [ArrayNode $ ArraySingleItemNode
+                                       (ConstantNode 20 mockNodeDat)
+                                       mockNodeDat,
+                                       ArrayNode $ ArraySingleItemNode
+                                       (ConstantNode 30 mockNodeDat)
+                                       mockNodeDat
+                                      ]
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat,
+                                     ReturnNode
+                                     (ArrayNode $ ArrayItemAccess
+                                      1
+                                      (VarNode "a" mockNodeDat)
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat
+                                    ]
+                                    mockNodeDat
+                                   )
+                                   mockNodeDat
+                                  ]
+                                 )
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                  [FunctionSchema
+                   "main"
+                   (StatementSchema $ CompoundStatementSchema
+                    [DeclarationSchema
+                     (ExpressionSchema $ VariableSchema (LocalVar (-8) 0 0))
+                     (ExpressionSchema $ ArrayItemsSchema
+                      (16)
+                      [AssignmentSchema
+                       (VariableSchema (LocalVar (-8) 0 0))
+                       (LiteralSchema 20)
+                       Local,
+                       AssignmentSchema
+                       (VariableSchema (LocalVar (-8) (-8) 0))
+                       (LiteralSchema 30)
+                       Local
+                      ]
+                     )
+                     Local
+                     IntArray,
+                     StatementSchema $
+                     ReturnSchema
+                     (VariableSchema (LocalVar (-8) (-8) 0))
+                    ]
+                   )
+                  ]

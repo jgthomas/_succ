@@ -254,6 +254,12 @@ convertToArraySchema (ArrayItemsNode varNode items _) = processArrayItems varNod
 
 convertToArraySchema (ArraySingleItemNode item _) = convertToSchema item
 
+convertToArraySchema (ArrayItemAccess pos varNode _) = do
+        varSchema <- setArrayOffset . getExpressionSchema <$> convertToSchema varNode
+        pure (ExpressionSchema varSchema)
+        where
+                setArrayOffset = setSchemaOffset pos
+
 convertToArraySchema _ = undefined
 
 
