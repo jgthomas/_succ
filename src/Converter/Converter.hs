@@ -250,7 +250,43 @@ convertToArraySchema (ArrayDeclareNode len var typ Nothing dat) = do
 convertToArraySchema  (ArrayDeclareNode _ var typ assign dat) =
         convertToSchema (DeclarationNode var typ assign dat)
 
+convertToArraySchema (ArrayItemsNode varNode items _) = processArrayItems varNode items
+
+convertToArraySchema (ArraySingleItemNode item _) = convertToSchema item
+
 convertToArraySchema _ = undefined
+
+
+-- Array
+
+processArrayItems :: Tree -> [Tree] -> GenState AssemblySchema
+processArrayItems varNode items = do
+        arrayItemsSchema <- mapM processItem (zip items [0..])
+        pure (ExpressionSchema $ ArrayItemsSchema $ map getStatementSchema arrayItemsSchema)
+        where
+                processItem = processArrayItem varNode
+
+
+processArrayItem :: Tree -> (Tree, Int) -> GenState AssemblySchema
+processArrayItem varNode (item, pos) = do
+        currScope <- SymTab.getScope
+        varSchema <- setArrayOffset <$> getExpressionSchema <$> convertToSchema varNode
+        valSchema <- getExpressionSchema <$> convertToSchema item
+        pure (StatementSchema
+              (AssignmentSchema
+               varSchema
+               valSchema
+               currScope
+              )
+             )
+        where
+                setArrayOffset = setSchemaOffset pos
+
+
+setSchemaOffset :: Int -> ExpressionSchema -> ExpressionSchema
+setSchemaOffset n (VariableSchema varType) =
+        (VariableSchema $ adjustVariable (Just n) Nothing varType)
+setSchemaOffset _ _ = undefined
 
 
 -- Function
@@ -353,3 +389,12 @@ getStatementSchema _                        = undefined
 processPossibleNode :: Maybe Tree -> GenState AssemblySchema
 processPossibleNode Nothing     = pure SkipSchema
 processPossibleNode (Just node) = convertToSchema node
+
+
+adjustVariable :: Maybe Int -> Maybe Int -> VarType -> VarType
+adjustVariable (Just x) (Just y) (LocalVar n _ _) = (LocalVar n (x * SymTab.memOffset) y)
+adjustVariable (Just x) Nothing (LocalVar n _ sp) = (LocalVar n (x * SymTab.memOffset) sp)
+adjustVariable Nothing (Just y) (LocalVar n m _)  = (LocalVar n m y)
+adjustVariable (Just x) _ (ParamVar n _)          = (ParamVar n x)
+adjustVariable (Just x) _ (GlobalVar l _)         = (GlobalVar l x)
+adjustVariable _ _ varType                        = varType

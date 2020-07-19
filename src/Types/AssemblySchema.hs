@@ -92,6 +92,8 @@ data ExpressionSchema = LiteralSchema
                          ExpressionSchema
                          ExpressionSchema
                          Label
+                      | ArrayItemsSchema
+                         [StatementSchema]
                       deriving (Eq, Show)
 
 
