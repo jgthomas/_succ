@@ -10,7 +10,7 @@ import qualified State.GenState       as GenState (getState, startState)
 import           State.SymTab         (SymTab)
 import qualified State.SymTab         as SymTab
 import           Types.AssemblySchema
-import           Types.AST            (Tree (..))
+import           Types.AST            (ArrayNode (..), Tree (..))
 import           Types.Error          (CompilerError (FatalError),
                                        FatalError (GeneratorBug))
 import           Types.Variables      (Scope (..), VarLookup (..))
@@ -137,6 +137,8 @@ convertToSchema (IfNode test body possElse _) = do
               )
              )
 
+convertToSchema PointerNode{} = undefined
+
 convertToSchema node@DeclarationNode{} = do
         currScope <- SymTab.getScope
         case currScope of
@@ -229,7 +231,13 @@ convertToSchema node@(AddressOfNode name _) = do
 
 convertToSchema NullExprNode{} = pure SkipSchema
 
-convertToSchema tree = throwError $ FatalError (GeneratorBug tree)
+convertToSchema (ArrayNode arrayNode) = convertToArraySchema arrayNode
+
+--convertToSchema tree = throwError $ FatalError (GeneratorBug tree)
+
+
+convertToArraySchema :: ArrayNode -> GenState AssemblySchema
+convertToArraySchema = undefined
 
 
 -- Function
@@ -280,7 +288,7 @@ declareGlobal (DeclarationNode varNode@(VarNode name _) typ assignNode _) = do
                      currScope    <- SymTab.getScope
                      varSchema    <- convertToSchema varNode
                      assignSchema <- processPossibleNode assignNode
-                     pure (DeclarationSchema varSchema assignSchema currScope)
+                     pure (DeclarationSchema varSchema assignSchema currScope typ)
 declareGlobal tree = throwError $ FatalError (GeneratorBug tree)
 
 
@@ -303,7 +311,7 @@ declareLocal (DeclarationNode varNode@(VarNode name _) typ value _) = do
         currScope <- SymTab.getScope
         varSchema <- convertToSchema varNode
         valSchema <- processPossibleNode value
-        pure (DeclarationSchema varSchema valSchema currScope)
+        pure (DeclarationSchema varSchema valSchema currScope typ)
 declareLocal tree = throwError $ FatalError (GeneratorBug tree)
 
 

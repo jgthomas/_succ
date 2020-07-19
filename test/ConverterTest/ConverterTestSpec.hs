@@ -31,6 +31,7 @@ converterTest = hspec $ do
                     (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0 ))
                     SkipSchema
                     Global
+                    IntVar
                    ]
 
                 it "Should create a global declaration schema with assignment" $
@@ -57,6 +58,7 @@ converterTest = hspec $ do
                      Global
                     )
                     Global
+                    IntVar
                    ]
 
                 it "Should create a function schema with local declaration" $
@@ -89,7 +91,8 @@ converterTest = hspec $ do
                     [DeclarationSchema
                      (ExpressionSchema $ VariableSchema (LocalVar (-8) 0 0))
                      SkipSchema
-                     Local,
+                     Local
+                     IntVar,
                      StatementSchema $ ReturnSchema (LiteralSchema 190)
                     ]
                    )
@@ -134,7 +137,8 @@ converterTest = hspec $ do
                       (LiteralSchema 100)
                       Local
                      )
-                     Local,
+                     Local
+                     IntVar,
                      StatementSchema $ ReturnSchema
                      (VariableSchema (LocalVar (-8) 0 0))
                     ]
