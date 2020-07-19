@@ -296,3 +296,52 @@ converterTest = hspec $ do
                     ]
                    )
                   ]
+
+                it "Should create a schema using SkipSchema for a function repeatedly declared" $
+                  (extractSchema $ ProgramNode [
+                                    DeclarationNode
+                                    (VarNode "a" mockNodeDat)
+                                    IntVar
+                                    Nothing
+                                    mockNodeDat,
+                                    FunctionNode
+                                    IntVar
+                                    "dog"
+                                    []
+                                    Nothing
+                                    mockNodeDat,
+                                    FunctionNode
+                                    IntVar
+                                    "dog"
+                                    []
+                                    Nothing
+                                    mockNodeDat,
+                                    FunctionNode
+                                    IntVar
+                                    "dog"
+                                    []
+                                    (Just $ CompoundStmtNode
+                                     [ReturnNode
+                                      (ConstantNode 10 mockNodeDat)
+                                      mockNodeDat
+                                     ]
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat
+                                   ]
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                   [DeclarationSchema
+                    (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0 ))
+                    SkipSchema
+                    Global
+                    IntVar,
+                    SkipSchema,
+                    SkipSchema,
+                    FunctionSchema
+                    "dog"
+                    (StatementSchema $ CompoundStatementSchema
+                     [StatementSchema $ ReturnSchema (LiteralSchema 10)]
+                    )
+                   ]
