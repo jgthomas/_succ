@@ -121,7 +121,7 @@ convertToSchema (IfNode test body possElse _) = do
         elseLabel  <- LocalLabel <$> SymTab.labelNum
         testSchema <- getExpressionSchema <$> convertToSchema test
         bodySchema <- getStatementSchema <$> convertToSchema body
-        elseSchema <- processElse possElse
+        elseSchema <- processPossibleNode possElse
         pure (StatementSchema
               (IfSchema
                testSchema
@@ -184,20 +184,29 @@ convertToSchema node@(VarNode name _) = do
              NotFound    -> throwError $ FatalError (GeneratorBug node)
              VarType typ -> pure (ExpressionSchema $ VariableSchema typ)
 
+convertToSchema node@(DereferenceNode name _) = do
+        varType <- SymTab.getVariable name
+        case varType of
+             NotFound    -> throwError $ FatalError (GeneratorBug node)
+             VarType var -> pure (ExpressionSchema
+                                  (DereferenceSchema
+                                   (VariableSchema var)
+                                  )
+                                 )
+
+convertToSchema node@(AddressOfNode name _) = do
+        varType <- SymTab.getVariable name
+        case varType of
+             NotFound    -> throwError $ FatalError (GeneratorBug node)
+             VarType var -> pure (ExpressionSchema
+                                  (AddressOfSchema
+                                   (VariableSchema var)
+                                  )
+                                 )
+
 convertToSchema NullExprNode{} = pure SkipSchema
 
 convertToSchema tree = throwError $ FatalError (GeneratorBug tree)
-
-
-getExpressionSchema :: AssemblySchema -> ExpressionSchema
-getExpressionSchema (ExpressionSchema schema) = schema
-getExpressionSchema _                         = undefined
-
-
-getStatementSchema :: AssemblySchema -> StatementSchema
-getStatementSchema (StatementSchema schema) = schema
-getStatementSchema _                        = undefined
-
 
 
 -- Function
@@ -247,7 +256,7 @@ declareGlobal (DeclarationNode varNode@(VarNode name _) typ assignNode _) = do
                      SymTab.declareGlobal name typ globLab
                      currScope    <- SymTab.getScope
                      varSchema    <- convertToSchema varNode
-                     assignSchema <- processAssignment assignNode
+                     assignSchema <- processPossibleNode assignNode
                      pure (DeclarationSchema varSchema assignSchema currScope)
 declareGlobal tree = throwError $ FatalError (GeneratorBug tree)
 
@@ -270,7 +279,7 @@ declareLocal (DeclarationNode varNode@(VarNode name _) typ value _) = do
         _ <- SymTab.addVariable name typ
         currScope <- SymTab.getScope
         varSchema <- convertToSchema varNode
-        valSchema <- processAssignment value
+        valSchema <- processPossibleNode value
         pure (DeclarationSchema varSchema valSchema currScope)
 declareLocal tree = throwError $ FatalError (GeneratorBug tree)
 
@@ -285,15 +294,18 @@ defineLocal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 
--- Variables Shared
+-- Shared
 
-processAssignment :: Maybe Tree -> GenState AssemblySchema
-processAssignment Nothing           = pure SkipSchema
-processAssignment (Just assignNode) = convertToSchema assignNode
+getExpressionSchema :: AssemblySchema -> ExpressionSchema
+getExpressionSchema (ExpressionSchema schema) = schema
+getExpressionSchema _                         = undefined
 
 
--- Statements
+getStatementSchema :: AssemblySchema -> StatementSchema
+getStatementSchema (StatementSchema schema) = schema
+getStatementSchema _                        = undefined
 
-processElse :: Maybe Tree -> GenState AssemblySchema
-processElse Nothing  = pure SkipSchema
-processElse (Just e) = convertToSchema e
+
+processPossibleNode :: Maybe Tree -> GenState AssemblySchema
+processPossibleNode Nothing     = pure SkipSchema
+processPossibleNode (Just node) = convertToSchema node

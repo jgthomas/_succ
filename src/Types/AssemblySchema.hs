@@ -67,6 +67,10 @@ data ExpressionSchema = LiteralSchema
                          Int
                       | VariableSchema
                          VarType
+                      | DereferenceSchema
+                         ExpressionSchema
+                      | AddressOfSchema
+                         ExpressionSchema
                       | UnarySchema
                          ExpressionSchema
                          UnaryOp

@@ -12,5 +12,5 @@ main :: IO ()
 main = do
         lexerTest
         parserTest
-        converterTest
         checkerTest
+        converterTest
