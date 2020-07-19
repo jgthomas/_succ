@@ -144,6 +144,9 @@ convertToSchema node@AssignmentNode{} = do
              Local  -> defineLocal node
              Global -> defineGlobal node
 
+convertToSchema (AssignDereferenceNode varNode valNode operator dat) =
+        convertToSchema (AssignmentNode varNode valNode operator dat)
+
 convertToSchema (ExprStmtNode exprStatement _) = convertToSchema exprStatement
 
 convertToSchema ContinueNode{} = do
@@ -169,6 +172,21 @@ convertToSchema (TernaryNode test true false _) = do
                trueSchema
                falseSchema
                trueLabel
+              )
+             )
+
+convertToSchema (BinaryNode leftNode rightNode operator _) = do
+        trueLabel   <- LocalLabel <$> SymTab.labelNum
+        falseLabel  <- LocalLabel <$> SymTab.labelNum
+        leftSchema  <- getExpressionSchema <$> convertToSchema leftNode
+        rightSchema <- getExpressionSchema <$> convertToSchema rightNode
+        pure (ExpressionSchema
+              (BinarySchema
+               leftSchema
+               rightSchema
+               operator
+               trueLabel
+               falseLabel
               )
              )
 
