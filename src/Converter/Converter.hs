@@ -50,6 +50,11 @@ convertToSchema (ParamNode typ (VarNode name _) _) = do
 convertToSchema node@ParamNode{} =
         throwError $ FatalError (GeneratorBug node)
 
+convertToSchema (FuncCallNode name argList _) = do
+        schemas <- mapM convertToSchema argList
+        let argSchemas = map getExpressionSchema schemas
+        pure (ExpressionSchema $ FunctionCallSchema name argSchemas)
+
 convertToSchema (ArgNode arg _) = convertToSchema arg
 
 convertToSchema (CompoundStmtNode statements _) = do
