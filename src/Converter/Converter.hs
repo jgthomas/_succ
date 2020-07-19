@@ -254,16 +254,23 @@ convertToSchemaArray (ArrayItemsNode varNode items _) = processArrayItems varNod
 
 convertToSchemaArray (ArraySingleItemNode item _) = convertToSchema item
 
-convertToSchemaArray (ArrayItemAccess pos varNode _) = do
+convertToSchemaArray (ArrayItemAccess pos varNode _) = getArrayIndexItem pos varNode
+
+convertToSchemaArray ArrayAssignPosNode{} = undefined
+
+convertToSchemaArray (ArrayItemAssign pos varNode _) = getArrayIndexItem pos varNode
+
+
+-- Array
+
+getArrayIndexItem :: Int -> Tree -> GenState AssemblySchema
+getArrayIndexItem pos varNode@VarNode{} = do
         varSchema <- setArrayOffset . getExpressionSchema <$> convertToSchema varNode
         pure (ExpressionSchema varSchema)
         where
                 setArrayOffset = setSchemaOffset pos
+getArrayIndexItem _ node = throwError $ FatalError (GeneratorBug node)
 
-convertToSchemaArray _ = undefined
-
-
--- Array
 
 processArrayItems :: Tree -> [Tree] -> GenState AssemblySchema
 processArrayItems varNode items = do
