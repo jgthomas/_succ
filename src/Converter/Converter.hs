@@ -261,12 +261,11 @@ convertToSchemaArray node@(ArrayAssignPosNode (ArrayNode (ArrayItemAssign pos va
         case op of
              Assignment     -> processArrayItem varNode $ (valNode, pos)
              UnaryOp _      -> throwError $ FatalError (GeneratorBug $ ArrayNode node)
-             BinaryOp binOp -> convertToSchema (AssignmentNode
-                                                varNode
-                                                (BinaryNode varNode valNode binOp varDat)
-                                                Assignment
-                                                dat
-                                               )
+             BinaryOp binOp -> convertToSchema $ AssignmentNode
+                                                 varNode
+                                                 (BinaryNode varNode valNode binOp varDat)
+                                                 Assignment
+                                                 dat
 convertToSchemaArray node@ArrayAssignPosNode{} = throwError $ FatalError (GeneratorBug $ ArrayNode node)
 
 convertToSchemaArray (ArrayItemAssign pos varNode _) = getArrayIndexItem pos varNode
