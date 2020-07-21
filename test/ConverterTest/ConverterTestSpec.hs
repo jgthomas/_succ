@@ -410,3 +410,78 @@ converterTest = hspec $ do
                     ]
                    )
                   ]
+
+                it "Should create a schema for a function with local array index assignment" $
+                  (extractSchema (ProgramNode
+                                  [FunctionNode
+                                   IntVar
+                                   "main"
+                                   []
+                                   (Just $ CompoundStmtNode
+                                    [ArrayNode $ ArrayDeclareNode
+                                     1
+                                     (VarNode "a" mockNodeDat)
+                                     IntArray
+                                     (Just $ ArrayNode $ ArrayItemsNode
+                                      (VarNode "a" mockNodeDat)
+                                      [ArrayNode $ ArraySingleItemNode
+                                       (ConstantNode 20 mockNodeDat)
+                                       mockNodeDat
+                                      ]
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat,
+                                     (ArrayNode $ ArrayAssignPosNode
+                                      (ArrayNode $ ArrayItemAssign
+                                       0
+                                       (VarNode "a" mockNodeDat)
+                                       mockNodeDat
+                                      )
+                                      (ConstantNode 30 mockNodeDat)
+                                      Assignment
+                                      mockNodeDat
+                                     ),
+                                     ReturnNode
+                                     (ArrayNode $ ArrayItemAccess
+                                      0
+                                      (VarNode "a" mockNodeDat)
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat
+                                    ]
+                                    mockNodeDat
+                                   )
+                                   mockNodeDat
+                                  ]
+                                 )
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                  [FunctionSchema
+                   "main"
+                   (StatementSchema $ CompoundStatementSchema
+                    [DeclarationSchema
+                     (ExpressionSchema $ VariableSchema (LocalVar (-8) 0 0))
+                     (ExpressionSchema $ ArrayItemsSchema
+                      16 -- explore this, check the stack pointer logic here
+                      [AssignmentSchema
+                       (VariableSchema (LocalVar (-8) 0 0))
+                       (LiteralSchema 20)
+                       Local
+                      ]
+                     )
+                     Local
+                     IntArray,
+                     (StatementSchema $ AssignmentSchema
+                      (VariableSchema (LocalVar (-8) 0 0))
+                      (LiteralSchema 30)
+                      Local
+                     ),
+                     (StatementSchema
+                      (ReturnSchema
+                       (VariableSchema (LocalVar (-8) 0 0))
+                      )
+                     )
+                    ]
+                   )
+                  ]
