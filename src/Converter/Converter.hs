@@ -275,10 +275,8 @@ convertToSchemaArray (ArrayItemAssign pos varNode _) = getArrayIndexItem pos var
 
 getArrayIndexItem :: Int -> Tree -> GenState AssemblySchema
 getArrayIndexItem pos varNode@VarNode{} = do
-        varSchema <- setArrayOffset . getExpressionSchema <$> convertToSchema varNode
+        varSchema <- setSchemaOffset pos . getExpressionSchema <$> convertToSchema varNode
         pure (ExpressionSchema varSchema)
-        where
-                setArrayOffset = setSchemaOffset pos
 getArrayIndexItem _ node = throwError $ FatalError (GeneratorBug node)
 
 
