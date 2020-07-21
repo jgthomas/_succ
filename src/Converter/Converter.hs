@@ -282,7 +282,7 @@ getArrayIndexItem _ node = throwError $ FatalError (GeneratorBug node)
 
 processArrayItems :: Tree -> [Tree] -> GenState AssemblySchema
 processArrayItems varNode items = do
-        arrayItemsSchema <- mapM processItem (zip items [0..])
+        arrayItemsSchema <- mapM (processArrayItem varNode) (zip items [0..])
         adjust           <- SymTab.stackPointerValue
         pure (ExpressionSchema
               (ArrayItemsSchema
@@ -290,8 +290,6 @@ processArrayItems varNode items = do
                (map getStatementSchema arrayItemsSchema)
               )
              )
-        where
-                processItem = processArrayItem varNode
 
 
 processArrayItem :: Tree -> (Tree, Int) -> GenState AssemblySchema
