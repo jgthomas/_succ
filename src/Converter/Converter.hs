@@ -260,17 +260,13 @@ convertToSchemaArray (ArrayItemAccess pos varNode _) = getArrayIndexItem pos var
 convertToSchemaArray node@(ArrayAssignPosNode (ArrayNode (ArrayItemAssign pos varNode _)) valNode op dat) =
         case op of
              UnaryOp _      -> throwError $ FatalError (GeneratorBug $ ArrayNode node)
-             BinaryOp binOp -> do
-                     currScope <- SymTab.getScope
-                     varSchema <- getExpressionSchema <$> convertToSchema varNode
-                     valSchema <- getExpressionSchema <$> convertToSchema (BinaryNode varNode valNode binOp dat)
-                     pure (StatementSchema
-                           (AssignmentSchema
-                            varSchema
-                            valSchema
-                            currScope
-                           )
-                          )
+             BinaryOp binOp ->
+                     convertToSchema (AssignmentNode
+                                      varNode
+                                      (BinaryNode varNode valNode binOp dat)
+                                      Assignment
+                                      dat
+                                     )
              Assignment -> setArrayAssignment (valNode, pos)
         where
                 setArrayAssignment = processArrayItem varNode
