@@ -63,7 +63,7 @@ converterTest = hspec $ do
 
                 it "Should create a schema for a global pointer declaration" $
                   (extractSchema $ ProgramNode [
-                                    DeclarationNode
+                                    PointerNode
                                     (VarNode "a" mockNodeDat)
                                     IntPointer
                                     Nothing
@@ -86,7 +86,7 @@ converterTest = hspec $ do
                                     IntVar
                                     Nothing
                                     mockNodeDat,
-                                    DeclarationNode
+                                    PointerNode
                                     (VarNode "b" mockNodeDat)
                                     IntPointer
                                     (Just $ AssignmentNode

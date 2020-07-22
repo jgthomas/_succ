@@ -140,12 +140,8 @@ convertToSchema (IfNode test body possElse _) = do
 
 convertToSchema (PointerNode varNode typ Nothing dat) =
         convertToSchema (DeclarationNode varNode typ Nothing dat)
-convertToSchema node@(PointerNode varNode typ value dat) = do
-        varSchema <- convertToSchema varNode
-        case getExpressionSchema varSchema of
-             VariableSchema ParamVar{} -> throwError $ FatalError (GeneratorBug node)
-             _                         -> convertToSchema (DeclarationNode varNode typ value dat)
-
+convertToSchema (PointerNode varNode typ value dat) =
+        convertToSchema (DeclarationNode varNode typ value dat)
 
 convertToSchema node@DeclarationNode{} = do
         currScope <- SymTab.getScope
