@@ -153,6 +153,53 @@ converterTest = hspec $ do
                    )
                   ]
 
+                it "Should create a schema for a function returning a unary negation" $
+                  (extractSchema (ProgramNode
+                                  [FunctionNode
+                                   IntVar
+                                   "main"
+                                   []
+                                   (Just $ CompoundStmtNode
+                                    [DeclarationNode
+                                     (VarNode "a" mockNodeDat)
+                                     IntVar
+                                     Nothing
+                                     mockNodeDat,
+                                     ReturnNode
+                                     (UnaryNode
+                                      (VarNode "a" mockNodeDat)
+                                      (Unary Negate)
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat
+                                    ]
+                                    mockNodeDat
+                                   )
+                                   mockNodeDat
+                                  ]
+                                 )
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                  [FunctionSchema
+                   "main"
+                   (StatementSchema $ CompoundStatementSchema
+                    [DeclarationSchema
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     SkipSchema
+                     Local
+                     IntVar,
+                     StatementSchema
+                     (ReturnSchema
+                      (UnarySchema
+                       (VariableSchema $ LocalVar (-16) 0 0)
+                       (Unary Negate)
+                      )
+                     )
+                    ]
+                   )
+                  ]
+
                 it "Should create a schema for a function with local declaration with assignment" $
                   (extractSchema (ProgramNode
                                   [FunctionNode
