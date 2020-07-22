@@ -62,9 +62,9 @@ variableType name = getAttribute locType name
 -- | Store new variable, returning offset from base pointer
 addVariable :: String -> Type -> GenState Int
 addVariable varName typ = do
+        incrementOffsetByN 1
         currOff <- currentOffset
         store varName currOff typ
-        incrementOffsetByN 1
         pure currOff
 
 
