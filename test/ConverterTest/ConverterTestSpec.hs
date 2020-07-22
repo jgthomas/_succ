@@ -153,6 +153,66 @@ converterTest = hspec $ do
                    )
                   ]
 
+                it "Should create a schema for a function with binary operation" $
+                  (extractSchema (ProgramNode
+                                  [FunctionNode
+                                   IntVar
+                                   "main"
+                                   []
+                                   (Just $ CompoundStmtNode
+                                    [DeclarationNode
+                                     (VarNode "a" mockNodeDat)
+                                     IntVar
+                                     (Just $ AssignmentNode
+                                      (VarNode "a" mockNodeDat)
+                                      (BinaryNode
+                                       (ConstantNode 10 mockNodeDat)
+                                       (ConstantNode 10 mockNodeDat)
+                                       Plus
+                                       mockNodeDat
+                                      )
+                                      Assignment
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat,
+                                     ReturnNode
+                                     (VarNode "a" mockNodeDat)
+                                     mockNodeDat
+                                    ]
+                                    mockNodeDat
+                                   )
+                                   mockNodeDat
+                                  ]
+                                 )
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                  [FunctionSchema
+                   "main"
+                   (StatementSchema $ CompoundStatementSchema
+                    [DeclarationSchema
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (StatementSchema $ AssignmentSchema
+                      (VariableSchema $ LocalVar (-16) 0 0)
+                      (BinarySchema
+                       (LiteralSchema 10)
+                       (LiteralSchema 10)
+                       Plus
+                       (LocalLabel 1)
+                       (LocalLabel 2)
+                      )
+                      Local
+                     )
+                     Local
+                     IntVar,
+                     StatementSchema
+                     (ReturnSchema
+                      (VariableSchema $ LocalVar (-16) 0 0)
+                     )
+                    ]
+                   )
+                  ]
+
                 it "Should create a schema for a function returning a unary negation" $
                   (extractSchema (ProgramNode
                                   [FunctionNode
