@@ -213,6 +213,76 @@ converterTest = hspec $ do
                    )
                   ]
 
+                it "Should create a schema for a function with ternary operation" $
+                  (extractSchema (ProgramNode
+                                  [FunctionNode
+                                   IntVar
+                                   "main"
+                                   []
+                                   (Just $ CompoundStmtNode
+                                    [DeclarationNode
+                                     (VarNode "a" mockNodeDat)
+                                     IntVar
+                                     (Just $ AssignmentNode
+                                      (VarNode "a" mockNodeDat)
+                                      (TernaryNode
+                                       (BinaryNode
+                                        (ConstantNode 12 mockNodeDat)
+                                        (ConstantNode 10 mockNodeDat)
+                                        GreaterThan
+                                        mockNodeDat
+                                       )
+                                       (ConstantNode 90 mockNodeDat)
+                                       (ConstantNode 100 mockNodeDat)
+                                       mockNodeDat
+                                      )
+                                      Assignment
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat,
+                                     ReturnNode
+                                     (VarNode "a" mockNodeDat)
+                                     mockNodeDat
+                                    ]
+                                    mockNodeDat
+                                   )
+                                   mockNodeDat
+                                  ]
+                                 )
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                  [FunctionSchema
+                   "main"
+                   (StatementSchema $ CompoundStatementSchema
+                    [DeclarationSchema
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (StatementSchema $ AssignmentSchema
+                      (VariableSchema $ LocalVar (-16) 0 0)
+                      (TernarySchema
+                       (BinarySchema
+                        (LiteralSchema 12)
+                        (LiteralSchema 10)
+                        GreaterThan
+                        (LocalLabel 1)
+                        (LocalLabel 2)
+                       )
+                       (LiteralSchema 90)
+                       (LiteralSchema 100)
+                       (LocalLabel 3)
+                      )
+                      Local
+                     )
+                     Local
+                     IntVar,
+                     StatementSchema
+                     (ReturnSchema
+                      (VariableSchema $ LocalVar (-16) 0 0)
+                     )
+                    ]
+                   )
+                  ]
+
                 it "Should create a schema for a function returning a unary negation" $
                   (extractSchema (ProgramNode
                                   [FunctionNode
