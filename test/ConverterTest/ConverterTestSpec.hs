@@ -745,3 +745,57 @@ converterTest = hspec $ do
                      ]
                     )
                    ]
+
+                it "Should build a schema for a basic if statement" $
+                  (extractSchema $ ProgramNode [FunctionNode
+                                                IntVar
+                                                "main"
+                                                []
+                                                (Just $ CompoundStmtNode
+                                                 [IfNode
+                                                  (BinaryNode
+                                                   (ConstantNode 10 mockNodeDat)
+                                                   (ConstantNode 90 mockNodeDat)
+                                                   LessThan
+                                                   mockNodeDat
+                                                  )
+                                                  (ReturnNode
+                                                   (ConstantNode 22 mockNodeDat)
+                                                   mockNodeDat
+                                                  )
+                                                  Nothing
+                                                  mockNodeDat,
+                                                  ReturnNode
+                                                  (ConstantNode 66 mockNodeDat)
+                                                  mockNodeDat
+                                                 ]
+                                                 mockNodeDat
+                                                )
+                                                mockNodeDat
+                                               ]
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                   [FunctionSchema
+                    "main"
+                    (StatementSchema $ CompoundStatementSchema
+                     [StatementSchema $ IfSchema
+                      (BinarySchema
+                       (LiteralSchema 10)
+                       (LiteralSchema 90)
+                       LessThan
+                       (LocalLabel 3)
+                       (LocalLabel 4)
+                      )
+                      (ReturnSchema
+                       (LiteralSchema 22)
+                      )
+                      SkipSchema
+                      (LocalLabel 1)
+                      (LocalLabel 2),
+                      (StatementSchema $ ReturnSchema
+                       (LiteralSchema 66)
+                      )
+                     ]
+                    )
+                   ]
