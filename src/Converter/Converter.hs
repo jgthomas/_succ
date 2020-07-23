@@ -138,8 +138,6 @@ convertToSchema (IfNode test body possElse _) = do
               )
              )
 
-convertToSchema (PointerNode varNode typ Nothing dat) =
-        convertToSchema (DeclarationNode varNode typ Nothing dat)
 convertToSchema (PointerNode varNode typ value dat) =
         convertToSchema (DeclarationNode varNode typ value dat)
 

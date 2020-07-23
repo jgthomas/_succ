@@ -662,3 +662,39 @@ converterTest = hspec $ do
                     ]
                    )
                   ]
+
+                it "Should build a schema for a function call" $
+                  (extractSchema $ ProgramNode [FunctionNode
+                                                IntVar
+                                                "dog"
+                                                []
+                                                Nothing
+                                                mockNodeDat,
+                                                FunctionNode
+                                                IntVar
+                                                "main"
+                                                []
+                                                (Just $ CompoundStmtNode
+                                                 [ReturnNode
+                                                  (FuncCallNode "dog" [] mockNodeDat)
+                                                  mockNodeDat
+                                                 ]
+                                                 mockNodeDat
+                                                )
+                                                mockNodeDat
+                                               ]
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                   [SkipSchema,
+                    FunctionSchema
+                    "main"
+                    (StatementSchema $ CompoundStatementSchema
+                     [StatementSchema $ ReturnSchema
+                      (FunctionCallSchema
+                       "dog"
+                       []
+                      )
+                     ]
+                    )
+                   ]
