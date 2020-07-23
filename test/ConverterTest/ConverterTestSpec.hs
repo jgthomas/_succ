@@ -698,3 +698,50 @@ converterTest = hspec $ do
                      ]
                     )
                    ]
+
+                it "Should build a schema for a function call with arguments" $
+                  (extractSchema $ ProgramNode [FunctionNode
+                                                IntVar
+                                                "dog"
+                                                [ParamNode
+                                                 IntVar
+                                                 (VarNode "a" mockNodeDat)
+                                                 mockNodeDat
+                                                ]
+                                                Nothing
+                                                mockNodeDat,
+                                                FunctionNode
+                                                IntVar
+                                                "main"
+                                                []
+                                                (Just $ CompoundStmtNode
+                                                 [ReturnNode
+                                                  (FuncCallNode
+                                                   "dog"
+                                                   [ArgNode
+                                                    (ConstantNode 29 mockNodeDat)
+                                                    mockNodeDat
+                                                   ]
+                                                   mockNodeDat
+                                                  )
+                                                  mockNodeDat
+                                                 ]
+                                                 mockNodeDat
+                                                )
+                                                mockNodeDat
+                                               ]
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                   [SkipSchema,
+                    FunctionSchema
+                    "main"
+                    (StatementSchema $ CompoundStatementSchema
+                     [StatementSchema $ ReturnSchema
+                      (FunctionCallSchema
+                       "dog"
+                       [(LiteralSchema 29)]
+                      )
+                     ]
+                    )
+                   ]

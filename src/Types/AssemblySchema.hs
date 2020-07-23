@@ -73,8 +73,6 @@ data ExpressionSchema = LiteralSchema
                          ExpressionSchema
                       | AddressOfSchema
                          ExpressionSchema
-                      | ArgumentSchema
-                         ExpressionSchema
                       | FunctionCallSchema
                          String
                          [ExpressionSchema]
