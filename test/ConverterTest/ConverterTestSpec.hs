@@ -172,6 +172,66 @@ converterTest = hspec $ do
                     IntVar
                    ]
 
+                it "Should create a schema for assigning to a derferenced pointer" $
+                  (extractSchema $ ProgramNode
+                                   [FunctionNode
+                                    IntVar
+                                    "main"
+                                    []
+                                    (Just $ CompoundStmtNode
+                                     [DeclarationNode
+                                      (VarNode "a" mockNodeDat)
+                                      IntVar
+                                      Nothing
+                                      mockNodeDat,
+                                      PointerNode
+                                      (VarNode "b" mockNodeDat)
+                                      IntPointer
+                                      (Just $ AssignmentNode
+                                       (VarNode "b" mockNodeDat)
+                                       (AddressOfNode "a" mockNodeDat)
+                                       Assignment
+                                       mockNodeDat
+                                      )
+                                      mockNodeDat,
+                                      AssignDereferenceNode
+                                      (VarNode "b" mockNodeDat)
+                                      (ConstantNode 20 mockNodeDat)
+                                      Assignment
+                                      mockNodeDat
+                                     ]
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat
+                                   ]
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                   [FunctionSchema
+                    "main"
+                    (StatementSchema $ CompoundStatementSchema
+                     [DeclarationSchema
+                      (ExpressionSchema $ VariableSchema $ LocalVar (-16) 0 0)
+                      SkipSchema
+                      Local
+                      IntVar,
+                      DeclarationSchema
+                      (ExpressionSchema $ VariableSchema $ LocalVar (-24) 0 0)
+                      (StatementSchema $ AssignmentSchema
+                       (VariableSchema $ LocalVar (-24) 0 0)
+                       (AddressOfSchema $ VariableSchema $ LocalVar (-16) 0 0)
+                       Local
+                      )
+                      Local
+                      IntPointer,
+                      StatementSchema $ AssignmentSchema
+                      (VariableSchema $ LocalVar (-24) 0 0)
+                      (LiteralSchema 20)
+                      Local
+                     ]
+                    )
+                   ]
+
                 it "Should create a schema for a function with local declaration" $
                   (extractSchema (ProgramNode
                                   [FunctionNode
