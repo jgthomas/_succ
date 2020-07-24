@@ -116,6 +116,62 @@ converterTest = hspec $ do
                     IntPointer
                    ]
 
+                it "Should create a schema for a pointer dereference" $
+                  (extractSchema $ ProgramNode [
+                                    DeclarationNode
+                                    (VarNode "a" mockNodeDat)
+                                    IntVar
+                                    Nothing
+                                    mockNodeDat,
+                                    PointerNode
+                                    (VarNode "b" mockNodeDat)
+                                    IntPointer
+                                    (Just $ AssignmentNode
+                                     (VarNode "b" mockNodeDat)
+                                     (AddressOfNode "a" mockNodeDat)
+                                     Assignment
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat,
+                                    DeclarationNode
+                                    (VarNode "c" mockNodeDat)
+                                    IntVar
+                                    (Just $ AssignmentNode
+                                     (VarNode "c" mockNodeDat)
+                                     (DereferenceNode "b" mockNodeDat)
+                                     Assignment
+                                     mockNodeDat
+                                    )
+                                    mockNodeDat
+                                   ]
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                   [DeclarationSchema
+                    (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0))
+                    SkipSchema
+                    Global
+                    IntVar,
+                    DeclarationSchema
+                    (ExpressionSchema $ VariableSchema (GlobalVar "_b2" 0))
+                    (StatementSchema $ AssignmentSchema
+                     (VariableSchema (GlobalVar "_b2" 0))
+                     (AddressOfSchema $ VariableSchema (GlobalVar "_a1" 0))
+                     Global
+                    )
+                    Global
+                    IntPointer,
+                    DeclarationSchema
+                    (ExpressionSchema $ VariableSchema $ GlobalVar "_c3" 0)
+                    (StatementSchema $ AssignmentSchema
+                     (VariableSchema $ GlobalVar "_c3" 0)
+                     (DereferenceSchema $ VariableSchema $ GlobalVar "_b2" 0)
+                     Global
+                    )
+                    Global
+                    IntVar
+                   ]
+
                 it "Should create a schema for a function with local declaration" $
                   (extractSchema (ProgramNode
                                   [FunctionNode
