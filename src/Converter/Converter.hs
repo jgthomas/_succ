@@ -91,10 +91,10 @@ convertToSchema (ForLoopNode ini test iter body _) = do
 convertToSchema (WhileNode test body _) = do
         loopLabel  <- SymTab.labelNum
         testLabel  <- SymTab.labelNum
-        testSchema <- getExpressionSchema <$> convertToSchema test
-        bodySchema <- getStatementSchema <$> convertToSchema body
         SymTab.setContinue loopLabel
         SymTab.setBreak testLabel
+        testSchema <- getExpressionSchema <$> convertToSchema test
+        bodySchema <- getStatementSchema <$> convertToSchema body
         pure (StatementSchema
               (WhileSchema
                testSchema
@@ -108,10 +108,10 @@ convertToSchema (DoWhileNode body test _) = do
         loopLabel  <- SymTab.labelNum
         contLabel  <- SymTab.labelNum
         testLabel  <- SymTab.labelNum
-        bodySchema <- getStatementSchema <$> convertToSchema body
-        testSchema <- getExpressionSchema <$> convertToSchema test
         SymTab.setContinue contLabel
         SymTab.setBreak testLabel
+        bodySchema <- getStatementSchema <$> convertToSchema body
+        testSchema <- getExpressionSchema <$> convertToSchema test
         pure (StatementSchema
               (DoWhileSchema
                bodySchema

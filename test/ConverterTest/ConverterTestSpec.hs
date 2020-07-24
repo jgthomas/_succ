@@ -1048,3 +1048,55 @@ converterTest = hspec $ do
                      ]
                     )
                    ]
+
+                it "Should build a schema for a while statement with break" $
+                  (extractSchema $ ProgramNode [FunctionNode
+                                                IntVar
+                                                "main"
+                                                []
+                                                (Just $ CompoundStmtNode
+                                                 [WhileNode
+                                                  (BinaryNode
+                                                   (ConstantNode 10 mockNodeDat)
+                                                   (ConstantNode 90 mockNodeDat)
+                                                   LessThan
+                                                   mockNodeDat
+                                                  )
+                                                  (CompoundStmtNode
+                                                   [BreakNode mockNodeDat]
+                                                   mockNodeDat
+                                                  )
+                                                  mockNodeDat,
+                                                  ReturnNode
+                                                  (ConstantNode 10 mockNodeDat)
+                                                  mockNodeDat
+                                                 ]
+                                                 mockNodeDat
+                                                )
+                                                mockNodeDat
+                                               ]
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                   [FunctionSchema
+                    "main"
+                    (StatementSchema $ CompoundStatementSchema
+                     [StatementSchema $ WhileSchema
+                      (BinarySchema
+                       (LiteralSchema 10)
+                       (LiteralSchema 90)
+                       LessThan
+                       (LocalLabel 3)
+                       (LocalLabel 4)
+                      )
+                      (CompoundStatementSchema
+                       [StatementSchema $ BreakSchema (LocalLabel 2)]
+                      )
+                      (LocalLabel 1)
+                      (LocalLabel 2),
+                      (StatementSchema $ ReturnSchema
+                       (LiteralSchema 10)
+                      )
+                     ]
+                    )
+                   ]
