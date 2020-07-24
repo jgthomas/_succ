@@ -695,7 +695,7 @@ converterTest = hspec $ do
                                        Plus
                                        mockNodeDat
                                       )
-                                      Assignment
+                                      (BinaryOp Plus)
                                       mockNodeDat
                                      ),
                                      ReturnNode
@@ -733,7 +733,13 @@ converterTest = hspec $ do
                       (VariableSchema (LocalVar (-16) 0 0))
                       (BinarySchema
                        (VariableSchema $ LocalVar (-16) 0 0)
-                       (LiteralSchema 30)
+                       (BinarySchema
+                        (VariableSchema $ LocalVar (-16) 0 0)
+                        (LiteralSchema 30)
+                        Plus
+                        (LocalLabel 3)
+                        (LocalLabel 4)
+                       )
                        Plus
                        (LocalLabel 1)
                        (LocalLabel 2)
