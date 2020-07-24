@@ -942,3 +942,109 @@ converterTest = hspec $ do
                      ]
                     )
                    ]
+
+                it "Should build a schema for a for statement" $
+                  (extractSchema $ ProgramNode [DeclarationNode
+                                                (VarNode "a" mockNodeDat)
+                                                IntVar
+                                                Nothing
+                                                mockNodeDat,
+                                                FunctionNode
+                                                IntVar
+                                                "main"
+                                                []
+                                                (Just $ CompoundStmtNode
+                                                 [ForLoopNode
+                                                  (DeclarationNode
+                                                   (VarNode "i" mockNodeDat)
+                                                   IntVar
+                                                   (Just $ AssignmentNode
+                                                    (VarNode "i" mockNodeDat)
+                                                    (ConstantNode 1 mockNodeDat)
+                                                    Assignment
+                                                    mockNodeDat
+                                                   )
+                                                   mockNodeDat
+                                                  )
+                                                  (BinaryNode
+                                                   (VarNode "i" mockNodeDat)
+                                                   (ConstantNode 10 mockNodeDat)
+                                                   LessThan
+                                                   mockNodeDat
+                                                  )
+                                                  (BinaryNode
+                                                   (VarNode "i" mockNodeDat)
+                                                   (ConstantNode 1 mockNodeDat)
+                                                   Plus
+                                                   mockNodeDat
+                                                  )
+                                                  (CompoundStmtNode
+                                                   [AssignmentNode
+                                                    (VarNode "a" mockNodeDat)
+                                                    (ConstantNode 100 mockNodeDat)
+                                                    Assignment
+                                                    mockNodeDat
+                                                   ]
+                                                   mockNodeDat
+                                                  )
+                                                  mockNodeDat,
+                                                  ReturnNode
+                                                  (VarNode "a" mockNodeDat)
+                                                  mockNodeDat
+                                                 ]
+                                                 mockNodeDat
+                                                )
+                                                mockNodeDat
+                                               ]
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                   [DeclarationSchema
+                    (ExpressionSchema (VariableSchema $ GlobalVar "_a1" 0))
+                    SkipSchema
+                    Global
+                    IntVar,
+                    FunctionSchema
+                    "main"
+                    (StatementSchema $ CompoundStatementSchema
+                     [StatementSchema $ ForSchema
+                      (DeclarationSchema
+                       (ExpressionSchema (VariableSchema $ LocalVar (-16) 0 0))
+                       (StatementSchema $ AssignmentSchema
+                        (VariableSchema $ LocalVar (-16) 0 0)
+                        (LiteralSchema 1)
+                        Local
+                       )
+                       Local
+                       IntVar
+                      )
+                      (BinarySchema
+                       (VariableSchema $ LocalVar (-16) 0 0)
+                       (LiteralSchema 10)
+                       LessThan
+                       (LocalLabel 5)
+                       (LocalLabel 6)
+                      )
+                      (BinarySchema
+                       (VariableSchema $ LocalVar (-16) 0 0)
+                       (LiteralSchema 1)
+                       Plus
+                       (LocalLabel 7)
+                       (LocalLabel 8)
+                      )
+                      (CompoundStatementSchema
+                       [StatementSchema $ AssignmentSchema
+                        (VariableSchema $ GlobalVar "_a1" 0)
+                        (LiteralSchema 100)
+                        Local
+                       ]
+                      )
+                      (LocalLabel 2)
+                      (LocalLabel 3)
+                      (LocalLabel 4),
+                      (StatementSchema $ ReturnSchema
+                       (VariableSchema $ GlobalVar "_a1" 0)
+                      )
+                     ]
+                    )
+                   ]
