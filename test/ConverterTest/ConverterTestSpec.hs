@@ -870,3 +870,75 @@ converterTest = hspec $ do
                      ]
                     )
                    ]
+
+                it "Should build a schema for a do-while statement" $
+                  (extractSchema $ ProgramNode [DeclarationNode
+                                                (VarNode "a" mockNodeDat)
+                                                IntVar
+                                                Nothing
+                                                mockNodeDat,
+                                                FunctionNode
+                                                IntVar
+                                                "main"
+                                                []
+                                                (Just $ CompoundStmtNode
+                                                 [DoWhileNode
+                                                  (CompoundStmtNode
+                                                   [AssignmentNode
+                                                    (VarNode "a" mockNodeDat)
+                                                    (ConstantNode 100 mockNodeDat)
+                                                    Assignment
+                                                    mockNodeDat
+                                                   ]
+                                                   mockNodeDat
+                                                  )
+                                                  (BinaryNode
+                                                   (ConstantNode 10 mockNodeDat)
+                                                   (ConstantNode 90 mockNodeDat)
+                                                   LessThan
+                                                   mockNodeDat
+                                                  )
+                                                  mockNodeDat,
+                                                  ReturnNode
+                                                  (VarNode "a" mockNodeDat)
+                                                  mockNodeDat
+                                                 ]
+                                                 mockNodeDat
+                                                )
+                                                mockNodeDat
+                                               ]
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                   [DeclarationSchema
+                    (ExpressionSchema (VariableSchema $ GlobalVar "_a1" 0))
+                    SkipSchema
+                    Global
+                    IntVar,
+                    FunctionSchema
+                    "main"
+                    (StatementSchema $ CompoundStatementSchema
+                     [StatementSchema $ DoWhileSchema
+                      (CompoundStatementSchema
+                       [StatementSchema $ AssignmentSchema
+                        (VariableSchema $ GlobalVar "_a1" 0)
+                        (LiteralSchema 100)
+                        Local
+                       ]
+                      )
+                      (BinarySchema
+                       (LiteralSchema 10)
+                       (LiteralSchema 90)
+                       LessThan
+                       (LocalLabel 5)
+                       (LocalLabel 6)
+                      )
+                      (LocalLabel 2)
+                      (LocalLabel 3)
+                      (LocalLabel 4),
+                      (StatementSchema $ ReturnSchema
+                       (VariableSchema $ GlobalVar "_a1" 0)
+                      )
+                     ]
+                    )
+                   ]
