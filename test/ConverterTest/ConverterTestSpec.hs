@@ -269,6 +269,43 @@ converterTest = hspec $ do
                    )
                   ]
 
+                it "Should create a schema for a function with an expression statement" $
+                  (extractSchema (ProgramNode
+                                  [FunctionNode
+                                   IntVar
+                                   "main"
+                                   []
+                                   (Just $ CompoundStmtNode
+                                    [ExprStmtNode
+                                     (BinaryNode
+                                      (ConstantNode 2 mockNodeDat)
+                                      (ConstantNode 2 mockNodeDat)
+                                      Plus
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat
+                                    ]
+                                    mockNodeDat
+                                   )
+                                   mockNodeDat
+                                  ]
+                                 )
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                  [FunctionSchema
+                   "main"
+                   (StatementSchema $ CompoundStatementSchema
+                    [ExpressionSchema $ BinarySchema
+                     (LiteralSchema 2)
+                     (LiteralSchema 2)
+                     Plus
+                     (LocalLabel 1)
+                     (LocalLabel 2)
+                    ]
+                   )
+                  ]
+
                 it "Should create a schema for a function with binary operation" $
                   (extractSchema (ProgramNode
                                   [FunctionNode
