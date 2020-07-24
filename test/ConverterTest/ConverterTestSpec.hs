@@ -1049,7 +1049,7 @@ converterTest = hspec $ do
                     )
                    ]
 
-                it "Should build a schema for a while statement with break" $
+                it "Should build a schema for a loop with a break" $
                   (extractSchema $ ProgramNode [FunctionNode
                                                 IntVar
                                                 "main"
@@ -1091,6 +1091,58 @@ converterTest = hspec $ do
                       )
                       (CompoundStatementSchema
                        [StatementSchema $ BreakSchema (LocalLabel 2)]
+                      )
+                      (LocalLabel 1)
+                      (LocalLabel 2),
+                      (StatementSchema $ ReturnSchema
+                       (LiteralSchema 10)
+                      )
+                     ]
+                    )
+                   ]
+
+                it "Should build a schema for a loop with a continue" $
+                  (extractSchema $ ProgramNode [FunctionNode
+                                                IntVar
+                                                "main"
+                                                []
+                                                (Just $ CompoundStmtNode
+                                                 [WhileNode
+                                                  (BinaryNode
+                                                   (ConstantNode 10 mockNodeDat)
+                                                   (ConstantNode 90 mockNodeDat)
+                                                   LessThan
+                                                   mockNodeDat
+                                                  )
+                                                  (CompoundStmtNode
+                                                   [ContinueNode mockNodeDat]
+                                                   mockNodeDat
+                                                  )
+                                                  mockNodeDat,
+                                                  ReturnNode
+                                                  (ConstantNode 10 mockNodeDat)
+                                                  mockNodeDat
+                                                 ]
+                                                 mockNodeDat
+                                                )
+                                                mockNodeDat
+                                               ]
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                   [FunctionSchema
+                    "main"
+                    (StatementSchema $ CompoundStatementSchema
+                     [StatementSchema $ WhileSchema
+                      (BinarySchema
+                       (LiteralSchema 10)
+                       (LiteralSchema 90)
+                       LessThan
+                       (LocalLabel 3)
+                       (LocalLabel 4)
+                      )
+                      (CompoundStatementSchema
+                       [StatementSchema $ ContinueSchema (LocalLabel 1)]
                       )
                       (LocalLabel 1)
                       (LocalLabel 2),
