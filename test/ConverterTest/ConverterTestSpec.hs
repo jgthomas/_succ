@@ -640,7 +640,7 @@ converterTest = hspec $ do
                     [DeclarationSchema
                      (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
                      (ExpressionSchema $ ArrayItemsSchema
-                      16 -- explore this, check the stack pointer logic here
+                      16
                       [AssignmentSchema
                        (VariableSchema (LocalVar (-16) 0 0))
                        (LiteralSchema 20)
@@ -652,6 +652,92 @@ converterTest = hspec $ do
                      (StatementSchema $ AssignmentSchema
                       (VariableSchema (LocalVar (-16) 0 0))
                       (LiteralSchema 30)
+                      Local
+                     ),
+                     (StatementSchema
+                      (ReturnSchema
+                       (VariableSchema (LocalVar (-16) 0 0))
+                      )
+                     )
+                    ]
+                   )
+                  ]
+
+                it "Should create a schema for a function with local array index plus equals assignment" $
+                  (extractSchema (ProgramNode
+                                  [FunctionNode
+                                   IntVar
+                                   "main"
+                                   []
+                                   (Just $ CompoundStmtNode
+                                    [ArrayNode $ ArrayDeclareNode
+                                     1
+                                     (VarNode "a" mockNodeDat)
+                                     IntArray
+                                     (Just $ ArrayNode $ ArrayItemsNode
+                                      (VarNode "a" mockNodeDat)
+                                      [ArrayNode $ ArraySingleItemNode
+                                       (ConstantNode 20 mockNodeDat)
+                                       mockNodeDat
+                                      ]
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat,
+                                     (ArrayNode $ ArrayAssignPosNode
+                                      (ArrayNode $ ArrayItemAssign
+                                       0
+                                       (VarNode "a" mockNodeDat)
+                                       mockNodeDat
+                                      )
+                                      (BinaryNode
+                                       (VarNode "a" mockNodeDat)
+                                       (ConstantNode 30 mockNodeDat)
+                                       Plus
+                                       mockNodeDat
+                                      )
+                                      Assignment
+                                      mockNodeDat
+                                     ),
+                                     ReturnNode
+                                     (ArrayNode $ ArrayItemAccess
+                                      0
+                                      (VarNode "a" mockNodeDat)
+                                      mockNodeDat
+                                     )
+                                     mockNodeDat
+                                    ]
+                                    mockNodeDat
+                                   )
+                                   mockNodeDat
+                                  ]
+                                 )
+                  )
+                  `shouldBe`
+                  ProgramSchema
+                  [FunctionSchema
+                   "main"
+                   (StatementSchema $ CompoundStatementSchema
+                    [DeclarationSchema
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (ExpressionSchema $ ArrayItemsSchema
+                      16
+                      [AssignmentSchema
+                       (VariableSchema (LocalVar (-16) 0 0))
+                       (LiteralSchema 20)
+                       Local
+                      ]
+                     )
+                     Local
+                     IntArray,
+                     (StatementSchema $ AssignmentSchema
+                      (VariableSchema (LocalVar (-16) 0 0))
+                      (BinarySchema
+                       (VariableSchema $ LocalVar (-16) 0 0)
+                       (LiteralSchema 30)
+                       Plus
+                       (LocalLabel 1)
+                       (LocalLabel 2)
+                      )
                       Local
                      ),
                      (StatementSchema
