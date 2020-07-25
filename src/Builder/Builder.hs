@@ -30,4 +30,4 @@ buildASM (FunctionSchema name _) =
                 prologue = funcPrologue name
                 epilogue = funcEpilogue
 
-buildASM _                       = undefined
+buildASM _                       = pure ""
