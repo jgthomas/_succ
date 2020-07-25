@@ -93,6 +93,8 @@ data ExpressionSchema = LiteralSchema
                       | ArrayItemsSchema
                          Int
                          [StatementSchema]
+                      | ExpressionStatementSchema
+                         StatementSchema
                       deriving (Eq, Show)
 
 

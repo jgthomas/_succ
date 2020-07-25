@@ -167,8 +167,11 @@ convertToSchema BreakNode{} = do
         pure (StatementSchema $ BreakSchema breakLabel)
 
 convertToSchema (ReturnNode val _) = do
-        value <- getExpressionSchema <$> convertToSchema val
-        pure (StatementSchema $ ReturnSchema value)
+        returnValueSchema <- convertToSchema val
+        case returnValueSchema of
+             StatementSchema statement ->
+                     pure (StatementSchema $ ReturnSchema $ ExpressionStatementSchema statement)
+             _ -> pure (StatementSchema $ ReturnSchema $ getExpressionSchema returnValueSchema)
 
 convertToSchema (TernaryNode test true false _) = do
         testSchema  <- getExpressionSchema <$> convertToSchema test
