@@ -90,6 +90,7 @@ data ExpressionSchema = LiteralSchema
                          ExpressionSchema
                          ExpressionSchema
                          Label
+                         Label
                       | ArrayItemsSchema
                          Int
                          [StatementSchema]

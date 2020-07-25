@@ -423,6 +423,7 @@ converterTest = hspec $ do
                        (LiteralSchema 90)
                        (LiteralSchema 100)
                        (LocalLabel 3)
+                       (LocalLabel 4)
                       )
                       Local
                      )

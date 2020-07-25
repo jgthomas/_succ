@@ -171,12 +171,14 @@ convertToSchema (TernaryNode test true false _) = do
         trueSchema  <- getExpressionSchema <$> convertToSchema true
         falseSchema <- getExpressionSchema <$> convertToSchema false
         trueLabel   <- LocalLabel <$> SymTab.labelNum
+        falseLabel  <- LocalLabel <$> SymTab.labelNum
         pure (ExpressionSchema
               (TernarySchema
                testSchema
                trueSchema
                falseSchema
                trueLabel
+               falseLabel
               )
              )
 
