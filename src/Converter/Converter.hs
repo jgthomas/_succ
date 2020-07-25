@@ -410,6 +410,7 @@ buildBasicAssignment node = do
 
 getExpressionSchema :: AssemblySchema -> ExpressionSchema
 getExpressionSchema (ExpressionSchema schema) = schema
+getExpressionSchema (StatementSchema schema)  = ExpressionStatementSchema schema
 getExpressionSchema _                         = undefined
 
 

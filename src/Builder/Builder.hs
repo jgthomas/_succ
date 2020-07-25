@@ -4,6 +4,7 @@ module Builder.Builder (build) where
 
 import Control.Monad.Extra    (concatMapM)
 
+import Builder.BuildBinary    as BuildBinary (binary)
 import Builder.BuildFunction  as BuildFunction (funcEpilogue, funcPrologue)
 import Builder.BuildState     (BuildState, runBuildState)
 import Builder.BuildState     as BuildState (startState)
@@ -64,5 +65,13 @@ buildExpressionASM (UnarySchema varSchema@(VariableSchema varType) operator) = d
 buildExpressionASM (UnarySchema expressionSchema operator) = do
         expressionAsm <- buildExpressionASM expressionSchema
         pure $ expressionAsm ++ BuildUnary.unary operator (LocalVar 0 0 0)
+
+buildExpressionASM (BinarySchema exprSchema1 exprSchema2 op locLabel1 locLabel2) = do
+        expr1Asm <- buildExpressionASM exprSchema1
+        expr2Asm <- buildExpressionASM exprSchema2
+        pure $ BuildBinary.binary expr1Asm expr2Asm op locLabel1 locLabel2
+
+buildExpressionASM (ExpressionStatementSchema statementSchema) =
+        buildStatementASM statementSchema
 
 buildExpressionASM _                 = pure ""
