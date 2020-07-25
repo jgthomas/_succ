@@ -11,11 +11,14 @@ build schema = buildSchema schema
 
 
 buildSchema :: AssemblySchema -> String
-buildSchema schema@FunctionSchema{} = buildFunctionSchema schema
+
+buildSchema (ProgramSchema topLeveltems) =
+        concatMap buildSchema topLeveltems
+
+buildSchema (FunctionSchema name _) =
+        prologue ++ epilogue
+        where
+                prologue = funcPrologue name
+                epilogue = funcEpilogue
+
 buildSchema _                       = undefined
-
-
-buildFunctionSchema :: AssemblySchema -> String
-buildFunctionSchema (FunctionSchema name _) =
-        funcPrologue name ++ funcEpilogue
-buildFunctionSchema _ = undefined
