@@ -2,23 +2,32 @@
 module Builder.Builder (build) where
 
 
+import Control.Monad.Extra   (concatMapM)
+
 import Builder.BuildFunction (funcEpilogue, funcPrologue)
+import Builder.BuildState    (BuildState, runBuildState)
+import Builder.BuildState    as BuildState (startState)
 import Types.AssemblySchema
+import Types.Error
 
 
-build :: AssemblySchema -> String
-build schema = buildSchema schema
+build :: AssemblySchema -> Either CompilerError String
+build schema = runBuildState buildAssembly schema BuildState.startState
 
 
-buildSchema :: AssemblySchema -> String
+buildAssembly :: AssemblySchema -> BuildState String
+buildAssembly schema = buildASM schema
 
-buildSchema (ProgramSchema topLeveltems) =
-        concatMap buildSchema topLeveltems
 
-buildSchema (FunctionSchema name _) =
-        prologue ++ epilogue
+buildASM :: AssemblySchema -> BuildState String
+
+buildASM (ProgramSchema topLeveltems) =
+        concatMapM buildASM topLeveltems
+
+buildASM (FunctionSchema name _) =
+        pure $ prologue ++ epilogue
         where
                 prologue = funcPrologue name
                 epilogue = funcEpilogue
 
-buildSchema _                       = undefined
+buildASM _                       = undefined
