@@ -147,11 +147,7 @@ convertToSchema node@DeclarationNode{} = do
              Local  -> declareLocal node
              Global -> declareGlobal node
 
-convertToSchema node@AssignmentNode{} = do
-        currScope <- SymTab.getScope
-        case currScope of
-             Local  -> defineLocal node
-             Global -> defineGlobal node
+convertToSchema node@AssignmentNode{} = buildAssignmentSchema node
 
 convertToSchema (AssignDereferenceNode varNode valNode operator dat) =
         convertToSchema (AssignmentNode varNode valNode operator dat)
@@ -167,11 +163,8 @@ convertToSchema BreakNode{} = do
         pure (StatementSchema $ BreakSchema breakLabel)
 
 convertToSchema (ReturnNode val _) = do
-        returnValueSchema <- convertToSchema val
-        case returnValueSchema of
-             StatementSchema statement ->
-                     pure (StatementSchema $ ReturnSchema $ ExpressionStatementSchema statement)
-             _ -> pure (StatementSchema $ ReturnSchema $ getExpressionSchema returnValueSchema)
+        valueSchema <- getExpressionSchema <$> convertToSchema val
+        pure (StatementSchema $ ReturnSchema valueSchema)
 
 convertToSchema (TernaryNode test true false _) = do
         testSchema  <- getExpressionSchema <$> convertToSchema test
@@ -396,6 +389,22 @@ defineLocal tree = throwError $ FatalError (GeneratorBug tree)
 
 
 -- Shared
+
+buildAssignmentSchema :: Tree -> GenState AssemblySchema
+buildAssignmentSchema node@(AssignmentNode _ _ Assignment _) =
+        buildBasicAssignment node
+buildAssignmentSchema (AssignmentNode varNode valNode (BinaryOp binOp) dat ) =
+        convertToSchema (BinaryNode varNode valNode binOp dat)
+buildAssignmentSchema node = throwError $ FatalError (GeneratorBug node)
+
+
+buildBasicAssignment :: Tree -> GenState AssemblySchema
+buildBasicAssignment node = do
+        currScope <- SymTab.getScope
+        case currScope of
+             Local  -> defineLocal node
+             Global -> defineGlobal node
+
 
 getExpressionSchema :: AssemblySchema -> ExpressionSchema
 getExpressionSchema (ExpressionSchema schema) = schema
