@@ -8,6 +8,7 @@ module Succ (compile) where
 
 
 import qualified Checker.Checker       as Checker (check)
+import qualified Converter.Converter   as Converter (convert)
 import qualified Debug.Debug           as Debug (debug, debugPair)
 import qualified Generator.Generator   as Generator (generate)
 import qualified Lexer.Lexer           as Lexer (tokenize)
@@ -23,11 +24,13 @@ compile input debugOption = do
         toks   <- debugLexer . errorHandler . Lexer.tokenize $ input'
         ast    <- debugParser . errorHandler . Parser.parse $ toks
         ast'   <- debugChecker . errorHandler . Checker.check $ ast
+        _      <- fmap fst . debugSchema . errorHandler . Converter.convert $ ast'
         fmap fst . debugOutput . errorHandler . Generator.generate $ ast'
         where
                 debugInput   = Debug.debug debugOption Input
                 debugLexer   = Debug.debug debugOption Lexer
                 debugParser  = Debug.debug debugOption Parser
                 debugChecker = Debug.debug debugOption Check
+                debugSchema  = Debug.debugPair debugOption (Schema, State)
                 debugOutput  = Debug.debugPair debugOption (Output, State)
                 errorHandler = PrintError.handleError debugOption input

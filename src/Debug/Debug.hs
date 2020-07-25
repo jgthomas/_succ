@@ -16,6 +16,7 @@ data Debug = DebugOn
            | DebugLexer
            | DebugParser
            | DebugState
+           | DebugSchema
            | DebugAsm
            | DebugCode
            | DebugOff
@@ -40,6 +41,7 @@ setDebugLevel (Just dbug)
         | dbug == "debug"       = DebugOn
         | dbug == "debugLexer"  = DebugLexer
         | dbug == "debugParser" = DebugParser
+        | dbug == "debugSchema" = DebugSchema
         | dbug == "debugAsm"    = DebugAsm
         | dbug == "debugState"  = DebugState
         | dbug == "debugCode"   = DebugCode
@@ -58,6 +60,8 @@ debugSingle DebugAsm Output x    = debugIt Output x
 debugSingle DebugAsm _ x         = x
 debugSingle DebugState State x   = debugIt State x
 debugSingle DebugState _ x       = x
+debugSingle DebugSchema Schema x = debugIt Schema x
+debugSingle DebugSchema _ x      = x
 debugSingle DebugOn stage x      = debugIt stage x
 debugSingle DebugOff _ x         = x
 

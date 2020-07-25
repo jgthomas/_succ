@@ -21,6 +21,7 @@ printDebug stage content =
              Lexer  -> printLexerDebug content
              Parser -> printParserDebug content
              Check  -> printCheckerDebug content
+             Schema -> printSchemaDebug content
              State  -> printStateDebug content
              Output -> printOutputDebug content
 
@@ -57,6 +58,15 @@ printCheckerDebug _ = printTitleAndMessage title message
         where
                 title = "ERROR CHECKING PASS"
                 message = "No errors found in syntax tree"
+
+
+printSchemaDebug :: Show a => a -> IO ()
+printSchemaDebug content = do
+        printTitleAndMessage title message
+        printData content
+        where
+                title = "ASSEMBLY SCHEMA"
+                message = "Schema used to template the assembly output"
 
 
 printStateDebug :: Show a => a -> IO ()
