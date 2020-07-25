@@ -4,12 +4,14 @@ module Builder.Builder (build) where
 
 import Control.Monad.Extra    (concatMapM)
 
-import Builder.BuildFunction  (funcEpilogue, funcPrologue)
+import Builder.BuildFunction  as BuildFunction (funcEpilogue, funcPrologue)
 import Builder.BuildState     (BuildState, runBuildState)
 import Builder.BuildState     as BuildState (startState)
+import Builder.BuildUnary     as BuildUnary (unary)
 import Builder.BuildVariables (loadLiteral)
 import Types.AssemblySchema
 import Types.Error
+import Types.Variables        (VarType (..))
 
 
 build :: AssemblySchema -> Either CompilerError String
@@ -29,8 +31,8 @@ buildASM (FunctionSchema name bodyBlock) = do
         body <- buildASM bodyBlock
         pure $ prologue ++ body ++ epilogue
         where
-                prologue = funcPrologue name
-                epilogue = funcEpilogue
+                prologue = BuildFunction.funcPrologue name
+                epilogue = BuildFunction.funcEpilogue
 
 buildASM DeclarationSchema{} = pure ""
 
@@ -55,5 +57,12 @@ buildStatementASM _                         = pure ""
 buildExpressionASM :: ExpressionSchema -> BuildState String
 
 buildExpressionASM (LiteralSchema n) = pure $ loadLiteral n
+
+buildExpressionASM (UnarySchema varSchema@(VariableSchema varType) operator) = do
+        expressionAsm <- buildExpressionASM varSchema
+        pure $ expressionAsm ++ BuildUnary.unary operator varType
+buildExpressionASM (UnarySchema expressionSchema operator) = do
+        expressionAsm <- buildExpressionASM expressionSchema
+        pure $ expressionAsm ++ BuildUnary.unary operator (LocalVar 0 0 0)
 
 buildExpressionASM _                 = pure ""
