@@ -10,8 +10,8 @@ import Builder.BuildState     (BuildState, runBuildState)
 import Builder.BuildState     as BuildState (startState)
 import Builder.BuildTernary   as BuildTernary (ternary)
 import Builder.BuildUnary     as BuildUnary (unary)
-import Builder.BuildVariables as BuildVariables (addressOf, loadLiteral,
-                                                 loadVariable)
+import Builder.BuildVariables as BuildVariables (addressOf, derefLoad,
+                                                 loadLiteral, loadVariable)
 import Types.AssemblySchema
 import Types.Error
 import Types.Variables        (VarType (..))
@@ -87,5 +87,8 @@ buildExpressionASM (VariableSchema varType) =
 
 buildExpressionASM (AddressOfSchema (VariableSchema varType)) =
         pure $ BuildVariables.addressOf varType
+
+buildExpressionASM (DereferenceSchema (VariableSchema varType)) =
+        pure $ BuildVariables.derefLoad varType
 
 buildExpressionASM _                 = pure ""

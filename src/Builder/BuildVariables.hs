@@ -3,7 +3,7 @@ module Builder.BuildVariables where
 
 
 import Builder.Instruction (literal, loadAddOf, move)
-import Builder.Register    (Register (..), reg, selectRegister)
+import Builder.Register    (Register (..), reg, scratch, selectRegister)
 import Types.Variables     (VarType (..))
 
 
@@ -73,9 +73,37 @@ varAddressLoadGlobal label offset =
         loadAddOf (fromInstructionPointerOffset label offset) (reg RAX)
 
 
+-- | Load a dereferenced pointer value
+derefLoad :: VarType -> String
+derefLoad (LocalVar n m _) = derefLoadLocal (n + m)
+derefLoad (ParamVar n _)   = derefLoadParam n
+derefLoad (GlobalVar s o)  = derefLoadGlobal s o
+
+
+derefLoadLocal :: Int -> String
+derefLoadLocal offset =
+        move (fromBasePointer offset) scratch
+        ++ move (valueFromAddressIn scratch) (reg RAX)
+
+
+derefLoadParam :: Int -> String
+derefLoadParam r =
+        move (valueFromAddressIn . selectRegister $ r) (reg RAX)
+
+
+derefLoadGlobal :: String -> Int -> String
+derefLoadGlobal label offset =
+        move (fromInstructionPointerOffset label offset) scratch
+        ++ move (valueFromAddressIn scratch) (reg RAX)
+
+
 fromInstructionPointerOffset :: String -> Int -> String
 fromInstructionPointerOffset lab off =
         lab ++ "+" ++ show off ++ indirectAddressing (reg RIP)
+
+
+valueFromAddressIn :: String -> String
+valueFromAddressIn s = indirectAddressing s
 
 
 fromBasePointer :: Int -> String
