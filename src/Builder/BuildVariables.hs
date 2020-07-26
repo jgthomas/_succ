@@ -1,5 +1,11 @@
 
-module Builder.BuildVariables where
+module Builder.BuildVariables
+        (loadLiteral,
+         storeVariable,
+         loadVariable,
+         addressOf,
+         derefLoad
+        ) where
 
 
 import Builder.Instruction (literal, loadAddOf, move)
