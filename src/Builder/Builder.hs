@@ -10,7 +10,8 @@ import Builder.BuildState     (BuildState, runBuildState)
 import Builder.BuildState     as BuildState (startState)
 import Builder.BuildTernary   as BuildTernary (ternary)
 import Builder.BuildUnary     as BuildUnary (unary)
-import Builder.BuildVariables as BuildVariables (loadLiteral, loadVariable)
+import Builder.BuildVariables as BuildVariables (addressOf, loadLiteral,
+                                                 loadVariable)
 import Types.AssemblySchema
 import Types.Error
 import Types.Variables        (VarType (..))
@@ -81,6 +82,10 @@ buildExpressionASM (TernarySchema expr1 expr2 expr3 locLabel1 locLabel2) = do
 buildExpressionASM (ExpressionStatementSchema statementSchema) =
         buildStatementASM statementSchema
 
-buildExpressionASM (VariableSchema varType) = pure $ BuildVariables.loadVariable varType
+buildExpressionASM (VariableSchema varType) =
+        pure $ BuildVariables.loadVariable varType
+
+buildExpressionASM (AddressOfSchema (VariableSchema varType)) =
+        pure $ BuildVariables.addressOf varType
 
 buildExpressionASM _                 = pure ""

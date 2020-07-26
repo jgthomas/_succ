@@ -2,7 +2,7 @@
 module Builder.BuildVariables where
 
 
-import Builder.Instruction (literal, move)
+import Builder.Instruction (literal, loadAddOf, move)
 import Builder.Register    (Register (..), reg, selectRegister)
 import Types.Variables     (VarType (..))
 
@@ -55,6 +55,22 @@ getFromRegister r = move (selectRegister r) (reg RAX)
 -}
 loadGlobal :: String -> Int -> String
 loadGlobal label offset = move (fromInstructionPointerOffset label offset) (reg RAX)
+
+
+-- | Load the address of a variable
+addressOf :: VarType -> String
+addressOf (LocalVar n m _) = varAddressLoad (n + m)
+addressOf (ParamVar _ _)   = undefined
+addressOf (GlobalVar s o)  = varAddressLoadGlobal s o
+
+
+varAddressLoad :: Int -> String
+varAddressLoad offset = loadAddOf (fromBasePointer offset) (reg RAX)
+
+
+varAddressLoadGlobal :: String -> Int -> String
+varAddressLoadGlobal label offset =
+        loadAddOf (fromInstructionPointerOffset label offset) (reg RAX)
 
 
 fromInstructionPointerOffset :: String -> Int -> String
