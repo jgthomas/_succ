@@ -4,11 +4,15 @@ module Builder.BuildVariables
          storeVariable,
          loadVariable,
          addressOf,
-         derefLoad
+         derefLoad,
+         declareGlobal,
+         postDeclareAction
+
         ) where
 
 
-import Builder.Instruction (literal, loadAddOf, move)
+import Builder.Directive   (initializedGlobal, uninitializedGlobal)
+import Builder.Instruction (literal, loadAddOf, move, sub)
 import Builder.Register    (Register (..), reg, scratch, selectRegister)
 import Types.Variables     (VarType (..))
 
@@ -16,6 +20,24 @@ import Types.Variables     (VarType (..))
 -- | Load a literal value into return register
 loadLiteral :: Int -> String
 loadLiteral n = move (literal n) (reg RAX)
+
+
+declareGlobal :: VarType -> Int -> String
+declareGlobal (GlobalVar label _) 0 = uninitializedGlobal label
+declareGlobal (GlobalVar label _) n = initializedGlobal label (show n)
+declareGlobal _ _                   = undefined
+
+
+postDeclareAction :: VarType -> String
+postDeclareAction GlobalVar{}       = ""
+postDeclareAction ParamVar{}        = ""
+postDeclareAction (LocalVar _ _ sp) = adjustStackPointer sp
+
+
+adjustStackPointer :: Int -> String
+adjustStackPointer offset =
+        move (reg RBP) (reg RSP)
+        ++ sub (literal offset) (reg RSP)
 
 
 -- | Store a variable value currently held in %rax

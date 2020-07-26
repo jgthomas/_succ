@@ -10,11 +10,14 @@ import Builder.BuildState     (BuildState, runBuildState)
 import Builder.BuildState     as BuildState (startState)
 import Builder.BuildTernary   as BuildTernary (ternary)
 import Builder.BuildUnary     as BuildUnary (unary)
-import Builder.BuildVariables as BuildVariables (addressOf, derefLoad,
-                                                 loadLiteral, loadVariable)
+import Builder.BuildVariables as BuildVariables (addressOf, declareGlobal,
+                                                 derefLoad, loadLiteral,
+                                                 loadVariable,
+                                                 postDeclareAction,
+                                                 storeVariable)
 import Types.AssemblySchema
 import Types.Error
-import Types.Variables        (VarType (..))
+import Types.Variables        (Scope (..), VarType (..))
 
 
 build :: AssemblySchema -> Either CompilerError String
@@ -37,6 +40,13 @@ buildASM (FunctionSchema name bodyBlock) = do
                 prologue = BuildFunction.funcPrologue name
                 epilogue = BuildFunction.funcEpilogue
 
+buildASM (DeclarationSchema _ SkipSchema Global _) = pure ""
+buildASM (DeclarationSchema
+          (ExpressionSchema (VariableSchema varType))
+          (StatementSchema assignSchema) _ _) = do
+                  assignAsm <- buildStatementASM assignSchema
+                  pure $ assignAsm ++ BuildVariables.postDeclareAction varType
+
 buildASM DeclarationSchema{} = pure ""
 
 buildASM (StatementSchema statement) = buildStatementASM statement
@@ -52,6 +62,12 @@ buildStatementASM :: StatementSchema -> BuildState String
 buildStatementASM (ReturnSchema expression) = buildExpressionASM expression
 
 buildStatementASM (CompoundStatementSchema items) = concatMapM buildASM items
+
+buildStatementASM (AssignmentSchema (VariableSchema globalVar@GlobalVar{}) (LiteralSchema n) Global) =
+        pure $ BuildVariables.declareGlobal globalVar n
+buildStatementASM (AssignmentSchema (VariableSchema varType) valSchema Local) = do
+        valueAsm <- buildExpressionASM valSchema
+        pure $ valueAsm ++ BuildVariables.storeVariable varType
 
 buildStatementASM _                         = pure ""
 
