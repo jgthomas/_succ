@@ -7,7 +7,6 @@ module Builder.BuildVariables
          derefLoad,
          declareGlobal,
          postDeclareAction
-
         ) where
 
 
