@@ -8,6 +8,7 @@ import Builder.BuildBinary    as BuildBinary (binary)
 import Builder.BuildFunction  as BuildFunction (funcEpilogue, funcPrologue)
 import Builder.BuildState     (BuildState, runBuildState)
 import Builder.BuildState     as BuildState (startState)
+import Builder.BuildTernary   as BuildTernary (ternary)
 import Builder.BuildUnary     as BuildUnary (unary)
 import Builder.BuildVariables as BuildVariables (loadLiteral, loadVariable)
 import Types.AssemblySchema
@@ -70,6 +71,12 @@ buildExpressionASM (BinarySchema exprSchema1 exprSchema2 op locLabel1 locLabel2)
         expr1Asm <- buildExpressionASM exprSchema1
         expr2Asm <- buildExpressionASM exprSchema2
         pure $ BuildBinary.binary expr1Asm expr2Asm op locLabel1 locLabel2
+
+buildExpressionASM (TernarySchema expr1 expr2 expr3 locLabel1 locLabel2) = do
+        expr1Asm <- buildExpressionASM expr1
+        expr2Asm <- buildExpressionASM expr2
+        expr3Asm <- buildExpressionASM expr3
+        pure $ BuildTernary.ternary expr1Asm expr2Asm expr3Asm locLabel1 locLabel2
 
 buildExpressionASM (ExpressionStatementSchema statementSchema) =
         buildStatementASM statementSchema
