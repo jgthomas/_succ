@@ -9,7 +9,7 @@ import Builder.BuildFunction  as BuildFunction (funcEpilogue, funcPrologue)
 import Builder.BuildState     (BuildState, runBuildState)
 import Builder.BuildState     as BuildState (startState)
 import Builder.BuildUnary     as BuildUnary (unary)
-import Builder.BuildVariables (loadLiteral)
+import Builder.BuildVariables as BuildVariables (loadLiteral, loadVariable)
 import Types.AssemblySchema
 import Types.Error
 import Types.Variables        (VarType (..))
@@ -73,5 +73,7 @@ buildExpressionASM (BinarySchema exprSchema1 exprSchema2 op locLabel1 locLabel2)
 
 buildExpressionASM (ExpressionStatementSchema statementSchema) =
         buildStatementASM statementSchema
+
+buildExpressionASM (VariableSchema varType) = pure $ BuildVariables.loadVariable varType
 
 buildExpressionASM _                 = pure ""
