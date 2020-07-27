@@ -396,7 +396,11 @@ buildAssignmentSchema :: Tree -> GenState AssemblySchema
 buildAssignmentSchema node@(AssignmentNode _ _ Assignment _) =
         buildBasicAssignment node
 buildAssignmentSchema (AssignmentNode varNode valNode (BinaryOp binOp) dat ) =
-        convertToSchema (BinaryNode varNode valNode binOp dat)
+        convertToSchema $ AssignmentNode
+                          varNode
+                          (BinaryNode varNode valNode binOp dat)
+                          Assignment
+                          dat
 buildAssignmentSchema node = throwError $ FatalError (GeneratorBug node)
 
 
