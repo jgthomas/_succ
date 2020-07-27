@@ -227,7 +227,8 @@ converterTest = hspec $ do
                       StatementSchema $ AssignmentSchema
                       (VariableSchema $ LocalVar (-24) 0 24)
                       (LiteralSchema 20)
-                      Local
+                      Local,
+                      StatementSchema $ ReturnSchema (LiteralSchema 0)
                      ]
                     )
                    ]
@@ -301,7 +302,8 @@ converterTest = hspec $ do
                      (LiteralSchema 2)
                      Plus
                      (LocalLabel 1)
-                     (LocalLabel 2)
+                     (LocalLabel 2),
+                     StatementSchema $ ReturnSchema (LiteralSchema 0)
                     ]
                    )
                   ]

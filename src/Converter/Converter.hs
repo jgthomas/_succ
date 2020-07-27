@@ -40,7 +40,7 @@ convertToSchema funcNode@(FunctionNode _ _ _ Nothing _) = do
 convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
         declareFunction funcNode
         SymTab.initFunction name
-        bodySchema <- convertToSchema body
+        bodySchema <- checkReturn name <$> convertToSchema body
         SymTab.closeFunction
         SymTab.defineFunction name
         pure (FunctionSchema name bodySchema)
@@ -338,6 +338,20 @@ processParameters name params = do
         SymTab.initFunction name
         mapM_ convertToSchema params
         SymTab.closeFunction
+
+
+checkReturn :: String -> AssemblySchema -> AssemblySchema
+checkReturn "main" (StatementSchema (CompoundStatementSchema [])) =
+        (StatementSchema (CompoundStatementSchema $ addReturnZero []))
+checkReturn "main" schema@(StatementSchema (CompoundStatementSchema bodySchemas)) =
+        case last bodySchemas of
+             (StatementSchema ReturnSchema{}) -> schema
+             _ -> (StatementSchema (CompoundStatementSchema $ addReturnZero bodySchemas))
+checkReturn _ schema = schema
+
+
+addReturnZero :: [AssemblySchema] -> [AssemblySchema]
+addReturnZero bodySchema = bodySchema ++ [StatementSchema (ReturnSchema (LiteralSchema 0))]
 
 
 -- Variables Global
