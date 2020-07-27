@@ -211,21 +211,21 @@ converterTest = hspec $ do
                     "main"
                     (StatementSchema $ CompoundStatementSchema
                      [DeclarationSchema
-                      (ExpressionSchema $ VariableSchema $ LocalVar (-16) 0 0)
+                      (ExpressionSchema $ VariableSchema $ LocalVar (-16) 0 16)
                       SkipSchema
                       Local
                       IntVar,
                       DeclarationSchema
-                      (ExpressionSchema $ VariableSchema $ LocalVar (-24) 0 0)
+                      (ExpressionSchema $ VariableSchema $ LocalVar (-24) 0 24)
                       (StatementSchema $ AssignmentSchema
-                       (VariableSchema $ LocalVar (-24) 0 0)
-                       (AddressOfSchema $ VariableSchema $ LocalVar (-16) 0 0)
+                       (VariableSchema $ LocalVar (-24) 0 24)
+                       (AddressOfSchema $ VariableSchema $ LocalVar (-16) 0 16)
                        Local
                       )
                       Local
                       IntPointer,
                       StatementSchema $ AssignmentSchema
-                      (VariableSchema $ LocalVar (-24) 0 0)
+                      (VariableSchema $ LocalVar (-24) 0 24)
                       (LiteralSchema 20)
                       Local
                      ]
@@ -260,7 +260,7 @@ converterTest = hspec $ do
                    "main"
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
-                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
                      SkipSchema
                      Local
                      IntVar,
@@ -344,9 +344,9 @@ converterTest = hspec $ do
                    "main"
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
-                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
                      (StatementSchema $ AssignmentSchema
-                      (VariableSchema $ LocalVar (-16) 0 0)
+                      (VariableSchema $ LocalVar (-16) 0 16)
                       (BinarySchema
                        (LiteralSchema 10)
                        (LiteralSchema 10)
@@ -360,7 +360,7 @@ converterTest = hspec $ do
                      IntVar,
                      StatementSchema
                      (ReturnSchema
-                      (VariableSchema $ LocalVar (-16) 0 0)
+                      (VariableSchema $ LocalVar (-16) 0 16)
                      )
                     ]
                    )
@@ -409,9 +409,9 @@ converterTest = hspec $ do
                    "main"
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
-                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
                      (StatementSchema $ AssignmentSchema
-                      (VariableSchema $ LocalVar (-16) 0 0)
+                      (VariableSchema $ LocalVar (-16) 0 16)
                       (TernarySchema
                        (BinarySchema
                         (LiteralSchema 12)
@@ -431,7 +431,7 @@ converterTest = hspec $ do
                      IntVar,
                      StatementSchema
                      (ReturnSchema
-                      (VariableSchema $ LocalVar (-16) 0 0)
+                      (VariableSchema $ LocalVar (-16) 0 16)
                      )
                     ]
                    )
@@ -469,14 +469,14 @@ converterTest = hspec $ do
                    "main"
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
-                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
                      SkipSchema
                      Local
                      IntVar,
                      StatementSchema
                      (ReturnSchema
                       (UnarySchema
-                       (VariableSchema $ LocalVar (-16) 0 0)
+                       (VariableSchema $ LocalVar (-16) 0 16)
                        (Unary Negate)
                       )
                      )
@@ -517,16 +517,16 @@ converterTest = hspec $ do
                    "main"
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
-                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
                      (StatementSchema $ AssignmentSchema
-                      (VariableSchema (LocalVar (-16) 0 0))
+                      (VariableSchema (LocalVar (-16) 0 16))
                       (LiteralSchema 100)
                       Local
                      )
                      Local
                      IntVar,
                      StatementSchema $ ReturnSchema
-                     (VariableSchema (LocalVar (-16) 0 0))
+                     (VariableSchema (LocalVar (-16) 0 16))
                     ]
                    )
                   ]
@@ -560,7 +560,7 @@ converterTest = hspec $ do
                    "main"
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
-                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
                      SkipSchema
                      Local
                      IntArray,
@@ -608,15 +608,15 @@ converterTest = hspec $ do
                    "main"
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
-                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
                      (ExpressionSchema $ ArrayItemsSchema
                       24
                       [AssignmentSchema
-                       (VariableSchema (LocalVar (-16) 0 0))
+                       (VariableSchema (LocalVar (-16) 0 16))
                        (LiteralSchema 20)
                        Local,
                        AssignmentSchema
-                       (VariableSchema (LocalVar (-16) (-8) 0))
+                       (VariableSchema (LocalVar (-16) (-8) 24))
                        (LiteralSchema 30)
                        Local
                       ]
@@ -720,15 +720,15 @@ converterTest = hspec $ do
                    "main"
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
-                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
                      (ExpressionSchema $ ArrayItemsSchema
                       24
                       [AssignmentSchema
-                       (VariableSchema (LocalVar (-16) 0 0))
+                       (VariableSchema (LocalVar (-16) 0 16))
                        (LiteralSchema 20)
                        Local,
                        AssignmentSchema
-                       (VariableSchema (LocalVar (-16) (-8) 0))
+                       (VariableSchema (LocalVar (-16) (-8) 24))
                        (LiteralSchema 30)
                        Local
                       ]
@@ -737,7 +737,7 @@ converterTest = hspec $ do
                      IntArray,
                      StatementSchema $
                      ReturnSchema
-                     (VariableSchema (LocalVar (-16) (-8) 0))
+                     (VariableSchema (LocalVar (-16) (-8) 24))
                     ]
                    )
                   ]
@@ -792,11 +792,11 @@ converterTest = hspec $ do
                    "main"
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
-                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
                      (ExpressionSchema $ ArrayItemsSchema
                       16
                       [AssignmentSchema
-                       (VariableSchema (LocalVar (-16) 0 0))
+                       (VariableSchema (LocalVar (-16) 0 16))
                        (LiteralSchema 20)
                        Local
                       ]
@@ -804,13 +804,13 @@ converterTest = hspec $ do
                      Local
                      IntArray,
                      (StatementSchema $ AssignmentSchema
-                      (VariableSchema (LocalVar (-16) 0 0))
+                      (VariableSchema (LocalVar (-16) 0 16))
                       (LiteralSchema 30)
                       Local
                      ),
                      (StatementSchema
                       (ReturnSchema
-                       (VariableSchema (LocalVar (-16) 0 0))
+                       (VariableSchema (LocalVar (-16) 0 16))
                       )
                      )
                     ]
@@ -872,11 +872,11 @@ converterTest = hspec $ do
                    "main"
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
-                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 0))
+                     (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
                      (ExpressionSchema $ ArrayItemsSchema
                       16
                       [AssignmentSchema
-                       (VariableSchema (LocalVar (-16) 0 0))
+                       (VariableSchema (LocalVar (-16) 0 16))
                        (LiteralSchema 20)
                        Local
                       ]
@@ -884,11 +884,11 @@ converterTest = hspec $ do
                      Local
                      IntArray,
                      (StatementSchema $ AssignmentSchema
-                      (VariableSchema (LocalVar (-16) 0 0))
+                      (VariableSchema (LocalVar (-16) 0 16))
                       (BinarySchema
-                       (VariableSchema $ LocalVar (-16) 0 0)
+                       (VariableSchema $ LocalVar (-16) 0 16)
                        (BinarySchema
-                        (VariableSchema $ LocalVar (-16) 0 0)
+                        (VariableSchema $ LocalVar (-16) 0 16)
                         (LiteralSchema 30)
                         Plus
                         (LocalLabel 3)
@@ -902,7 +902,7 @@ converterTest = hspec $ do
                      ),
                      (StatementSchema
                       (ReturnSchema
-                       (VariableSchema (LocalVar (-16) 0 0))
+                       (VariableSchema (LocalVar (-16) 0 16))
                       )
                      )
                     ]
@@ -1255,9 +1255,9 @@ converterTest = hspec $ do
                     (StatementSchema $ CompoundStatementSchema
                      [StatementSchema $ ForSchema
                       (DeclarationSchema
-                       (ExpressionSchema (VariableSchema $ LocalVar (-16) 0 0))
+                       (ExpressionSchema (VariableSchema $ LocalVar (-16) 0 16))
                        (StatementSchema $ AssignmentSchema
-                        (VariableSchema $ LocalVar (-16) 0 0)
+                        (VariableSchema $ LocalVar (-16) 0 16)
                         (LiteralSchema 1)
                         Local
                        )
@@ -1265,14 +1265,14 @@ converterTest = hspec $ do
                        IntVar
                       )
                       (BinarySchema
-                       (VariableSchema $ LocalVar (-16) 0 0)
+                       (VariableSchema $ LocalVar (-16) 0 16)
                        (LiteralSchema 10)
                        LessThan
                        (LocalLabel 5)
                        (LocalLabel 6)
                       )
                       (BinarySchema
-                       (VariableSchema $ LocalVar (-16) 0 0)
+                       (VariableSchema $ LocalVar (-16) 0 16)
                        (LiteralSchema 1)
                        Plus
                        (LocalLabel 7)
