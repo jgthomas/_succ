@@ -38,10 +38,7 @@ buildASM (ProgramSchema topLeveltems) = concatMapM buildASM topLeveltems
 
 buildASM (FunctionSchema name bodyBlock) = do
         body <- buildASM bodyBlock
-        pure $ prologue ++ body ++ epilogue
-        where
-                prologue = BuildFunction.funcPrologue name
-                epilogue = BuildFunction.funcEpilogue
+        pure $ BuildFunction.funcPrologue name ++ body
 
 buildASM (DeclarationSchema _ SkipSchema Global _) = pure ""
 buildASM (DeclarationSchema
@@ -62,7 +59,9 @@ buildASM SkipSchema = pure ""
 
 buildStatementASM :: StatementSchema -> BuildState String
 
-buildStatementASM (ReturnSchema expression) = buildExpressionASM expression
+buildStatementASM (ReturnSchema expression) = do
+        returnAsm <- buildExpressionASM expression
+        pure $ returnAsm ++ BuildFunction.funcEpilogue
 
 buildStatementASM (CompoundStatementSchema items) = concatMapM buildASM items
 

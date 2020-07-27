@@ -72,10 +72,12 @@ ifStatement test body "" n _        = ifOnly test body n
 ifStatement test body elseBlock n m = ifElse test body n elseBlock m
 
 
+-- | Output asm for a break statement
 breakStatement :: Int -> String
 breakStatement n = setGotoPoint n
 
 
+-- | Output asm for a continue statement
 continueStatement :: Int -> String
 continueStatement n = setGotoPoint n
 
