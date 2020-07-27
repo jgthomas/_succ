@@ -1,10 +1,15 @@
 
-module Builder.BuildFunction where
+module Builder.BuildFunction
+        (funcPrologue,
+         funcEpilogue,
+         functionCall
+        ) where
 
 
 import Builder.Directive   (declareGlobl, globlLabel)
-import Builder.Instruction (move, pop, push, returnControl)
-import Builder.Register    (Register (..), allScratch, reg)
+import Builder.Instruction (call, move, pop, push, returnControl)
+import Builder.Register    (Register (..), allScratch, params, reg,
+                            selectRegister)
 
 
 funcPrologue :: String -> String
@@ -20,6 +25,30 @@ funcEpilogue =
         restoreRegisters allScratch
         ++ restoreBasePointer
         ++ returnControl
+
+
+functionCall :: String -> [(String, Int)] -> String
+functionCall name args =
+        saveCallerRegisters
+        ++ concatMap passArgument args
+        ++ call name
+        ++ restoreCallerRegisters
+
+
+passArgument:: (String, Int) -> String
+passArgument (argAsm, pos) = argAsm ++ putInRegister pos
+
+
+putInRegister :: Int -> String
+putInRegister r = move (reg RAX) (selectRegister r)
+
+
+saveCallerRegisters :: String
+saveCallerRegisters = saveRegisters params
+
+
+restoreCallerRegisters :: String
+restoreCallerRegisters = restoreRegisters params
 
 
 saveRegisters :: [Register] -> String

@@ -5,7 +5,8 @@ module Builder.Builder (build) where
 import Control.Monad.Extra    (concatMapM)
 
 import Builder.BuildBinary    as BuildBinary (binary)
-import Builder.BuildFunction  as BuildFunction (funcEpilogue, funcPrologue)
+import Builder.BuildFunction  as BuildFunction (funcEpilogue, funcPrologue,
+                                                functionCall)
 import Builder.BuildState     (BuildState, runBuildState)
 import Builder.BuildState     as BuildState (startState)
 import Builder.BuildStatement as BuildStatement (breakStatement,
@@ -178,6 +179,10 @@ buildExpressionASM (TernarySchema expr1 expr2 expr3 locLabel1 locLabel2) = do
         expr2Asm <- buildExpressionASM expr2
         expr3Asm <- buildExpressionASM expr3
         pure $ BuildTernary.ternary expr1Asm expr2Asm expr3Asm locLabel1 locLabel2
+
+buildExpressionASM (FunctionCallSchema name arguments) = do
+        argAsmList <- mapM buildExpressionASM arguments
+        pure $ BuildFunction.functionCall name (zip argAsmList [0..])
 
 buildExpressionASM (ExpressionStatementSchema statementSchema) =
         buildStatementASM statementSchema
