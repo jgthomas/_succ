@@ -37,13 +37,25 @@ buildAssembly schema = buildASM schema
 
 buildASM :: AssemblySchema -> BuildState String
 
-buildASM (ProgramSchema topLeveltems) = concatMapM buildASM topLeveltems
+buildASM (ProgramSchema topLevelItems) = do
+        dataSection <- concatMapM buildASM initialised
+        bssSection  <- concatMapM buildASM uninitialised
+        textSection <- concatMapM buildASM functions
+        pure $ dataSection ++ bssSection ++ textSection
+        where
+                initialised   = filter isInitialised topLevelItems
+                uninitialised = filter isUninitialised topLevelItems
+                functions     = filter isFunction topLevelItems
 
 buildASM (FunctionSchema name bodyBlock) = do
         body <- buildASM bodyBlock
         pure $ BuildFunction.funcPrologue name ++ body
 
-buildASM (DeclarationSchema _ SkipSchema Global _) = pure ""
+buildASM (DeclarationSchema
+          (ExpressionSchema (VariableSchema global@GlobalVar{}))
+          SkipSchema
+          Global
+          _) = pure $ BuildVariables.declareGlobal global 0
 buildASM (DeclarationSchema
           (ExpressionSchema (VariableSchema varType))
           (StatementSchema assignSchema)
@@ -201,3 +213,19 @@ buildExpressionASM NullExpressionSchema{} = pure ""
 buildExpressionASM (ArrayItemsSchema _ items) = concatMapM buildStatementASM items
 
 buildExpressionASM _                 = pure ""
+
+
+isFunction :: AssemblySchema -> Bool
+isFunction FunctionSchema{} = True
+isFunction _                = False
+
+
+isInitialised :: AssemblySchema -> Bool
+isInitialised (DeclarationSchema _ SkipSchema _ _) = False
+isInitialised DeclarationSchema{}                  = True
+isInitialised _                                    = False
+
+
+isUninitialised :: AssemblySchema -> Bool
+isUninitialised schema@DeclarationSchema{} = not . isInitialised $ schema
+isUninitialised _                          = False
