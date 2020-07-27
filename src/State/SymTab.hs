@@ -38,7 +38,7 @@ getVariable name = do
 
 
 mkVarLocal :: Maybe Int -> VarLookup
-mkVarLocal (Just n) = VarType (LocalVar n 0 0)
+mkVarLocal (Just n) = VarType (LocalVar n 0 (-n))
 mkVarLocal Nothing  = NotFound
 
 

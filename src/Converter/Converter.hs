@@ -411,11 +411,13 @@ buildBasicAssignment node = do
 getExpressionSchema :: AssemblySchema -> ExpressionSchema
 getExpressionSchema (ExpressionSchema schema) = schema
 getExpressionSchema (StatementSchema schema)  = ExpressionStatementSchema schema
+getExpressionSchema SkipSchema                = NullExpressionSchema
 getExpressionSchema _                         = undefined
 
 
 getStatementSchema :: AssemblySchema -> StatementSchema
 getStatementSchema (StatementSchema schema) = schema
+getStatementSchema SkipSchema               = NullStatementSchema
 getStatementSchema _                        = undefined
 
 
@@ -426,7 +428,8 @@ processPossibleNode (Just node) = convertToSchema node
 
 adjustVariable :: Maybe Int -> Maybe Int -> VarType -> VarType
 adjustVariable (Just x) (Just y) (LocalVar n _ _) = LocalVar n (x * SymTab.memOffset) y
-adjustVariable (Just x) Nothing (LocalVar n _ sp) = LocalVar n (x * SymTab.memOffset) sp
+adjustVariable (Just x) Nothing (LocalVar n _ sp) =
+        LocalVar n (x * SymTab.memOffset) (sp + (x * SymTab.memOffset))
 adjustVariable Nothing (Just y) (LocalVar n m _)  = LocalVar n m y
 adjustVariable (Just x) _ (ParamVar n _)          = ParamVar n x
 adjustVariable (Just x) _ (GlobalVar l _)         = GlobalVar l x

@@ -125,6 +125,8 @@ buildStatementASM (IfSchema
                            elseAsm <- buildASM elseSchema
                            pure $ BuildStatement.ifStatement testAsm bodyAsm elseAsm n m
 
+buildStatementASM NullStatementSchema{} = pure ""
+
 buildStatementASM _                         = pure ""
 
 
@@ -162,5 +164,7 @@ buildExpressionASM (AddressOfSchema (VariableSchema varType)) =
 
 buildExpressionASM (DereferenceSchema (VariableSchema varType)) =
         pure $ BuildVariables.derefLoad varType
+
+buildExpressionASM NullExpressionSchema{} = pure ""
 
 buildExpressionASM _                 = pure ""
