@@ -342,11 +342,11 @@ processParameters name params = do
 
 checkReturn :: String -> AssemblySchema -> AssemblySchema
 checkReturn "main" (StatementSchema (CompoundStatementSchema [])) =
-        (StatementSchema (CompoundStatementSchema $ addReturnZero []))
+        StatementSchema (CompoundStatementSchema $ addReturnZero [])
 checkReturn "main" schema@(StatementSchema (CompoundStatementSchema bodySchemas)) =
         case last bodySchemas of
              (StatementSchema ReturnSchema{}) -> schema
-             _ -> (StatementSchema (CompoundStatementSchema $ addReturnZero bodySchemas))
+             _ -> StatementSchema (CompoundStatementSchema $ addReturnZero bodySchemas)
 checkReturn _ schema = schema
 
 
