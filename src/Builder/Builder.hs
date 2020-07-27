@@ -101,6 +101,11 @@ buildStatementASM (AssignmentSchema
                    Global) =
                            pure $ BuildVariables.declareGlobal globalVar n
 buildStatementASM (AssignmentSchema
+                   (VariableSchema globalVar@GlobalVar{})
+                   AddressOfSchema{}
+                   Global) =
+                           pure $ BuildVariables.declareGlobal globalVar 0
+buildStatementASM (AssignmentSchema
                    (VariableSchema varType)
                    valSchema
                    Local) = do
