@@ -3,12 +3,14 @@ module Builder.BuildStatement
         (while,
          doWhile,
          forLoop,
-         ifStatement
+         ifStatement,
+         breakStatement,
+         continueStatement
         ) where
 
 
 import Builder.Directive   (emitLabel)
-import Builder.Instruction (Jump (..), comp, emitJump, literal)
+import Builder.Instruction (Jump (..), comp, emitJump, literal, setGotoPoint)
 import Builder.Register    (Register (..), reg)
 
 
@@ -68,6 +70,14 @@ ifStatement :: String
             -> String
 ifStatement test body "" n _        = ifOnly test body n
 ifStatement test body elseBlock n m = ifElse test body n elseBlock m
+
+
+breakStatement :: Int -> String
+breakStatement n = setGotoPoint n
+
+
+continueStatement :: Int -> String
+continueStatement n = setGotoPoint n
 
 
 ifOnly :: String -> String -> Int -> String

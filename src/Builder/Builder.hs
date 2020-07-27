@@ -8,8 +8,9 @@ import Builder.BuildBinary    as BuildBinary (binary)
 import Builder.BuildFunction  as BuildFunction (funcEpilogue, funcPrologue)
 import Builder.BuildState     (BuildState, runBuildState)
 import Builder.BuildState     as BuildState (startState)
-import Builder.BuildStatement as BuildStatement (doWhile, forLoop, ifStatement,
-                                                 while)
+import Builder.BuildStatement as BuildStatement (breakStatement,
+                                                 continueStatement, doWhile,
+                                                 forLoop, ifStatement, while)
 import Builder.BuildTernary   as BuildTernary (ternary)
 import Builder.BuildUnary     as BuildUnary (unary)
 import Builder.BuildVariables as BuildVariables (addressOf, declareGlobal,
@@ -64,6 +65,10 @@ buildStatementASM :: StatementSchema -> BuildState String
 buildStatementASM (ReturnSchema expression) = buildExpressionASM expression
 
 buildStatementASM (CompoundStatementSchema items) = concatMapM buildASM items
+
+buildStatementASM (BreakSchema (LocalLabel n)) = pure $ BuildStatement.breakStatement n
+
+buildStatementASM (ContinueSchema (LocalLabel n)) = pure $ BuildStatement.continueStatement n
 
 buildStatementASM (AssignmentSchema
                    (VariableSchema globalVar@GlobalVar{})
