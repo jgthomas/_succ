@@ -20,6 +20,7 @@ import Builder.BuildVariables as BuildVariables (addressOf, declareGlobal,
                                                  storeVariable)
 import Types.AssemblySchema
 import Types.Error
+import Types.Type             (Type (..))
 import Types.Variables        (Scope (..), VarType (..))
 
 
@@ -43,9 +44,20 @@ buildASM (FunctionSchema name bodyBlock) = do
 buildASM (DeclarationSchema _ SkipSchema Global _) = pure ""
 buildASM (DeclarationSchema
           (ExpressionSchema (VariableSchema varType))
-          (StatementSchema assignSchema) _ _) = do
-                  assignAsm <- buildStatementASM assignSchema
-                  pure $ assignAsm ++ BuildVariables.postDeclareAction varType
+          (StatementSchema assignSchema)
+          _
+          _
+         ) = do
+                 assignAsm <- buildStatementASM assignSchema
+                 pure $ assignAsm ++ BuildVariables.postDeclareAction varType
+buildASM (DeclarationSchema
+          (ExpressionSchema VariableSchema{})
+          (ExpressionSchema arrayItems@(ArrayItemsSchema finalPos _))
+          Local
+          IntArray
+         ) = do
+                 assignAsm <- buildExpressionASM arrayItems
+                 pure $ assignAsm ++ BuildVariables.postDeclareAction (LocalVar 0 0 finalPos)
 
 buildASM DeclarationSchema{} = pure ""
 
@@ -166,5 +178,7 @@ buildExpressionASM (DereferenceSchema (VariableSchema varType)) =
         pure $ BuildVariables.derefLoad varType
 
 buildExpressionASM NullExpressionSchema{} = pure ""
+
+buildExpressionASM (ArrayItemsSchema _ items) = concatMapM buildStatementASM items
 
 buildExpressionASM _                 = pure ""
