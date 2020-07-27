@@ -20,6 +20,7 @@ import Builder.BuildVariables as BuildVariables (addressOf, declareGlobal,
                                                  storeVariable)
 import Types.AssemblySchema
 import Types.Error
+import Types.Operator         (BinaryOp (..))
 import Types.Type             (Type (..))
 import Types.Variables        (Scope (..), VarType (..))
 
@@ -154,10 +155,23 @@ buildExpressionASM (UnarySchema expressionSchema operator) = do
         expressionAsm <- buildExpressionASM expressionSchema
         pure $ expressionAsm ++ BuildUnary.unary operator (LocalVar 0 0 0)
 
-buildExpressionASM (BinarySchema exprSchema1 exprSchema2 op locLabel1 locLabel2) = do
-        expr1Asm <- buildExpressionASM exprSchema1
-        expr2Asm <- buildExpressionASM exprSchema2
-        pure $ BuildBinary.binary expr1Asm expr2Asm op locLabel1 locLabel2
+buildExpressionASM (BinarySchema
+                    exprSchema1
+                    (LiteralSchema n)
+                    op@ShiftOp{}
+                    locLabel1
+                    locLabel2) = do
+                            expr1Asm <- buildExpressionASM exprSchema1
+                            pure $ BuildBinary.binary expr1Asm (show n) op locLabel1 locLabel2
+buildExpressionASM (BinarySchema
+                    exprSchema1
+                    exprSchema2
+                    op
+                    locLabel1
+                    locLabel2) = do
+                            expr1Asm <- buildExpressionASM exprSchema1
+                            expr2Asm <- buildExpressionASM exprSchema2
+                            pure $ BuildBinary.binary expr1Asm expr2Asm op locLabel1 locLabel2
 
 buildExpressionASM (TernarySchema expr1 expr2 expr3 locLabel1 locLabel2) = do
         expr1Asm <- buildExpressionASM expr1
