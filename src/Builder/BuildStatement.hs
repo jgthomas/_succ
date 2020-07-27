@@ -3,8 +3,7 @@ module Builder.BuildStatement
         (while,
          doWhile,
          forLoop,
-         ifOnly,
-         ifElse
+         ifStatement
         ) where
 
 
@@ -60,14 +59,23 @@ forLoop inits test iter body trueLab falseLab contLab =
         ++ emitLabel falseLab
 
 
--- | Output asm for a simple if statement
+-- | Output asm for an if statement
+ifStatement :: String
+            -> String
+            -> String
+            -> Int
+            -> Int
+            -> String
+ifStatement test body "" n _        = ifOnly test body n
+ifStatement test body elseBlock n m = ifElse test body n elseBlock m
+
+
 ifOnly :: String -> String -> Int -> String
 ifOnly test action testLab =
         ifStart test action testLab
         ++ emitLabel testLab
 
 
--- | Output asm for an if statement with an else clause
 ifElse :: String -> String -> Int -> String -> Int -> String
 ifElse test action testLab elseAction nextLab =
         ifStart test action testLab

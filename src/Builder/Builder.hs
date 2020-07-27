@@ -8,6 +8,8 @@ import Builder.BuildBinary    as BuildBinary (binary)
 import Builder.BuildFunction  as BuildFunction (funcEpilogue, funcPrologue)
 import Builder.BuildState     (BuildState, runBuildState)
 import Builder.BuildState     as BuildState (startState)
+import Builder.BuildStatement as BuildStatement (doWhile, forLoop, ifStatement,
+                                                 while)
 import Builder.BuildTernary   as BuildTernary (ternary)
 import Builder.BuildUnary     as BuildUnary (unary)
 import Builder.BuildVariables as BuildVariables (addressOf, declareGlobal,
@@ -63,11 +65,61 @@ buildStatementASM (ReturnSchema expression) = buildExpressionASM expression
 
 buildStatementASM (CompoundStatementSchema items) = concatMapM buildASM items
 
-buildStatementASM (AssignmentSchema (VariableSchema globalVar@GlobalVar{}) (LiteralSchema n) Global) =
-        pure $ BuildVariables.declareGlobal globalVar n
-buildStatementASM (AssignmentSchema (VariableSchema varType) valSchema Local) = do
-        valueAsm <- buildExpressionASM valSchema
-        pure $ valueAsm ++ BuildVariables.storeVariable varType
+buildStatementASM (AssignmentSchema
+                   (VariableSchema globalVar@GlobalVar{})
+                   (LiteralSchema n)
+                   Global) =
+                           pure $ BuildVariables.declareGlobal globalVar n
+buildStatementASM (AssignmentSchema
+                   (VariableSchema varType)
+                   valSchema
+                   Local) = do
+                           valueAsm <- buildExpressionASM valSchema
+                           pure $ valueAsm ++ BuildVariables.storeVariable varType
+
+buildStatementASM (WhileSchema
+                   expressionSchema
+                   statementSchema
+                   (LocalLabel n)
+                   (LocalLabel m)) = do
+                           expressionAsm <- buildExpressionASM expressionSchema
+                           statementAsm  <- buildStatementASM statementSchema
+                           pure $ BuildStatement.while expressionAsm statementAsm n m
+
+buildStatementASM (DoWhileSchema
+                   statementsSchema
+                   expressionSchema
+                   (LocalLabel n)
+                   (LocalLabel m)
+                   (LocalLabel p)) = do
+                           statementAsm  <- buildStatementASM statementsSchema
+                           expressionAsm <- buildExpressionASM expressionSchema
+                           pure $ BuildStatement.doWhile statementAsm expressionAsm n m p
+
+buildStatementASM (ForSchema
+                   initSchema
+                   testSchema
+                   iterSchema
+                   bodySchema
+                   (LocalLabel n)
+                   (LocalLabel m)
+                   (LocalLabel p)) = do
+                           initAsm <- buildASM initSchema
+                           testAsm <- buildExpressionASM testSchema
+                           iterAsm <- buildExpressionASM iterSchema
+                           bodyAsm <- buildStatementASM bodySchema
+                           pure $ BuildStatement.forLoop initAsm testAsm iterAsm bodyAsm n m p
+
+buildStatementASM (IfSchema
+                   testSchema
+                   bodySchema
+                   elseSchema
+                   (LocalLabel n)
+                   (LocalLabel m)) = do
+                           testAsm <- buildExpressionASM testSchema
+                           bodyAsm <- buildStatementASM bodySchema
+                           elseAsm <- buildASM elseSchema
+                           pure $ BuildStatement.ifStatement testAsm bodyAsm elseAsm n m
 
 buildStatementASM _                         = pure ""
 
