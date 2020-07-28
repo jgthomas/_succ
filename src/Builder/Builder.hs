@@ -254,11 +254,11 @@ needsInit schema                               = isInitialisedPointer schema
 convertForInit :: AssemblySchema -> AssemblySchema
 convertForInit schema@(DeclarationSchema _ SkipSchema _ _) = schema
 convertForInit (DeclarationSchema
-               varSchema
-               (StatementSchema (AssignmentSchema _ AddressOfSchema{} _))
-               scope
-               typ
-              ) = DeclarationSchema varSchema SkipSchema scope typ
+                varSchema
+                (StatementSchema (AssignmentSchema _ AddressOfSchema{} _))
+                scope
+                typ
+               ) = DeclarationSchema varSchema SkipSchema scope typ
 convertForInit schema = schema
 
 
