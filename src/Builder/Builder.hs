@@ -42,7 +42,7 @@ buildASM (ProgramSchema topLevelItems) = do
         bssSection  <- concatMapM buildASM uninitialised
         initSection <- BuildVariables.outputInit <$> concatMapM buildASM pointersToInit
         textSection <- concatMapM buildASM functions
-        pure $ dataSection ++ bssSection ++ initSection ++ textSection
+        pure $ initSection ++ dataSection ++ bssSection ++ textSection
         where
                 initialised    = getInitialisedInt topLevelItems
                 uninitialised  = getUninitialised topLevelItems
