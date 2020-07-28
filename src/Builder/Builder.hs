@@ -247,9 +247,8 @@ isInitialisedInt _                                                              
 
 
 needsInit :: AssemblySchema -> Bool
-needsInit (DeclarationSchema _ SkipSchema _ _)                                                 = True
-needsInit (DeclarationSchema _ (StatementSchema (AssignmentSchema _ AddressOfSchema{} _)) _ _) = True
-needsInit _                                                                                    = False
+needsInit (DeclarationSchema _ SkipSchema _ _) = True
+needsInit schema                               = isInitialisedPointer schema
 
 
 convertForInit :: AssemblySchema -> AssemblySchema
