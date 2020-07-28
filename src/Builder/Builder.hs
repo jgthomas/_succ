@@ -43,9 +43,9 @@ buildASM (ProgramSchema topLevelItems) = do
         textSection <- concatMapM buildASM functions
         pure $ dataSection ++ bssSection ++ textSection
         where
-                initialised   = filter isInitialised topLevelItems
-                uninitialised = filter isUninitialised topLevelItems
-                functions     = filter isFunction topLevelItems
+                initialised   = getInitialisedInt topLevelItems
+                uninitialised = getUninitialised topLevelItems
+                functions     = getFunctions topLevelItems
 
 buildASM (FunctionSchema name bodyBlock) = do
         body <- buildASM bodyBlock
@@ -220,17 +220,51 @@ buildExpressionASM (ArrayItemsSchema _ items) = concatMapM buildStatementASM ite
 buildExpressionASM _                 = pure ""
 
 
+getFunctions :: [AssemblySchema] -> [AssemblySchema]
+getFunctions items = filter isFunction items
+
+
+getInitialisedInt :: [AssemblySchema] -> [AssemblySchema]
+getInitialisedInt items = filter isInitialisedInt items
+
+
+getUninitialised :: [AssemblySchema] -> [AssemblySchema]
+getUninitialised items = map convertToInit . filter needsInit $ items
+
+
+--getPointersAssignmentsForInit :: [AssemblySchema] -> [AssemblySchema]
+--getPointersAssignmentsForInit items = filter isInitialisedPointer items
+
+
 isFunction :: AssemblySchema -> Bool
 isFunction FunctionSchema{} = True
 isFunction _                = False
 
 
-isInitialised :: AssemblySchema -> Bool
-isInitialised (DeclarationSchema _ SkipSchema _ _) = False
-isInitialised DeclarationSchema{}                  = True
-isInitialised _                                    = False
+isInitialisedInt :: AssemblySchema -> Bool
+isInitialisedInt (DeclarationSchema _ SkipSchema _ _)                                                   = False
+isInitialisedInt (DeclarationSchema _ (StatementSchema (AssignmentSchema _ DereferenceSchema{} _)) _ _) = False
+isInitialisedInt DeclarationSchema{}                                                                    = True
+isInitialisedInt _                                                                                      = False
 
 
-isUninitialised :: AssemblySchema -> Bool
-isUninitialised schema@DeclarationSchema{} = not . isInitialised $ schema
-isUninitialised _                          = False
+needsInit :: AssemblySchema -> Bool
+needsInit (DeclarationSchema _ SkipSchema _ _)                                                   = True
+needsInit (DeclarationSchema _ (StatementSchema (AssignmentSchema _ DereferenceSchema{} _)) _ _) = True
+needsInit _                                                                                      = False
+
+
+convertToInit :: AssemblySchema -> AssemblySchema
+convertToInit schema@(DeclarationSchema _ SkipSchema _ _) = schema
+convertToInit (DeclarationSchema
+               varSchema
+               (StatementSchema (AssignmentSchema _ DereferenceSchema{} _))
+               scope
+               typ
+              ) = (DeclarationSchema varSchema SkipSchema scope typ)
+convertToInit schema = schema
+
+
+--isInitialisedPointer :: AssemblySchema -> Bool
+--isInitialisedPointer (DeclarationSchema _ (StatementSchema (AssignmentSchema _ DereferenceSchema{} _)) _ _) = True
+--isInitialisedPointer _                                                                  = False
