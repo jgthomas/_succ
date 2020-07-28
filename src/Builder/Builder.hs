@@ -102,17 +102,13 @@ buildStatementASM (AssignmentSchema
                    (LiteralSchema n)
                    Global) =
                            pure $ BuildVariables.declareGlobal globalVar n
---buildStatementASM (AssignmentSchema
---                   (VariableSchema globalVar@GlobalVar{})
---                   AddressOfSchema{}
---                   Global) =
---                           pure $ BuildVariables.declareGlobal globalVar 0
 buildStatementASM (AssignmentSchema
                    (VariableSchema varType)
                    valSchema
-                   Local) = do
-                           valueAsm <- buildExpressionASM valSchema
-                           pure $ valueAsm ++ BuildVariables.storeVariable varType
+                   _
+                  ) = do
+                          valueAsm <- buildExpressionASM valSchema
+                          pure $ valueAsm ++ BuildVariables.storeVariable varType
 
 buildStatementASM (WhileSchema
                    expressionSchema
@@ -263,7 +259,7 @@ convertForInit (DeclarationSchema
                (StatementSchema (AssignmentSchema _ AddressOfSchema{} _))
                scope
                typ
-              ) = (DeclarationSchema varSchema SkipSchema scope typ)
+              ) = DeclarationSchema varSchema SkipSchema scope typ
 convertForInit schema = schema
 
 
