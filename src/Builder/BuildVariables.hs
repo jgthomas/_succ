@@ -6,7 +6,8 @@ module Builder.BuildVariables
          addressOf,
          derefLoad,
          declareGlobal,
-         postDeclareAction
+         postDeclareAction,
+         outputInit
         ) where
 
 
@@ -19,6 +20,11 @@ import Types.Variables     (VarType (..))
 -- | Load a literal value into return register
 loadLiteral :: Int -> String
 loadLiteral n = move (literal n) (reg RAX)
+
+
+-- | Setup initialisation block
+outputInit :: String -> String
+outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
 
 
 declareGlobal :: VarType -> Int -> String

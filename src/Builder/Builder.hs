@@ -16,7 +16,7 @@ import Builder.BuildTernary   as BuildTernary (ternary)
 import Builder.BuildUnary     as BuildUnary (unary)
 import Builder.BuildVariables as BuildVariables (addressOf, declareGlobal,
                                                  derefLoad, loadLiteral,
-                                                 loadVariable,
+                                                 loadVariable, outputInit,
                                                  postDeclareAction,
                                                  storeVariable)
 import Types.AssemblySchema
@@ -40,12 +40,14 @@ buildASM :: AssemblySchema -> BuildState String
 buildASM (ProgramSchema topLevelItems) = do
         dataSection <- concatMapM buildASM initialised
         bssSection  <- concatMapM buildASM uninitialised
+        initSection <- BuildVariables.outputInit <$> concatMapM buildASM pointersToInit
         textSection <- concatMapM buildASM functions
-        pure $ dataSection ++ bssSection ++ textSection
+        pure $ dataSection ++ bssSection ++ initSection ++ textSection
         where
-                initialised   = getInitialisedInt topLevelItems
-                uninitialised = getUninitialised topLevelItems
-                functions     = getFunctions topLevelItems
+                initialised    = getInitialisedInt topLevelItems
+                uninitialised  = getUninitialised topLevelItems
+                pointersToInit = getPointersAssignmentsForInit topLevelItems
+                functions      = getFunctions topLevelItems
 
 buildASM (FunctionSchema name bodyBlock) = do
         body <- buildASM bodyBlock
@@ -232,8 +234,8 @@ getUninitialised :: [AssemblySchema] -> [AssemblySchema]
 getUninitialised items = map convertForInit . filter needsInit $ items
 
 
---getPointersAssignmentsForInit :: [AssemblySchema] -> [AssemblySchema]
---getPointersAssignmentsForInit items = filter isInitialisedPointer items
+getPointersAssignmentsForInit :: [AssemblySchema] -> [AssemblySchema]
+getPointersAssignmentsForInit items = filter isInitialisedPointer items
 
 
 isFunction :: AssemblySchema -> Bool
@@ -265,6 +267,6 @@ convertForInit (DeclarationSchema
 convertForInit schema = schema
 
 
---isInitialisedPointer :: AssemblySchema -> Bool
---isInitialisedPointer (DeclarationSchema _ (StatementSchema (AssignmentSchema _ AddressOfSchema{} _)) _ _) = True
---isInitialisedPointer _                                                                  = False
+isInitialisedPointer :: AssemblySchema -> Bool
+isInitialisedPointer (DeclarationSchema _ (StatementSchema (AssignmentSchema _ AddressOfSchema{} _)) _ _) = True
+isInitialisedPointer _                                                                  = False

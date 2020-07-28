@@ -16,8 +16,14 @@ funcPrologue :: String -> String
 funcPrologue funcName =
         declareGlobl funcName
         ++ globlLabel funcName
+        ++ runInit funcName
         ++ saveBasePointer
         ++ saveRegisters allScratch
+
+
+runInit :: String -> String
+runInit "main" = "jmp init\n" ++ "init_done:\n"
+runInit _      = ""
 
 
 funcEpilogue :: String
