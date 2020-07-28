@@ -100,11 +100,11 @@ buildStatementASM (AssignmentSchema
                    (LiteralSchema n)
                    Global) =
                            pure $ BuildVariables.declareGlobal globalVar n
-buildStatementASM (AssignmentSchema
-                   (VariableSchema globalVar@GlobalVar{})
-                   AddressOfSchema{}
-                   Global) =
-                           pure $ BuildVariables.declareGlobal globalVar 0
+--buildStatementASM (AssignmentSchema
+--                   (VariableSchema globalVar@GlobalVar{})
+--                   AddressOfSchema{}
+--                   Global) =
+--                           pure $ BuildVariables.declareGlobal globalVar 0
 buildStatementASM (AssignmentSchema
                    (VariableSchema varType)
                    valSchema
@@ -229,7 +229,7 @@ getInitialisedInt items = filter isInitialisedInt items
 
 
 getUninitialised :: [AssemblySchema] -> [AssemblySchema]
-getUninitialised items = map convertToInit . filter needsInit $ items
+getUninitialised items = map convertForInit . filter needsInit $ items
 
 
 --getPointersAssignmentsForInit :: [AssemblySchema] -> [AssemblySchema]
@@ -242,29 +242,29 @@ isFunction _                = False
 
 
 isInitialisedInt :: AssemblySchema -> Bool
-isInitialisedInt (DeclarationSchema _ SkipSchema _ _)                                                   = False
-isInitialisedInt (DeclarationSchema _ (StatementSchema (AssignmentSchema _ DereferenceSchema{} _)) _ _) = False
-isInitialisedInt DeclarationSchema{}                                                                    = True
-isInitialisedInt _                                                                                      = False
+isInitialisedInt (DeclarationSchema _ SkipSchema _ _)                                                 = False
+isInitialisedInt (DeclarationSchema _ (StatementSchema (AssignmentSchema _ AddressOfSchema{} _)) _ _) = False
+isInitialisedInt DeclarationSchema{}                                                                  = True
+isInitialisedInt _                                                                                    = False
 
 
 needsInit :: AssemblySchema -> Bool
-needsInit (DeclarationSchema _ SkipSchema _ _)                                                   = True
-needsInit (DeclarationSchema _ (StatementSchema (AssignmentSchema _ DereferenceSchema{} _)) _ _) = True
-needsInit _                                                                                      = False
+needsInit (DeclarationSchema _ SkipSchema _ _)                                                 = True
+needsInit (DeclarationSchema _ (StatementSchema (AssignmentSchema _ AddressOfSchema{} _)) _ _) = True
+needsInit _                                                                                    = False
 
 
-convertToInit :: AssemblySchema -> AssemblySchema
-convertToInit schema@(DeclarationSchema _ SkipSchema _ _) = schema
-convertToInit (DeclarationSchema
+convertForInit :: AssemblySchema -> AssemblySchema
+convertForInit schema@(DeclarationSchema _ SkipSchema _ _) = schema
+convertForInit (DeclarationSchema
                varSchema
-               (StatementSchema (AssignmentSchema _ DereferenceSchema{} _))
+               (StatementSchema (AssignmentSchema _ AddressOfSchema{} _))
                scope
                typ
               ) = (DeclarationSchema varSchema SkipSchema scope typ)
-convertToInit schema = schema
+convertForInit schema = schema
 
 
 --isInitialisedPointer :: AssemblySchema -> Bool
---isInitialisedPointer (DeclarationSchema _ (StatementSchema (AssignmentSchema _ DereferenceSchema{} _)) _ _) = True
+--isInitialisedPointer (DeclarationSchema _ (StatementSchema (AssignmentSchema _ AddressOfSchema{} _)) _ _) = True
 --isInitialisedPointer _                                                                  = False
