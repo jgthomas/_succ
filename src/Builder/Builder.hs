@@ -264,4 +264,4 @@ convertForInit schema = schema
 
 isInitialisedPointer :: AssemblySchema -> Bool
 isInitialisedPointer (DeclarationSchema _ (StatementSchema (AssignmentSchema _ AddressOfSchema{} _)) _ _) = True
-isInitialisedPointer _                                                                  = False
+isInitialisedPointer _                                                                                    = False
