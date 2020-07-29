@@ -15,9 +15,9 @@ import Builder.BuildStatement as BuildStatement (breakStatement,
 import Builder.BuildTernary   as BuildTernary (ternary)
 import Builder.BuildUnary     as BuildUnary (unary)
 import Builder.BuildVariables as BuildVariables (addressOf, declareGlobal,
-                                                 derefLoad, loadLiteral,
-                                                 loadVariable, outputInit,
-                                                 postDeclareAction,
+                                                 derefLoad, derefStore,
+                                                 loadLiteral, loadVariable,
+                                                 outputInit, postDeclareAction,
                                                  storeVariable)
 import Types.AssemblySchema
 import Types.Error
@@ -102,6 +102,13 @@ buildStatementASM (AssignmentSchema
                    (LiteralSchema n)
                    Global) =
                            pure $ BuildVariables.declareGlobal globalVar n
+buildStatementASM (AssignmentSchema
+                   (VariableSchema varType)
+                   derefSchema@DereferenceSchema{}
+                   _
+                  ) = do
+                          valueAsm <- buildExpressionASM derefSchema
+                          pure $ valueAsm ++ BuildVariables.derefStore varType
 buildStatementASM (AssignmentSchema
                    (VariableSchema varType)
                    valSchema

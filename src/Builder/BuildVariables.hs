@@ -5,6 +5,7 @@ module Builder.BuildVariables
          loadVariable,
          addressOf,
          derefLoad,
+         derefStore,
          declareGlobal,
          postDeclareAction,
          outputInit
@@ -130,9 +131,36 @@ derefLoadGlobal label offset =
         ++ move (valueFromAddressIn scratch) (reg RAX)
 
 
+-- | Store a dereferenced pointer value
+derefStore :: VarType -> String
+derefStore (LocalVar n m _) = derefStoreLocal (n + m)
+derefStore (ParamVar n _)   = derefStoreParam n
+derefStore (GlobalVar s o)  = derefStoreGlobal s o
+
+
+derefStoreLocal :: Int -> String
+derefStoreLocal offset =
+        move (fromBasePointer offset) scratch
+        ++ move (reg RAX) (addressIn scratch)
+
+
+derefStoreParam :: Int -> String
+derefStoreParam r =
+        move (reg RAX) (addressIn . selectRegister $ r)
+
+
+derefStoreGlobal :: String -> Int -> String
+derefStoreGlobal label offset =
+        move (fromInstructionPointerOffset label offset) scratch
+        ++ move (reg RAX) (addressIn scratch)
+
 fromInstructionPointerOffset :: String -> Int -> String
 fromInstructionPointerOffset lab off =
         lab ++ "+" ++ show off ++ indirectAddressing (reg RIP)
+
+
+addressIn :: String -> String
+addressIn s = indirectAddressing s
 
 
 valueFromAddressIn :: String -> String
