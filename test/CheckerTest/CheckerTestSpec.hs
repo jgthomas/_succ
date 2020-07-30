@@ -398,6 +398,45 @@ checkerTest = hspec $ do
                                                 )
                              )
 
+                --it "Should throw an error if trying to redeclare an already defined global" $
+                --  (extractError $ (ProgramNode
+                --                   [DeclarationNode
+                --                    (VarNode "dog" mockNodeDat)
+                --                    IntVar
+                --                    (Just $ AssignmentNode
+                --                     (VarNode "dog" mockNodeDat)
+                --                     (ConstantNode 12 mockNodeDat)
+                --                     Assignment
+                --                     mockNodeDat
+                --                    )
+                --                    mockNodeDat,
+                --                    DeclarationNode
+                --                    (VarNode "dog" mockNodeDat)
+                --                    IntVar
+                --                    (Just $ AssignmentNode
+                --                     (VarNode "dog" mockNodeDat)
+                --                     (ConstantNode 15 mockNodeDat)
+                --                     Assignment
+                --                     mockNodeDat
+                --                    )
+                --                    mockNodeDat
+                --                   ]
+                --                  )
+                --  )
+                --  `shouldBe`
+                --  ScopeError (DoubleDeclaredNode (DeclarationNode
+                --                                  (VarNode "dog" mockNodeDat)
+                --                                  IntVar
+                --                                  (Just $ AssignmentNode
+                --                                   (VarNode "dog" mockNodeDat)
+                --                                   (ConstantNode 15 mockNodeDat)
+                --                                   Assignment
+                --                                   mockNodeDat
+                --                                  )
+                --                                  mockNodeDat
+                --                                 )
+                --             )
+
                 it "Should throw error if attempting to assign to a variable not in scope" $
                   (extractError $ (ProgramNode
                                    [FunctionNode
