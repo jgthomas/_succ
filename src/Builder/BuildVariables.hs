@@ -69,8 +69,9 @@ saveGlobal label offset =
 
 -- | Store the address of a variable
 addressStore :: VarType -> String
-addressStore localVar@LocalVar{} = storeVariable localVar
-addressStore ParamVar{}          = undefined
+addressStore localVar@LocalVar{}   = storeVariable localVar
+addressStore ParamVar{}            = undefined
+addressStore globalVar@GlobalVar{} = storeVariable globalVar
 
 
 -- | Load a variable value to %rax
