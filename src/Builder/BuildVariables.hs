@@ -4,6 +4,7 @@ module Builder.BuildVariables
          storeVariable,
          loadVariable,
          addressOf,
+         addressStore,
          derefLoad,
          derefStore,
          declareGlobal,
@@ -64,6 +65,12 @@ updateParam n = move (reg RAX) (selectRegister n)
 saveGlobal :: String -> Int -> String
 saveGlobal label offset =
         move (reg RAX) (fromInstructionPointerOffset label offset)
+
+
+-- | Store the address of a variable
+addressStore :: VarType -> String
+addressStore localVar@LocalVar{} = storeVariable localVar
+addressStore ParamVar{}          = undefined
 
 
 -- | Load a variable value to %rax
