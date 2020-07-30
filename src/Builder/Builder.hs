@@ -117,6 +117,14 @@ buildStatementASM (AssignmentSchema
                           valueAsm <- buildExpressionASM valSchema
                           pure $ valueAsm ++ BuildVariables.storeVariable varType
 
+buildStatementASM (AssignmentSchema
+                   (DereferenceSchema (VariableSchema varType))
+                   valSchema
+                   _
+                  ) = do
+                          valueAsm <- buildExpressionASM valSchema
+                          pure $ valueAsm ++ BuildVariables.derefStore varType
+
 buildStatementASM (WhileSchema
                    expressionSchema
                    statementSchema
