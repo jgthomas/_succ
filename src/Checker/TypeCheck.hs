@@ -18,7 +18,7 @@ import qualified State.FuncState   as FuncState (allTypes, parameterType,
                                                  variableType)
 import           State.GenState    (GenState, throwError)
 import qualified State.GlobalState as GlobalState (declaredFuncType, getType)
-import qualified State.State       as State
+import qualified State.State       as State (currentFunc, getScope)
 import           Types.AST         (ArrayNode (..), Tree (..))
 import           Types.Error       (CompilerError (TypeError), TypeError (..))
 import           Types.Type        (Type (..))

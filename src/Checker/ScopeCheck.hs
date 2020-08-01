@@ -30,7 +30,7 @@ import qualified State.GlobalState as GlobalState (checkFuncDefined,
                                                    currentSeqNumber,
                                                    decParamCount, decSeqNumber,
                                                    getLabel)
-import qualified State.State       as State
+import qualified State.State       as State (getVariable)
 import           Types.AST         (Tree (..))
 import           Types.Error       (CompilerError (ScopeError), ScopeError (..))
 import           Types.Variables   (VarLookup (..), VarType (ParamVar))

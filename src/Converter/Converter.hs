@@ -15,7 +15,8 @@ import           State.GenState       (GenState, runGenState, throwError)
 import qualified State.GenState       as GenState (getState, startState)
 import qualified State.GlobalState    as GlobalState
 import           State.State          (SymTab)
-import qualified State.State          as State
+import qualified State.State          as State (getScope, getVariable, labelNum,
+                                                memOffset)
 import           Types.AssemblySchema
 import           Types.AST            (ArrayNode (..), Tree (..))
 import           Types.Error          (CompilerError (FatalError),

@@ -15,7 +15,7 @@ import qualified Checker.TypeCheck  as TypeCheck
 import qualified State.FuncState    as FuncState
 import           State.GenState     (GenState, runGenState, startState)
 import qualified State.GlobalState  as GlobalState
-import qualified State.State        as State
+import qualified State.State        as State (getScope, labelNum)
 import           Types.AST          (ArrayNode (..), Tree (..))
 import           Types.Error        (CompilerError)
 import           Types.Operator     (Operator (..), UnaryOp (..))
