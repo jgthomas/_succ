@@ -402,7 +402,6 @@ buildUndefinedSchema (label, typ) =
         typ
 
 
-
 -- Variables Local
 
 declareLocal :: Tree -> GenState AssemblySchema
