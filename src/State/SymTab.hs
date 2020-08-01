@@ -7,7 +7,6 @@ generator stage state.
 -}
 module State.SymTab
         (module State.FrameStack,
-         module State.GlobalState,
          module State.FuncState,
          SymTab,
          labelNum,
@@ -19,7 +18,7 @@ module State.SymTab
 import State.FrameStack  (currentFunc, getScope)
 import State.FuncState
 import State.GenState    (GenState, labelNum)
-import State.GlobalState
+import State.GlobalState (globalLabel)
 import State.SymbolTable (SymTab, memOffset)
 import Types.Variables   (VarLookup (..), VarType (..))
 

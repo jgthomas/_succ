@@ -19,14 +19,15 @@ module Checker.ScopeCheck
         ) where
 
 
-import           Control.Monad   (unless, when)
-import           Data.Maybe      (isNothing)
+import           Control.Monad     (unless, when)
+import           Data.Maybe        (isNothing)
 
-import           State.GenState  (GenState, throwError)
-import qualified State.SymTab    as SymTab
-import           Types.AST       (Tree (..))
-import           Types.Error     (CompilerError (ScopeError), ScopeError (..))
-import           Types.Variables (VarLookup (..), VarType (ParamVar))
+import           State.GenState    (GenState, throwError)
+import qualified State.GlobalState as GlobalState
+import qualified State.SymTab      as SymTab
+import           Types.AST         (Tree (..))
+import           Types.Error       (CompilerError (ScopeError), ScopeError (..))
+import           Types.Variables   (VarLookup (..), VarType (ParamVar))
 
 
 -- | Throw error if variable name exists in current scope
@@ -42,8 +43,8 @@ checkIfUsedInScope tree = throwError $ ScopeError (UnexpectedNode tree)
 -- | Throw error if function call sequence is invalid
 validateCall :: Tree -> GenState ()
 validateCall node@(FuncCallNode name _ _) = do
-        callee <- SymTab.decSeqNumber name
-        caller <- SymTab.currentSeqNumber
+        callee <- GlobalState.decSeqNumber name
+        caller <- GlobalState.currentSeqNumber
         unless (validSeq callee caller) $
             throwError $ ScopeError (InvalidCallNode node)
 validateCall tree = throwError $ ScopeError (UnexpectedNode tree)
@@ -59,7 +60,7 @@ validSeq (Just a) (Just b) = a <= b
 -- | Throw error if a function is already defined
 checkIfFuncDefined :: Tree -> GenState ()
 checkIfFuncDefined node@(FunctionNode _ name _ _ _) = do
-        defined <- SymTab.checkFuncDefined name
+        defined <- GlobalState.checkFuncDefined name
         when defined $
            throwError $ ScopeError (DoubleDefinedNode node)
 checkIfFuncDefined tree = throwError $ ScopeError (UnexpectedNode tree)
@@ -68,7 +69,7 @@ checkIfFuncDefined tree = throwError $ ScopeError (UnexpectedNode tree)
 -- | Throw error if a variable is already defined
 checkIfDefined :: Tree -> GenState ()
 checkIfDefined node@(AssignmentNode (VarNode name _) _ _ _) = do
-        defined <- SymTab.checkVarDefined name
+        defined <- GlobalState.checkVarDefined name
         when defined $
            throwError $ ScopeError (DoubleDefinedNode node)
 checkIfDefined tree = throwError $ ScopeError (UnexpectedNode tree)
@@ -77,7 +78,7 @@ checkIfDefined tree = throwError $ ScopeError (UnexpectedNode tree)
 -- | Throw error if declared function identifier is already used
 validateFuncDeclaration :: Tree -> GenState ()
 validateFuncDeclaration node@(FunctionNode _ name _ _ _) = do
-        label <- SymTab.globalLabel name
+        label <- GlobalState.globalLabel name
         unless (isNothing label) $
             throwError $ ScopeError (DoubleDefinedNode node)
 validateFuncDeclaration tree = throwError $ ScopeError (UnexpectedNode tree)
@@ -109,7 +110,7 @@ checkCountsMatch _ tree = throwError $ ScopeError (UnexpectedNode tree)
 -- | Throw error if global variable identifier already used for function
 validateGlobalDeclaration :: Tree -> GenState ()
 validateGlobalDeclaration node@(DeclarationNode (VarNode name _) _ _ _) = do
-        paramNum <- SymTab.decParamCount name
+        paramNum <- GlobalState.decParamCount name
         unless (isNothing paramNum) $
             throwError $ ScopeError (DoubleDeclaredNode node)
 validateGlobalDeclaration tree = throwError $ ScopeError (UnexpectedNode tree)

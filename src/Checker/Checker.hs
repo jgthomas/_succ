@@ -13,6 +13,7 @@ import qualified Checker.LogicCheck as LogicCheck
 import qualified Checker.ScopeCheck as ScopeCheck
 import qualified Checker.TypeCheck  as TypeCheck
 import           State.GenState     (GenState, runGenState, startState)
+import qualified State.GlobalState  as GlobalState
 import qualified State.SymTab       as SymTab
 import           Types.AST          (ArrayNode (..), Tree (..))
 import           Types.Error        (CompilerError)
@@ -44,7 +45,7 @@ checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
         SymTab.initFunction name
         checkAST stmts
         SymTab.closeFunction
-        SymTab.defineFunction name
+        GlobalState.defineFunction name
 
 checkAST (ParamNode typ (VarNode name _) _) =
         SymTab.addParameter name typ
@@ -53,7 +54,7 @@ checkAST node@ParamNode{} =
         LogicCheck.validateNode node
 
 checkAST node@(FuncCallNode name argList _) = do
-        paramCount <- SymTab.decParamCount name
+        paramCount <- GlobalState.decParamCount name
         ScopeCheck.checkArguments paramCount node
         TypeCheck.typesMatch node
         ScopeCheck.validateCall node
@@ -205,7 +206,7 @@ checkArrayAST (ArrayAssignPosNode varNode valNode _ _) = do
 checkFuncDec :: Tree -> GenState ()
 checkFuncDec node@(FunctionNode _ funcName _ _ _) = do
         ScopeCheck.validateFuncDeclaration node
-        prevParamCount <- SymTab.decParamCount funcName
+        prevParamCount <- GlobalState.decParamCount funcName
         case prevParamCount of
              Nothing -> checkNewFuncDec node
              Just ns -> checkRepeatFuncDec ns node
@@ -214,7 +215,7 @@ checkFuncDec node = ScopeCheck.validateFuncDeclaration node
 
 checkNewFuncDec :: Tree -> GenState ()
 checkNewFuncDec (FunctionNode typ funcName paramList _ _) = do
-        SymTab.declareFunction typ funcName (length paramList)
+        GlobalState.declareFunction typ funcName (length paramList)
         checkParams funcName paramList
 checkNewFuncDec node = ScopeCheck.validateFuncDeclaration node
 
@@ -224,8 +225,8 @@ checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _ _) = do
         ScopeCheck.checkParameters count node
         TypeCheck.typesMatch node
         TypeCheck.funcDeclaration node
-        SymTab.declareFunction typ funcName (length paramList)
-        defined <- SymTab.checkFuncDefined funcName
+        GlobalState.declareFunction typ funcName (length paramList)
+        defined <- GlobalState.checkFuncDefined funcName
         unless defined $ do
             SymTab.delFuncState funcName
             checkParams funcName paramList
@@ -242,14 +243,14 @@ checkParams name params = do
 checkDeclareGlobal :: Tree -> GenState ()
 checkDeclareGlobal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
         ScopeCheck.validateGlobalDeclaration node
-        currLabel <- SymTab.globalLabel name
+        currLabel <- GlobalState.globalLabel name
         case currLabel of
              Just _  -> do
                      checkAssignment toAssign
                      TypeCheck.globalDeclaration node
              Nothing -> do
-                     globLab <- SymTab.mkGlobLabel name
-                     SymTab.declareGlobal name typ globLab
+                     globLab <- GlobalState.mkGlobLabel name
+                     GlobalState.declareGlobal name typ globLab
                      checkAssignment toAssign
 checkDeclareGlobal node = ScopeCheck.validateGlobalDeclaration node
 
@@ -273,8 +274,8 @@ checkDeclareLocal node = ScopeCheck.checkIfUsedInScope node
 checkDefineGlobal :: Tree -> GenState ()
 checkDefineGlobal node@(AssignmentNode (VarNode name _) _ _ _) = do
         ScopeCheck.checkIfDefined node
-        label <- SymTab.globalLabel name
-        SymTab.defineGlobal name
+        label <- GlobalState.globalLabel name
+        GlobalState.defineGlobal name
         checkPrevDecGlob label node
 checkDefineGlobal node = ScopeCheck.checkIfDefined node
 

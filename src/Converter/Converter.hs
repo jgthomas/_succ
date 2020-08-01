@@ -12,6 +12,7 @@ import           Data.Maybe           (fromMaybe)
 
 import           State.GenState       (GenState, runGenState, throwError)
 import qualified State.GenState       as GenState (getState, startState)
+import qualified State.GlobalState    as GlobalState
 import           State.SymTab         (SymTab)
 import qualified State.SymTab         as SymTab
 import           Types.AssemblySchema
@@ -39,7 +40,7 @@ convertToSchema :: Tree -> GenState AssemblySchema
 
 convertToSchema (ProgramNode trees) = do
         schemas      <- mapM convertToSchema trees
-        undefSchemas <- map buildUndefinedSchema <$> SymTab.getUndefinedVarData
+        undefSchemas <- map buildUndefinedSchema <$> GlobalState.getUndefinedVarData
         pure (ProgramSchema $ undefSchemas ++ schemas)
 
 convertToSchema funcNode@(FunctionNode _ _ _ Nothing _) = do
@@ -51,7 +52,7 @@ convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
         SymTab.initFunction name
         bodySchema <- checkReturn name <$> convertToSchema body
         SymTab.closeFunction
-        SymTab.defineFunction name
+        GlobalState.defineFunction name
         pure (FunctionSchema name bodySchema)
 
 convertToSchema (ParamNode typ (VarNode name _) _) = do
@@ -320,7 +321,7 @@ setSchemaOffset _ _ = undefined
 
 declareFunction :: Tree -> GenState ()
 declareFunction node@(FunctionNode _ funcName _ _ _) = do
-        prevParamCount <- SymTab.decParamCount funcName
+        prevParamCount <- GlobalState.decParamCount funcName
         case prevParamCount of
              Nothing -> declareNewFunction node
              Just _  -> declareRepeatFunction node
@@ -329,15 +330,15 @@ declareFunction tree = throwError $ FatalError (ConverterBug tree)
 
 declareNewFunction :: Tree -> GenState ()
 declareNewFunction (FunctionNode typ funcName paramList _ _) = do
-        SymTab.declareFunction typ funcName (length paramList)
+        GlobalState.declareFunction typ funcName (length paramList)
         processParameters funcName paramList
 declareNewFunction tree = throwError $ FatalError (ConverterBug tree)
 
 
 declareRepeatFunction :: Tree -> GenState ()
 declareRepeatFunction (FunctionNode typ funcName paramList _ _) = do
-        SymTab.declareFunction typ funcName (length paramList)
-        defined <- SymTab.checkFuncDefined funcName
+        GlobalState.declareFunction typ funcName (length paramList)
+        defined <- GlobalState.checkFuncDefined funcName
         unless defined $
            do SymTab.delFuncState funcName
               processParameters funcName paramList
@@ -369,16 +370,16 @@ addReturnZero bodySchema = bodySchema ++ [StatementSchema (ReturnSchema (Literal
 
 declareGlobal :: Tree -> GenState AssemblySchema
 declareGlobal (DeclarationNode (VarNode name _) typ Nothing _) = do
-        globLab <- SymTab.mkGlobLabel name
-        SymTab.declareGlobal name typ globLab
+        globLab <- GlobalState.mkGlobLabel name
+        GlobalState.declareGlobal name typ globLab
         pure SkipSchema
 declareGlobal node@(DeclarationNode (VarNode name _) typ _ _) = do
-        currLabel <- SymTab.globalLabel name
+        currLabel <- GlobalState.globalLabel name
         case currLabel of
              Just _  -> processGlobalAssignment node
              Nothing -> do
-                     globLab <- SymTab.mkGlobLabel name
-                     SymTab.declareGlobal name typ globLab
+                     globLab <- GlobalState.mkGlobLabel name
+                     GlobalState.declareGlobal name typ globLab
                      processGlobalAssignment node
 declareGlobal tree = throwError $ FatalError (ConverterBug tree)
 
@@ -394,7 +395,7 @@ processGlobalAssignment tree = throwError $ FatalError (ConverterBug tree)
 
 defineGlobal :: Tree -> GenState AssemblySchema
 defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ _) = do
-        SymTab.defineGlobal name
+        GlobalState.defineGlobal name
         currScope <- SymTab.getScope
         varSchema <- getExpressionSchema <$> convertToSchema varNode
         valSchema <- getExpressionSchema <$> convertToSchema valNode

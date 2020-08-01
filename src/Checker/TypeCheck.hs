@@ -12,14 +12,15 @@ module Checker.TypeCheck
          funcReturn
         ) where
 
-import           Control.Monad   (unless, when)
+import           Control.Monad     (unless, when)
 
-import           State.GenState  (GenState, throwError)
-import qualified State.SymTab    as SymTab
-import           Types.AST       (ArrayNode (..), Tree (..))
-import           Types.Error     (CompilerError (TypeError), TypeError (..))
-import           Types.Type      (Type (..))
-import           Types.Variables (Scope (..))
+import           State.GenState    (GenState, throwError)
+import qualified State.GlobalState as GlobalState
+import qualified State.SymTab      as SymTab
+import           Types.AST         (ArrayNode (..), Tree (..))
+import           Types.Error       (CompilerError (TypeError), TypeError (..))
+import           Types.Type        (Type (..))
+import           Types.Variables   (Scope (..))
 
 
 -- | Throw error if two lists of types don't match
@@ -126,7 +127,7 @@ getVarType node name = do
         case currScope of
              Local  -> checkAllVariableTypes node name
              Global -> do
-                     typG <- SymTab.globalType name
+                     typG <- GlobalState.globalType name
                      extractType node typG
 
 
@@ -134,7 +135,7 @@ checkAllVariableTypes :: Tree -> String -> GenState Type
 checkAllVariableTypes node name = do
         typL <- SymTab.variableType name
         typP <- SymTab.parameterType name
-        typG <- SymTab.globalType name
+        typG <- GlobalState.globalType name
         typ  <- varType typL typP typG
         extractType node typ
 
@@ -192,7 +193,7 @@ permitted typ =
 
 getFuncType :: Tree -> String -> GenState Type
 getFuncType node name = do
-        oldTyp <- SymTab.declaredFuncType name
+        oldTyp <- GlobalState.declaredFuncType name
         extractType node oldTyp
 
 
