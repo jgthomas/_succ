@@ -1,4 +1,9 @@
+{-|
+Module       : Builder
+Description  : Build assembly code
 
+Builds the output assembly code based on the assembly schema
+-}
 module Builder.Builder (build) where
 
 
@@ -26,6 +31,7 @@ import Types.Type             (Type (..))
 import Types.Variables        (Scope (..), VarType (..))
 
 
+-- | Builds output assembly code
 build :: AssemblySchema -> Either CompilerError String
 build schema = runBuildState buildAssembly schema BuildState.startState
 
@@ -274,10 +280,15 @@ isFunction _                = False
 
 
 isInitialisedInt :: AssemblySchema -> Bool
-isInitialisedInt (DeclarationSchema _ SkipSchema _ _)                                                 = False
-isInitialisedInt (DeclarationSchema _ (StatementSchema (AssignmentSchema _ AddressOfSchema{} _)) _ _) = False
-isInitialisedInt DeclarationSchema{}                                                                  = True
-isInitialisedInt _                                                                                    = False
+isInitialisedInt (DeclarationSchema
+                  _
+                  (StatementSchema (AssignmentSchema _ AddressOfSchema{} _))
+                  _
+                  _
+                 )                                    = False
+isInitialisedInt (DeclarationSchema _ SkipSchema _ _) = False
+isInitialisedInt DeclarationSchema{}                  = True
+isInitialisedInt _                                    = False
 
 
 needsInit :: AssemblySchema -> Bool
@@ -297,5 +308,10 @@ convertForInit schema = schema
 
 
 isInitialisedPointer :: AssemblySchema -> Bool
-isInitialisedPointer (DeclarationSchema _ (StatementSchema (AssignmentSchema _ AddressOfSchema{} _)) _ _) = True
-isInitialisedPointer _                                                                                    = False
+isInitialisedPointer (DeclarationSchema
+                      _
+                      (StatementSchema (AssignmentSchema _ AddressOfSchema{} _))
+                      _
+                      _
+                     ) = True
+isInitialisedPointer _ = False
