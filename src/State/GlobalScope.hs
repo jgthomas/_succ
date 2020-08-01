@@ -16,10 +16,7 @@ module State.GlobalScope
          declaredFuncType,
          checkVarDefined,
          checkFuncDefined,
-         getUndefined,
          getUndefinedVarData,
-         storeForInit,
-         getAllForInit,
          defineGlobal,
          mkGlobLabel
         ) where
@@ -114,18 +111,14 @@ defineGlobal name = do
         putGlobalScope $ gscope { definedVars = definedVars' }
 
 
--- | Get list of all undefined global variables
-getUndefined :: GenState [String]
-getUndefined = do
-        gscope       <- getGlobalScope
-        undefinedSet <- getUndefinedVarNames
-        pure $ map globLabel
-            . M.elems
-            . M.filterWithKey (\k _ -> k `elem` undefinedSet)
-            . declaredVars
-            $ gscope
+-- | Create label for global variable
+mkGlobLabel :: String -> GenState String
+mkGlobLabel name = do
+        labnum <- GenState.labelNum
+        pure $ "_" ++ name ++ show labnum
 
 
+-- | Get list of all undefined global variable data
 getUndefinedVarData :: GenState [(String, Type)]
 getUndefinedVarData = do
         undefinedSet <- getUndefinedVarNames
@@ -146,25 +139,6 @@ getUndefinedVarNames = do
         let definedSet  = definedVars gscope
             declaredSet = M.keysSet $ declaredVars gscope
         pure $ S.difference declaredSet definedSet
-
-
--- | Store ASM code to initialise a global variable
-storeForInit :: String -> GenState ()
-storeForInit code = do
-        gscope <- getGlobalScope
-        putGlobalScope $ gscope { varsToInit = code : varsToInit gscope }
-
-
--- | Get list of all stored initilisation ASM code
-getAllForInit :: GenState [String]
-getAllForInit = varsToInit <$> getGlobalScope
-
-
--- | Create label for global variable
-mkGlobLabel :: String -> GenState String
-mkGlobLabel name = do
-        labnum <- GenState.labelNum
-        pure $ "_" ++ name ++ show labnum
 
 
 lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> GenState (Maybe a)
