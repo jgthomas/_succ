@@ -249,7 +249,7 @@ checkDeclareGlobal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
                      checkAssignment toAssign
                      TypeCheck.globalDeclaration node
              Nothing -> do
-                     globLab <- GlobalState.mkGlobLabel name
+                     globLab <- GlobalState.makeLabel name
                      GlobalState.declareGlobal name typ globLab
                      checkAssignment toAssign
 checkDeclareGlobal node = ScopeCheck.validateGlobalDeclaration node

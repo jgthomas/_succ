@@ -18,7 +18,7 @@ module State.GlobalState
          checkFuncDefined,
          getUndefinedVarData,
          defineGlobal,
-         mkGlobLabel
+         makeLabel
         ) where
 
 
@@ -112,8 +112,8 @@ defineGlobal name = do
 
 
 -- | Create label for global variable
-mkGlobLabel :: String -> GenState String
-mkGlobLabel name = do
+makeLabel :: String -> GenState String
+makeLabel name = do
         labnum <- GenState.labelNum
         pure $ "_" ++ name ++ show labnum
 

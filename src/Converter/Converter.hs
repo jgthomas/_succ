@@ -370,7 +370,7 @@ addReturnZero bodySchema = bodySchema ++ [StatementSchema (ReturnSchema (Literal
 
 declareGlobal :: Tree -> GenState AssemblySchema
 declareGlobal (DeclarationNode (VarNode name _) typ Nothing _) = do
-        globLab <- GlobalState.mkGlobLabel name
+        globLab <- GlobalState.makeLabel name
         GlobalState.declareGlobal name typ globLab
         pure SkipSchema
 declareGlobal node@(DeclarationNode (VarNode name _) typ _ _) = do
@@ -378,7 +378,7 @@ declareGlobal node@(DeclarationNode (VarNode name _) typ _ _) = do
         case currLabel of
              Just _  -> processGlobalAssignment node
              Nothing -> do
-                     globLab <- GlobalState.mkGlobLabel name
+                     globLab <- GlobalState.makeLabel name
                      GlobalState.declareGlobal name typ globLab
                      processGlobalAssignment node
 declareGlobal tree = throwError $ FatalError (ConverterBug tree)
