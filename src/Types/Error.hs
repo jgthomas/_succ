@@ -2,11 +2,12 @@
 module Types.Error where
 
 
-import Types.AST      (Tree)
-import Types.LexDat   (LexDat)
-import Types.Operator (Operator)
-import Types.Tokens   (Keyword, Token)
-import Types.Type     (Type)
+import Types.AssemblySchema (AssemblySchema)
+import Types.AST            (Tree)
+import Types.LexDat         (LexDat)
+import Types.Operator       (Operator)
+import Types.Tokens         (Keyword, Token)
+import Types.Type           (Type)
 
 
 data CompilerError = LexerError LexerError
@@ -77,4 +78,5 @@ data FatalError = LexerBug String
                 | ParserBug [LexDat]
                 | CheckerBug Tree
                 | GeneratorBug Tree
+                | BuilderBug AssemblySchema
                 deriving (Show, Eq)

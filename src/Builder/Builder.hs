@@ -8,7 +8,7 @@ import Builder.BuildBinary    as BuildBinary (binary)
 import Builder.BuildFunction  as BuildFunction (funcEpilogue, funcPrologue,
                                                 functionCall)
 import Builder.BuildState     (BuildState, runBuildState)
-import Builder.BuildState     as BuildState (startState)
+import Builder.BuildState     as BuildState (startState, throwError)
 import Builder.BuildStatement as BuildStatement (breakStatement,
                                                  continueStatement, doWhile,
                                                  forLoop, ifStatement, while)
@@ -34,7 +34,6 @@ buildAssembly :: AssemblySchema -> BuildState String
 buildAssembly schema = buildASM schema
 
 
-
 buildASM :: AssemblySchema -> BuildState String
 
 buildASM (ProgramSchema topLevelItems) = do
@@ -57,7 +56,16 @@ buildASM (DeclarationSchema
           (ExpressionSchema (VariableSchema global@GlobalVar{}))
           SkipSchema
           Global
-          _) = pure $ BuildVariables.declareGlobal global 0
+          _
+         ) = pure $ BuildVariables.declareGlobal global 0
+
+buildASM (DeclarationSchema
+          (ExpressionSchema VariableSchema{})
+          SkipSchema
+          Local
+          _
+         ) = pure ""
+
 buildASM (DeclarationSchema
           (ExpressionSchema (VariableSchema varType))
           (StatementSchema assignSchema)
@@ -66,6 +74,7 @@ buildASM (DeclarationSchema
          ) = do
                  assignAsm <- buildStatementASM assignSchema
                  pure $ assignAsm ++ BuildVariables.postDeclareAction varType
+
 buildASM (DeclarationSchema
           (ExpressionSchema VariableSchema{})
           (ExpressionSchema arrayItems@(ArrayItemsSchema finalPos _))
@@ -75,13 +84,13 @@ buildASM (DeclarationSchema
                  assignAsm <- buildExpressionASM arrayItems
                  pure $ assignAsm ++ BuildVariables.postDeclareAction (LocalVar 0 0 finalPos)
 
-buildASM DeclarationSchema{} = pure ""
-
 buildASM (StatementSchema statement) = buildStatementASM statement
 
 buildASM (ExpressionSchema expression) = buildExpressionASM expression
 
 buildASM SkipSchema = pure ""
+
+buildASM schema = throwError $ FatalError (BuilderBug schema)
 
 
 

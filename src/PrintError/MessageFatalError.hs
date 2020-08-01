@@ -26,6 +26,8 @@ fatalErrorMsg err@(CheckerBug tree) = (msg, None)
 fatalErrorMsg err@(GeneratorBug tree) = (msg, None)
         where msg = fatalErrorMsgIntro err ++ show tree ++ fatalErrorMsgOutro
 
+fatalErrorMsg err@(BuilderBug schema) = (msg, None)
+        where msg = fatalErrorMsgIntro err ++ show schema ++ fatalErrorMsgOutro
 
 fatalErrorMsgIntro :: FatalError -> String
 fatalErrorMsgIntro err = "There is a bug in the " ++ component
@@ -40,6 +42,7 @@ fatalComponent err =
              ParserBug{}    -> "parser"
              CheckerBug{}   -> "syntax tree checker"
              GeneratorBug{} -> "code generator"
+             BuilderBug{}   -> "assembly generator"
 
 
 fatalErrorMsgOutro :: String
