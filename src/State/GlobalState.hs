@@ -1,10 +1,10 @@
 {-|
-Module       : GlobalScope
+Module       : GlobalState
 Description  : Control state for the global scope
 
 Functions to manipulate the state stored for the global scope of a program.
 -}
-module State.GlobalScope
+module State.GlobalState
         (declareFunction,
          defineFunction,
          declareGlobal,
