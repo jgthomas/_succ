@@ -1,13 +1,11 @@
 {-|
-Module       : SymTab
-Description  : GenState control abstraction
+Module       : State
+Description  : Shared state querying functions
 
-Central interface for all functions used to manipulate the
-generator stage state.
+Functions that query state in local and global scope
 -}
-module State.SymTab
+module State.State
         (module State.FrameStack,
-         --module State.FuncState,
          SymTab,
          labelNum,
          memOffset,

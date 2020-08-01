@@ -18,7 +18,7 @@ import qualified State.FuncState   as FuncState (allTypes, parameterType,
                                                  variableType)
 import           State.GenState    (GenState, throwError)
 import qualified State.GlobalState as GlobalState (declaredFuncType, getType)
-import qualified State.SymTab      as SymTab
+import qualified State.State       as State
 import           Types.AST         (ArrayNode (..), Tree (..))
 import           Types.Error       (CompilerError (TypeError), TypeError (..))
 import           Types.Type        (Type (..))
@@ -77,7 +77,7 @@ checkAssignmentType varNode value = do
 -- | Throw error if declared and actual return value don't match
 funcReturn :: Tree -> Tree -> GenState ()
 funcReturn node retVal = do
-        currFuncName <- SymTab.currentFunc
+        currFuncName <- State.currentFunc
         currFuncType <- getFuncType node currFuncName
         retValType   <- getType retVal
         checkTypes node [currFuncType] [retValType]
@@ -125,7 +125,7 @@ getArrayItemType _        = undefined
 
 getVarType :: Tree -> String -> GenState Type
 getVarType node name = do
-        currScope <- SymTab.getScope
+        currScope <- State.getScope
         case currScope of
              Local  -> checkAllVariableTypes node name
              Global -> do

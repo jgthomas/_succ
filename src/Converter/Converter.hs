@@ -14,8 +14,8 @@ import qualified State.FuncState      as FuncState
 import           State.GenState       (GenState, runGenState, throwError)
 import qualified State.GenState       as GenState (getState, startState)
 import qualified State.GlobalState    as GlobalState
-import           State.SymTab         (SymTab)
-import qualified State.SymTab         as SymTab
+import           State.State          (SymTab)
+import qualified State.State          as State
 import           Types.AssemblySchema
 import           Types.AST            (ArrayNode (..), Tree (..))
 import           Types.Error          (CompilerError (FatalError),
@@ -75,9 +75,9 @@ convertToSchema (CompoundStmtNode statements _) = do
 
 convertToSchema (ForLoopNode ini test iter body _) = do
         FuncState.initScope
-        passLabel <- SymTab.labelNum
-        failLabel <- SymTab.labelNum
-        contLabel <- SymTab.labelNum
+        passLabel <- State.labelNum
+        failLabel <- State.labelNum
+        contLabel <- State.labelNum
         FuncState.setBreak failLabel
         FuncState.setContinue contLabel
         iniSchema  <- convertToSchema ini
@@ -98,8 +98,8 @@ convertToSchema (ForLoopNode ini test iter body _) = do
              )
 
 convertToSchema (WhileNode test body _) = do
-        loopLabel  <- SymTab.labelNum
-        testLabel  <- SymTab.labelNum
+        loopLabel  <- State.labelNum
+        testLabel  <- State.labelNum
         FuncState.setContinue loopLabel
         FuncState.setBreak testLabel
         testSchema <- getExpressionSchema <$> convertToSchema test
@@ -114,9 +114,9 @@ convertToSchema (WhileNode test body _) = do
              )
 
 convertToSchema (DoWhileNode body test _) = do
-        loopLabel  <- SymTab.labelNum
-        contLabel  <- SymTab.labelNum
-        testLabel  <- SymTab.labelNum
+        loopLabel  <- State.labelNum
+        contLabel  <- State.labelNum
+        testLabel  <- State.labelNum
         FuncState.setContinue contLabel
         FuncState.setBreak testLabel
         bodySchema <- getStatementSchema <$> convertToSchema body
@@ -132,8 +132,8 @@ convertToSchema (DoWhileNode body test _) = do
              )
 
 convertToSchema (IfNode test body possElse _) = do
-        ifLabel    <- LocalLabel <$> SymTab.labelNum
-        elseLabel  <- LocalLabel <$> SymTab.labelNum
+        ifLabel    <- LocalLabel <$> State.labelNum
+        elseLabel  <- LocalLabel <$> State.labelNum
         testSchema <- getExpressionSchema <$> convertToSchema test
         bodySchema <- getStatementSchema <$> convertToSchema body
         elseSchema <- processPossibleNode possElse
@@ -151,7 +151,7 @@ convertToSchema (PointerNode varNode typ value dat) =
         convertToSchema (DeclarationNode varNode typ value dat)
 
 convertToSchema node@DeclarationNode{} = do
-        currScope <- SymTab.getScope
+        currScope <- State.getScope
         case currScope of
              Local  -> declareLocal node
              Global -> declareGlobal node
@@ -179,8 +179,8 @@ convertToSchema (TernaryNode test true false _) = do
         testSchema  <- getExpressionSchema <$> convertToSchema test
         trueSchema  <- getExpressionSchema <$> convertToSchema true
         falseSchema <- getExpressionSchema <$> convertToSchema false
-        trueLabel   <- LocalLabel <$> SymTab.labelNum
-        falseLabel  <- LocalLabel <$> SymTab.labelNum
+        trueLabel   <- LocalLabel <$> State.labelNum
+        falseLabel  <- LocalLabel <$> State.labelNum
         pure (ExpressionSchema
               (TernarySchema
                testSchema
@@ -192,8 +192,8 @@ convertToSchema (TernaryNode test true false _) = do
              )
 
 convertToSchema (BinaryNode leftNode rightNode operator _) = do
-        trueLabel   <- LocalLabel <$> SymTab.labelNum
-        falseLabel  <- LocalLabel <$> SymTab.labelNum
+        trueLabel   <- LocalLabel <$> State.labelNum
+        falseLabel  <- LocalLabel <$> State.labelNum
         leftSchema  <- getExpressionSchema <$> convertToSchema leftNode
         rightSchema <- getExpressionSchema <$> convertToSchema rightNode
         pure (ExpressionSchema
@@ -213,13 +213,13 @@ convertToSchema (UnaryNode val unOp _) = do
 convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ LiteralSchema n)
 
 convertToSchema node@(VarNode name _) = do
-        varType <- SymTab.getVariable name
+        varType <- State.getVariable name
         case varType of
              NotFound    -> throwError $ FatalError (ConverterBug node)
              VarType typ -> pure (ExpressionSchema $ VariableSchema typ)
 
 convertToSchema node@(DereferenceNode name _) = do
-        varType <- SymTab.getVariable name
+        varType <- State.getVariable name
         case varType of
              NotFound    -> throwError $ FatalError (ConverterBug node)
              VarType var -> pure (ExpressionSchema
@@ -229,7 +229,7 @@ convertToSchema node@(DereferenceNode name _) = do
                                  )
 
 convertToSchema node@(AddressOfNode name _) = do
-        varType <- SymTab.getVariable name
+        varType <- State.getVariable name
         case varType of
              NotFound    -> throwError $ FatalError (ConverterBug node)
              VarType var -> pure (ExpressionSchema
@@ -300,7 +300,7 @@ processArrayItems varNode items = do
 
 processArrayItem :: Tree -> (Tree, Int) -> GenState AssemblySchema
 processArrayItem varNode (item, pos) = do
-        currScope <- SymTab.getScope
+        currScope <- State.getScope
         varSchema <- getExpressionSchema <$> getArrayIndexItem pos varNode
         valSchema <- getExpressionSchema <$> convertToSchema item
         pure (StatementSchema
@@ -387,7 +387,7 @@ declareGlobal tree = throwError $ FatalError (ConverterBug tree)
 
 processGlobalAssignment :: Tree -> GenState AssemblySchema
 processGlobalAssignment (DeclarationNode varNode typ (Just assignNode) _) = do
-        currScope    <- SymTab.getScope
+        currScope    <- State.getScope
         varSchema    <- convertToSchema varNode
         assignSchema <- convertToSchema assignNode
         pure (DeclarationSchema varSchema assignSchema currScope typ)
@@ -397,7 +397,7 @@ processGlobalAssignment tree = throwError $ FatalError (ConverterBug tree)
 defineGlobal :: Tree -> GenState AssemblySchema
 defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ _) = do
         GlobalState.defineGlobal name
-        currScope <- SymTab.getScope
+        currScope <- State.getScope
         varSchema <- getExpressionSchema <$> convertToSchema varNode
         valSchema <- getExpressionSchema <$> convertToSchema valNode
         pure (StatementSchema $ AssignmentSchema varSchema valSchema currScope)
@@ -418,7 +418,7 @@ buildUndefinedSchema (label, typ) =
 declareLocal :: Tree -> GenState AssemblySchema
 declareLocal (DeclarationNode varNode@(VarNode name _) typ value _) = do
         _ <- FuncState.addVariable name typ
-        currScope <- SymTab.getScope
+        currScope <- State.getScope
         varSchema <- convertToSchema varNode
         valSchema <- processPossibleNode value
         pure (DeclarationSchema varSchema valSchema currScope typ)
@@ -427,7 +427,7 @@ declareLocal tree = throwError $ FatalError (ConverterBug tree)
 
 defineLocal :: Tree -> GenState AssemblySchema
 defineLocal (AssignmentNode varNode value _ _) = do
-        currScope <- SymTab.getScope
+        currScope <- State.getScope
         varSchema <- getExpressionSchema <$> convertToSchema varNode
         valSchema <- getExpressionSchema <$> convertToSchema value
         pure (StatementSchema $ AssignmentSchema varSchema valSchema currScope)
@@ -451,7 +451,7 @@ buildAssignmentSchema node = throwError $ FatalError (ConverterBug node)
 
 buildBasicAssignment :: Tree -> GenState AssemblySchema
 buildBasicAssignment node = do
-        currScope <- SymTab.getScope
+        currScope <- State.getScope
         case currScope of
              Local  -> defineLocal node
              Global -> defineGlobal node
@@ -476,9 +476,9 @@ processPossibleNode (Just node) = convertToSchema node
 
 
 adjustVariable :: Maybe Int -> Maybe Int -> VarType -> VarType
-adjustVariable (Just x) (Just y) (LocalVar n _ _) = LocalVar n (x * SymTab.memOffset) y
+adjustVariable (Just x) (Just y) (LocalVar n _ _) = LocalVar n (x * State.memOffset) y
 adjustVariable (Just x) Nothing (LocalVar n _ sp) =
-        LocalVar n (x * SymTab.memOffset) (sp + (x * (-SymTab.memOffset)))
+        LocalVar n (x * State.memOffset) (sp + (x * (-State.memOffset)))
 adjustVariable Nothing (Just y) (LocalVar n m _)  = LocalVar n m y
 adjustVariable (Just x) _ (ParamVar n _)          = ParamVar n x
 adjustVariable (Just x) _ (GlobalVar l _)         = GlobalVar l x

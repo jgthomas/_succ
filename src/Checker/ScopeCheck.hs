@@ -30,7 +30,7 @@ import qualified State.GlobalState as GlobalState (checkFuncDefined,
                                                    currentSeqNumber,
                                                    decParamCount, decSeqNumber,
                                                    getLabel)
-import qualified State.SymTab      as SymTab
+import qualified State.State       as State
 import           Types.AST         (Tree (..))
 import           Types.Error       (CompilerError (ScopeError), ScopeError (..))
 import           Types.Variables   (VarLookup (..), VarType (ParamVar))
@@ -132,14 +132,14 @@ variableExists tree = throwError $ ScopeError (UnexpectedNode tree)
 
 varExists :: Tree -> String -> GenState ()
 varExists node name = do
-        var <- SymTab.getVariable name
+        var <- State.getVariable name
         when (var == NotFound) $
             throwError $ ScopeError (UnrecognisedNode node)
 
 
 addressableVarExists :: Tree -> String -> GenState ()
 addressableVarExists node name = do
-        var <- SymTab.getVariable name
+        var <- State.getVariable name
         case var of
              VarType ParamVar{} -> throwError $ ScopeError (Unaddressable node)
              _                  -> varExists node name

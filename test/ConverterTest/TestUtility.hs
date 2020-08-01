@@ -3,7 +3,7 @@ module ConverterTest.TestUtility (extractSchema) where
 
 
 import Converter.Converter  (convert)
-import State.SymTab         (SymTab)
+import State.State          (SymTab)
 import Types.AssemblySchema
 import Types.AST
 import Types.Error

@@ -15,7 +15,7 @@ import qualified Checker.TypeCheck  as TypeCheck
 import qualified State.FuncState    as FuncState
 import           State.GenState     (GenState, runGenState, startState)
 import qualified State.GlobalState  as GlobalState
-import qualified State.SymTab       as SymTab
+import qualified State.State        as State
 import           Types.AST          (ArrayNode (..), Tree (..))
 import           Types.Error        (CompilerError)
 import           Types.Operator     (Operator (..), UnaryOp (..))
@@ -70,9 +70,9 @@ checkAST (CompoundStmtNode blockItems _) = do
 
 checkAST (ForLoopNode ini test iter block _) = do
         FuncState.initScope
-        _         <- SymTab.labelNum
-        failLabel <- SymTab.labelNum
-        contLabel <- SymTab.labelNum
+        _         <- State.labelNum
+        failLabel <- State.labelNum
+        contLabel <- State.labelNum
         FuncState.setBreak failLabel
         FuncState.setContinue contLabel
         checkAST ini
@@ -82,30 +82,30 @@ checkAST (ForLoopNode ini test iter block _) = do
         FuncState.closeScope
 
 checkAST (WhileNode test whileBlock _) = do
-        loopLabel <- SymTab.labelNum
+        loopLabel <- State.labelNum
         checkAST test
-        testLabel <- SymTab.labelNum
+        testLabel <- State.labelNum
         checkAST whileBlock
         FuncState.setContinue loopLabel
         FuncState.setBreak testLabel
 
 checkAST (DoWhileNode block test _) = do
-        _         <- SymTab.labelNum
-        contLabel <- SymTab.labelNum
+        _         <- State.labelNum
+        contLabel <- State.labelNum
         checkAST block
         checkAST test
-        testLabel <- SymTab.labelNum
+        testLabel <- State.labelNum
         FuncState.setContinue contLabel
         FuncState.setBreak testLabel
 
 checkAST (IfNode test action possElse _) = do
         checkAST test
         checkAST action
-        _ <- SymTab.labelNum
+        _ <- State.labelNum
         case possElse of
              Nothing -> pure ()
              Just e  -> do
-                     _ <- SymTab.labelNum
+                     _ <- State.labelNum
                      checkAST e
 
 checkAST (PointerNode varNode typ Nothing dat) =
@@ -117,7 +117,7 @@ checkAST (PointerNode varNode typ (Just a) dat) = do
         checkAST a
 
 checkAST node@DeclarationNode{} = do
-        currScope <- SymTab.getScope
+        currScope <- State.getScope
         case currScope of
              Global -> checkDeclareGlobal node
              Local  -> checkDeclareLocal node
@@ -126,7 +126,7 @@ checkAST node@(AssignmentNode varNode value op _) = do
         checkAST varNode
         checkAST value
         TypeCheck.assignment node
-        currScope <- SymTab.getScope
+        currScope <- State.getScope
         case currScope of
              Global -> checkDefineGlobal node
              Local  -> checkAssignLocal varNode value op
@@ -147,15 +147,15 @@ checkAST node@(ReturnNode tree _) = do
         TypeCheck.funcReturn node tree
 
 checkAST (TernaryNode cond pass fails _) = do
-        _ <- SymTab.labelNum
-        _ <- SymTab.labelNum
+        _ <- State.labelNum
+        _ <- State.labelNum
         checkAST cond
         checkAST pass
         checkAST fails
 
 checkAST (BinaryNode lft rgt _ _) = do
-        _ <- SymTab.labelNum
-        _ <- SymTab.labelNum
+        _ <- State.labelNum
+        _ <- State.labelNum
         checkAST lft
         checkAST rgt
 
