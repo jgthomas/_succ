@@ -180,7 +180,7 @@ buildStatementASM (IfSchema
 
 buildStatementASM NullStatementSchema{} = pure ""
 
-buildStatementASM _                         = pure ""
+buildStatementASM schema = throwError $ FatalError (BuilderBug $ StatementSchema schema)
 
 
 
@@ -239,7 +239,7 @@ buildExpressionASM NullExpressionSchema{} = pure ""
 
 buildExpressionASM (ArrayItemsSchema _ items) = concatMapM buildStatementASM items
 
-buildExpressionASM _                 = pure ""
+buildExpressionASM schema = throwError $ FatalError (BuilderBug $ ExpressionSchema schema)
 
 
 getFunctions :: [AssemblySchema] -> [AssemblySchema]
