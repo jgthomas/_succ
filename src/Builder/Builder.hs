@@ -16,7 +16,8 @@ import Builder.BuildState     (BuildState, runBuildState)
 import Builder.BuildState     as BuildState (startState, throwError)
 import Builder.BuildStatement as BuildStatement (breakStatement,
                                                  continueStatement, doWhile,
-                                                 forLoop, ifStatement, while)
+                                                 emptyStatement, forLoop,
+                                                 ifStatement, while)
 import Builder.BuildTernary   as BuildTernary (ternary)
 import Builder.BuildUnary     as BuildUnary (unary)
 import Builder.BuildVariables as BuildVariables (addressOf, declareGlobal,
@@ -71,7 +72,7 @@ buildASM (DeclarationSchema
           SkipSchema
           Local
           _
-         ) = pure ""
+         ) = pure BuildStatement.emptyStatement
 
 buildASM (DeclarationSchema
           (ExpressionSchema (VariableSchema varType))
@@ -95,7 +96,7 @@ buildASM (StatementSchema statement) = buildStatementASM statement
 
 buildASM (ExpressionSchema expression) = buildExpressionASM expression
 
-buildASM SkipSchema = pure ""
+buildASM SkipSchema = pure BuildStatement.emptyStatement
 
 buildASM schema = throwError $ FatalError (BuilderBug schema)
 
@@ -191,7 +192,7 @@ buildStatementASM (IfSchema
                           elseAsm <- buildASM elseSchema
                           pure $ BuildStatement.ifStatement testAsm bodyAsm elseAsm n m
 
-buildStatementASM NullStatementSchema{} = pure ""
+buildStatementASM NullStatementSchema{} = pure BuildStatement.emptyStatement
 
 buildStatementASM schema = throwError $ FatalError (BuilderBug $ StatementSchema schema)
 
@@ -258,7 +259,7 @@ buildExpressionASM (AddressOfSchema (VariableSchema varType)) =
 buildExpressionASM (DereferenceSchema (VariableSchema varType)) =
         pure $ BuildVariables.derefLoad varType
 
-buildExpressionASM NullExpressionSchema{} = pure ""
+buildExpressionASM NullExpressionSchema{} = pure BuildStatement.emptyStatement
 
 buildExpressionASM (ArrayItemsSchema _ items) = concatMapM buildStatementASM items
 
