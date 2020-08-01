@@ -2,18 +2,17 @@
 module Builder.BuildBinary (binary) where
 
 
-import Builder.Directive    (emitLabel)
-import Builder.Instruction  (Jump (..), Set (..), add, andBits, comp, emitJump,
-                             idivq, imul, literal, move, orBits, pop, push,
-                             setBitIf, shiftBitsLeft, shiftBitsRight, sub,
-                             xorBits)
-import Builder.Register     (Register (..), reg, regModResult, scratch)
-import Types.AssemblySchema (Label (..))
-import Types.Operator       (BinaryOp (..), ShiftOp (..))
+import Builder.Directive   (emitLabel)
+import Builder.Instruction (Jump (..), Set (..), add, andBits, comp, emitJump,
+                            idivq, imul, literal, move, orBits, pop, push,
+                            setBitIf, shiftBitsLeft, shiftBitsRight, sub,
+                            xorBits)
+import Builder.Register    (Register (..), reg, regModResult, scratch)
+import Types.Operator      (BinaryOp (..), ShiftOp (..))
 
 
 -- | Output asm for binary operators
-binary :: String -> String -> BinaryOp -> Label -> Label -> String
+binary :: String -> String -> BinaryOp -> Int -> Int -> String
 binary expr1 expr2 binOp lab1 lab2 =
         case binOp of
              Plus               -> computeAdd expr1 expr2
@@ -52,35 +51,33 @@ computeBitwise expr1 expr2 f =
         ++ f scratch (reg RAX)
 
 
-logicalOR :: String -> String -> Label -> Label -> String
-logicalOR expr1 expr2 (LocalLabel next) (LocalLabel end) =
+logicalOR :: String -> String -> Int -> Int-> String
+logicalOR expr1 expr2 nextLabel endLabel =
         expr1
         ++ comp (literal 0) (reg RAX)
-        ++ emitJump JE next
+        ++ emitJump JE nextLabel
         ++ move (literal 1) (reg RAX)
-        ++ emitJump JMP end
-        ++ emitLabel next
+        ++ emitJump JMP endLabel
+        ++ emitLabel nextLabel
         ++ expr2
         ++ comp (literal 0) (reg RAX)
         ++ move (literal 0) (reg RAX)
         ++ setBitIf NEqu
-        ++ emitLabel end
-logicalOR _ _ _ _ = undefined
+        ++ emitLabel endLabel
 
 
-logicalAND :: String -> String -> Label -> Label -> String
-logicalAND expr1 expr2 (LocalLabel next) (LocalLabel end) =
+logicalAND :: String -> String -> Int -> Int -> String
+logicalAND expr1 expr2 nextLabel endLabel =
         expr1
         ++ comp (literal 0) (reg RAX)
-        ++ emitJump JNE next
-        ++ emitJump JMP end
-        ++ emitLabel next
+        ++ emitJump JNE nextLabel
+        ++ emitJump JMP endLabel
+        ++ emitLabel nextLabel
         ++ expr2
         ++ comp (literal 0) (reg RAX)
         ++ move (literal 0) (reg RAX)
         ++ setBitIf NEqu
-        ++ emitLabel end
-logicalAND _ _ _ _ = undefined
+        ++ emitLabel endLabel
 
 
 computeAdd :: String -> String -> String

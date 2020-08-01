@@ -213,28 +213,34 @@ buildExpressionASM (BinarySchema
                     exprSchema1
                     (LiteralSchema n)
                     op@ShiftOp{}
-                    locLabel1
-                    locLabel2
+                    (LocalLabel m)
+                    (LocalLabel p)
                    ) = do
                            expr1Asm <- buildExpressionASM exprSchema1
-                           pure $ BuildBinary.binary expr1Asm (show n) op locLabel1 locLabel2
+                           pure $ BuildBinary.binary expr1Asm (show n) op m p
 
 buildExpressionASM (BinarySchema
                     exprSchema1
                     exprSchema2
                     op
-                    locLabel1
-                    locLabel2
+                    (LocalLabel n)
+                    (LocalLabel m)
                    ) = do
                            expr1Asm <- buildExpressionASM exprSchema1
                            expr2Asm <- buildExpressionASM exprSchema2
-                           pure $ BuildBinary.binary expr1Asm expr2Asm op locLabel1 locLabel2
+                           pure $ BuildBinary.binary expr1Asm expr2Asm op n m
 
-buildExpressionASM (TernarySchema expr1 expr2 expr3 locLabel1 locLabel2) = do
-        expr1Asm <- buildExpressionASM expr1
-        expr2Asm <- buildExpressionASM expr2
-        expr3Asm <- buildExpressionASM expr3
-        pure $ BuildTernary.ternary expr1Asm expr2Asm expr3Asm locLabel1 locLabel2
+buildExpressionASM (TernarySchema
+                    expr1
+                    expr2
+                    expr3
+                    (LocalLabel n)
+                    (LocalLabel m)
+                   ) = do
+                           expr1Asm <- buildExpressionASM expr1
+                           expr2Asm <- buildExpressionASM expr2
+                           expr3Asm <- buildExpressionASM expr3
+                           pure $ BuildTernary.ternary expr1Asm expr2Asm expr3Asm n m
 
 buildExpressionASM (FunctionCallSchema name arguments) = do
         argAsmList <- mapM buildExpressionASM arguments

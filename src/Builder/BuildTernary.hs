@@ -2,21 +2,19 @@
 module Builder.BuildTernary (ternary) where
 
 
-import Builder.Directive    (emitLabel)
-import Builder.Instruction  (Jump (..), comp, emitJump, literal)
-import Builder.Register     (Register (..), reg)
-import Types.AssemblySchema (Label (..))
+import Builder.Directive   (emitLabel)
+import Builder.Instruction (Jump (..), comp, emitJump, literal)
+import Builder.Register    (Register (..), reg)
 
 
 -- | Output asm for the ternary operator
-ternary :: String -> String -> String -> Label -> Label -> String
-ternary testExpr trueExpr falseExpr (LocalLabel true) (LocalLabel false) =
+ternary :: String -> String -> String -> Int -> Int -> String
+ternary testExpr trueExpr falseExpr trueLabNum falseLabNum =
         testExpr
         ++ comp (literal 0) (reg RAX)
-        ++ emitJump JE false
+        ++ emitJump JE falseLabNum
         ++ trueExpr
-        ++ emitJump JMP true
-        ++ emitLabel false
+        ++ emitJump JMP trueLabNum
+        ++ emitLabel falseLabNum
         ++ falseExpr
-        ++ emitLabel true
-ternary _ _ _ _ _ = undefined
+        ++ emitLabel trueLabNum
