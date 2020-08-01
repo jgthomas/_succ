@@ -37,6 +37,7 @@ checkAST (ProgramNode topLevelItems) = mapM_ checkAST topLevelItems
 
 checkAST node@(FunctionNode _ _ _ Nothing _) =
         checkFuncDec node
+
 checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
         ScopeCheck.checkIfFuncDefined node
         checkFuncDec node
@@ -47,6 +48,7 @@ checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
 
 checkAST (ParamNode typ (VarNode name _) _) =
         SymTab.addParameter name typ
+
 checkAST node@ParamNode{} =
         LogicCheck.validateNode node
 
@@ -106,6 +108,7 @@ checkAST (IfNode test action possElse _) = do
 
 checkAST (PointerNode varNode typ Nothing dat) =
         checkAST (DeclarationNode varNode typ Nothing dat)
+
 checkAST (PointerNode varNode typ (Just a) dat) = do
         checkAST (DeclarationNode varNode typ Nothing dat)
         ScopeCheck.variableExists varNode
@@ -158,9 +161,11 @@ checkAST node@(UnaryNode varNode@VarNode{} _ _) = do
         LogicCheck.checkUnaryLogic node
         checkAST varNode
         ScopeCheck.variableExists varNode
+
 checkAST node@(UnaryNode tree (Unary _) _) = do
         LogicCheck.checkUnaryLogic node
         checkAST tree
+
 checkAST node@UnaryNode{} = LogicCheck.checkUnaryLogic node
 
 checkAST node@VarNode{} = ScopeCheck.variableExists node
