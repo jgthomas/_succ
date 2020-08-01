@@ -14,6 +14,8 @@ module Checker.TypeCheck
 
 import           Control.Monad     (unless, when)
 
+import qualified State.FuncState   as FuncState (allTypes, parameterType,
+                                                 variableType)
 import           State.GenState    (GenState, throwError)
 import qualified State.GlobalState as GlobalState (declaredFuncType, getType)
 import qualified State.SymTab      as SymTab
@@ -83,7 +85,7 @@ funcReturn node retVal = do
 
 passedTypes :: String -> [Tree] -> GenState ([Type], [Type])
 passedTypes name treeList = do
-        currTypes <- SymTab.allTypes name
+        currTypes <- FuncState.allTypes name
         newTypes  <- mapM getType treeList
         pure (currTypes, newTypes)
 
@@ -133,8 +135,8 @@ getVarType node name = do
 
 checkAllVariableTypes :: Tree -> String -> GenState Type
 checkAllVariableTypes node name = do
-        typL <- SymTab.variableType name
-        typP <- SymTab.parameterType name
+        typL <- FuncState.variableType name
+        typP <- FuncState.parameterType name
         typG <- GlobalState.getType name
         typ  <- varType typL typP typG
         extractType node typ

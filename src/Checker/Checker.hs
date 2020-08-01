@@ -12,6 +12,7 @@ import           Control.Monad      (unless)
 import qualified Checker.LogicCheck as LogicCheck
 import qualified Checker.ScopeCheck as ScopeCheck
 import qualified Checker.TypeCheck  as TypeCheck
+import qualified State.FuncState    as FuncState
 import           State.GenState     (GenState, runGenState, startState)
 import qualified State.GlobalState  as GlobalState
 import qualified State.SymTab       as SymTab
@@ -42,13 +43,13 @@ checkAST node@(FunctionNode _ _ _ Nothing _) =
 checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
         ScopeCheck.checkIfFuncDefined node
         checkFuncDec node
-        SymTab.initFunction name
+        FuncState.initFunction name
         checkAST stmts
-        SymTab.closeFunction
+        FuncState.closeFunction
         GlobalState.defineFunction name
 
 checkAST (ParamNode typ (VarNode name _) _) =
-        SymTab.addParameter name typ
+        FuncState.addParameter name typ
 
 checkAST node@ParamNode{} =
         LogicCheck.validateNode node
@@ -63,30 +64,30 @@ checkAST node@(FuncCallNode name argList _) = do
 checkAST (ArgNode arg _) = checkAST arg
 
 checkAST (CompoundStmtNode blockItems _) = do
-        SymTab.initScope
+        FuncState.initScope
         mapM_ checkAST blockItems
-        SymTab.closeScope
+        FuncState.closeScope
 
 checkAST (ForLoopNode ini test iter block _) = do
-        SymTab.initScope
+        FuncState.initScope
         _         <- SymTab.labelNum
         failLabel <- SymTab.labelNum
         contLabel <- SymTab.labelNum
-        SymTab.setBreak failLabel
-        SymTab.setContinue contLabel
+        FuncState.setBreak failLabel
+        FuncState.setContinue contLabel
         checkAST ini
         checkAST test
         checkAST iter
         checkAST block
-        SymTab.closeScope
+        FuncState.closeScope
 
 checkAST (WhileNode test whileBlock _) = do
         loopLabel <- SymTab.labelNum
         checkAST test
         testLabel <- SymTab.labelNum
         checkAST whileBlock
-        SymTab.setContinue loopLabel
-        SymTab.setBreak testLabel
+        FuncState.setContinue loopLabel
+        FuncState.setBreak testLabel
 
 checkAST (DoWhileNode block test _) = do
         _         <- SymTab.labelNum
@@ -94,8 +95,8 @@ checkAST (DoWhileNode block test _) = do
         checkAST block
         checkAST test
         testLabel <- SymTab.labelNum
-        SymTab.setContinue contLabel
-        SymTab.setBreak testLabel
+        FuncState.setContinue contLabel
+        FuncState.setBreak testLabel
 
 checkAST (IfNode test action possElse _) = do
         checkAST test
@@ -186,7 +187,7 @@ checkArrayAST :: ArrayNode -> GenState ()
 
 checkArrayAST (ArrayDeclareNode len var typ assign dat) = do
         checkDeclareLocal (DeclarationNode var typ assign dat)
-        SymTab.incrementOffsetByN (len - 1)
+        FuncState.incrementOffsetByN (len - 1)
 
 checkArrayAST (ArrayItemsNode varNode itemList _) = do
         checkAST varNode
@@ -228,16 +229,16 @@ checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _ _) = do
         GlobalState.declareFunction typ funcName (length paramList)
         defined <- GlobalState.checkFuncDefined funcName
         unless defined $ do
-            SymTab.delFuncState funcName
+            FuncState.delFuncState funcName
             checkParams funcName paramList
 checkRepeatFuncDec _ node = ScopeCheck.validateFuncDeclaration node
 
 
 checkParams :: String -> [Tree] -> GenState ()
 checkParams name params = do
-        SymTab.initFunction name
+        FuncState.initFunction name
         mapM_ checkAST params
-        SymTab.closeFunction
+        FuncState.closeFunction
 
 
 checkDeclareGlobal :: Tree -> GenState ()
@@ -263,8 +264,8 @@ checkAssignment (Just t) = checkAST t
 checkDeclareLocal :: Tree -> GenState ()
 checkDeclareLocal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
         ScopeCheck.checkIfUsedInScope node
-        _ <- SymTab.addVariable name typ
-        _ <- SymTab.stackPointerValue
+        _ <- FuncState.addVariable name typ
+        _ <- FuncState.stackPointerValue
         case toAssign of
              Just val -> checkAST val
              Nothing  -> pure ()

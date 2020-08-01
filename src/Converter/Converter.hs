@@ -10,6 +10,7 @@ module Converter.Converter (convert) where
 import           Control.Monad        (unless)
 import           Data.Maybe           (fromMaybe)
 
+import qualified State.FuncState      as FuncState
 import           State.GenState       (GenState, runGenState, throwError)
 import qualified State.GenState       as GenState (getState, startState)
 import qualified State.GlobalState    as GlobalState
@@ -49,14 +50,14 @@ convertToSchema funcNode@(FunctionNode _ _ _ Nothing _) = do
 
 convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
         declareFunction funcNode
-        SymTab.initFunction name
+        FuncState.initFunction name
         bodySchema <- checkReturn name <$> convertToSchema body
-        SymTab.closeFunction
+        FuncState.closeFunction
         GlobalState.defineFunction name
         pure (FunctionSchema name bodySchema)
 
 convertToSchema (ParamNode typ (VarNode name _) _) = do
-        SymTab.addParameter name typ
+        FuncState.addParameter name typ
         pure SkipSchema
 
 convertToSchema (FuncCallNode name argList _) = do
@@ -67,23 +68,23 @@ convertToSchema (FuncCallNode name argList _) = do
 convertToSchema (ArgNode arg _) = convertToSchema arg
 
 convertToSchema (CompoundStmtNode statements _) = do
-        SymTab.initScope
+        FuncState.initScope
         statementsSchema <- mapM convertToSchema statements
-        SymTab.closeScope
+        FuncState.closeScope
         pure (StatementSchema $ CompoundStatementSchema statementsSchema)
 
 convertToSchema (ForLoopNode ini test iter body _) = do
-        SymTab.initScope
+        FuncState.initScope
         passLabel <- SymTab.labelNum
         failLabel <- SymTab.labelNum
         contLabel <- SymTab.labelNum
-        SymTab.setBreak failLabel
-        SymTab.setContinue contLabel
+        FuncState.setBreak failLabel
+        FuncState.setContinue contLabel
         iniSchema  <- convertToSchema ini
         testSchema <- getExpressionSchema <$> convertToSchema test
         iterSchema <- getExpressionSchema <$> convertToSchema iter
         bodySchema <- getStatementSchema <$> convertToSchema body
-        SymTab.closeScope
+        FuncState.closeScope
         pure (StatementSchema
               (ForSchema
                iniSchema
@@ -99,8 +100,8 @@ convertToSchema (ForLoopNode ini test iter body _) = do
 convertToSchema (WhileNode test body _) = do
         loopLabel  <- SymTab.labelNum
         testLabel  <- SymTab.labelNum
-        SymTab.setContinue loopLabel
-        SymTab.setBreak testLabel
+        FuncState.setContinue loopLabel
+        FuncState.setBreak testLabel
         testSchema <- getExpressionSchema <$> convertToSchema test
         bodySchema <- getStatementSchema <$> convertToSchema body
         pure (StatementSchema
@@ -116,8 +117,8 @@ convertToSchema (DoWhileNode body test _) = do
         loopLabel  <- SymTab.labelNum
         contLabel  <- SymTab.labelNum
         testLabel  <- SymTab.labelNum
-        SymTab.setContinue contLabel
-        SymTab.setBreak testLabel
+        FuncState.setContinue contLabel
+        FuncState.setBreak testLabel
         bodySchema <- getStatementSchema <$> convertToSchema body
         testSchema <- getExpressionSchema <$> convertToSchema test
         pure (StatementSchema
@@ -163,11 +164,11 @@ convertToSchema (AssignDereferenceNode varNode valNode operator dat) =
 convertToSchema (ExprStmtNode exprStatement _) = convertToSchema exprStatement
 
 convertToSchema ContinueNode{} = do
-        contineLabel <- LocalLabel . fromMaybe (-1) <$> SymTab.getContinue
+        contineLabel <- LocalLabel . fromMaybe (-1) <$> FuncState.getContinue
         pure (StatementSchema $ ContinueSchema contineLabel)
 
 convertToSchema BreakNode{} = do
-        breakLabel <- LocalLabel . fromMaybe (-1) <$> SymTab.getBreak
+        breakLabel <- LocalLabel . fromMaybe (-1) <$> FuncState.getBreak
         pure (StatementSchema $ BreakSchema breakLabel)
 
 convertToSchema (ReturnNode val _) = do
@@ -248,7 +249,7 @@ convertToSchemaArray :: ArrayNode -> GenState AssemblySchema
 
 convertToSchemaArray (ArrayDeclareNode len var typ Nothing dat) = do
         declareSchema <- convertToSchema (DeclarationNode var typ Nothing dat)
-        SymTab.incrementOffsetByN (len - 1)
+        FuncState.incrementOffsetByN (len - 1)
         pure declareSchema
 
 convertToSchemaArray  (ArrayDeclareNode _ var typ assign dat) =
@@ -287,8 +288,8 @@ getArrayIndexItem _ node = throwError $ FatalError (ConverterBug node)
 processArrayItems :: Tree -> [Tree] -> GenState AssemblySchema
 processArrayItems varNode items = do
         arrayItemsSchema <- mapM (processArrayItem varNode) (zip items [0..])
-        SymTab.incrementOffsetByN (length items - 1)
-        adjust           <- SymTab.stackPointerValue
+        FuncState.incrementOffsetByN (length items - 1)
+        adjust           <- FuncState.stackPointerValue
         pure (ExpressionSchema
               (ArrayItemsSchema
                adjust
@@ -340,16 +341,16 @@ declareRepeatFunction (FunctionNode typ funcName paramList _ _) = do
         GlobalState.declareFunction typ funcName (length paramList)
         defined <- GlobalState.checkFuncDefined funcName
         unless defined $
-           do SymTab.delFuncState funcName
+           do FuncState.delFuncState funcName
               processParameters funcName paramList
 declareRepeatFunction tree = throwError $ FatalError (ConverterBug tree)
 
 
 processParameters :: String -> [Tree] -> GenState ()
 processParameters name params = do
-        SymTab.initFunction name
+        FuncState.initFunction name
         mapM_ convertToSchema params
-        SymTab.closeFunction
+        FuncState.closeFunction
 
 
 checkReturn :: String -> AssemblySchema -> AssemblySchema
@@ -416,7 +417,7 @@ buildUndefinedSchema (label, typ) =
 
 declareLocal :: Tree -> GenState AssemblySchema
 declareLocal (DeclarationNode varNode@(VarNode name _) typ value _) = do
-        _ <- SymTab.addVariable name typ
+        _ <- FuncState.addVariable name typ
         currScope <- SymTab.getScope
         varSchema <- convertToSchema varNode
         valSchema <- processPossibleNode value

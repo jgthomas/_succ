@@ -7,7 +7,7 @@ generator stage state.
 -}
 module State.SymTab
         (module State.FrameStack,
-         module State.FuncState,
+         --module State.FuncState,
          SymTab,
          labelNum,
          memOffset,
@@ -15,12 +15,12 @@ module State.SymTab
         ) where
 
 
-import State.FrameStack  (currentFunc, getScope)
-import State.FuncState
-import State.GenState    (GenState, labelNum)
-import State.GlobalState (getLabel)
-import State.SymbolTable (SymTab, memOffset)
-import Types.Variables   (VarLookup (..), VarType (..))
+import           State.FrameStack  (currentFunc, getScope)
+import qualified State.FuncState   (parameterPosition, variableOffset)
+import           State.GenState    (GenState, labelNum)
+import qualified State.GlobalState (getLabel)
+import           State.SymbolTable (SymTab, memOffset)
+import           Types.Variables   (VarLookup (..), VarType (..))
 
 
 -- | Build variable data type from retrieved data

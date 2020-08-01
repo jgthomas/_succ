@@ -6,18 +6,39 @@ Functions for creating and managing nested scopes within functions under
 compilation.
 -}
 module State.FuncStateScope
-        (initScope,
+        (initFunction,
+         closeFunction,
+         initScope,
          closeScope,
          scopeDepth
         ) where
 
 
+import           Control.Monad         (when)
 import qualified Data.Map              as M
+import           Data.Maybe            (isNothing)
 
-import qualified State.FrameStack      as FrameStack (currentFunc)
-import           State.FuncStateAccess (getFuncState, setFuncState)
+import qualified State.FrameStack      as FrameStack (currentFunc, popFunc,
+                                                      pushFunc)
+import           State.FuncStateAccess (getFuncState, grabFuncState,
+                                        setFuncState)
 import           State.GenState        (GenState)
 import           State.SymbolTable     (FuncState (currentScope, scopes))
+import qualified State.SymbolTable     as SymbolTable (mkFuncState)
+
+
+-- | Switch to scope of named function, creating if needed
+initFunction :: String -> GenState ()
+initFunction name = do
+        FrameStack.pushFunc name
+        fstate <- grabFuncState name
+        when (isNothing fstate) $
+            setFuncState name SymbolTable.mkFuncState
+
+
+-- | Close current function scope
+closeFunction :: GenState ()
+closeFunction = FrameStack.popFunc
 
 
 -- | Initialize a new scope inside a function

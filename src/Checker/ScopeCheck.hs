@@ -22,6 +22,8 @@ module Checker.ScopeCheck
 import           Control.Monad     (unless, when)
 import           Data.Maybe        (isNothing)
 
+import           State.FuncState   as FuncState (checkVariable, getBreak,
+                                                 getContinue, parameterDeclared)
 import           State.GenState    (GenState, throwError)
 import qualified State.GlobalState as GlobalState (checkFuncDefined,
                                                    checkVarDefined,
@@ -37,8 +39,8 @@ import           Types.Variables   (VarLookup (..), VarType (ParamVar))
 -- | Throw error if variable name exists in current scope
 checkIfUsedInScope :: Tree -> GenState ()
 checkIfUsedInScope node@(DeclarationNode (VarNode name _) _ _ _) = do
-        localDec <- SymTab.checkVariable name
-        paramDec <- SymTab.parameterDeclared name
+        localDec <- FuncState.checkVariable name
+        paramDec <- FuncState.parameterDeclared name
         when (localDec || paramDec) $
            throwError $ ScopeError (DoubleDeclaredNode node)
 checkIfUsedInScope tree = throwError $ ScopeError (UnexpectedNode tree)
@@ -146,11 +148,11 @@ addressableVarExists node name = do
 -- | Throw error if break or continue have not been defined for scope
 checkGotoJump :: Tree -> GenState ()
 checkGotoJump node@BreakNode{} = do
-        breakLabel <- SymTab.getBreak
+        breakLabel <- FuncState.getBreak
         when (isNothing breakLabel) $
             throwError $ ScopeError (UnexpectedNode node)
 checkGotoJump node@ContinueNode{} = do
-        continueLabel <- SymTab.getContinue
+        continueLabel <- FuncState.getContinue
         when (isNothing continueLabel) $
             throwError $ ScopeError (UnexpectedNode node)
 checkGotoJump node = throwError $ ScopeError (UnexpectedNode node)
