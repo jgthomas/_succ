@@ -11,7 +11,6 @@ import qualified Builder.Builder       as Builder (build)
 import qualified Checker.Checker       as Checker (check)
 import qualified Converter.Converter   as Converter (convert)
 import qualified Debug.Debug           as Debug (debug, debugPair)
-import qualified Generator.Generator   as Generator (generate)
 import qualified Lexer.Lexer           as Lexer (tokenize)
 import qualified Parser.Parser         as Parser (parse)
 import qualified PrintError.PrintError as PrintError (handleError)
@@ -26,14 +25,12 @@ compile input debugOption = do
         ast    <- debugParser . errorHandler . Parser.parse $ toks
         ast'   <- debugChecker . errorHandler . Checker.check $ ast
         schema <- fmap fst . debugSchema . errorHandler . Converter.convert $ ast'
-        _      <- debugAssembly . errorHandler . Builder.build $ schema
-        fmap fst . debugOutput . errorHandler . Generator.generate $ ast'
+        debugAssembly . errorHandler . Builder.build $ schema
         where
                 debugInput    = Debug.debug debugOption Input
                 debugLexer    = Debug.debug debugOption Lexer
                 debugParser   = Debug.debug debugOption Parser
                 debugChecker  = Debug.debug debugOption Check
                 debugSchema   = Debug.debugPair debugOption (Schema, State)
-                debugOutput   = Debug.debugPair debugOption (Output, State)
                 debugAssembly = Debug.debug debugOption Output
                 errorHandler  = PrintError.handleError debugOption input

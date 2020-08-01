@@ -26,9 +26,6 @@ fatalErrorMsg err@(CheckerBug tree) = (msg, None)
 fatalErrorMsg err@(ConverterBug tree) = (msg, None)
         where msg = fatalErrorMsgIntro err ++ show tree ++ fatalErrorMsgOutro
 
-fatalErrorMsg err@(GeneratorBug tree) = (msg, None)
-        where msg = fatalErrorMsgIntro err ++ show tree ++ fatalErrorMsgOutro
-
 fatalErrorMsg err@(BuilderBug schema) = (msg, None)
         where msg = fatalErrorMsgIntro err ++ show schema ++ fatalErrorMsgOutro
 
@@ -46,7 +43,6 @@ fatalComponent err =
              ParserBug{}    -> "parser"
              CheckerBug{}   -> "syntax tree checker"
              ConverterBug{} -> "syntax tree to assembly schema converter"
-             GeneratorBug{} -> "code generator"
              BuilderBug{}   -> "assembly generator"
 
 

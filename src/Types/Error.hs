@@ -78,6 +78,5 @@ data FatalError = LexerBug String
                 | ParserBug [LexDat]
                 | CheckerBug Tree
                 | ConverterBug Tree
-                | GeneratorBug Tree
                 | BuilderBug AssemblySchema
                 deriving (Show, Eq)
