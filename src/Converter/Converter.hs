@@ -363,18 +363,24 @@ declareGlobal (DeclarationNode (VarNode name _) typ Nothing _) = do
         globLab <- SymTab.mkGlobLabel name
         SymTab.declareGlobal name typ globLab
         pure SkipSchema
-declareGlobal (DeclarationNode varNode@(VarNode name _) typ assignNode _) = do
-        currLabel    <- SymTab.globalLabel name
+declareGlobal node@(DeclarationNode (VarNode name _) typ _ _) = do
+        currLabel <- SymTab.globalLabel name
         case currLabel of
-             Just _  -> pure SkipSchema
+             Just _  -> processGlobalAssignment node
              Nothing -> do
                      globLab <- SymTab.mkGlobLabel name
                      SymTab.declareGlobal name typ globLab
-                     currScope    <- SymTab.getScope
-                     varSchema    <- convertToSchema varNode
-                     assignSchema <- processPossibleNode assignNode
-                     pure (DeclarationSchema varSchema assignSchema currScope typ)
+                     processGlobalAssignment node
 declareGlobal tree = throwError $ FatalError (GeneratorBug tree)
+
+
+processGlobalAssignment :: Tree -> GenState AssemblySchema
+processGlobalAssignment (DeclarationNode varNode typ (Just assignNode) _) = do
+        currScope    <- SymTab.getScope
+        varSchema    <- convertToSchema varNode
+        assignSchema <- convertToSchema assignNode
+        pure (DeclarationSchema varSchema assignSchema currScope typ)
+processGlobalAssignment tree = throwError $ FatalError (GeneratorBug tree)
 
 
 defineGlobal :: Tree -> GenState AssemblySchema
