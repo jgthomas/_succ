@@ -35,11 +35,7 @@ import Types.Variables        (Scope (..), VarType (..))
 
 -- | Builds output assembly code
 build :: AssemblySchema -> Either CompilerError String
-build schema = runBuildState buildAssembly schema BuildState.startState
-
-
-buildAssembly :: AssemblySchema -> BuildState String
-buildAssembly schema = buildASM schema
+build schema = runBuildState buildASM schema BuildState.startState
 
 
 buildASM :: AssemblySchema -> BuildState String
