@@ -25,7 +25,8 @@ import Builder.BuildVariables as BuildVariables (addressOf, declareGlobal,
                                                  outputInit, postDeclareAction,
                                                  storeVariable)
 import Types.AssemblySchema
-import Types.Error
+import Types.Error            (CompilerError (FatalError),
+                               FatalError (BuilderBug))
 import Types.Operator         (BinaryOp (..))
 import Types.Type             (Type (..))
 import Types.Variables        (Scope (..), VarType (..))
