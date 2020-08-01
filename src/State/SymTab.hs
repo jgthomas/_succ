@@ -18,7 +18,7 @@ module State.SymTab
 import State.FrameStack  (currentFunc, getScope)
 import State.FuncState
 import State.GenState    (GenState, labelNum)
-import State.GlobalState (globalLabel)
+import State.GlobalState (getLabel)
 import State.SymbolTable (SymTab, memOffset)
 import Types.Variables   (VarLookup (..), VarType (..))
 
@@ -28,7 +28,7 @@ getVariable :: String -> GenState VarLookup
 getVariable name = do
         localVar  <- mkVarLocal <$> State.FuncState.variableOffset name
         paramVar  <- mkVarParam <$> State.FuncState.parameterPosition name
-        globalVar <- mkVarGlobal <$> State.GlobalState.globalLabel name
+        globalVar <- mkVarGlobal <$> State.GlobalState.getLabel name
         case (localVar, paramVar, globalVar) of
              (var@(VarType LocalVar{}), _, _)  -> pure var
              (_, var@(VarType ParamVar{}), _)  -> pure var

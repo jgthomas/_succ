@@ -15,7 +15,7 @@ module Checker.TypeCheck
 import           Control.Monad     (unless, when)
 
 import           State.GenState    (GenState, throwError)
-import qualified State.GlobalState as GlobalState (declaredFuncType, globalType)
+import qualified State.GlobalState as GlobalState (declaredFuncType, getType)
 import qualified State.SymTab      as SymTab
 import           Types.AST         (ArrayNode (..), Tree (..))
 import           Types.Error       (CompilerError (TypeError), TypeError (..))
@@ -127,7 +127,7 @@ getVarType node name = do
         case currScope of
              Local  -> checkAllVariableTypes node name
              Global -> do
-                     typG <- GlobalState.globalType name
+                     typG <- GlobalState.getType name
                      extractType node typG
 
 
@@ -135,7 +135,7 @@ checkAllVariableTypes :: Tree -> String -> GenState Type
 checkAllVariableTypes node name = do
         typL <- SymTab.variableType name
         typP <- SymTab.parameterType name
-        typG <- GlobalState.globalType name
+        typG <- GlobalState.getType name
         typ  <- varType typL typP typG
         extractType node typ
 

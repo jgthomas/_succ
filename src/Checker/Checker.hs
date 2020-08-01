@@ -243,7 +243,7 @@ checkParams name params = do
 checkDeclareGlobal :: Tree -> GenState ()
 checkDeclareGlobal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
         ScopeCheck.validateGlobalDeclaration node
-        currLabel <- GlobalState.globalLabel name
+        currLabel <- GlobalState.getLabel name
         case currLabel of
              Just _  -> do
                      checkAssignment toAssign
@@ -274,7 +274,7 @@ checkDeclareLocal node = ScopeCheck.checkIfUsedInScope node
 checkDefineGlobal :: Tree -> GenState ()
 checkDefineGlobal node@(AssignmentNode (VarNode name _) _ _ _) = do
         ScopeCheck.checkIfDefined node
-        label <- GlobalState.globalLabel name
+        label <- GlobalState.getLabel name
         GlobalState.defineGlobal name
         checkPrevDecGlob label node
 checkDefineGlobal node = ScopeCheck.checkIfDefined node

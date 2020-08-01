@@ -374,7 +374,7 @@ declareGlobal (DeclarationNode (VarNode name _) typ Nothing _) = do
         GlobalState.declareGlobal name typ globLab
         pure SkipSchema
 declareGlobal node@(DeclarationNode (VarNode name _) typ _ _) = do
-        currLabel <- GlobalState.globalLabel name
+        currLabel <- GlobalState.getLabel name
         case currLabel of
              Just _  -> processGlobalAssignment node
              Nothing -> do

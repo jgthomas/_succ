@@ -27,7 +27,7 @@ import qualified State.GlobalState as GlobalState (checkFuncDefined,
                                                    checkVarDefined,
                                                    currentSeqNumber,
                                                    decParamCount, decSeqNumber,
-                                                   globalLabel)
+                                                   getLabel)
 import qualified State.SymTab      as SymTab
 import           Types.AST         (Tree (..))
 import           Types.Error       (CompilerError (ScopeError), ScopeError (..))
@@ -82,7 +82,7 @@ checkIfDefined tree = throwError $ ScopeError (UnexpectedNode tree)
 -- | Throw error if declared function identifier is already used
 validateFuncDeclaration :: Tree -> GenState ()
 validateFuncDeclaration node@(FunctionNode _ name _ _ _) = do
-        label <- GlobalState.globalLabel name
+        label <- GlobalState.getLabel name
         unless (isNothing label) $
             throwError $ ScopeError (DoubleDefinedNode node)
 validateFuncDeclaration tree = throwError $ ScopeError (UnexpectedNode tree)

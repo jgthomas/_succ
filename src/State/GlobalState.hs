@@ -11,8 +11,8 @@ module State.GlobalState
          decParamCount,
          decSeqNumber,
          currentSeqNumber,
-         globalLabel,
-         globalType,
+         getLabel,
+         getType,
          declaredFuncType,
          checkVarDefined,
          checkFuncDefined,
@@ -44,14 +44,14 @@ decSeqNumber :: String -> GenState (Maybe Int)
 decSeqNumber name = lookUp name funcDecSeq
 
 
--- | Get the ASM label associated with a named variable
-globalLabel :: String -> GenState (Maybe String)
-globalLabel name = extract globLabel <$> lookUp name declaredVars
+-- | Get the assembly label associated with a named variable
+getLabel :: String -> GenState (Maybe String)
+getLabel name = extract globLabel <$> lookUp name declaredVars
 
 
 -- | Get the type of a named variable
-globalType :: String -> GenState (Maybe Type)
-globalType name = extract globType <$> lookUp name declaredVars
+getType :: String -> GenState (Maybe Type)
+getType name = extract globType <$> lookUp name declaredVars
 
 
 -- | Get the type of a declared function
