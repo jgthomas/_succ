@@ -31,7 +31,8 @@ converterTest = hspec $ do
                     (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0 ))
                     SkipSchema
                     Global
-                    IntVar
+                    IntVar,
+                    SkipSchema
                    ]
 
                 it "Should create a schema for a global declaration with assignment" $
@@ -76,7 +77,8 @@ converterTest = hspec $ do
                     (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0))
                     SkipSchema
                     Global
-                    IntPointer
+                    IntPointer,
+                    SkipSchema
                    ]
 
                 it "Should create a schema for a global pointer declaration with assignment" $
@@ -105,6 +107,7 @@ converterTest = hspec $ do
                     SkipSchema
                     Global
                     IntVar,
+                    SkipSchema,
                     DeclarationSchema
                     (ExpressionSchema $ VariableSchema (GlobalVar "_b2" 0))
                     (StatementSchema $ AssignmentSchema
@@ -152,6 +155,7 @@ converterTest = hspec $ do
                     SkipSchema
                     Global
                     IntVar,
+                    SkipSchema,
                     DeclarationSchema
                     (ExpressionSchema $ VariableSchema (GlobalVar "_b2" 0))
                     (StatementSchema $ AssignmentSchema
@@ -672,6 +676,7 @@ converterTest = hspec $ do
                     IntVar,
                     SkipSchema,
                     SkipSchema,
+                    SkipSchema,
                     FunctionSchema
                     "dog"
                     (StatementSchema $ CompoundStatementSchema
@@ -1092,6 +1097,7 @@ converterTest = hspec $ do
                     SkipSchema
                     Global
                     IntVar,
+                    SkipSchema,
                     FunctionSchema
                     "main"
                     (StatementSchema $ CompoundStatementSchema
@@ -1163,6 +1169,7 @@ converterTest = hspec $ do
                     SkipSchema
                     Global
                     IntVar,
+                    SkipSchema,
                     FunctionSchema
                     "main"
                     (StatementSchema $ CompoundStatementSchema
@@ -1252,6 +1259,7 @@ converterTest = hspec $ do
                     SkipSchema
                     Global
                     IntVar,
+                    SkipSchema,
                     FunctionSchema
                     "main"
                     (StatementSchema $ CompoundStatementSchema

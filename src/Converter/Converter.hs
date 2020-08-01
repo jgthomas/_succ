@@ -14,6 +14,7 @@ import           Types.AST            (ArrayNode (..), Tree (..))
 import           Types.Error          (CompilerError (FatalError),
                                        FatalError (GeneratorBug))
 import           Types.Operator
+import           Types.Type
 import           Types.Variables
 
 
@@ -31,8 +32,9 @@ convertWithState ast = do
 convertToSchema :: Tree -> GenState AssemblySchema
 
 convertToSchema (ProgramNode trees) = do
-        schemas <- mapM convertToSchema trees
-        pure (ProgramSchema schemas)
+        schemas      <- mapM convertToSchema trees
+        undefSchemas <- map buildUndefinedSchema <$> SymTab.getUndefinedVarData
+        pure (ProgramSchema $ undefSchemas ++ schemas)
 
 convertToSchema funcNode@(FunctionNode _ _ _ Nothing _) = do
         declareFunction funcNode
@@ -357,6 +359,10 @@ addReturnZero bodySchema = bodySchema ++ [StatementSchema (ReturnSchema (Literal
 -- Variables Global
 
 declareGlobal :: Tree -> GenState AssemblySchema
+declareGlobal (DeclarationNode (VarNode name _) typ Nothing _) = do
+        globLab <- SymTab.mkGlobLabel name
+        SymTab.declareGlobal name typ globLab
+        pure SkipSchema
 declareGlobal (DeclarationNode varNode@(VarNode name _) typ assignNode _) = do
         currLabel    <- SymTab.globalLabel name
         case currLabel of
@@ -379,6 +385,15 @@ defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ _) = do
         valSchema <- getExpressionSchema <$> convertToSchema valNode
         pure (StatementSchema $ AssignmentSchema varSchema valSchema currScope)
 defineGlobal tree = throwError $ FatalError (GeneratorBug tree)
+
+
+buildUndefinedSchema :: (String, Type) -> AssemblySchema
+buildUndefinedSchema (label, typ) =
+        DeclarationSchema
+        (ExpressionSchema $ VariableSchema $ GlobalVar label 0)
+        SkipSchema
+        Global
+        typ
 
 
 

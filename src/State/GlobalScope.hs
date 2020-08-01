@@ -17,6 +17,7 @@ module State.GlobalScope
          checkVarDefined,
          checkFuncDefined,
          getUndefined,
+         getUndefinedVarData,
          storeForInit,
          getAllForInit,
          defineGlobal,
@@ -116,15 +117,35 @@ defineGlobal name = do
 -- | Get list of all undefined global variables
 getUndefined :: GenState [String]
 getUndefined = do
-        gscope <- getGlobalScope
-        let definedSet   = definedVars gscope
-            declaredSet  = M.keysSet $ declaredVars gscope
-            undefinedSet = S.difference declaredSet definedSet
+        gscope       <- getGlobalScope
+        undefinedSet <- getUndefinedVarNames
         pure $ map globLabel
             . M.elems
             . M.filterWithKey (\k _ -> k `elem` undefinedSet)
             . declaredVars
             $ gscope
+
+
+getUndefinedVarData :: GenState [(String, Type)]
+getUndefinedVarData = do
+        undefinedSet <- getUndefinedVarNames
+        map getGlobalData
+         . M.elems
+         . M.filterWithKey (\k _ -> k `elem` undefinedSet)
+         . declaredVars
+         <$> getGlobalScope
+
+
+getGlobalData :: GlobalVar -> (String, Type)
+getGlobalData (GloVar label typ) = (label, typ)
+
+
+getUndefinedVarNames :: GenState (S.Set String)
+getUndefinedVarNames = do
+        gscope <- getGlobalScope
+        let definedSet  = definedVars gscope
+            declaredSet = M.keysSet $ declaredVars gscope
+        pure $ S.difference declaredSet definedSet
 
 
 -- | Store ASM code to initialise a global variable
