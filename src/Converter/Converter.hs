@@ -17,7 +17,7 @@ import qualified State.SymTab         as SymTab
 import           Types.AssemblySchema
 import           Types.AST            (ArrayNode (..), Tree (..))
 import           Types.Error          (CompilerError (FatalError),
-                                       FatalError (GeneratorBug))
+                                       FatalError (ConverterBug))
 import           Types.Operator
 import           Types.Type
 import           Types.Variables
@@ -213,13 +213,13 @@ convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ LiteralSchema n)
 convertToSchema node@(VarNode name _) = do
         varType <- SymTab.getVariable name
         case varType of
-             NotFound    -> throwError $ FatalError (GeneratorBug node)
+             NotFound    -> throwError $ FatalError (ConverterBug node)
              VarType typ -> pure (ExpressionSchema $ VariableSchema typ)
 
 convertToSchema node@(DereferenceNode name _) = do
         varType <- SymTab.getVariable name
         case varType of
-             NotFound    -> throwError $ FatalError (GeneratorBug node)
+             NotFound    -> throwError $ FatalError (ConverterBug node)
              VarType var -> pure (ExpressionSchema
                                   (DereferenceSchema
                                    (VariableSchema var)
@@ -229,7 +229,7 @@ convertToSchema node@(DereferenceNode name _) = do
 convertToSchema node@(AddressOfNode name _) = do
         varType <- SymTab.getVariable name
         case varType of
-             NotFound    -> throwError $ FatalError (GeneratorBug node)
+             NotFound    -> throwError $ FatalError (ConverterBug node)
              VarType var -> pure (ExpressionSchema
                                   (AddressOfSchema
                                    (VariableSchema var)
@@ -240,7 +240,7 @@ convertToSchema NullExprNode{} = pure SkipSchema
 
 convertToSchema (ArrayNode arrayNode) = convertToSchemaArray arrayNode
 
-convertToSchema node = throwError $ FatalError (GeneratorBug node)
+convertToSchema node = throwError $ FatalError (ConverterBug node)
 
 
 convertToSchemaArray :: ArrayNode -> GenState AssemblySchema
@@ -262,7 +262,7 @@ convertToSchemaArray (ArrayItemAccess pos varNode _) = getArrayIndexItem pos var
 convertToSchemaArray node@(ArrayAssignPosNode (ArrayNode (ArrayItemAssign pos varNode itemDat)) valNode op dat) =
         case op of
              Assignment     -> processArrayItem varNode (valNode, pos)
-             UnaryOp _      -> throwError $ FatalError (GeneratorBug $ ArrayNode node)
+             UnaryOp _      -> throwError $ FatalError (ConverterBug $ ArrayNode node)
              BinaryOp binOp -> convertToSchema $ AssignmentNode
                                                  varNode
                                                  (BinaryNode varNode valNode binOp itemDat)
@@ -271,7 +271,7 @@ convertToSchemaArray node@(ArrayAssignPosNode (ArrayNode (ArrayItemAssign pos va
 
 convertToSchemaArray (ArrayItemAssign pos varNode _) = getArrayIndexItem pos varNode
 
-convertToSchemaArray node = throwError $ FatalError (GeneratorBug $ ArrayNode node)
+convertToSchemaArray node = throwError $ FatalError (ConverterBug $ ArrayNode node)
 
 
 -- Array
@@ -280,7 +280,7 @@ getArrayIndexItem :: Int -> Tree -> GenState AssemblySchema
 getArrayIndexItem pos varNode@VarNode{} = do
         varSchema <- setSchemaOffset pos . getExpressionSchema <$> convertToSchema varNode
         pure (ExpressionSchema varSchema)
-getArrayIndexItem _ node = throwError $ FatalError (GeneratorBug node)
+getArrayIndexItem _ node = throwError $ FatalError (ConverterBug node)
 
 
 processArrayItems :: Tree -> [Tree] -> GenState AssemblySchema
@@ -324,14 +324,14 @@ declareFunction node@(FunctionNode _ funcName _ _ _) = do
         case prevParamCount of
              Nothing -> declareNewFunction node
              Just _  -> declareRepeatFunction node
-declareFunction tree = throwError $ FatalError (GeneratorBug tree)
+declareFunction tree = throwError $ FatalError (ConverterBug tree)
 
 
 declareNewFunction :: Tree -> GenState ()
 declareNewFunction (FunctionNode typ funcName paramList _ _) = do
         SymTab.declareFunction typ funcName (length paramList)
         processParameters funcName paramList
-declareNewFunction tree = throwError $ FatalError (GeneratorBug tree)
+declareNewFunction tree = throwError $ FatalError (ConverterBug tree)
 
 
 declareRepeatFunction :: Tree -> GenState ()
@@ -341,7 +341,7 @@ declareRepeatFunction (FunctionNode typ funcName paramList _ _) = do
         unless defined $
            do SymTab.delFuncState funcName
               processParameters funcName paramList
-declareRepeatFunction tree = throwError $ FatalError (GeneratorBug tree)
+declareRepeatFunction tree = throwError $ FatalError (ConverterBug tree)
 
 
 processParameters :: String -> [Tree] -> GenState ()
@@ -380,7 +380,7 @@ declareGlobal node@(DeclarationNode (VarNode name _) typ _ _) = do
                      globLab <- SymTab.mkGlobLabel name
                      SymTab.declareGlobal name typ globLab
                      processGlobalAssignment node
-declareGlobal tree = throwError $ FatalError (GeneratorBug tree)
+declareGlobal tree = throwError $ FatalError (ConverterBug tree)
 
 
 processGlobalAssignment :: Tree -> GenState AssemblySchema
@@ -389,7 +389,7 @@ processGlobalAssignment (DeclarationNode varNode typ (Just assignNode) _) = do
         varSchema    <- convertToSchema varNode
         assignSchema <- convertToSchema assignNode
         pure (DeclarationSchema varSchema assignSchema currScope typ)
-processGlobalAssignment tree = throwError $ FatalError (GeneratorBug tree)
+processGlobalAssignment tree = throwError $ FatalError (ConverterBug tree)
 
 
 defineGlobal :: Tree -> GenState AssemblySchema
@@ -399,7 +399,7 @@ defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ _) = do
         varSchema <- getExpressionSchema <$> convertToSchema varNode
         valSchema <- getExpressionSchema <$> convertToSchema valNode
         pure (StatementSchema $ AssignmentSchema varSchema valSchema currScope)
-defineGlobal tree = throwError $ FatalError (GeneratorBug tree)
+defineGlobal tree = throwError $ FatalError (ConverterBug tree)
 
 
 buildUndefinedSchema :: (String, Type) -> AssemblySchema
@@ -420,7 +420,7 @@ declareLocal (DeclarationNode varNode@(VarNode name _) typ value _) = do
         varSchema <- convertToSchema varNode
         valSchema <- processPossibleNode value
         pure (DeclarationSchema varSchema valSchema currScope typ)
-declareLocal tree = throwError $ FatalError (GeneratorBug tree)
+declareLocal tree = throwError $ FatalError (ConverterBug tree)
 
 
 defineLocal :: Tree -> GenState AssemblySchema
@@ -429,7 +429,7 @@ defineLocal (AssignmentNode varNode value _ _) = do
         varSchema <- getExpressionSchema <$> convertToSchema varNode
         valSchema <- getExpressionSchema <$> convertToSchema value
         pure (StatementSchema $ AssignmentSchema varSchema valSchema currScope)
-defineLocal tree = throwError $ FatalError (GeneratorBug tree)
+defineLocal tree = throwError $ FatalError (ConverterBug tree)
 
 
 
@@ -444,7 +444,7 @@ buildAssignmentSchema (AssignmentNode varNode valNode (BinaryOp binOp) dat ) =
                           (BinaryNode varNode valNode binOp dat)
                           Assignment
                           dat
-buildAssignmentSchema node = throwError $ FatalError (GeneratorBug node)
+buildAssignmentSchema node = throwError $ FatalError (ConverterBug node)
 
 
 buildBasicAssignment :: Tree -> GenState AssemblySchema
