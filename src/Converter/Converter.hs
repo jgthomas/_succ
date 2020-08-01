@@ -1,4 +1,9 @@
+{-|
+Module       : Converter
+Description  : Convert syntax tree to assembly schema
 
+Converts an abstract syntax tree into an assembly schema
+-}
 module Converter.Converter (convert) where
 
 
@@ -18,6 +23,7 @@ import           Types.Type
 import           Types.Variables
 
 
+-- | Builds an assembly schema
 convert :: Tree -> Either CompilerError (AssemblySchema, SymTab)
 convert ast = runGenState convertWithState ast GenState.startState
 
