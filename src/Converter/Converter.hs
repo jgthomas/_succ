@@ -45,6 +45,7 @@ convertToSchema (ProgramNode trees) = do
 convertToSchema funcNode@(FunctionNode _ _ _ Nothing _) = do
         declareFunction funcNode
         pure SkipSchema
+
 convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
         declareFunction funcNode
         SymTab.initFunction name
@@ -56,8 +57,6 @@ convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
 convertToSchema (ParamNode typ (VarNode name _) _) = do
         SymTab.addParameter name typ
         pure SkipSchema
-convertToSchema node@ParamNode{} =
-        throwError $ FatalError (GeneratorBug node)
 
 convertToSchema (FuncCallNode name argList _) = do
         schemas <- mapM convertToSchema argList
@@ -241,6 +240,8 @@ convertToSchema NullExprNode{} = pure SkipSchema
 
 convertToSchema (ArrayNode arrayNode) = convertToSchemaArray arrayNode
 
+convertToSchema node = throwError $ FatalError (GeneratorBug node)
+
 
 convertToSchemaArray :: ArrayNode -> GenState AssemblySchema
 
@@ -248,6 +249,7 @@ convertToSchemaArray (ArrayDeclareNode len var typ Nothing dat) = do
         declareSchema <- convertToSchema (DeclarationNode var typ Nothing dat)
         SymTab.incrementOffsetByN (len - 1)
         pure declareSchema
+
 convertToSchemaArray  (ArrayDeclareNode _ var typ assign dat) =
         convertToSchema (DeclarationNode var typ assign dat)
 
@@ -266,9 +268,10 @@ convertToSchemaArray node@(ArrayAssignPosNode (ArrayNode (ArrayItemAssign pos va
                                                  (BinaryNode varNode valNode binOp itemDat)
                                                  Assignment
                                                  dat
-convertToSchemaArray node@ArrayAssignPosNode{} = throwError $ FatalError (GeneratorBug $ ArrayNode node)
 
 convertToSchemaArray (ArrayItemAssign pos varNode _) = getArrayIndexItem pos varNode
+
+convertToSchemaArray node = throwError $ FatalError (GeneratorBug $ ArrayNode node)
 
 
 -- Array
