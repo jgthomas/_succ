@@ -23,7 +23,11 @@ import           Control.Monad     (unless, when)
 import           Data.Maybe        (isNothing)
 
 import           State.GenState    (GenState, throwError)
-import qualified State.GlobalState as GlobalState
+import qualified State.GlobalState as GlobalState (checkFuncDefined,
+                                                   checkVarDefined,
+                                                   currentSeqNumber,
+                                                   decParamCount, decSeqNumber,
+                                                   globalLabel)
 import qualified State.SymTab      as SymTab
 import           Types.AST         (Tree (..))
 import           Types.Error       (CompilerError (ScopeError), ScopeError (..))
