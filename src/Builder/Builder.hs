@@ -109,8 +109,9 @@ buildStatementASM (ContinueSchema (LocalLabel n)) = pure $ BuildStatement.contin
 buildStatementASM (AssignmentSchema
                    (VariableSchema globalVar@GlobalVar{})
                    (LiteralSchema n)
-                   Global) =
-                           pure $ BuildVariables.declareGlobal globalVar n
+                   Global
+                  ) = pure $ BuildVariables.declareGlobal globalVar n
+
 buildStatementASM (AssignmentSchema
                    (VariableSchema varType)
                    derefSchema@DereferenceSchema{}
@@ -118,6 +119,7 @@ buildStatementASM (AssignmentSchema
                   ) = do
                           valueAsm <- buildExpressionASM derefSchema
                           pure $ valueAsm ++ BuildVariables.derefStore varType
+
 buildStatementASM (AssignmentSchema
                    (VariableSchema varType)
                    valSchema
@@ -138,20 +140,22 @@ buildStatementASM (WhileSchema
                    expressionSchema
                    statementSchema
                    (LocalLabel n)
-                   (LocalLabel m)) = do
-                           expressionAsm <- buildExpressionASM expressionSchema
-                           statementAsm  <- buildStatementASM statementSchema
-                           pure $ BuildStatement.while expressionAsm statementAsm n m
+                   (LocalLabel m)
+                  ) = do
+                          expressionAsm <- buildExpressionASM expressionSchema
+                          statementAsm  <- buildStatementASM statementSchema
+                          pure $ BuildStatement.while expressionAsm statementAsm n m
 
 buildStatementASM (DoWhileSchema
                    statementsSchema
                    expressionSchema
                    (LocalLabel n)
                    (LocalLabel m)
-                   (LocalLabel p)) = do
-                           statementAsm  <- buildStatementASM statementsSchema
-                           expressionAsm <- buildExpressionASM expressionSchema
-                           pure $ BuildStatement.doWhile statementAsm expressionAsm n m p
+                   (LocalLabel p)
+                  ) = do
+                          statementAsm  <- buildStatementASM statementsSchema
+                          expressionAsm <- buildExpressionASM expressionSchema
+                          pure $ BuildStatement.doWhile statementAsm expressionAsm n m p
 
 buildStatementASM (ForSchema
                    initSchema
@@ -160,23 +164,25 @@ buildStatementASM (ForSchema
                    bodySchema
                    (LocalLabel n)
                    (LocalLabel m)
-                   (LocalLabel p)) = do
-                           initAsm <- buildASM initSchema
-                           testAsm <- buildExpressionASM testSchema
-                           iterAsm <- buildExpressionASM iterSchema
-                           bodyAsm <- buildStatementASM bodySchema
-                           pure $ BuildStatement.forLoop initAsm testAsm iterAsm bodyAsm n m p
+                   (LocalLabel p)
+                  ) = do
+                          initAsm <- buildASM initSchema
+                          testAsm <- buildExpressionASM testSchema
+                          iterAsm <- buildExpressionASM iterSchema
+                          bodyAsm <- buildStatementASM bodySchema
+                          pure $ BuildStatement.forLoop initAsm testAsm iterAsm bodyAsm n m p
 
 buildStatementASM (IfSchema
                    testSchema
                    bodySchema
                    elseSchema
                    (LocalLabel n)
-                   (LocalLabel m)) = do
-                           testAsm <- buildExpressionASM testSchema
-                           bodyAsm <- buildStatementASM bodySchema
-                           elseAsm <- buildASM elseSchema
-                           pure $ BuildStatement.ifStatement testAsm bodyAsm elseAsm n m
+                   (LocalLabel m)
+                  ) = do
+                          testAsm <- buildExpressionASM testSchema
+                          bodyAsm <- buildStatementASM bodySchema
+                          elseAsm <- buildASM elseSchema
+                          pure $ BuildStatement.ifStatement testAsm bodyAsm elseAsm n m
 
 buildStatementASM NullStatementSchema{} = pure ""
 
@@ -191,6 +197,7 @@ buildExpressionASM (LiteralSchema n) = pure $ loadLiteral n
 buildExpressionASM (UnarySchema varSchema@(VariableSchema varType) operator) = do
         expressionAsm <- buildExpressionASM varSchema
         pure $ expressionAsm ++ BuildUnary.unary operator varType
+
 buildExpressionASM (UnarySchema expressionSchema operator) = do
         expressionAsm <- buildExpressionASM expressionSchema
         pure $ expressionAsm ++ BuildUnary.unary operator (LocalVar 0 0 0)
@@ -200,18 +207,21 @@ buildExpressionASM (BinarySchema
                     (LiteralSchema n)
                     op@ShiftOp{}
                     locLabel1
-                    locLabel2) = do
-                            expr1Asm <- buildExpressionASM exprSchema1
-                            pure $ BuildBinary.binary expr1Asm (show n) op locLabel1 locLabel2
+                    locLabel2
+                   ) = do
+                           expr1Asm <- buildExpressionASM exprSchema1
+                           pure $ BuildBinary.binary expr1Asm (show n) op locLabel1 locLabel2
+
 buildExpressionASM (BinarySchema
                     exprSchema1
                     exprSchema2
                     op
                     locLabel1
-                    locLabel2) = do
-                            expr1Asm <- buildExpressionASM exprSchema1
-                            expr2Asm <- buildExpressionASM exprSchema2
-                            pure $ BuildBinary.binary expr1Asm expr2Asm op locLabel1 locLabel2
+                    locLabel2
+                   ) = do
+                           expr1Asm <- buildExpressionASM exprSchema1
+                           expr2Asm <- buildExpressionASM exprSchema2
+                           pure $ BuildBinary.binary expr1Asm expr2Asm op locLabel1 locLabel2
 
 buildExpressionASM (TernarySchema expr1 expr2 expr3 locLabel1 locLabel2) = do
         expr1Asm <- buildExpressionASM expr1
