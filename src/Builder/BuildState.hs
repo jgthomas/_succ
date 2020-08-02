@@ -10,17 +10,18 @@ module Builder.BuildState
 
 
 import           Types.Error     (CompilerError)
+import           Types.Optimise  (Optimise (..))
 import           Types.SuccState (SuccStateM, getState, putState, throwError)
 import qualified Types.SuccState as SuccState (runSuccState)
 
 
 -- | State definition
-type BuildState = SuccStateM String
+type BuildState = SuccStateM Optimise
 
 
 -- | Initial state
-startState :: String
-startState = ""
+startState ::  Optimise
+startState = OptimiseOn
 
 
 -- | Run the state extracting the error or result

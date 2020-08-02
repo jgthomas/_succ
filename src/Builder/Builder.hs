@@ -13,7 +13,7 @@ import Builder.BuildBinary    as BuildBinary (binary)
 import Builder.BuildFunction  as BuildFunction (funcEpilogue, funcPrologue,
                                                 functionCall)
 import Builder.BuildState     (BuildState, runBuildState)
-import Builder.BuildState     as BuildState (startState, throwError)
+import Builder.BuildState     as BuildState (getState, startState, throwError)
 import Builder.BuildStatement as BuildStatement (breakStatement,
                                                  continueStatement, doWhile,
                                                  emptyStatement, forLoop,
@@ -30,6 +30,7 @@ import Types.AssemblySchema
 import Types.Error            (CompilerError (FatalError),
                                FatalError (BuilderBug))
 import Types.Operator         (BinaryOp (..))
+import Types.Optimise         (Optimise (..))
 import Types.Type             (Type (..))
 import Types.Variables        (Scope (..), VarType (..))
 
@@ -195,7 +196,11 @@ buildStatementASM schema = throwError $ FatalError (BuilderBug $ StatementSchema
 
 
 processExpression :: ExpressionSchema -> BuildState String
-processExpression schema = buildExpressionASM . Optimiser.optimiseExpression $ schema
+processExpression schema = do
+        optimiseState <- BuildState.getState
+        case optimiseState of
+             OptimiseOn  -> buildExpressionASM . Optimiser.optimiseExpression $ schema
+             OptimiseOff -> buildExpressionASM schema
 
 
 buildExpressionASM :: ExpressionSchema -> BuildState String
