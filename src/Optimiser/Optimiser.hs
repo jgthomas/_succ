@@ -12,6 +12,8 @@ optimiseExpression :: ExpressionSchema -> ExpressionSchema
 
 optimiseExpression schema@LiteralSchema{} = schema
 
+optimiseExpression schema@UnarySchema{} = schema
+
 optimiseExpression schema@(BinarySchema _ _ op _ _) =
         if op `elem` supported
            then optimiseBinarySchema schema

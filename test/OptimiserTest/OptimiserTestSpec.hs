@@ -12,6 +12,11 @@ optimiserTest :: IO ()
 optimiserTest = hspec $ do
         describe "Optimise expressions to reduce code size" $ do
 
+                it "Should return a literal schema unchanged" $
+                  optimiseExpression (LiteralSchema 200)
+                  `shouldBe`
+                  (LiteralSchema 200)
+
                 it "Should optimise a binary plus schema to a literal" $
                   optimiseExpression (buildBinarySchema Plus 20 2)
                   `shouldBe`
