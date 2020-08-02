@@ -17,6 +17,11 @@ optimiserTest = hspec $ do
                   `shouldBe`
                   (LiteralSchema 200)
 
+                it "Should return a unary schema unchanged" $
+                  optimiseExpression (UnarySchema (LiteralSchema 100) (Unary Negate))
+                  `shouldBe`
+                  (UnarySchema (LiteralSchema 100) (Unary Negate))
+
                 it "Should optimise a binary plus schema to a literal" $
                   optimiseExpression (buildBinarySchema Plus 20 2)
                   `shouldBe`
