@@ -23,7 +23,9 @@ optimiseBinarySchema (BinarySchema (LiteralSchema n) (LiteralSchema m) op _ _) =
 optimiseBinarySchema schema = schema
 
 
-binaryFunction :: Num a => BinaryOp -> (a -> a -> a)
-binaryFunction Plus  = (+)
-binaryFunction Minus = (-)
-binaryFunction _     = undefined
+binaryFunction :: Integral a => BinaryOp -> (a -> a -> a)
+binaryFunction Plus     = (+)
+binaryFunction Minus    = (-)
+binaryFunction Multiply = (*)
+binaryFunction Divide   = quot
+binaryFunction _        = undefined
