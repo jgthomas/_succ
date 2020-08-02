@@ -17,8 +17,10 @@ optimiseExpression schema                 = schema
 
 optimiseBinarySchema :: ExpressionSchema -> ExpressionSchema
 
-optimiseBinarySchema (BinarySchema (LiteralSchema n) (LiteralSchema m) op _ _) =
-        LiteralSchema $ (binaryFunction op) n m
+optimiseBinarySchema schema@(BinarySchema (LiteralSchema n) (LiteralSchema m) op _ _) =
+        if op `elem` supported
+           then LiteralSchema $ binaryFunction op n m
+           else schema
 
 optimiseBinarySchema schema = schema
 
@@ -29,3 +31,12 @@ binaryFunction Minus    = (-)
 binaryFunction Multiply = (*)
 binaryFunction Divide   = quot
 binaryFunction _        = undefined
+
+
+supported :: [BinaryOp]
+supported = [
+        Plus,
+        Minus,
+        Multiply,
+        Divide
+       ]

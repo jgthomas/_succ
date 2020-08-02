@@ -25,6 +25,7 @@ import Builder.BuildVariables as BuildVariables (addressOf, declareGlobal,
                                                  loadLiteral, loadVariable,
                                                  outputInit, postDeclareAction,
                                                  storeVariable)
+import Optimiser.Optimiser    as Optimiser (optimiseExpression)
 import Types.AssemblySchema
 import Types.Error            (CompilerError (FatalError),
                                FatalError (BuilderBug))
@@ -85,12 +86,12 @@ buildASM (DeclarationSchema
           Local
           IntArray
          ) = do
-                 assignAsm <- buildExpressionASM arrayItems
+                 assignAsm <- processExpression arrayItems
                  pure $ assignAsm ++ BuildVariables.postDeclareAction (LocalVar 0 0 finalPos)
 
 buildASM (StatementSchema statement) = buildStatementASM statement
 
-buildASM (ExpressionSchema expression) = buildExpressionASM expression
+buildASM (ExpressionSchema expression) = processExpression expression
 
 buildASM SkipSchema = pure BuildStatement.emptyStatement
 
@@ -101,7 +102,7 @@ buildASM schema = throwError $ FatalError (BuilderBug schema)
 buildStatementASM :: StatementSchema -> BuildState String
 
 buildStatementASM (ReturnSchema expression) = do
-        returnAsm <- buildExpressionASM expression
+        returnAsm <- processExpression expression
         pure $ returnAsm ++ BuildFunction.funcEpilogue
 
 buildStatementASM (CompoundStatementSchema items) = concatMapM buildASM items
@@ -121,7 +122,7 @@ buildStatementASM (AssignmentSchema
                    derefSchema@DereferenceSchema{}
                    _
                   ) = do
-                          valueAsm <- buildExpressionASM derefSchema
+                          valueAsm <- processExpression derefSchema
                           pure $ valueAsm ++ BuildVariables.derefStore varType
 
 buildStatementASM (AssignmentSchema
@@ -129,7 +130,7 @@ buildStatementASM (AssignmentSchema
                    valSchema
                    _
                   ) = do
-                          valueAsm <- buildExpressionASM valSchema
+                          valueAsm <- processExpression valSchema
                           pure $ valueAsm ++ BuildVariables.storeVariable varType
 
 buildStatementASM (AssignmentSchema
@@ -137,7 +138,7 @@ buildStatementASM (AssignmentSchema
                    valSchema
                    _
                   ) = do
-                          valueAsm <- buildExpressionASM valSchema
+                          valueAsm <- processExpression valSchema
                           pure $ valueAsm ++ BuildVariables.derefStore varType
 
 buildStatementASM (WhileSchema
@@ -146,7 +147,7 @@ buildStatementASM (WhileSchema
                    (LocalLabel n)
                    (LocalLabel m)
                   ) = do
-                          expressionAsm <- buildExpressionASM expressionSchema
+                          expressionAsm <- processExpression expressionSchema
                           statementAsm  <- buildStatementASM statementSchema
                           pure $ BuildStatement.while expressionAsm statementAsm n m
 
@@ -158,7 +159,7 @@ buildStatementASM (DoWhileSchema
                    (LocalLabel p)
                   ) = do
                           statementAsm  <- buildStatementASM statementsSchema
-                          expressionAsm <- buildExpressionASM expressionSchema
+                          expressionAsm <- processExpression expressionSchema
                           pure $ BuildStatement.doWhile statementAsm expressionAsm n m p
 
 buildStatementASM (ForSchema
@@ -171,8 +172,8 @@ buildStatementASM (ForSchema
                    (LocalLabel p)
                   ) = do
                           initAsm <- buildASM initSchema
-                          testAsm <- buildExpressionASM testSchema
-                          iterAsm <- buildExpressionASM iterSchema
+                          testAsm <- processExpression testSchema
+                          iterAsm <- processExpression iterSchema
                           bodyAsm <- buildStatementASM bodySchema
                           pure $ BuildStatement.forLoop initAsm testAsm iterAsm bodyAsm n m p
 
@@ -183,7 +184,7 @@ buildStatementASM (IfSchema
                    (LocalLabel n)
                    (LocalLabel m)
                   ) = do
-                          testAsm <- buildExpressionASM testSchema
+                          testAsm <- processExpression testSchema
                           bodyAsm <- buildStatementASM bodySchema
                           elseAsm <- buildASM elseSchema
                           pure $ BuildStatement.ifStatement testAsm bodyAsm elseAsm n m
@@ -193,17 +194,20 @@ buildStatementASM NullStatementSchema{} = pure BuildStatement.emptyStatement
 buildStatementASM schema = throwError $ FatalError (BuilderBug $ StatementSchema schema)
 
 
+processExpression :: ExpressionSchema -> BuildState String
+processExpression schema = buildExpressionASM . Optimiser.optimiseExpression $ schema
+
 
 buildExpressionASM :: ExpressionSchema -> BuildState String
 
 buildExpressionASM (LiteralSchema n) = pure $ loadLiteral n
 
 buildExpressionASM (UnarySchema varSchema@(VariableSchema varType) operator) = do
-        expressionAsm <- buildExpressionASM varSchema
+        expressionAsm <- processExpression varSchema
         pure $ expressionAsm ++ BuildUnary.unary operator varType
 
 buildExpressionASM (UnarySchema expressionSchema operator) = do
-        expressionAsm <- buildExpressionASM expressionSchema
+        expressionAsm <- processExpression expressionSchema
         pure $ expressionAsm ++ BuildUnary.unary operator (LocalVar 0 0 0)
 
 buildExpressionASM (BinarySchema
@@ -213,7 +217,7 @@ buildExpressionASM (BinarySchema
                     (LocalLabel m)
                     (LocalLabel p)
                    ) = do
-                           expr1Asm <- buildExpressionASM exprSchema1
+                           expr1Asm <- processExpression exprSchema1
                            pure $ BuildBinary.binary expr1Asm (show n) op m p
 
 buildExpressionASM (BinarySchema
@@ -223,8 +227,8 @@ buildExpressionASM (BinarySchema
                     (LocalLabel n)
                     (LocalLabel m)
                    ) = do
-                           expr1Asm <- buildExpressionASM exprSchema1
-                           expr2Asm <- buildExpressionASM exprSchema2
+                           expr1Asm <- processExpression exprSchema1
+                           expr2Asm <- processExpression exprSchema2
                            pure $ BuildBinary.binary expr1Asm expr2Asm op n m
 
 buildExpressionASM (TernarySchema
@@ -234,13 +238,13 @@ buildExpressionASM (TernarySchema
                     (LocalLabel n)
                     (LocalLabel m)
                    ) = do
-                           expr1Asm <- buildExpressionASM expr1
-                           expr2Asm <- buildExpressionASM expr2
-                           expr3Asm <- buildExpressionASM expr3
+                           expr1Asm <- processExpression expr1
+                           expr2Asm <- processExpression expr2
+                           expr3Asm <- processExpression expr3
                            pure $ BuildTernary.ternary expr1Asm expr2Asm expr3Asm n m
 
 buildExpressionASM (FunctionCallSchema name arguments) = do
-        argAsmList <- mapM buildExpressionASM arguments
+        argAsmList <- mapM processExpression arguments
         pure $ BuildFunction.functionCall name (zip argAsmList [0..])
 
 buildExpressionASM (ExpressionStatementSchema statementSchema) =
