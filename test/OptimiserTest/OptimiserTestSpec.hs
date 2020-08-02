@@ -32,6 +32,22 @@ optimiserTest = hspec $ do
                   `shouldBe`
                   (LiteralSchema 10)
 
+                it "Should optimise nested binary schema" $
+                  optimiseExpression (buildNestedBinarySchema Plus Plus Plus)
+                  `shouldBe`
+                  (LiteralSchema 44)
+
+                it "Should optimise binary schema with negative number" $
+                  optimiseExpression (BinarySchema
+                                      (LiteralSchema 2)
+                                      (LiteralSchema 20)
+                                      Minus
+                                      (LocalLabel 1)
+                                      (LocalLabel 2)
+                                     )
+                  `shouldBe`
+                  (UnarySchema (LiteralSchema 18) (Unary Negate))
+
 
 buildBinarySchema :: BinaryOp -> ExpressionSchema
 buildBinarySchema binOp =
@@ -41,4 +57,15 @@ buildBinarySchema binOp =
          binOp
          (LocalLabel 1)
          (LocalLabel 2)
+        )
+
+
+buildNestedBinarySchema :: BinaryOp -> BinaryOp -> BinaryOp -> ExpressionSchema
+buildNestedBinarySchema binOp1 binOp2 binOp3 =
+        (BinarySchema
+         (buildBinarySchema binOp2)
+         (buildBinarySchema binOp3)
+         binOp1
+         (LocalLabel 5)
+         (LocalLabel 6)
         )

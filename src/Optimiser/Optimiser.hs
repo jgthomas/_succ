@@ -2,6 +2,8 @@
 module Optimiser.Optimiser (optimiseExpression) where
 
 
+import Data.Data            (toConstr)
+
 import Types.AssemblySchema
 import Types.Operator
 
@@ -10,19 +12,34 @@ optimiseExpression :: ExpressionSchema -> ExpressionSchema
 
 optimiseExpression schema@LiteralSchema{} = schema
 
-optimiseExpression schema@BinarySchema{}  = optimiseBinarySchema schema
+optimiseExpression schema@(BinarySchema _ _ op _ _) =
+        if op `elem` supported
+           then optimiseBinarySchema schema
+           else schema
 
-optimiseExpression schema                 = schema
+optimiseExpression schema = schema
 
 
 optimiseBinarySchema :: ExpressionSchema -> ExpressionSchema
 
-optimiseBinarySchema schema@(BinarySchema (LiteralSchema n) (LiteralSchema m) op _ _) =
-        if op `elem` supported
-           then LiteralSchema $ binaryFunction op n m
+optimiseBinarySchema (BinarySchema (LiteralSchema n) (LiteralSchema m) op _ _) =
+        buildLiteral $ binaryFunction op n m
+
+optimiseBinarySchema schema@(BinarySchema left right op l1 l2) =
+        let leftOptimised  = optimiseExpression left
+            rightOptimised = optimiseExpression right
+                in
+        if hasOptimised left leftOptimised || hasOptimised right rightOptimised
+           then optimiseExpression (BinarySchema leftOptimised rightOptimised op l1 l2)
            else schema
 
 optimiseBinarySchema schema = schema
+
+
+buildLiteral :: Int -> ExpressionSchema
+buildLiteral n
+        | n >= 0    = LiteralSchema n
+        | otherwise = UnarySchema (LiteralSchema $ abs n) (Unary Negate)
 
 
 binaryFunction :: Integral a => BinaryOp -> (a -> a -> a)
@@ -40,3 +57,7 @@ supported = [
         Multiply,
         Divide
        ]
+
+
+hasOptimised :: ExpressionSchema -> ExpressionSchema -> Bool
+hasOptimised schema1 schema2 = toConstr schema1 /= toConstr schema2

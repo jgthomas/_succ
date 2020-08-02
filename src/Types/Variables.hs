@@ -1,10 +1,14 @@
+{-# LANGUAGE DeriveDataTypeable #-}
 
 module Types.Variables where
 
 
+import Data.Data (Data)
+
+
 data Scope = Global
            | Local
-           deriving (Eq, Show)
+           deriving (Eq, Show, Data)
 
 
 data VarLookup = NotFound
@@ -15,4 +19,4 @@ data VarLookup = NotFound
 data VarType = LocalVar Int Int Int
              | ParamVar Int Int
              | GlobalVar String Int
-             deriving (Eq, Show)
+             deriving (Eq, Show, Data)
