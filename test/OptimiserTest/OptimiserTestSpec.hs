@@ -32,6 +32,11 @@ optimiserTest = hspec $ do
                   `shouldBe`
                   (LiteralSchema 40)
 
+                it "Should optimise a binary modulo schema to a literal" $
+                  optimiseExpression (buildBinarySchema Modulo 27 10)
+                  `shouldBe`
+                  (LiteralSchema 7)
+
                 it "Should optimise a binary divide schema to a literal" $
                   optimiseExpression (buildBinarySchema Divide 20 2)
                   `shouldBe`

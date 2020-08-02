@@ -49,6 +49,7 @@ binaryFunction Plus     = (+)
 binaryFunction Minus    = (-)
 binaryFunction Multiply = (*)
 binaryFunction Divide   = quot
+binaryFunction Modulo   = mod
 binaryFunction _        = undefined
 
 
@@ -57,7 +58,8 @@ supported = [
         Plus,
         Minus,
         Multiply,
-        Divide
+        Divide,
+        Modulo
        ]
 
 
