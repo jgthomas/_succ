@@ -7,32 +7,39 @@ Builds the output assembly code based on the assembly schema
 module Builder.Builder (build) where
 
 
-import Control.Monad.Extra    (concatMapM)
+import           Control.Monad.Extra    (concatMapM)
 
-import Builder.BuildBinary    as BuildBinary (binary)
-import Builder.BuildFunction  as BuildFunction (funcEpilogue, funcPrologue,
-                                                functionCall)
-import Builder.BuildState     (BuildState, runBuildState)
-import Builder.BuildState     as BuildState (getState, startState, throwError)
-import Builder.BuildStatement as BuildStatement (breakStatement,
-                                                 continueStatement, doWhile,
-                                                 emptyStatement, forLoop,
-                                                 ifStatement, while)
-import Builder.BuildTernary   as BuildTernary (ternary)
-import Builder.BuildUnary     as BuildUnary (unary)
-import Builder.BuildVariables as BuildVariables (addressOf, declareGlobal,
-                                                 derefLoad, derefStore,
-                                                 loadLiteral, loadVariable,
-                                                 outputInit, postDeclareAction,
-                                                 storeVariable)
-import Optimiser.Optimiser    as Optimiser (optimiseExpression)
-import Types.AssemblySchema
-import Types.Error            (CompilerError (FatalError),
-                               FatalError (BuilderBug))
-import Types.Operator         (BinaryOp (..))
-import Types.Optimise         (Optimise (..))
-import Types.Type             (Type (..))
-import Types.Variables        (Scope (..), VarType (..))
+import qualified Builder.BuildBinary    as BuildBinary (binary)
+import qualified Builder.BuildFunction  as BuildFunction (funcEpilogue,
+                                                          funcPrologue,
+                                                          functionCall)
+import           Builder.BuildState     (BuildState, runBuildState, throwError)
+import qualified Builder.BuildState     as BuildState (getState, startState)
+import qualified Builder.BuildStatement as BuildStatement (breakStatement,
+                                                           continueStatement,
+                                                           doWhile,
+                                                           emptyStatement,
+                                                           forLoop, ifStatement,
+                                                           while)
+import qualified Builder.BuildTernary   as BuildTernary (ternary)
+import qualified Builder.BuildUnary     as BuildUnary (unary)
+import qualified Builder.BuildVariables as BuildVariables (addressOf,
+                                                           declareGlobal,
+                                                           derefLoad,
+                                                           derefStore,
+                                                           loadLiteral,
+                                                           loadVariable,
+                                                           outputInit,
+                                                           postDeclareAction,
+                                                           storeVariable)
+import qualified Optimiser.Optimiser    as Optimiser (optimiseExpression)
+import           Types.AssemblySchema
+import           Types.Error            (CompilerError (FatalError),
+                                         FatalError (BuilderBug))
+import           Types.Operator         (BinaryOp (..))
+import           Types.Optimise         (Optimise (..))
+import           Types.Type             (Type (..))
+import           Types.Variables        (Scope (..), VarType (..))
 
 
 -- | Builds output assembly code
@@ -205,7 +212,7 @@ processExpression schema = do
 
 buildExpressionASM :: ExpressionSchema -> BuildState String
 
-buildExpressionASM (LiteralSchema n) = pure $ loadLiteral n
+buildExpressionASM (LiteralSchema n) = pure $ BuildVariables.loadLiteral n
 
 buildExpressionASM (UnarySchema varSchema@(VariableSchema varType) operator) = do
         expressionAsm <- processExpression varSchema
