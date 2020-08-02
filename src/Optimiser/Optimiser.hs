@@ -4,7 +4,7 @@ Description  : Optimise assembly schema
 
 Optimises expressions in an assembly schema
 -}
-module Optimiser.Optimiser (optimiseExpression) where
+module Optimiser.Optimiser (optimise) where
 
 
 import Data.Data            (toConstr)
@@ -13,7 +13,17 @@ import Types.AssemblySchema
 import Types.Operator
 
 
--- | Optimises an expression schema
+-- | Optimises an assembly schema
+optimise :: AssemblySchema -> AssemblySchema
+optimise (StatementSchema schema)  = StatementSchema (optimiseStatement schema)
+optimise (ExpressionSchema schema) = ExpressionSchema (optimiseExpression schema)
+optimise schema                    = schema
+
+
+optimiseStatement :: StatementSchema -> StatementSchema
+optimiseStatement schema = schema
+
+
 optimiseExpression :: ExpressionSchema -> ExpressionSchema
 
 optimiseExpression schema@LiteralSchema{} = schema

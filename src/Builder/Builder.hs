@@ -32,7 +32,12 @@ import qualified Builder.BuildVariables as BuildVariables (addressOf,
                                                            outputInit,
                                                            postDeclareAction,
                                                            storeVariable)
-import qualified Optimiser.Optimiser    as Optimiser (optimiseExpression)
+import qualified Builder.SchemaCheck    as SchemaCheck (getExpressionSchema,
+                                                        getFunctions,
+                                                        getInitialisedInt,
+                                                        getPointersAssignmentsForInit,
+                                                        getUninitialised)
+import qualified Optimiser.Optimiser    as Optimiser (optimise)
 import           Types.AssemblySchema
 import           Types.Error            (CompilerError (FatalError),
                                          FatalError (BuilderBug))
@@ -56,10 +61,10 @@ buildASM (ProgramSchema topLevelItems) = do
         textSection <- concatMapM buildASM functions
         pure $ initSection ++ dataSection ++ bssSection ++ textSection
         where
-                initialised    = getInitialisedInt topLevelItems
-                uninitialised  = getUninitialised topLevelItems
-                pointersToInit = getPointersAssignmentsForInit topLevelItems
-                functions      = getFunctions topLevelItems
+                initialised    = SchemaCheck.getInitialisedInt topLevelItems
+                uninitialised  = SchemaCheck.getUninitialised topLevelItems
+                pointersToInit = SchemaCheck.getPointersAssignmentsForInit topLevelItems
+                functions      = SchemaCheck.getFunctions topLevelItems
 
 buildASM (FunctionSchema name bodyBlock) = do
         body <- buildASM bodyBlock
@@ -206,8 +211,10 @@ processExpression :: ExpressionSchema -> BuildState String
 processExpression schema = do
         optimiseState <- BuildState.getState
         case optimiseState of
-             OptimiseOn  -> buildExpressionASM . Optimiser.optimiseExpression $ schema
              OptimiseOff -> buildExpressionASM schema
+             OptimiseOn  -> buildExpressionASM
+                            . SchemaCheck.getExpressionSchema
+                            . Optimiser.optimise $ ExpressionSchema schema
 
 
 buildExpressionASM :: ExpressionSchema -> BuildState String
@@ -276,62 +283,3 @@ buildExpressionASM NullExpressionSchema{} = pure BuildStatement.emptyStatement
 buildExpressionASM (ArrayItemsSchema _ items) = concatMapM buildStatementASM items
 
 buildExpressionASM schema = throwError $ FatalError (BuilderBug $ ExpressionSchema schema)
-
-
-getFunctions :: [AssemblySchema] -> [AssemblySchema]
-getFunctions items = filter isFunction items
-
-
-getInitialisedInt :: [AssemblySchema] -> [AssemblySchema]
-getInitialisedInt items = filter isInitialisedInt items
-
-
-getUninitialised :: [AssemblySchema] -> [AssemblySchema]
-getUninitialised items = map convertForInit . filter needsInit $ items
-
-
-getPointersAssignmentsForInit :: [AssemblySchema] -> [AssemblySchema]
-getPointersAssignmentsForInit items = filter isInitialisedPointer items
-
-
-isFunction :: AssemblySchema -> Bool
-isFunction FunctionSchema{} = True
-isFunction _                = False
-
-
-isInitialisedInt :: AssemblySchema -> Bool
-isInitialisedInt (DeclarationSchema
-                  _
-                  (StatementSchema (AssignmentSchema _ AddressOfSchema{} _))
-                  _
-                  _
-                 )                                    = False
-isInitialisedInt (DeclarationSchema _ SkipSchema _ _) = False
-isInitialisedInt DeclarationSchema{}                  = True
-isInitialisedInt _                                    = False
-
-
-needsInit :: AssemblySchema -> Bool
-needsInit (DeclarationSchema _ SkipSchema _ _) = True
-needsInit schema                               = isInitialisedPointer schema
-
-
-convertForInit :: AssemblySchema -> AssemblySchema
-convertForInit schema@(DeclarationSchema _ SkipSchema _ _) = schema
-convertForInit (DeclarationSchema
-                varSchema
-                (StatementSchema (AssignmentSchema _ AddressOfSchema{} _))
-                scope
-                typ
-               ) = DeclarationSchema varSchema SkipSchema scope typ
-convertForInit schema = schema
-
-
-isInitialisedPointer :: AssemblySchema -> Bool
-isInitialisedPointer (DeclarationSchema
-                      _
-                      (StatementSchema (AssignmentSchema _ AddressOfSchema{} _))
-                      _
-                      _
-                     ) = True
-isInitialisedPointer _ = False

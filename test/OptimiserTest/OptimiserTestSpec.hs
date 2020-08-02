@@ -3,7 +3,8 @@ module OptimiserTest.OptimiserTestSpec (optimiserTest) where
 
 import Test.Hspec
 
-import Optimiser.Optimiser  (optimiseExpression)
+import Builder.SchemaCheck  (getExpressionSchema)
+import Optimiser.Optimiser  (optimise)
 import Types.AssemblySchema
 import Types.Operator
 
@@ -67,6 +68,10 @@ optimiserTest = hspec $ do
                    (LocalLabel 5)
                    (LocalLabel 6)
                   )
+
+
+optimiseExpression :: ExpressionSchema -> ExpressionSchema
+optimiseExpression schema = getExpressionSchema . optimise $ ExpressionSchema schema
 
 
 buildBinarySchema :: BinaryOp -> Int -> Int -> ExpressionSchema
