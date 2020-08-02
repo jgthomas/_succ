@@ -1,4 +1,9 @@
+{-|
+Module       : Optimiser
+Description  : Optimise assembly schema
 
+Optimises expressions in an assembly schema
+-}
 module Optimiser.Optimiser (optimiseExpression) where
 
 
@@ -8,6 +13,7 @@ import Types.AssemblySchema
 import Types.Operator
 
 
+-- | Optimises an expression schema
 optimiseExpression :: ExpressionSchema -> ExpressionSchema
 
 optimiseExpression schema@LiteralSchema{} = schema
