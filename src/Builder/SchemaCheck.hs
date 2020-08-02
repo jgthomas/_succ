@@ -4,7 +4,8 @@ module Builder.SchemaCheck
          getInitialisedInt,
          getUninitialised,
          getPointersAssignmentsForInit,
-         getExpressionSchema
+         getExpressionSchema,
+         getStatementSchema
         ) where
 
 
@@ -30,6 +31,11 @@ getPointersAssignmentsForInit items = filter isInitialisedPointer items
 getExpressionSchema :: AssemblySchema -> ExpressionSchema
 getExpressionSchema (ExpressionSchema schema) = schema
 getExpressionSchema _                         = undefined
+
+
+getStatementSchema :: AssemblySchema -> StatementSchema
+getStatementSchema (StatementSchema schema) = schema
+getStatementSchema _                        = undefined
 
 
 isFunction :: AssemblySchema -> Bool

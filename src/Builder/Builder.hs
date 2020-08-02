@@ -36,6 +36,7 @@ import qualified Builder.SchemaCheck    as SchemaCheck (getExpressionSchema,
                                                         getFunctions,
                                                         getInitialisedInt,
                                                         getPointersAssignmentsForInit,
+                                                        getStatementSchema,
                                                         getUninitialised)
 import qualified Optimiser.Optimiser    as Optimiser (optimise)
 import           Types.AssemblySchema
@@ -49,16 +50,24 @@ import           Types.Variables        (Scope (..), VarType (..))
 
 -- | Builds output assembly code
 build :: AssemblySchema -> Either CompilerError String
-build schema = runBuildState buildASM schema BuildState.startState
+build schema = runBuildState processSchema schema BuildState.startState
+
+
+processSchema :: AssemblySchema -> BuildState String
+processSchema schema = do
+        optimiseState <- BuildState.getState
+        case optimiseState of
+             OptimiseOff -> buildASM schema
+             OptimiseOn  -> buildASM . Optimiser.optimise $ schema
 
 
 buildASM :: AssemblySchema -> BuildState String
 
 buildASM (ProgramSchema topLevelItems) = do
-        dataSection <- concatMapM buildASM initialised
-        bssSection  <- concatMapM buildASM uninitialised
-        initSection <- BuildVariables.outputInit <$> concatMapM buildASM pointersToInit
-        textSection <- concatMapM buildASM functions
+        dataSection <- concatMapM processSchema initialised
+        bssSection  <- concatMapM processSchema uninitialised
+        initSection <- BuildVariables.outputInit <$> concatMapM processSchema pointersToInit
+        textSection <- concatMapM processSchema functions
         pure $ initSection ++ dataSection ++ bssSection ++ textSection
         where
                 initialised    = SchemaCheck.getInitialisedInt topLevelItems
@@ -67,7 +76,7 @@ buildASM (ProgramSchema topLevelItems) = do
                 functions      = SchemaCheck.getFunctions topLevelItems
 
 buildASM (FunctionSchema name bodyBlock) = do
-        body <- buildASM bodyBlock
+        body <- processSchema bodyBlock
         pure $ BuildFunction.funcPrologue name ++ body
 
 buildASM (DeclarationSchema
@@ -90,7 +99,7 @@ buildASM (DeclarationSchema
           _
           _
          ) = do
-                 assignAsm <- buildStatementASM assignSchema
+                 assignAsm <- processStatement assignSchema
                  pure $ assignAsm ++ BuildVariables.postDeclareAction varType
 
 buildASM (DeclarationSchema
@@ -102,7 +111,7 @@ buildASM (DeclarationSchema
                  assignAsm <- processExpression arrayItems
                  pure $ assignAsm ++ BuildVariables.postDeclareAction (LocalVar 0 0 finalPos)
 
-buildASM (StatementSchema statement) = buildStatementASM statement
+buildASM (StatementSchema statement) = processStatement statement
 
 buildASM (ExpressionSchema expression) = processExpression expression
 
@@ -111,6 +120,15 @@ buildASM SkipSchema = pure BuildStatement.emptyStatement
 buildASM schema = throwError $ FatalError (BuilderBug schema)
 
 
+processStatement :: StatementSchema -> BuildState String
+processStatement schema = do
+        optimiseState <- BuildState.getState
+        case optimiseState of
+             OptimiseOff -> buildStatementASM schema
+             OptimiseOn  -> buildStatementASM
+                            . SchemaCheck.getStatementSchema
+                            . Optimiser.optimise $ StatementSchema schema
+
 
 buildStatementASM :: StatementSchema -> BuildState String
 
@@ -118,7 +136,7 @@ buildStatementASM (ReturnSchema expression) = do
         returnAsm <- processExpression expression
         pure $ returnAsm ++ BuildFunction.funcEpilogue
 
-buildStatementASM (CompoundStatementSchema items) = concatMapM buildASM items
+buildStatementASM (CompoundStatementSchema items) = concatMapM processSchema items
 
 buildStatementASM (BreakSchema (LocalLabel n)) = pure $ BuildStatement.breakStatement n
 
@@ -161,7 +179,7 @@ buildStatementASM (WhileSchema
                    (LocalLabel m)
                   ) = do
                           expressionAsm <- processExpression expressionSchema
-                          statementAsm  <- buildStatementASM statementSchema
+                          statementAsm  <- processStatement statementSchema
                           pure $ BuildStatement.while expressionAsm statementAsm n m
 
 buildStatementASM (DoWhileSchema
@@ -171,7 +189,7 @@ buildStatementASM (DoWhileSchema
                    (LocalLabel m)
                    (LocalLabel p)
                   ) = do
-                          statementAsm  <- buildStatementASM statementsSchema
+                          statementAsm  <- processStatement statementsSchema
                           expressionAsm <- processExpression expressionSchema
                           pure $ BuildStatement.doWhile statementAsm expressionAsm n m p
 
@@ -184,10 +202,10 @@ buildStatementASM (ForSchema
                    (LocalLabel m)
                    (LocalLabel p)
                   ) = do
-                          initAsm <- buildASM initSchema
+                          initAsm <- processSchema initSchema
                           testAsm <- processExpression testSchema
                           iterAsm <- processExpression iterSchema
-                          bodyAsm <- buildStatementASM bodySchema
+                          bodyAsm <- processStatement bodySchema
                           pure $ BuildStatement.forLoop initAsm testAsm iterAsm bodyAsm n m p
 
 buildStatementASM (IfSchema
@@ -198,8 +216,8 @@ buildStatementASM (IfSchema
                    (LocalLabel m)
                   ) = do
                           testAsm <- processExpression testSchema
-                          bodyAsm <- buildStatementASM bodySchema
-                          elseAsm <- buildASM elseSchema
+                          bodyAsm <- processStatement bodySchema
+                          elseAsm <- processSchema elseSchema
                           pure $ BuildStatement.ifStatement testAsm bodyAsm elseAsm n m
 
 buildStatementASM NullStatementSchema{} = pure BuildStatement.emptyStatement
@@ -267,7 +285,7 @@ buildExpressionASM (FunctionCallSchema name arguments) = do
         pure $ BuildFunction.functionCall name (zip argAsmList [0..])
 
 buildExpressionASM (ExpressionStatementSchema statementSchema) =
-        buildStatementASM statementSchema
+        processStatement statementSchema
 
 buildExpressionASM (VariableSchema varType) =
         pure $ BuildVariables.loadVariable varType
@@ -280,6 +298,6 @@ buildExpressionASM (DereferenceSchema (VariableSchema varType)) =
 
 buildExpressionASM NullExpressionSchema{} = pure BuildStatement.emptyStatement
 
-buildExpressionASM (ArrayItemsSchema _ items) = concatMapM buildStatementASM items
+buildExpressionASM (ArrayItemsSchema _ items) = concatMapM processStatement items
 
 buildExpressionASM schema = throwError $ FatalError (BuilderBug $ ExpressionSchema schema)
