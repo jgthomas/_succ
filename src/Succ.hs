@@ -14,11 +14,11 @@ import qualified Debug.Debug           as Debug (debug, debugPair)
 import qualified Lexer.Lexer           as Lexer (tokenize)
 import qualified Parser.Parser         as Parser (parse)
 import qualified PrintError.PrintError as PrintError (handleError)
-import           Types.SuccTokens      (Stage (..))
+import           Types.SuccTokens      (Debug (..), Stage (..))
 
 
 -- | Run the compilation process
-compile :: String -> Maybe String -> IO String
+compile :: String -> Debug -> IO String
 compile input debugOption = do
         input' <- debugInput . pure $ input
         toks   <- debugLexer . errorHandler . Lexer.tokenize $ input'

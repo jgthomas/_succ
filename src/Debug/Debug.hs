@@ -13,29 +13,16 @@ import Types.SuccTokens (Debug (..), Stage (..))
 
 
 -- | Print debugging output
-debug :: Show a => Maybe String -> Stage -> (IO a -> IO a)
-debug debugOption = debugSingle (setDebugLevel debugOption)
+debug :: Show a => Debug -> Stage -> (IO a -> IO a)
+debug debugOption = debugSingle debugOption
 
 
 -- | Print debugging output for pair of values
 debugPair :: (Show a, Show b) =>
-          Maybe String
+          Debug
           -> (Stage, Stage)
           -> (IO (a, b) -> IO (a, b))
-debugPair debugOption (s1, s2) = debugMultiple (setDebugLevel debugOption) (s1, s2)
-
-
-setDebugLevel :: Maybe String -> Debug
-setDebugLevel Nothing = DebugOff
-setDebugLevel (Just dbug)
-        | dbug == "debug"       = DebugOn
-        | dbug == "debugLexer"  = DebugLexer
-        | dbug == "debugParser" = DebugParser
-        | dbug == "debugSchema" = DebugSchema
-        | dbug == "debugAsm"    = DebugAsm
-        | dbug == "debugState"  = DebugState
-        | dbug == "debugCode"   = DebugCode
-        | otherwise             = DebugOff
+debugPair debugOption (s1, s2) = debugMultiple debugOption (s1, s2)
 
 
 debugSingle :: Show a => Debug -> Stage -> IO a -> IO a

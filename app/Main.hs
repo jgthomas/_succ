@@ -11,10 +11,12 @@ import System.IO              (IOMode (ReadMode), hClose, hGetContents,
 import System.Process         (system)
 
 import Succ                   (compile)
+import Types.SuccTokens       (Debug (..))
 
 
 data Succ = Succ {
         debug :: Bool
+      , stage :: String
       , file  :: FilePath
 } deriving (Show, Data, Typeable)
 
@@ -22,6 +24,7 @@ data Succ = Succ {
 options :: Succ
 options = Succ {
         debug = False &= help "Display output of each compilation stage"
+      , stage = "all" &= typ "STAGE" &= help "Compilation stage to debug"
       , file  = def &= argPos 0
 }
 
@@ -32,9 +35,7 @@ main = do
 
         let infileName   = file arguments
             outfileName  = dropExtension infileName ++ ".s"
-            debugSetting = if debug arguments
-                              then Just "debug"
-                              else Nothing
+            debugSetting = debugStatus (debug arguments) (stage arguments)
 
         cFile <- openFile infileName ReadMode
         cCode <- hGetContents cFile
@@ -51,3 +52,19 @@ main = do
         _ <- system toMachineCode
         _ <- system deleteFile
         hClose cFile
+
+
+debugStatus :: Bool -> String -> Debug
+debugStatus False _         = DebugOff
+debugStatus True debugStage = setDebugStatus debugStage
+
+
+setDebugStatus :: String -> Debug
+setDebugStatus "all"    = DebugOn
+setDebugStatus "lexer"  = DebugLexer
+setDebugStatus "parser" = DebugParser
+setDebugStatus "schema" = DebugSchema
+setDebugStatus "state"  = DebugState
+setDebugStatus "asm"    = DebugAsm
+setDebugStatus "code"   = DebugCode
+setDebugStatus _        = DebugOff

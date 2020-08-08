@@ -23,13 +23,14 @@ import PrintError.MessageSyntaxError (syntaxErrorMsg)
 import PrintError.MessageTypeError   (typeErrorMsg)
 import PrintError.PrintErrorTokens   (PrintRange (..))
 import Types.Error                   (CompilerError (..))
+import Types.SuccTokens              (Debug (..))
 
 
 data DebugStatus = Debugging | NotDebugging
 
 
 -- | Print any errors and exit compilation process
-handleError :: Maybe String -> String -> Either CompilerError a -> IO a
+handleError :: Debug -> String -> Either CompilerError a -> IO a
 handleError _ _ (Right out) = pure out
 handleError debugOption input (Left err)  = do
         printError (debuggingOn debugOption) input err
@@ -102,6 +103,6 @@ lineCount :: String -> Int
 lineCount input = length $ filter (== '\n') input
 
 
-debuggingOn :: Maybe String -> DebugStatus
-debuggingOn Nothing  = NotDebugging
-debuggingOn (Just _) = Debugging
+debuggingOn :: Debug -> DebugStatus
+debuggingOn DebugOff = NotDebugging
+debuggingOn _        = Debugging
