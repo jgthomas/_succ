@@ -17,7 +17,7 @@ options :: SuccArgs
 options = SuccArgs {
         debug    = False &= help "Display output of each compilation stage"
       , optimise = False &= help "Produce optimised assembly"
-      , stage    = "all" &= typ "STAGE" &= help "Compilation stage to debug"
+      , stage    = def &= typ "STAGE" &= help "Compilation stage to debug"
       , asmfile  = def &= typ "FILE" &= help "Outfile name"
       , file     = def &= argPos 0
 }
