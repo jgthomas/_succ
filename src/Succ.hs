@@ -12,14 +12,15 @@ import qualified Checker.Checker       as Checker (check)
 import qualified Converter.Converter   as Converter (convert)
 import qualified Debug.Debug           as Debug (debug, debugPair)
 import qualified Lexer.Lexer           as Lexer (tokenize)
+import           Options               (SuccOptions (..))
 import qualified Parser.Parser         as Parser (parse)
 import qualified PrintError.PrintError as PrintError (handleError)
-import           Types.SuccTokens      (Debug (..), Stage (..))
+import           Types.SuccTokens      (Stage (..))
 
 
 -- | Run the compilation process
-compile :: String -> Debug -> IO String
-compile input debugOption = do
+compile :: String -> SuccOptions -> IO String
+compile input options = do
         input' <- debugInput . pure $ input
         toks   <- debugLexer . errorHandler . Lexer.tokenize $ input'
         ast    <- debugParser . errorHandler . Parser.parse $ toks
@@ -27,6 +28,7 @@ compile input debugOption = do
         schema <- fmap fst . debugSchema . errorHandler . Converter.convert $ ast'
         debugAssembly . errorHandler . Builder.build $ schema
         where
+                debugOption   = debugSet options
                 debugInput    = Debug.debug debugOption Input
                 debugLexer    = Debug.debug debugOption Lexer
                 debugParser   = Debug.debug debugOption Parser

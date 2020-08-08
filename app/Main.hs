@@ -9,8 +9,8 @@ import System.IO              (IOMode (ReadMode), hClose, hGetContents,
                                openFile, writeFile)
 import System.Process         (system)
 
+import Options                (SuccArgs (..), buildOptions)
 import Succ                   (compile)
-import Types.SuccTokens       (Debug (..), SuccArgs (..))
 
 
 options :: SuccArgs
@@ -25,13 +25,13 @@ main :: IO ()
 main = do
         arguments <- cmdArgs options
 
-        let infileName   = file arguments
-            outfileName  = dropExtension infileName ++ ".s"
-            debugSetting = debugStatus (debug arguments) (stage arguments)
+        let infileName     = file arguments
+            outfileName    = dropExtension infileName ++ ".s"
+            compileOptions = buildOptions arguments
 
         cFile <- openFile infileName ReadMode
         cCode <- hGetContents cFile
-        asm   <- compile cCode debugSetting
+        asm   <- compile cCode compileOptions --debugSetting
 
         -- force evaluation before writing to file
         asm `deepseq` writeFile outfileName asm
@@ -44,19 +44,3 @@ main = do
         _ <- system toMachineCode
         _ <- system deleteFile
         hClose cFile
-
-
-debugStatus :: Bool -> String -> Debug
-debugStatus False _         = DebugOff
-debugStatus True debugStage = setDebugStatus debugStage
-
-
-setDebugStatus :: String -> Debug
-setDebugStatus "all"    = DebugOn
-setDebugStatus "lexer"  = DebugLexer
-setDebugStatus "parser" = DebugParser
-setDebugStatus "schema" = DebugSchema
-setDebugStatus "state"  = DebugState
-setDebugStatus "asm"    = DebugAsm
-setDebugStatus "code"   = DebugCode
-setDebugStatus _        = DebugOff
