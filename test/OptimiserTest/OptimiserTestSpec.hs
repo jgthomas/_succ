@@ -13,76 +13,69 @@ optimiserTest = hspec $ do
         describe "Optimise expressions to reduce code size" $ do
 
                 it "Should return a literal schema unchanged" $
-                  optimiseExpression (LiteralSchema 200)
+                  optimise (ExpressionSchema $ LiteralSchema 200)
                   `shouldBe`
-                  (LiteralSchema 200)
+                  (ExpressionSchema $ LiteralSchema 200)
 
                 it "Should return a unary schema unchanged" $
-                  optimiseExpression (UnarySchema (LiteralSchema 100) (Unary Negate))
+                  optimise (ExpressionSchema $ UnarySchema (ExpressionSchema $ LiteralSchema 100) (Unary Negate))
                   `shouldBe`
-                  (UnarySchema (LiteralSchema 100) (Unary Negate))
+                  ExpressionSchema (UnarySchema (ExpressionSchema $ LiteralSchema 100) (Unary Negate))
 
                 it "Should optimise a binary plus schema to a literal" $
-                  optimiseExpression (buildBinarySchema Plus 20 2)
+                  optimise (buildBinarySchema Plus 20 2)
                   `shouldBe`
-                  (LiteralSchema 22)
+                  (ExpressionSchema $ LiteralSchema 22)
 
                 it "Should optimise a binary minus schema to a literal" $
-                  optimiseExpression (buildBinarySchema Minus 20 2)
+                  optimise (buildBinarySchema Minus 20 2)
                   `shouldBe`
-                  (LiteralSchema 18)
+                  (ExpressionSchema $ LiteralSchema 18)
 
                 it "Should optimise a binary multiply schema to a literal" $
-                  optimiseExpression (buildBinarySchema Multiply 20 2)
+                  optimise (buildBinarySchema Multiply 20 2)
                   `shouldBe`
-                  (LiteralSchema 40)
+                  (ExpressionSchema $ LiteralSchema 40)
 
                 it "Should optimise a binary modulo schema to a literal" $
-                  optimiseExpression (buildBinarySchema Modulo 27 10)
+                  optimise (buildBinarySchema Modulo 27 10)
                   `shouldBe`
-                  (LiteralSchema 7)
+                  (ExpressionSchema $ LiteralSchema 7)
 
                 it "Should optimise a binary divide schema to a literal" $
-                  optimiseExpression (buildBinarySchema Divide 20 2)
+                  optimise (buildBinarySchema Divide 20 2)
                   `shouldBe`
-                  (LiteralSchema 10)
+                  (ExpressionSchema $ LiteralSchema 10)
 
                 it "Should optimise binary schema with negative result" $
-                  optimiseExpression (buildBinarySchema Minus 2 20)
+                  optimise (buildBinarySchema Minus 2 20)
                   `shouldBe`
-                  (UnarySchema (LiteralSchema 18) (Unary Negate))
+                  ExpressionSchema (UnarySchema (ExpressionSchema $ LiteralSchema 18) (Unary Negate))
 
                 it "Should optimise nested binary schema" $
-                  optimiseExpression (buildNestedBinarySchema Plus Plus Plus 20 2)
+                  optimise (buildNestedBinarySchema Plus Plus Plus 20 2)
                   `shouldBe`
-                  (LiteralSchema 44)
+                  (ExpressionSchema $ LiteralSchema 44)
 
                 it "Should optimise nested binary schema with negative result" $
-                  optimiseExpression (buildNestedBinarySchema Plus Minus Minus 2 20)
+                  optimise (buildNestedBinarySchema Plus Minus Minus 2 20)
                   `shouldBe`
+                  ExpressionSchema
                   (BinarySchema
-                   (UnarySchema (LiteralSchema 18) (Unary Negate))
-                   (UnarySchema (LiteralSchema 18) (Unary Negate))
+                   (ExpressionSchema (UnarySchema (ExpressionSchema $ LiteralSchema 18) (Unary Negate)))
+                   (ExpressionSchema (UnarySchema (ExpressionSchema $ LiteralSchema 18) (Unary Negate)))
                    Plus
                    (LocalLabel 5)
                    (LocalLabel 6)
                   )
 
 
-optimiseExpression :: ExpressionSchema -> ExpressionSchema
-optimiseExpression schema = getExpressionSchema . optimise $ ExpressionSchema schema
-
-
-getExpressionSchema :: AssemblySchema -> ExpressionSchema
-getExpressionSchema (ExpressionSchema schema) = schema
-getExpressionSchema _                         = undefined
-
-
-buildBinarySchema :: BinaryOp -> Int -> Int -> ExpressionSchema
+buildBinarySchema :: BinaryOp -> Int -> Int -> AssemblySchema
 buildBinarySchema binOp n m =
+        ExpressionSchema
         (BinarySchema
-         (LiteralSchema n)
-         (LiteralSchema m)
+         (ExpressionSchema $ LiteralSchema n)
+         (ExpressionSchema $ LiteralSchema m)
          binOp
          (LocalLabel 1)
          (LocalLabel 2)
@@ -94,8 +87,9 @@ buildNestedBinarySchema :: BinaryOp
                         -> BinaryOp
                         -> Int
                         -> Int
-                        -> ExpressionSchema
+                        -> AssemblySchema
 buildNestedBinarySchema binOp1 binOp2 binOp3 n m =
+        ExpressionSchema
         (BinarySchema
          (buildBinarySchema binOp2 n m)
          (buildBinarySchema binOp3 n m)

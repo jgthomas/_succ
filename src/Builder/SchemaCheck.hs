@@ -34,7 +34,7 @@ isFunction _                = False
 isInitialisedInt :: AssemblySchema -> Bool
 isInitialisedInt (DeclarationSchema
                   _
-                  (StatementSchema (AssignmentSchema _ AddressOfSchema{} _))
+                  (StatementSchema (AssignmentSchema _ (ExpressionSchema AddressOfSchema{}) _))
                   _
                   _
                  )                                    = False
@@ -52,7 +52,7 @@ convertForInit :: AssemblySchema -> AssemblySchema
 convertForInit schema@(DeclarationSchema _ SkipSchema _ _) = schema
 convertForInit (DeclarationSchema
                 varSchema
-                (StatementSchema (AssignmentSchema _ AddressOfSchema{} _))
+                (StatementSchema (AssignmentSchema _ (ExpressionSchema AddressOfSchema{}) _))
                 scope
                 typ
                ) = DeclarationSchema varSchema SkipSchema scope typ
@@ -62,7 +62,7 @@ convertForInit schema = schema
 isInitialisedPointer :: AssemblySchema -> Bool
 isInitialisedPointer (DeclarationSchema
                       _
-                      (StatementSchema (AssignmentSchema _ AddressOfSchema{} _))
+                      (StatementSchema (AssignmentSchema _ (ExpressionSchema AddressOfSchema{}) _))
                       _
                       _
                      ) = True

@@ -29,27 +29,27 @@ data AssemblySchema = ProgramSchema
 
 
 data StatementSchema = IfSchema
-                        ExpressionSchema
-                        StatementSchema
+                        AssemblySchema
+                        AssemblySchema
                         AssemblySchema
                         Label
                         Label
                      | ForSchema
                         AssemblySchema
-                        ExpressionSchema
-                        ExpressionSchema
-                        StatementSchema
+                        AssemblySchema
+                        AssemblySchema
+                        AssemblySchema
                         Label
                         Label
                         Label
                      | WhileSchema
-                        ExpressionSchema
-                        StatementSchema
+                        AssemblySchema
+                        AssemblySchema
                         Label
                         Label
                      | DoWhileSchema
-                        StatementSchema
-                        ExpressionSchema
+                        AssemblySchema
+                        AssemblySchema
                         Label
                         Label
                         Label
@@ -58,10 +58,10 @@ data StatementSchema = IfSchema
                      | BreakSchema
                         Label
                      | ReturnSchema
-                        ExpressionSchema
+                        AssemblySchema
                      | AssignmentSchema
-                        ExpressionSchema
-                        ExpressionSchema
+                        AssemblySchema
+                        AssemblySchema
                         Scope
                      | CompoundStatementSchema
                         [AssemblySchema]
@@ -74,32 +74,32 @@ data ExpressionSchema = LiteralSchema
                       | VariableSchema
                          VarType
                       | DereferenceSchema
-                         ExpressionSchema
+                         AssemblySchema
                       | AddressOfSchema
-                         ExpressionSchema
+                         AssemblySchema
                       | FunctionCallSchema
                          String
-                         [ExpressionSchema]
+                         [AssemblySchema]
                       | UnarySchema
-                         ExpressionSchema
+                         AssemblySchema
                          UnaryOp
                       | BinarySchema
-                         ExpressionSchema
-                         ExpressionSchema
+                         AssemblySchema
+                         AssemblySchema
                          BinaryOp
                          Label
                          Label
                       | TernarySchema
-                         ExpressionSchema
-                         ExpressionSchema
-                         ExpressionSchema
+                         AssemblySchema
+                         AssemblySchema
+                         AssemblySchema
                          Label
                          Label
                       | ArrayItemsSchema
                          Int
-                         [StatementSchema]
+                         [AssemblySchema]
                       | ExpressionStatementSchema
-                         StatementSchema
+                         AssemblySchema
                       | NullExpressionSchema
                       deriving (Eq, Show, Data)
 

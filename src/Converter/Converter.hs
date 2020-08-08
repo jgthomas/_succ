@@ -62,8 +62,8 @@ convertToSchema (ParamNode typ (VarNode name _) _) = do
         pure SkipSchema
 
 convertToSchema (FuncCallNode name argList _) = do
-        schemas <- mapM convertToSchema argList
-        let argSchemas = map getExpressionSchema schemas
+        argSchemas <- mapM convertToSchema argList
+        --let argSchemas = map getExpressionSchema schemas
         pure (ExpressionSchema $ FunctionCallSchema name argSchemas)
 
 convertToSchema (ArgNode arg _) = convertToSchema arg
@@ -82,9 +82,9 @@ convertToSchema (ForLoopNode ini test iter body _) = do
         FuncState.setBreak failLabel
         FuncState.setContinue contLabel
         iniSchema  <- convertToSchema ini
-        testSchema <- getExpressionSchema <$> convertToSchema test
-        iterSchema <- getExpressionSchema <$> convertToSchema iter
-        bodySchema <- getStatementSchema <$> convertToSchema body
+        testSchema <- convertToSchema test
+        iterSchema <- convertToSchema iter
+        bodySchema <- convertToSchema body
         FuncState.closeScope
         pure (StatementSchema
               (ForSchema
@@ -103,8 +103,8 @@ convertToSchema (WhileNode test body _) = do
         testLabel  <- State.labelNum
         FuncState.setContinue loopLabel
         FuncState.setBreak testLabel
-        testSchema <- getExpressionSchema <$> convertToSchema test
-        bodySchema <- getStatementSchema <$> convertToSchema body
+        testSchema <- convertToSchema test
+        bodySchema <- convertToSchema body
         pure (StatementSchema
               (WhileSchema
                testSchema
@@ -120,8 +120,8 @@ convertToSchema (DoWhileNode body test _) = do
         testLabel  <- State.labelNum
         FuncState.setContinue contLabel
         FuncState.setBreak testLabel
-        bodySchema <- getStatementSchema <$> convertToSchema body
-        testSchema <- getExpressionSchema <$> convertToSchema test
+        bodySchema <- convertToSchema body
+        testSchema <- convertToSchema test
         pure (StatementSchema
               (DoWhileSchema
                bodySchema
@@ -135,8 +135,8 @@ convertToSchema (DoWhileNode body test _) = do
 convertToSchema (IfNode test body possElse _) = do
         ifLabel    <- LocalLabel <$> State.labelNum
         elseLabel  <- LocalLabel <$> State.labelNum
-        testSchema <- getExpressionSchema <$> convertToSchema test
-        bodySchema <- getStatementSchema <$> convertToSchema body
+        testSchema <- convertToSchema test
+        bodySchema <- convertToSchema body
         elseSchema <- processPossibleNode possElse
         pure (StatementSchema
               (IfSchema
@@ -173,13 +173,13 @@ convertToSchema BreakNode{} = do
         pure (StatementSchema $ BreakSchema breakLabel)
 
 convertToSchema (ReturnNode val _) = do
-        valueSchema <- getExpressionSchema <$> convertToSchema val
+        valueSchema <- convertToSchema val
         pure (StatementSchema $ ReturnSchema valueSchema)
 
 convertToSchema (TernaryNode test true false _) = do
-        testSchema  <- getExpressionSchema <$> convertToSchema test
-        trueSchema  <- getExpressionSchema <$> convertToSchema true
-        falseSchema <- getExpressionSchema <$> convertToSchema false
+        testSchema  <- convertToSchema test
+        trueSchema  <- convertToSchema true
+        falseSchema <- convertToSchema false
         trueLabel   <- LocalLabel <$> State.labelNum
         falseLabel  <- LocalLabel <$> State.labelNum
         pure (ExpressionSchema
@@ -195,8 +195,8 @@ convertToSchema (TernaryNode test true false _) = do
 convertToSchema (BinaryNode leftNode rightNode operator _) = do
         trueLabel   <- LocalLabel <$> State.labelNum
         falseLabel  <- LocalLabel <$> State.labelNum
-        leftSchema  <- getExpressionSchema <$> convertToSchema leftNode
-        rightSchema <- getExpressionSchema <$> convertToSchema rightNode
+        leftSchema  <- convertToSchema leftNode
+        rightSchema <- convertToSchema rightNode
         pure (ExpressionSchema
               (BinarySchema
                leftSchema
@@ -208,7 +208,7 @@ convertToSchema (BinaryNode leftNode rightNode operator _) = do
              )
 
 convertToSchema (UnaryNode val unOp _) = do
-        value <- getExpressionSchema <$> convertToSchema val
+        value <- convertToSchema val
         pure (ExpressionSchema $ UnarySchema value unOp)
 
 convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ LiteralSchema n)
@@ -225,7 +225,7 @@ convertToSchema node@(DereferenceNode name _) = do
              NotFound    -> throwError $ FatalError (ConverterBug node)
              VarType var -> pure (ExpressionSchema
                                   (DereferenceSchema
-                                   (VariableSchema var)
+                                   (ExpressionSchema $ VariableSchema var)
                                   )
                                  )
 
@@ -235,7 +235,7 @@ convertToSchema node@(AddressOfNode name _) = do
              NotFound    -> throwError $ FatalError (ConverterBug node)
              VarType var -> pure (ExpressionSchema
                                   (AddressOfSchema
-                                   (VariableSchema var)
+                                   (ExpressionSchema $ VariableSchema var)
                                   )
                                  )
 
@@ -280,9 +280,7 @@ convertToSchemaArray node = throwError $ FatalError (ConverterBug $ ArrayNode no
 -- Array
 
 getArrayIndexItem :: Int -> Tree -> GenState AssemblySchema
-getArrayIndexItem pos varNode@VarNode{} = do
-        varSchema <- setSchemaOffset pos . getExpressionSchema <$> convertToSchema varNode
-        pure (ExpressionSchema varSchema)
+getArrayIndexItem pos varNode@VarNode{} = setSchemaOffset pos <$> convertToSchema varNode
 getArrayIndexItem _ node = throwError $ FatalError (ConverterBug node)
 
 
@@ -294,7 +292,7 @@ processArrayItems varNode items = do
         pure (ExpressionSchema
               (ArrayItemsSchema
                adjust
-               (map getStatementSchema arrayItemsSchema)
+               arrayItemsSchema
               )
              )
 
@@ -302,8 +300,8 @@ processArrayItems varNode items = do
 processArrayItem :: Tree -> (Tree, Int) -> GenState AssemblySchema
 processArrayItem varNode (item, pos) = do
         currScope <- State.getScope
-        varSchema <- getExpressionSchema <$> getArrayIndexItem pos varNode
-        valSchema <- getExpressionSchema <$> convertToSchema item
+        varSchema <- getArrayIndexItem pos varNode
+        valSchema <- convertToSchema item
         pure (StatementSchema
               (AssignmentSchema
                varSchema
@@ -313,9 +311,9 @@ processArrayItem varNode (item, pos) = do
              )
 
 
-setSchemaOffset :: Int -> ExpressionSchema -> ExpressionSchema
-setSchemaOffset n (VariableSchema varType) =
-        VariableSchema $ adjustVariable (Just n) Nothing varType
+setSchemaOffset :: Int -> AssemblySchema -> AssemblySchema
+setSchemaOffset n (ExpressionSchema (VariableSchema varType)) =
+        ExpressionSchema $ VariableSchema $ adjustVariable (Just n) Nothing varType
 setSchemaOffset _ _ = undefined
 
 
@@ -365,7 +363,13 @@ checkReturn _ schema = schema
 
 
 addReturnZero :: [AssemblySchema] -> [AssemblySchema]
-addReturnZero bodySchema = bodySchema ++ [StatementSchema (ReturnSchema (LiteralSchema 0))]
+addReturnZero bodySchema = bodySchema ++ [StatementSchema
+                                          (ReturnSchema
+                                           (ExpressionSchema
+                                            (LiteralSchema 0)
+                                           )
+                                          )
+                                         ]
 
 
 -- Variables Global
@@ -399,8 +403,8 @@ defineGlobal :: Tree -> GenState AssemblySchema
 defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ _) = do
         GlobalState.defineGlobal name
         currScope <- State.getScope
-        varSchema <- getExpressionSchema <$> convertToSchema varNode
-        valSchema <- getExpressionSchema <$> convertToSchema valNode
+        varSchema <- convertToSchema varNode
+        valSchema <- convertToSchema valNode
         pure (StatementSchema $ AssignmentSchema varSchema valSchema currScope)
 defineGlobal tree = throwError $ FatalError (ConverterBug tree)
 
@@ -429,8 +433,8 @@ declareLocal tree = throwError $ FatalError (ConverterBug tree)
 defineLocal :: Tree -> GenState AssemblySchema
 defineLocal (AssignmentNode varNode value _ _) = do
         currScope <- State.getScope
-        varSchema <- getExpressionSchema <$> convertToSchema varNode
-        valSchema <- getExpressionSchema <$> convertToSchema value
+        varSchema <- convertToSchema varNode
+        valSchema <- convertToSchema value
         pure (StatementSchema $ AssignmentSchema varSchema valSchema currScope)
 defineLocal tree = throwError $ FatalError (ConverterBug tree)
 
@@ -456,19 +460,6 @@ buildBasicAssignment node = do
         case currScope of
              Local  -> defineLocal node
              Global -> defineGlobal node
-
-
-getExpressionSchema :: AssemblySchema -> ExpressionSchema
-getExpressionSchema (ExpressionSchema schema) = schema
-getExpressionSchema (StatementSchema schema)  = ExpressionStatementSchema schema
-getExpressionSchema SkipSchema                = NullExpressionSchema
-getExpressionSchema _                         = undefined
-
-
-getStatementSchema :: AssemblySchema -> StatementSchema
-getStatementSchema (StatementSchema schema) = schema
-getStatementSchema SkipSchema               = NullStatementSchema
-getStatementSchema _                        = undefined
 
 
 processPossibleNode :: Maybe Tree -> GenState AssemblySchema
