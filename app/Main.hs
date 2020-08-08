@@ -33,7 +33,7 @@ main = do
         let infileName   = file arguments
             outfileName  = dropExtension infileName ++ ".s"
             debugSetting = if debug arguments
-                              then (Just "debug")
+                              then Just "debug"
                               else Nothing
 
         cFile <- openFile infileName ReadMode
