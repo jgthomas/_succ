@@ -9,17 +9,7 @@ module Debug.Debug (debug, debugPair) where
 
 
 import Debug.DebugPrint (printDebug)
-import Types.SuccTokens (Stage (..))
-
-
-data Debug = DebugOn
-           | DebugLexer
-           | DebugParser
-           | DebugState
-           | DebugSchema
-           | DebugAsm
-           | DebugCode
-           | DebugOff
+import Types.SuccTokens (Debug (..), Stage (..))
 
 
 -- | Print debugging output

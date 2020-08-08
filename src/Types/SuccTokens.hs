@@ -16,3 +16,13 @@ data Stage = Input
            | State
            | Output
            deriving (Eq)
+
+
+data Debug = DebugOn
+           | DebugLexer
+           | DebugParser
+           | DebugState
+           | DebugSchema
+           | DebugAsm
+           | DebugCode
+           | DebugOff
