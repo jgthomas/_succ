@@ -13,16 +13,6 @@ import Options                (SuccArgs (..), buildOptions)
 import Succ                   (compile)
 
 
-options :: SuccArgs
-options = SuccArgs {
-        debug    = False &= help "Display output of each compilation stage"
-      , optimise = False &= help "Produce optimised assembly"
-      , stage    = def &= typ "STAGE" &= help "Compilation stage to debug"
-      , asmfile  = def &= typ "FILE" &= help "Outfile name"
-      , file     = def &= argPos 0
-} &= program "succ"
-
-
 main :: IO ()
 main = do
         arguments <- cmdArgs options
@@ -46,6 +36,16 @@ main = do
         _ <- system toMachineCode
         _ <- system deleteFile
         hClose cFile
+
+
+options :: SuccArgs
+options = SuccArgs {
+        debug    = False &= help "Display output of each compilation stage"
+      , optimise = False &= help "Produce optimised assembly"
+      , stage    = def &= typ "STAGE" &= help "Compilation stage to debug"
+      , asmfile  = def &= typ "FILE" &= help "Outfile name"
+      , file     = def &= argPos 0
+} &= program "succ"
 
 
 setOutFile :: FilePath -> FilePath -> FilePath
