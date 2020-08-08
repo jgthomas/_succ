@@ -9,9 +9,10 @@ import Types.SuccTokens       (Debug (..), Optimise (..))
 
 
 data SuccArgs = SuccArgs {
-        debug :: Bool
-      , stage :: String
-      , file  :: FilePath
+        debug    :: Bool
+      , optimise :: Bool
+      , stage    :: String
+      , file     :: FilePath
 } deriving (Show, Data, Typeable)
 
 
@@ -23,9 +24,14 @@ data SuccOptions = SuccOptions {
 
 buildOptions :: SuccArgs -> SuccOptions
 buildOptions args = SuccOptions {
-        debugSet = debugStatus (debug args) (stage args),
-        optimiseSet = OptimiseOn
+        debugSet = debugStatus (debug args) (stage args)
+      , optimiseSet = setOptimise (optimise args)
 }
+
+
+setOptimise :: Bool -> Optimise
+setOptimise True  = OptimiseOn
+setOptimise False = OptimiseOff
 
 
 debugStatus :: Bool -> String -> Debug

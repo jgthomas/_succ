@@ -26,13 +26,14 @@ compile input options = do
         ast    <- debugParser . errorHandler . Parser.parse $ toks
         ast'   <- debugChecker . errorHandler . Checker.check $ ast
         schema <- fmap fst . debugSchema . errorHandler . Converter.convert $ ast'
-        debugAssembly . errorHandler . Builder.build $ schema
+        debugAssembly . errorHandler . Builder.build optimiseFlag $ schema
         where
-                debugOption   = debugSet options
-                debugInput    = Debug.debug debugOption Input
-                debugLexer    = Debug.debug debugOption Lexer
-                debugParser   = Debug.debug debugOption Parser
-                debugChecker  = Debug.debug debugOption Check
-                debugSchema   = Debug.debugPair debugOption (Schema, State)
-                debugAssembly = Debug.debug debugOption Output
-                errorHandler  = PrintError.handleError debugOption input
+                debugFlag     = debugSet options
+                optimiseFlag  = optimiseSet options
+                debugInput    = Debug.debug debugFlag Input
+                debugLexer    = Debug.debug debugFlag Lexer
+                debugParser   = Debug.debug debugFlag Parser
+                debugChecker  = Debug.debug debugFlag Check
+                debugSchema   = Debug.debugPair debugFlag (Schema, State)
+                debugAssembly = Debug.debug debugFlag Output
+                errorHandler  = PrintError.handleError debugFlag input

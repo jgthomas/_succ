@@ -14,7 +14,7 @@ import qualified Builder.BuildFunction  as BuildFunction (funcEpilogue,
                                                           funcPrologue,
                                                           functionCall)
 import           Builder.BuildState     (BuildState, runBuildState, throwError)
-import qualified Builder.BuildState     as BuildState (getState, startState)
+import qualified Builder.BuildState     as BuildState (getState)
 import qualified Builder.BuildStatement as BuildStatement (breakStatement,
                                                            continueStatement,
                                                            doWhile,
@@ -43,14 +43,14 @@ import           Types.AssemblySchema
 import           Types.Error            (CompilerError (FatalError),
                                          FatalError (BuilderBug))
 import           Types.Operator         (BinaryOp (..))
-import           Types.Optimise         (Optimise (..))
+import           Types.SuccTokens       (Optimise (..))
 import           Types.Type             (Type (..))
 import           Types.Variables        (Scope (..), VarType (..))
 
 
 -- | Builds output assembly code
-build :: AssemblySchema -> Either CompilerError String
-build schema = runBuildState processSchema schema BuildState.startState
+build :: Optimise -> AssemblySchema -> Either CompilerError String
+build optimise schema = runBuildState processSchema schema optimise
 
 
 processSchema :: AssemblySchema -> BuildState String

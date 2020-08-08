@@ -4,24 +4,18 @@ module Builder.BuildState
          runBuildState,
          throwError,
          getState,
-         putState,
-         startState
+         putState
         ) where
 
 
-import           Types.Error     (CompilerError)
-import           Types.Optimise  (Optimise (..))
-import           Types.SuccState (SuccStateM, getState, putState, throwError)
-import qualified Types.SuccState as SuccState (runSuccState)
+import           Types.Error      (CompilerError)
+import           Types.SuccState  (SuccStateM, getState, putState, throwError)
+import qualified Types.SuccState  as SuccState (runSuccState)
+import           Types.SuccTokens (Optimise (..))
 
 
 -- | State definition
 type BuildState = SuccStateM Optimise
-
-
--- | Initial state
-startState ::  Optimise
-startState = OptimiseOn
 
 
 -- | Run the state extracting the error or result

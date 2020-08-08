@@ -15,9 +15,10 @@ import Succ                   (compile)
 
 options :: SuccArgs
 options = SuccArgs {
-        debug = False &= help "Display output of each compilation stage"
-      , stage = "all" &= typ "STAGE" &= help "Compilation stage to debug"
-      , file  = def &= argPos 0
+        debug    = False &= help "Display output of each compilation stage"
+      , optimise = False &= help "Produce optimised assembly"
+      , stage    = "all" &= typ "STAGE" &= help "Compilation stage to debug"
+      , file     = def &= argPos 0
 }
 
 
