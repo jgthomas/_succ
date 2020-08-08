@@ -20,7 +20,7 @@ options = SuccArgs {
       , stage    = def &= typ "STAGE" &= help "Compilation stage to debug"
       , asmfile  = def &= typ "FILE" &= help "Outfile name"
       , file     = def &= argPos 0
-}
+} &= program "succ"
 
 
 main :: IO ()
