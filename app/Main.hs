@@ -18,6 +18,7 @@ options = SuccArgs {
         debug    = False &= help "Display output of each compilation stage"
       , optimise = False &= help "Produce optimised assembly"
       , stage    = "all" &= typ "STAGE" &= help "Compilation stage to debug"
+      , asmfile  = def &= typ "FILE" &= help "Outfile name"
       , file     = def &= argPos 0
 }
 
@@ -27,12 +28,12 @@ main = do
         arguments <- cmdArgs options
 
         let infileName     = file arguments
-            outfileName    = dropExtension infileName ++ ".s"
+            outfileName    = setOutFile infileName (asmfile arguments)
             compileOptions = buildOptions arguments
 
         cFile <- openFile infileName ReadMode
         cCode <- hGetContents cFile
-        asm   <- compile cCode compileOptions --debugSetting
+        asm   <- compile cCode compileOptions
 
         -- force evaluation before writing to file
         asm `deepseq` writeFile outfileName asm
@@ -45,3 +46,8 @@ main = do
         _ <- system toMachineCode
         _ <- system deleteFile
         hClose cFile
+
+
+setOutFile :: FilePath -> FilePath -> FilePath
+setOutFile infile ""       = dropExtension infile ++ ".s"
+setOutFile _      filename = filename ++ ".s"

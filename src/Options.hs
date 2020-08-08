@@ -12,6 +12,7 @@ data SuccArgs = SuccArgs {
         debug    :: Bool
       , optimise :: Bool
       , stage    :: String
+      , asmfile  :: String
       , file     :: FilePath
 } deriving (Show, Data, Typeable)
 
