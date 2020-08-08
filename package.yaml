@@ -28,6 +28,7 @@ dependencies:
 - deepseq
 - extra
 - pretty-simple
+- cmdargs
 
 library:
   source-dirs: src

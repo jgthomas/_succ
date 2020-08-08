@@ -1,24 +1,40 @@
+{-# LANGUAGE DeriveDataTypeable #-}
 
 module Main (main) where
 
 
-import Control.DeepSeq    (deepseq)
-import System.Environment (getArgs)
-import System.Exit        (exitFailure)
-import System.FilePath    (dropExtension)
-import System.IO          (IOMode (ReadMode), hClose, hGetContents, openFile,
-                           writeFile)
-import System.Process     (system)
+import Control.DeepSeq        (deepseq)
+import System.Console.CmdArgs
+import System.FilePath        (dropExtension)
+import System.IO              (IOMode (ReadMode), hClose, hGetContents,
+                               openFile, writeFile)
+import System.Process         (system)
 
-import Succ               (compile)
+import Succ                   (compile)
+
+
+data Succ = Succ {
+        debug :: Bool
+      , file  :: FilePath
+} deriving (Show, Data, Typeable)
+
+
+options :: Succ
+options = Succ {
+        debug = False &= help "Display output of each compilation stage"
+      , file  = def &= argPos 0
+}
 
 
 main :: IO ()
 main = do
-        args <- getArgs
+        arguments <- cmdArgs options
 
-        (infileName, debugSetting) <- checkInput args
-        let outfileName = dropExtension infileName ++ ".s"
+        let infileName   = file arguments
+            outfileName  = dropExtension infileName ++ ".s"
+            debugSetting = if debug arguments
+                              then (Just "debug")
+                              else Nothing
 
         cFile <- openFile infileName ReadMode
         cCode <- hGetContents cFile
@@ -35,11 +51,3 @@ main = do
         _ <- system toMachineCode
         _ <- system deleteFile
         hClose cFile
-
-
-checkInput :: [String] -> IO (String, Maybe String)
-checkInput (x:y:_) = pure (x, Just y)
-checkInput (x:_)   = pure (x, Nothing)
-checkInput []      = do
-        putStrLn "No input file provided"
-        exitFailure
