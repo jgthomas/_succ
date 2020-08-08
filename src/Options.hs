@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Options where
+module Options (SuccArgs(..), SuccOptions(..), buildOptions) where
 
 
 import System.Console.CmdArgs (Data, Typeable)
@@ -24,7 +24,7 @@ data SuccOptions = SuccOptions {
 
 buildOptions :: SuccArgs -> SuccOptions
 buildOptions args = SuccOptions {
-        debugSet = debugStatus (debug args) (stage args)
+        debugSet    = debugStatus (debug args) (stage args)
       , optimiseSet = setOptimise (optimise args)
 }
 
