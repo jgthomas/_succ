@@ -3,9 +3,7 @@ module Builder.SchemaCheck
         (getFunctions,
          getInitialisedInt,
          getUninitialised,
-         getPointersAssignmentsForInit,
-         getExpressionSchema,
-         getStatementSchema
+         getPointersAssignmentsForInit
         ) where
 
 
@@ -26,16 +24,6 @@ getUninitialised items = map convertForInit . filter needsInit $ items
 
 getPointersAssignmentsForInit :: [AssemblySchema] -> [AssemblySchema]
 getPointersAssignmentsForInit items = filter isInitialisedPointer items
-
-
-getExpressionSchema :: AssemblySchema -> ExpressionSchema
-getExpressionSchema (ExpressionSchema schema) = schema
-getExpressionSchema _                         = undefined
-
-
-getStatementSchema :: AssemblySchema -> StatementSchema
-getStatementSchema (StatementSchema schema) = schema
-getStatementSchema _                        = undefined
 
 
 isFunction :: AssemblySchema -> Bool

@@ -3,7 +3,6 @@ module OptimiserTest.OptimiserTestSpec (optimiserTest) where
 
 import Test.Hspec
 
-import Builder.SchemaCheck  (getExpressionSchema)
 import Optimiser.Optimiser  (optimise)
 import Types.AssemblySchema
 import Types.Operator
@@ -72,6 +71,11 @@ optimiserTest = hspec $ do
 
 optimiseExpression :: ExpressionSchema -> ExpressionSchema
 optimiseExpression schema = getExpressionSchema . optimise $ ExpressionSchema schema
+
+
+getExpressionSchema :: AssemblySchema -> ExpressionSchema
+getExpressionSchema (ExpressionSchema schema) = schema
+getExpressionSchema _                         = undefined
 
 
 buildBinarySchema :: BinaryOp -> Int -> Int -> ExpressionSchema

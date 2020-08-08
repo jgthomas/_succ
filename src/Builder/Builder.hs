@@ -32,11 +32,9 @@ import qualified Builder.BuildVariables as BuildVariables (addressOf,
                                                            outputInit,
                                                            postDeclareAction,
                                                            storeVariable)
-import qualified Builder.SchemaCheck    as SchemaCheck (getExpressionSchema,
-                                                        getFunctions,
+import qualified Builder.SchemaCheck    as SchemaCheck (getFunctions,
                                                         getInitialisedInt,
                                                         getPointersAssignmentsForInit,
-                                                        getStatementSchema,
                                                         getUninitialised)
 import qualified Optimiser.Optimiser    as Optimiser (optimise)
 import           Types.AssemblySchema
@@ -125,9 +123,12 @@ processStatement schema = do
         optimiseState <- BuildState.getState
         case optimiseState of
              OptimiseOff -> buildStatementASM schema
-             OptimiseOn  -> buildStatementASM
-                            . SchemaCheck.getStatementSchema
-                            . Optimiser.optimise $ StatementSchema schema
+             OptimiseOn  ->
+                     let optimisedStatement = Optimiser.optimise $ StatementSchema schema
+                         in
+                     case optimisedStatement of
+                          (StatementSchema statementSchema) -> buildStatementASM statementSchema
+                          _ -> throwError $ FatalError (BuilderBug optimisedStatement)
 
 
 buildStatementASM :: StatementSchema -> BuildState String
@@ -230,9 +231,12 @@ processExpression schema = do
         optimiseState <- BuildState.getState
         case optimiseState of
              OptimiseOff -> buildExpressionASM schema
-             OptimiseOn  -> buildExpressionASM
-                            . SchemaCheck.getExpressionSchema
-                            . Optimiser.optimise $ ExpressionSchema schema
+             OptimiseOn  ->
+                     let optimisedExpression = Optimiser.optimise $ ExpressionSchema schema
+                         in
+                     case optimisedExpression of
+                          (ExpressionSchema expressionSchema) -> buildExpressionASM expressionSchema
+                          _ -> throwError $ FatalError (BuilderBug optimisedExpression)
 
 
 buildExpressionASM :: ExpressionSchema -> BuildState String
