@@ -63,7 +63,6 @@ convertToSchema (ParamNode typ (VarNode name _) _) = do
 
 convertToSchema (FuncCallNode name argList _) = do
         argSchemas <- mapM convertToSchema argList
-        --let argSchemas = map getExpressionSchema schemas
         pure (ExpressionSchema $ FunctionCallSchema name argSchemas)
 
 convertToSchema (ArgNode arg _) = convertToSchema arg
