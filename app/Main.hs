@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveDataTypeable #-}
 
 module Main (main) where
 
@@ -11,18 +10,11 @@ import System.IO              (IOMode (ReadMode), hClose, hGetContents,
 import System.Process         (system)
 
 import Succ                   (compile)
-import Types.SuccTokens       (Debug (..))
+import Types.SuccTokens       (Debug (..), SuccArgs (..))
 
 
-data Succ = Succ {
-        debug :: Bool
-      , stage :: String
-      , file  :: FilePath
-} deriving (Show, Data, Typeable)
-
-
-options :: Succ
-options = Succ {
+options :: SuccArgs
+options = SuccArgs {
         debug = False &= help "Display output of each compilation stage"
       , stage = "all" &= typ "STAGE" &= help "Compilation stage to debug"
       , file  = def &= argPos 0
