@@ -7,10 +7,11 @@ Optimises expression schema to reduce assembly code size
 module Optimiser.OptimiserExpression (optimiseExpression) where
 
 
-import Data.Data            (toConstr)
+import           Data.Data                 (toConstr)
 
-import Types.AssemblySchema
-import Types.Operator
+import qualified Compute.ComputeExpression as ComputeExpression (binaryFunction)
+import           Types.AssemblySchema
+import           Types.Operator
 
 
 -- | Optimises an expression schema
@@ -30,7 +31,7 @@ optimiseBinarySchema (BinarySchema
                       (ExpressionSchema (LiteralSchema n))
                       (ExpressionSchema (LiteralSchema m))
                       op _ _) =
-                              buildLiteral $ binaryFunction op n m
+                              buildLiteral $ ComputeExpression.binaryFunction op n m
 
 optimiseBinarySchema schema@(BinarySchema (ExpressionSchema left) (ExpressionSchema right) op l1 l2) =
         let leftOptim  = optimiseExpression left
@@ -52,15 +53,6 @@ buildLiteral n
         | otherwise = UnarySchema
                       (ExpressionSchema (LiteralSchema (abs n)))
                       (Unary Negate)
-
-
-binaryFunction :: Integral a => BinaryOp -> (a -> a -> a)
-binaryFunction Plus     = (+)
-binaryFunction Minus    = (-)
-binaryFunction Multiply = (*)
-binaryFunction Divide   = quot
-binaryFunction Modulo   = mod
-binaryFunction _        = undefined
 
 
 supported :: [BinaryOp]
