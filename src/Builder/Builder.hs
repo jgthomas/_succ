@@ -92,6 +92,15 @@ buildASM (DeclarationSchema
          ) = pure BuildStatement.emptyStatement
 
 buildASM (DeclarationSchema
+          (ExpressionSchema VariableSchema{})
+          arrayItems@(StatementSchema (ArrayItemsSchema finalPos _))
+          Local
+          IntArray
+         ) = do
+                 assignAsm <- processSchema arrayItems
+                 pure $ assignAsm ++ BuildVariables.postDeclareAction (LocalVar 0 0 finalPos)
+
+buildASM (DeclarationSchema
           (ExpressionSchema (VariableSchema varType))
           assign@(StatementSchema _)
           _
@@ -99,15 +108,6 @@ buildASM (DeclarationSchema
          ) = do
                  assignAsm <- processSchema assign
                  pure $ assignAsm ++ BuildVariables.postDeclareAction varType
-
-buildASM (DeclarationSchema
-          (ExpressionSchema VariableSchema{})
-          (ExpressionSchema arrayItems@(ArrayItemsSchema finalPos _))
-          Local
-          IntArray
-         ) = do
-                 assignAsm <- processSchema (ExpressionSchema arrayItems)
-                 pure $ assignAsm ++ BuildVariables.postDeclareAction (LocalVar 0 0 finalPos)
 
 buildASM (StatementSchema statement) = buildStatementASM statement
 
@@ -208,6 +208,8 @@ buildStatementASM (IfSchema
                           elseAsm <- processSchema elseSchema
                           pure $ BuildStatement.ifStatement testAsm bodyAsm elseAsm n m
 
+buildStatementASM (ArrayItemsSchema _ items) = concatMapM processSchema items
+
 buildStatementASM schema = throwError $ FatalError (BuilderBug $ StatementSchema schema)
 
 
@@ -268,7 +270,5 @@ buildExpressionASM (AddressOfSchema (ExpressionSchema (VariableSchema varType)))
 
 buildExpressionASM (DereferenceSchema (ExpressionSchema (VariableSchema varType))) =
         pure $ BuildVariables.derefLoad varType
-
-buildExpressionASM (ArrayItemsSchema _ items) = concatMapM processSchema items
 
 buildExpressionASM schema = throwError $ FatalError (BuilderBug $ ExpressionSchema schema)

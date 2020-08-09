@@ -288,7 +288,7 @@ processArrayItems varNode items = do
         arrayItemsSchema <- mapM (processArrayItem varNode) (zip items [0..])
         FuncState.incrementOffsetByN (length items - 1)
         adjust           <- FuncState.stackPointerValue
-        pure (ExpressionSchema
+        pure (StatementSchema
               (ArrayItemsSchema
                adjust
                arrayItemsSchema
