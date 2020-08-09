@@ -109,26 +109,13 @@ buildASM (DeclarationSchema
                  assignAsm <- processSchema (ExpressionSchema arrayItems)
                  pure $ assignAsm ++ BuildVariables.postDeclareAction (LocalVar 0 0 finalPos)
 
-buildASM (StatementSchema statement) = processStatement statement
+buildASM (StatementSchema statement) = buildStatementASM statement
 
-buildASM (ExpressionSchema expression) = processExpression expression
+buildASM (ExpressionSchema expression) = buildExpressionASM expression
 
 buildASM SkipSchema = pure BuildStatement.emptyStatement
 
 buildASM schema = throwError $ FatalError (BuilderBug schema)
-
-
-processStatement :: StatementSchema -> BuildState String
-processStatement schema = do
-        optimiseState <- BuildState.getState
-        case optimiseState of
-             OptimiseOff -> buildStatementASM schema
-             OptimiseOn  ->
-                     let optimisedStatement = Optimiser.optimise $ StatementSchema schema
-                         in
-                     case optimisedStatement of
-                          (StatementSchema statementSchema) -> buildStatementASM statementSchema
-                          _ -> throwError $ FatalError (BuilderBug optimisedStatement)
 
 
 buildStatementASM :: StatementSchema -> BuildState String
@@ -224,19 +211,6 @@ buildStatementASM (IfSchema
 buildStatementASM NullStatementSchema{} = pure BuildStatement.emptyStatement
 
 buildStatementASM schema = throwError $ FatalError (BuilderBug $ StatementSchema schema)
-
-
-processExpression :: ExpressionSchema -> BuildState String
-processExpression schema = do
-        optimiseState <- BuildState.getState
-        case optimiseState of
-             OptimiseOff -> buildExpressionASM schema
-             OptimiseOn  ->
-                     let optimisedExpression = Optimiser.optimise $ ExpressionSchema schema
-                         in
-                     case optimisedExpression of
-                          (ExpressionSchema expressionSchema) -> buildExpressionASM expressionSchema
-                          _ -> throwError $ FatalError (BuilderBug optimisedExpression)
 
 
 buildExpressionASM :: ExpressionSchema -> BuildState String
