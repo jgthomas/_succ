@@ -69,7 +69,10 @@ supported = [
         GThanOrEqu,
         LThanOrEqu,
         LogicalOR,
-        LogicalAND
+        LogicalAND,
+        BitwiseXOR,
+        BitwiseAND,
+        BitwiseOR
        ]
 
 
