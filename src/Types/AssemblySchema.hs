@@ -65,7 +65,6 @@ data StatementSchema = IfSchema
                         Scope
                      | CompoundStatementSchema
                         [AssemblySchema]
-                     | NullStatementSchema
                      deriving (Eq, Show, Data)
 
 
@@ -98,9 +97,6 @@ data ExpressionSchema = LiteralSchema
                       | ArrayItemsSchema
                          Int
                          [AssemblySchema]
-                      | ExpressionStatementSchema
-                         AssemblySchema
-                      | NullExpressionSchema
                       deriving (Eq, Show, Data)
 
 

@@ -208,8 +208,6 @@ buildStatementASM (IfSchema
                           elseAsm <- processSchema elseSchema
                           pure $ BuildStatement.ifStatement testAsm bodyAsm elseAsm n m
 
-buildStatementASM NullStatementSchema{} = pure BuildStatement.emptyStatement
-
 buildStatementASM schema = throwError $ FatalError (BuilderBug $ StatementSchema schema)
 
 
@@ -262,9 +260,6 @@ buildExpressionASM (FunctionCallSchema name arguments) = do
         argAsmList <- mapM processSchema arguments
         pure $ BuildFunction.functionCall name (zip argAsmList [0..])
 
-buildExpressionASM (ExpressionStatementSchema statementSchema) =
-        processSchema statementSchema
-
 buildExpressionASM (VariableSchema varType) =
         pure $ BuildVariables.loadVariable varType
 
@@ -273,8 +268,6 @@ buildExpressionASM (AddressOfSchema (ExpressionSchema (VariableSchema varType)))
 
 buildExpressionASM (DereferenceSchema (ExpressionSchema (VariableSchema varType))) =
         pure $ BuildVariables.derefLoad varType
-
-buildExpressionASM NullExpressionSchema{} = pure BuildStatement.emptyStatement
 
 buildExpressionASM (ArrayItemsSchema _ items) = concatMapM processSchema items
 

@@ -15,12 +15,13 @@ import Types.Operator
 
 -- | Optimises an assembly schema
 optimise :: AssemblySchema -> AssemblySchema
-optimise schema@ProgramSchema{}     = schema
-optimise schema@FunctionSchema{}    = schema
-optimise schema@DeclarationSchema{} = schema
-optimise schema@StatementSchema{}   = schema
-optimise (ExpressionSchema schema)  = ExpressionSchema (optimiseExpression schema)
-optimise schema@SkipSchema{}        = schema
+optimise schema@ProgramSchema{}                       = schema
+optimise schema@FunctionSchema{}                      = schema
+optimise schema@DeclarationSchema{}                   = schema
+optimise schema@StatementSchema{}                     = schema
+optimise schema@(ExpressionSchema ArrayItemsSchema{}) = schema
+optimise (ExpressionSchema schema)                    = ExpressionSchema (optimiseExpression schema)
+optimise schema@SkipSchema{}                          = schema
 
 
 optimiseExpression :: ExpressionSchema -> ExpressionSchema
