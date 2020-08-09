@@ -61,7 +61,8 @@ supported = [
         Minus,
         Multiply,
         Divide,
-        Modulo
+        Modulo,
+        LessThan
        ]
 
 

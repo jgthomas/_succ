@@ -17,4 +17,5 @@ binaryFunction Minus    = (-)
 binaryFunction Multiply = (*)
 binaryFunction Divide   = quot
 binaryFunction Modulo   = mod
+binaryFunction LessThan = \x y -> if x < y then 1 else 0
 binaryFunction _        = undefined
