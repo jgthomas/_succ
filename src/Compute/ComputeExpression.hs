@@ -23,4 +23,6 @@ binaryFunction GreaterThan = \x y -> if x > y then 1 else 0
 binaryFunction LessThan    = \x y -> if x < y then 1 else 0
 binaryFunction GThanOrEqu  = \x y -> if x >= y then 1 else 0
 binaryFunction LThanOrEqu  = \x y -> if x <= y then 1 else 0
+binaryFunction LogicalOR   = \x y -> if x > 0 || y > 0 then 1 else 0
+binaryFunction LogicalAND  = \x y -> if x > 0 && y > 0 then 1 else 0
 binaryFunction _           = undefined

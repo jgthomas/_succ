@@ -67,7 +67,9 @@ supported = [
         GreaterThan,
         LessThan,
         GThanOrEqu,
-        LThanOrEqu
+        LThanOrEqu,
+        LogicalOR,
+        LogicalAND
        ]
 
 
