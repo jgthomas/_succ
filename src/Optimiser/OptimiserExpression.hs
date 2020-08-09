@@ -16,13 +16,10 @@ import           Types.Operator
 
 -- | Optimises an expression schema
 optimiseExpression :: ExpressionSchema -> ExpressionSchema
-optimiseExpression schema@LiteralSchema{}           = schema
-optimiseExpression schema@UnarySchema{}             = schema
-optimiseExpression schema@(BinarySchema _ _ op _ _) =
-        if op `elem` supported
-           then optimiseBinarySchema schema
-           else schema
-optimiseExpression schema                           = schema
+optimiseExpression schema@LiteralSchema{} = schema
+optimiseExpression schema@UnarySchema{}   = schema
+optimiseExpression schema@BinarySchema{}  = optimiseBinarySchema schema
+optimiseExpression schema                 = schema
 
 
 optimiseBinarySchema :: ExpressionSchema -> ExpressionSchema
@@ -53,27 +50,6 @@ buildLiteral n
         | otherwise = UnarySchema
                       (ExpressionSchema (LiteralSchema (abs n)))
                       (Unary Negate)
-
-
-supported :: [BinaryOp]
-supported = [
-        Plus,
-        Minus,
-        Multiply,
-        Divide,
-        Modulo,
-        Equal,
-        NotEqual,
-        GreaterThan,
-        LessThan,
-        GThanOrEqu,
-        LThanOrEqu,
-        LogicalOR,
-        LogicalAND,
-        BitwiseXOR,
-        BitwiseAND,
-        BitwiseOR
-       ]
 
 
 hasOptimised :: ExpressionSchema -> ExpressionSchema -> Bool
