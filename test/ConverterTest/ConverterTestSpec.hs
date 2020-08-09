@@ -615,7 +615,7 @@ converterTest = hspec $ do
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
                      (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
-                     (ExpressionSchema $ ArrayItemsSchema
+                     (StatementSchema $ ArrayItemsSchema
                       24
                       [StatementSchema $ AssignmentSchema
                        (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
@@ -728,7 +728,7 @@ converterTest = hspec $ do
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
                      (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
-                     (ExpressionSchema $ ArrayItemsSchema
+                     (StatementSchema $ ArrayItemsSchema
                       24
                       [StatementSchema $ AssignmentSchema
                        (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
@@ -800,7 +800,7 @@ converterTest = hspec $ do
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
                      (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
-                     (ExpressionSchema $ ArrayItemsSchema
+                     (StatementSchema $ ArrayItemsSchema
                       16
                       [StatementSchema $ AssignmentSchema
                        (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
@@ -880,7 +880,7 @@ converterTest = hspec $ do
                    (StatementSchema $ CompoundStatementSchema
                     [DeclarationSchema
                      (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
-                     (ExpressionSchema $ ArrayItemsSchema
+                     (StatementSchema $ ArrayItemsSchema
                       16
                       [StatementSchema $ AssignmentSchema
                        (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16))
