@@ -49,7 +49,9 @@ optimiseBinarySchema schema = schema
 buildLiteral :: Int -> ExpressionSchema
 buildLiteral n
         | n >= 0    = LiteralSchema n
-        | otherwise = UnarySchema (ExpressionSchema (LiteralSchema (abs n))) (Unary Negate)
+        | otherwise = UnarySchema
+                      (ExpressionSchema (LiteralSchema (abs n)))
+                      (Unary Negate)
 
 
 binaryFunction :: Integral a => BinaryOp -> (a -> a -> a)
