@@ -62,7 +62,12 @@ supported = [
         Multiply,
         Divide,
         Modulo,
-        LessThan
+        Equal,
+        NotEqual,
+        GreaterThan,
+        LessThan,
+        GThanOrEqu,
+        LThanOrEqu
        ]
 
 
