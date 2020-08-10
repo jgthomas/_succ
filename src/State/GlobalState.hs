@@ -13,6 +13,8 @@ module State.GlobalState
          currentSeqNumber,
          getLabel,
          getType,
+         getValue,
+         setValue,
          declaredFuncType,
          checkVarDefined,
          checkFuncDefined,
@@ -26,12 +28,14 @@ import qualified Data.Map          as M
 import qualified Data.Set          as S
 
 import qualified State.FrameStack  as FrameStack (currentFunc)
-import           State.GenState    (GenState)
+import           State.GenState    (GenState, throwError)
 import qualified State.GenState    as GenState (getGlobalScope, labelNum,
                                                 putGlobalScope)
 import           State.SymbolTable (GlobalScope (..), GlobalVar (..))
 import qualified State.SymbolTable as SymbolTable (mkGloVar)
+import           Types.Error       (CompilerError (StateError), StateError (..))
 import           Types.Type        (Type)
+import           Types.Variables   (VarValue (..))
 
 
 -- | Get the number of parameters for a declared function
@@ -52,6 +56,10 @@ getLabel name = extract globLabel <$> lookUp name declaredVars
 -- | Get the type of a named variable
 getType :: String -> GenState (Maybe Type)
 getType name = extract globType <$> lookUp name declaredVars
+
+
+getValue :: String -> GenState (Maybe VarValue)
+getValue name = extract globValue <$> lookUp name declaredVars
 
 
 -- | Get the type of a declared function
@@ -109,6 +117,18 @@ defineGlobal name = do
         gscope <- getGlobalScope
         let definedVars' = S.insert name . definedVars $ gscope
         putGlobalScope $ gscope { definedVars = definedVars' }
+
+
+setValue :: String -> VarValue -> GenState ()
+setValue name value = do
+        gscope  <- getGlobalScope
+        globVar <- extract id <$> lookUp name declaredVars
+        case globVar of
+             Nothing -> throwError $ StateError (NoStateFound name)
+             Just gv -> do
+                     let globVar'      = gv { globValue = value }
+                         declaredVars' = M.insert name globVar' $ declaredVars gscope
+                     putGlobalScope $ gscope { declaredVars = declaredVars' }
 
 
 -- | Create label for global variable
