@@ -54,8 +54,8 @@ mkGlobalScope = Gscope 0 M.empty M.empty M.empty M.empty S.empty S.empty []
 
 -- | Global variable state constructor
 mkGloVar :: String -> Type -> GlobalVar
-mkGloVar l typ@IntVar = GloVar l typ (SingleValue 0)
-mkGloVar l typ        = GloVar l typ UntrackedValue
+mkGloVar lab typ@IntVar = GloVar lab typ (SingleValue 0)
+mkGloVar lab typ        = GloVar lab typ UntrackedValue
 
 
 -- | Local scope data type
@@ -69,13 +69,15 @@ data FuncState = Fs { paramCount   :: Int
 
 -- | Local variable state data type
 data LocalVar = LocVar { locOffset :: Int
-                       , locType   :: Type }
+                       , locType   :: Type
+                       , locValue  :: VarValue }
               deriving (Show)
 
 
 -- | Parameter state data type
-data ParamVar = ParVar { paramNum  :: Int
-                       , paramType :: Type }
+data ParamVar = ParVar { paramNum   :: Int
+                       , paramType  :: Type
+                       , paramValue :: VarValue }
               deriving (Show)
 
 
@@ -86,12 +88,12 @@ mkFuncState = Fs 0 memOffset (-1) M.empty M.empty
 
 -- | Local variable state constructor
 mkLocVar :: Int -> Type -> LocalVar
-mkLocVar n t = LocVar n t
+mkLocVar off typ = LocVar off typ UntrackedValue
 
 
 -- | Parameter state constructor
 mkParVar :: Int -> Type -> ParamVar
-mkParVar n t = ParVar n t
+mkParVar pos typ = ParVar pos typ UntrackedValue
 
 
 -- | Offset step from the stack frame base pointer
