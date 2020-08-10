@@ -401,6 +401,7 @@ processGlobalAssignment tree = throwError $ FatalError (ConverterBug tree)
 defineGlobal :: Tree -> GenState AssemblySchema
 defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ _) = do
         GlobalState.defineGlobal name
+        GlobalState.setValue name (buildVarableValue valNode)
         currScope <- State.getScope
         varSchema <- convertToSchema varNode
         valSchema <- convertToSchema valNode
@@ -474,3 +475,8 @@ adjustVariable Nothing (Just y) (LocalVar n m _)  = LocalVar n m y
 adjustVariable (Just x) _ (ParamVar n _)          = ParamVar n x
 adjustVariable (Just x) _ (GlobalVar l _)         = GlobalVar l x
 adjustVariable _ _ varType                        = varType
+
+
+buildVarableValue :: Tree -> VarValue
+buildVarableValue (ConstantNode n _) = SingleValue n
+buildVarableValue _                  = UntrackedValue
