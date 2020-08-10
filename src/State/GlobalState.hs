@@ -130,7 +130,7 @@ getUndefinedVarData = do
 
 
 getGlobalData :: GlobalVar -> (String, Type)
-getGlobalData (GloVar label typ) = (label, typ)
+getGlobalData (GloVar label typ _) = (label, typ)
 
 
 getUndefinedVarNames :: GenState (S.Set String)

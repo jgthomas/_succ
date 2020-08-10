@@ -8,10 +8,11 @@ traverse the abstract syntax tree.
 module State.SymbolTable where
 
 
-import qualified Data.Map   as M
-import qualified Data.Set   as S
+import qualified Data.Map        as M
+import qualified Data.Set        as S
 
-import           Types.Type (Type)
+import           Types.Type      (Type (..))
+import           Types.Variables (VarValue (..))
 
 
 -- | SymTab state data type
@@ -41,7 +42,8 @@ data GlobalScope = Gscope { seqNum       :: Int
 
 -- | Global variable state data type
 data GlobalVar = GloVar { globLabel :: String
-                        , globType  :: Type }
+                        , globType  :: Type
+                        , globValue :: VarValue }
                deriving (Show)
 
 
@@ -52,7 +54,8 @@ mkGlobalScope = Gscope 0 M.empty M.empty M.empty M.empty S.empty S.empty []
 
 -- | Global variable state constructor
 mkGloVar :: String -> Type -> GlobalVar
-mkGloVar l t = GloVar l t
+mkGloVar l typ@IntVar = GloVar l typ (SingleValue 0)
+mkGloVar l typ        = GloVar l typ UntrackedValue
 
 
 -- | Local scope data type

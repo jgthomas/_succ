@@ -3,7 +3,8 @@
 module Types.Variables where
 
 
-import Data.Data (Data)
+import           Data.Data (Data)
+import qualified Data.Map  as M
 
 
 data Scope = Global
@@ -20,3 +21,10 @@ data VarType = LocalVar Int Int Int
              | ParamVar Int Int
              | GlobalVar String Int
              deriving (Eq, Show, Data)
+
+
+data VarValue = SingleValue Int
+              | MultiValue (M.Map Int Int)
+              | AddressValue Int
+              | UntrackedValue
+              deriving (Eq, Show)
