@@ -18,6 +18,7 @@ module State.FuncStateVars
          getContinue,
          setContinue,
          getLocalValue,
+         setLocalValue,
          allTypes
         ) where
 
@@ -63,6 +64,16 @@ variableType name = getAttribute locType name
 
 getLocalValue :: String -> GenState (Maybe VarValue)
 getLocalValue name = getAttribute locValue name
+
+
+setLocalValue :: String -> VarValue -> GenState ()
+setLocalValue varName varValue = do
+        funcName <- FrameStack.currentFunc
+        level    <- scopeDepth funcName
+        (localVar, varLevel) <- findVarAndScopeLevel funcName varName level
+        case localVar of
+             Nothing -> throwError $ StateError (NoStateFound varName)
+             Just lv -> setLocalVar funcName varName varLevel $ lv { locValue = varValue }
 
 
 -- | Store new variable, returning offset from base pointer
