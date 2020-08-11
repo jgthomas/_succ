@@ -158,21 +158,25 @@ findVarAndScopeLevel funcName varName scope = do
 
 
 store :: String -> Int -> Type -> GenState ()
-store name value typ = do
+store varName value typ = do
         funcName <- FrameStack.currentFunc
-        fstate   <- getFuncState funcName
         level    <- scopeDepth funcName
-        scope    <- getScope level fstate
-        let locVar  = SymbolTable.mkLocVar value typ
-            scope'  = M.insert name locVar scope
-            fstate' = fstate { scopes = M.insert level scope' $ scopes fstate }
-        setFuncState funcName fstate'
+        setLocalVar funcName varName level $ SymbolTable.mkLocVar value typ
 
 
 getLocalVar :: String -> Int -> String -> GenState (Maybe LocalVar)
 getLocalVar funcName level varName = do
         fstate <- getFuncState funcName
         M.lookup varName <$> getScope level fstate
+
+
+setLocalVar :: String -> String -> Int -> LocalVar -> GenState ()
+setLocalVar funcName varName level localVar = do
+        fstate <- getFuncState funcName
+        scope  <- getScope level fstate
+        let scope'  = M.insert varName localVar scope
+            fstate' = fstate { scopes = M.insert level scope' $ scopes fstate }
+        setFuncState funcName fstate'
 
 
 getParamPos :: String -> String -> GenState (Maybe Int)
