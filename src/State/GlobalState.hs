@@ -50,16 +50,26 @@ decSeqNumber name = lookUp name funcDecSeq
 
 -- | Get the assembly label associated with a named variable
 getLabel :: String -> GenState (Maybe String)
-getLabel name = extract globLabel <$> lookUp name declaredVars
+getLabel name = extract globLabel <$> getGlobalVar name
 
 
 -- | Get the type of a named variable
 getType :: String -> GenState (Maybe Type)
-getType name = extract globType <$> lookUp name declaredVars
+getType name = extract globType <$> getGlobalVar name
 
 
+-- | Get the current value of a named variable
 getValue :: String -> GenState (Maybe VarValue)
-getValue name = extract globValue <$> lookUp name declaredVars
+getValue name = extract globValue <$> getGlobalVar name
+
+
+-- | Update value of named variable
+setValue :: String -> VarValue -> GenState ()
+setValue name value = do
+        globVar <- getGlobalVar name
+        case globVar of
+             Nothing -> throwError $ StateError (NoStateFound name)
+             Just gv -> setGlobalVar name $ gv { globValue = value }
 
 
 -- | Get the type of a declared function
@@ -119,25 +129,6 @@ defineGlobal name = do
         putGlobalScope $ gscope { definedVars = definedVars' }
 
 
-setValue :: String -> VarValue -> GenState ()
-setValue name value = do
-        globVar <- getGlobalVar name
-        case globVar of
-             Nothing -> throwError $ StateError (NoStateFound name)
-             Just gv -> setGlobalVar name $ gv { globValue = value }
-
-
-getGlobalVar :: String -> GenState (Maybe GlobalVar)
-getGlobalVar name = extract id <$> lookUp name declaredVars
-
-
-setGlobalVar :: String -> GlobalVar -> GenState ()
-setGlobalVar name globalVar = do
-        gscope <- getGlobalScope
-        let declaredVars' = M.insert name globalVar $ declaredVars gscope
-        putGlobalScope $ gscope { declaredVars = declaredVars' }
-
-
 -- | Create label for global variable
 makeLabel :: String -> GenState String
 makeLabel name = do
@@ -166,6 +157,17 @@ getUndefinedVarNames = do
         let definedSet  = definedVars gscope
             declaredSet = M.keysSet $ declaredVars gscope
         pure $ S.difference declaredSet definedSet
+
+
+getGlobalVar :: String -> GenState (Maybe GlobalVar)
+getGlobalVar name = extract id <$> lookUp name declaredVars
+
+
+setGlobalVar :: String -> GlobalVar -> GenState ()
+setGlobalVar name globalVar = do
+        gscope <- getGlobalScope
+        let declaredVars' = M.insert name globalVar $ declaredVars gscope
+        putGlobalScope $ gscope { declaredVars = declaredVars' }
 
 
 lookUp :: (Ord k) => k -> (GlobalScope -> M.Map k a) -> GenState (Maybe a)
