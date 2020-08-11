@@ -145,16 +145,16 @@ getAttr :: (LocalVar -> a) -> String -> String -> GenState (Maybe a)
 getAttr _ _ "global" = pure Nothing
 getAttr f varName funcName = do
         scopeLevel <- scopeDepth funcName
-        extract f <$> find funcName scopeLevel varName
+        extract f . fst <$> findVarAndScopeLevel funcName varName scopeLevel
 
 
-find :: String -> Int -> String -> GenState (Maybe LocalVar)
-find _ (-1) _ = pure Nothing
-find funcName scope name = do
-        locVar <- getLocalVar funcName scope name
+findVarAndScopeLevel :: String -> String -> Int -> GenState (Maybe LocalVar, Int)
+findVarAndScopeLevel _ _ (-1) = pure (Nothing, -1)
+findVarAndScopeLevel funcName varName scope = do
+        locVar <- getLocalVar funcName scope varName
         case locVar of
-             Nothing -> find funcName (pred scope) name
-             Just lv -> pure (Just lv)
+             Nothing -> findVarAndScopeLevel funcName varName (pred scope)
+             Just lv -> pure (Just lv, scope)
 
 
 store :: String -> Int -> Type -> GenState ()
