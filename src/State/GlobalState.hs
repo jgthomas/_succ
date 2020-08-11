@@ -121,20 +121,21 @@ defineGlobal name = do
 
 setValue :: String -> VarValue -> GenState ()
 setValue name value = do
-        gscope  <- getGlobalScope
         globVar <- getGlobalVar name
         case globVar of
              Nothing -> throwError $ StateError (NoStateFound name)
-             Just gv -> do
-                     let globVar'      = gv { globValue = value }
-                         declaredVars' = M.insert name globVar' $ declaredVars gscope
-                     putGlobalScope $ gscope { declaredVars = declaredVars' }
+             Just gv -> setGlobalVar name $ gv { globValue = value }
 
 
 getGlobalVar :: String -> GenState (Maybe GlobalVar)
 getGlobalVar name = extract id <$> lookUp name declaredVars
 
 
+setGlobalVar :: String -> GlobalVar -> GenState ()
+setGlobalVar name globalVar = do
+        gscope <- getGlobalScope
+        let declaredVars' = M.insert name globalVar $ declaredVars gscope
+        putGlobalScope $ gscope { declaredVars = declaredVars' }
 
 
 -- | Create label for global variable
