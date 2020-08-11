@@ -21,4 +21,4 @@ import State.FuncStateVars   (addParameter, addVariable, allTypes,
                               checkVariable, getBreak, getContinue,
                               parameterDeclared, parameterPosition,
                               parameterType, setBreak, setContinue,
-                              variableOffset, variableType)
+                              setLocalValue, variableOffset, variableType)
