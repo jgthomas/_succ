@@ -17,6 +17,7 @@ module State.FuncStateVars
          setBreak,
          getContinue,
          setContinue,
+         getLocalValue,
          allTypes
         ) where
 
@@ -36,6 +37,7 @@ import qualified State.SymbolTable     as SymbolTable (mkLocVar, mkParVar)
 import           Types.Error           (CompilerError (StateError),
                                         StateError (..))
 import           Types.Type            (Type (Label))
+import           Types.Variables       (VarValue (..))
 
 
 -- | Check if variable name is in use in current scope
@@ -57,6 +59,10 @@ variableOffset name = getAttribute locOffset name
 -- | Get the type of variable
 variableType :: String -> GenState (Maybe Type)
 variableType name = getAttribute locType name
+
+
+getLocalValue :: String -> GenState (Maybe VarValue)
+getLocalValue name = getAttribute locValue name
 
 
 -- | Store new variable, returning offset from base pointer
