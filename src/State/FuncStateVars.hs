@@ -170,9 +170,9 @@ store name value typ = do
 
 
 getLocalVar :: String -> Int -> String -> GenState (Maybe LocalVar)
-getLocalVar funcName lev var = do
+getLocalVar funcName level varName = do
         fstate <- getFuncState funcName
-        M.lookup var <$> getScope lev fstate
+        M.lookup varName <$> getScope level fstate
 
 
 getParamPos :: String -> String -> GenState (Maybe Int)
