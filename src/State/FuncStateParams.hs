@@ -1,5 +1,12 @@
 
-module State.FuncStateParams where
+module State.FuncStateParams
+        (addParameter,
+         parameterPosition,
+         parameterType,
+         setParamValue,
+         allTypes,
+         parameterDeclared
+        ) where
 
 
 import           Data.Function         (on)
