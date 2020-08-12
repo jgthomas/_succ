@@ -1,4 +1,9 @@
+{-|
+Module       : FuncStateParams
+Description  : Manages parameters
 
+Functions for creating and managing parameter variables.
+-}
 module State.FuncStateParams
         (addParameter,
          parameterPosition,
