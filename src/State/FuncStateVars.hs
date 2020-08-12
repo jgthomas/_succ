@@ -25,7 +25,7 @@ import           State.FuncStateAccess (getFuncState, setFuncState)
 import           State.FuncStateOffset (currentOffset, incrementOffsetByN)
 import           State.FuncStateScope  (scopeDepth)
 import           State.GenState        (GenState, throwError)
-import           State.SymbolTable     (FuncState (..), LocalVar (..))
+import           State.SymbolTable     (FuncState (scopes), LocalVar (..))
 import qualified State.SymbolTable     as SymbolTable (mkLocVar)
 import           Types.Error           (CompilerError (StateError),
                                         StateError (..))

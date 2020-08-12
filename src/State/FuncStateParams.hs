@@ -21,7 +21,8 @@ import qualified Data.Map              as M
 import qualified State.FrameStack      as FrameStack (currentFunc)
 import           State.FuncStateAccess (getFuncState, setFuncState)
 import           State.GenState        (GenState, throwError)
-import           State.SymbolTable     (FuncState (..), ParamVar (..))
+import           State.SymbolTable     (FuncState (paramCount, parameters, posToParam),
+                                        ParamVar (..))
 import qualified State.SymbolTable     as SymbolTable (mkParVar)
 import           Types.Error           (CompilerError (StateError),
                                         StateError (..))
