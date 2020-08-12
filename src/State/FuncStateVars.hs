@@ -203,7 +203,7 @@ addParam name typ fstate =
         let paramPos = paramCount fstate
             parVar   = SymbolTable.mkParVar paramPos typ
             fstate'  = fstate { posToParam = M.insert paramPos name $ posToParam fstate }
-            fstate'' = fstate' { paramCount = succ . paramCount $ fstate' }
+            fstate'' = fstate' { paramCount = succ paramPos }
             in
         fstate'' { parameters = M.insert name parVar . parameters $ fstate'' }
 
