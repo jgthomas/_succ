@@ -9,16 +9,17 @@ module State.FuncState
         (module State.FuncStateOffset,
          module State.FuncStateVars,
          module State.FuncStateScope,
+         module State.FuncStateParams,
          delFuncState
         ) where
 
 
 import State.FuncStateAccess (delFuncState)
 import State.FuncStateOffset (incrementOffsetByN, stackPointerValue)
+import State.FuncStateParams (addParameter, allTypes, parameterDeclared,
+                              parameterPosition, parameterType)
 import State.FuncStateScope  (closeFunction, closeScope, initFunction,
                               initScope)
-import State.FuncStateVars   (addParameter, addVariable, allTypes,
-                              checkVariable, getBreak, getContinue,
-                              parameterDeclared, parameterPosition,
-                              parameterType, setBreak, setContinue,
-                              setLocalValue, variableOffset, variableType)
+import State.FuncStateVars   (addVariable, checkVariable, getBreak, getContinue,
+                              setBreak, setContinue, setLocalValue,
+                              variableOffset, variableType)
