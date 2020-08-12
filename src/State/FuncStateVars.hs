@@ -19,6 +19,7 @@ module State.FuncStateVars
          setContinue,
          getLocalValue,
          setLocalValue,
+         setParamValue,
          allTypes
         ) where
 
@@ -108,6 +109,14 @@ parameterType paramName = do
         extract paramType
             . M.lookup paramName
             . parameters <$> getFuncState currFuncName
+
+
+setParamValue :: String -> VarValue -> GenState ()
+setParamValue name varValue = do
+        paramVar <- getParamVar name
+        case paramVar of
+             Nothing -> throwError $ StateError (NoStateFound name)
+             Just pv -> setParamVar name $ pv { paramValue = varValue }
 
 
 -- | Retrieve list of all the type of function parameters
@@ -206,6 +215,21 @@ addParam name typ fstate =
             fstate'' = fstate' { paramCount = succ paramPos }
             in
         fstate'' { parameters = M.insert name parVar . parameters $ fstate'' }
+
+
+getParamVar :: String -> GenState (Maybe ParamVar)
+getParamVar paramName = do
+        funcName <- FrameStack.currentFunc
+        fstate   <- getFuncState funcName
+        pure $ M.lookup paramName . parameters $ fstate
+
+
+setParamVar :: String -> ParamVar -> GenState ()
+setParamVar name paramVar = do
+        funcName <- FrameStack.currentFunc
+        fstate   <- getFuncState funcName
+        let fstate' = fstate { parameters = M.insert name paramVar . parameters $ fstate }
+        setFuncState funcName fstate'
 
 
 extract :: (b -> a) -> Maybe b -> Maybe a
