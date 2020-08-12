@@ -62,6 +62,7 @@ mkGloVar lab typ        = GloVar lab typ UntrackedValue
 data FuncState = Fs { paramCount   :: Int
                     , funcOffset   :: Int
                     , currentScope :: Int
+                    , posToParam   :: M.Map Int String
                     , parameters   :: M.Map String ParamVar
                     , scopes       :: M.Map Int (M.Map String LocalVar) }
                deriving (Show)
@@ -83,7 +84,7 @@ data ParamVar = ParVar { paramNum   :: Int
 
 -- | Local scope state constructor
 mkFuncState :: FuncState
-mkFuncState = Fs 0 memOffset (-1) M.empty M.empty
+mkFuncState = Fs 0 memOffset (-1) M.empty M.empty M.empty
 
 
 -- | Local variable state constructor

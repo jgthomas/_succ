@@ -32,8 +32,8 @@ import           State.FuncStateAccess (getFuncState, setFuncState)
 import           State.FuncStateOffset (currentOffset, incrementOffsetByN)
 import           State.FuncStateScope  (scopeDepth)
 import           State.GenState        (GenState, throwError)
-import           State.SymbolTable     (FuncState (paramCount, parameters, scopes),
-                                        LocalVar (..), ParamVar (..))
+import           State.SymbolTable     (FuncState (..), LocalVar (..),
+                                        ParamVar (..))
 import qualified State.SymbolTable     as SymbolTable (mkLocVar, mkParVar)
 import           Types.Error           (CompilerError (StateError),
                                         StateError (..))
@@ -200,10 +200,12 @@ getParamPos paramName funcName =
 
 addParam :: String -> Type -> FuncState -> FuncState
 addParam name typ fstate =
-        let parVar  = SymbolTable.mkParVar (paramCount fstate) typ
-            fstate' = fstate { paramCount = succ . paramCount $ fstate }
+        let paramPos = paramCount fstate
+            parVar   = SymbolTable.mkParVar paramPos typ
+            fstate'  = fstate { posToParam = M.insert paramPos name $ posToParam fstate }
+            fstate'' = fstate' { paramCount = succ . paramCount $ fstate' }
             in
-        fstate' { parameters = M.insert name parVar . parameters $ fstate' }
+        fstate'' { parameters = M.insert name parVar . parameters $ fstate'' }
 
 
 extract :: (b -> a) -> Maybe b -> Maybe a
