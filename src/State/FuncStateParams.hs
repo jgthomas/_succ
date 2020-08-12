@@ -10,7 +10,8 @@ module State.FuncStateParams
          parameterType,
          setParamValue,
          allTypes,
-         parameterDeclared
+         parameterDeclared,
+         parameterNameFromPosition
         ) where
 
 
@@ -44,6 +45,13 @@ parameterPosition :: String -> GenState (Maybe Int)
 parameterPosition paramName = do
         funcName <- FrameStack.currentFunc
         getParamPos paramName funcName
+
+
+-- | Retrieve the name of the parameter at a position
+parameterNameFromPosition :: Int -> GenState (Maybe String)
+parameterNameFromPosition pos = do
+        funcName <- FrameStack.currentFunc
+        M.lookup pos . posToParam <$> getFuncState funcName
 
 
 -- | Retrieve the type of function parameter
