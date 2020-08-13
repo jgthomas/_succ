@@ -16,8 +16,9 @@ module State.FuncState
 
 import State.FuncStateAccess (delFuncState)
 import State.FuncStateOffset (incrementOffsetByN, stackPointerValue)
-import State.FuncStateParams (addParameter, allTypes, parameterDeclared,
-                              parameterPosition, parameterType)
+import State.FuncStateParams (addParameter, allTypes, paramValuesFromArgs,
+                              parameterDeclared, parameterPosition,
+                              parameterType)
 import State.FuncStateScope  (closeFunction, closeScope, initFunction,
                               initScope)
 import State.FuncStateVars   (addVariable, checkVariable, getBreak, getContinue,

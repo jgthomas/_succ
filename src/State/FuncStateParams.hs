@@ -11,7 +11,7 @@ module State.FuncStateParams
          setParamValue,
          allTypes,
          parameterDeclared,
-         parameterNameFromPosition
+         paramValuesFromArgs
         ) where
 
 
@@ -47,10 +47,8 @@ parameterPosition paramName = do
         getParamPos paramName funcName
 
 
--- | Retrieve the name of the parameter at a position
-parameterNameFromPosition :: Int -> GenState (Maybe String)
-parameterNameFromPosition pos = do
-        funcName <- FrameStack.currentFunc
+parameterNameFromPosition :: String -> Int -> GenState (Maybe String)
+parameterNameFromPosition funcName pos =
         M.lookup pos . posToParam <$> getFuncState funcName
 
 
@@ -65,11 +63,12 @@ parameterType paramName = do
 
 -- | Set the stored value of the parameter
 setParamValue :: String -> VarValue -> GenState ()
-setParamValue name varValue = do
-        paramVar <- getParamVar name
+setParamValue varName varValue = do
+        funcName <- FrameStack.currentFunc
+        paramVar <- getParamVar funcName varName
         case paramVar of
-             Nothing -> throwError $ StateError (NoStateFound name)
-             Just pv -> setParamVar name $ pv { paramValue = varValue }
+             Nothing -> throwError $ StateError (NoStateFound varName)
+             Just pv -> setParamVar funcName varName $ pv { paramValue = varValue }
 
 
 -- | Retrieve list of all the type of function parameters
@@ -86,6 +85,22 @@ parameterDeclared paramName = do
         case pos of
              Just _  -> pure True
              Nothing -> pure False
+
+
+paramValuesFromArgs :: String -> [(Int, VarValue)] -> GenState ()
+paramValuesFromArgs funcName argList = mapM_ (paramValueFromArg funcName) argList
+
+
+paramValueFromArg :: String -> (Int, VarValue) -> GenState ()
+paramValueFromArg funcName (pos, varValue) = do
+        paramName <- parameterNameFromPosition funcName pos
+        case paramName of
+             Nothing -> undefined
+             Just pn -> do
+                     paramVar <- getParamVar funcName pn
+                     case paramVar of
+                          Nothing -> undefined
+                          Just pv -> setParamVar funcName pn $ pv { paramValue = varValue }
 
 
 getParamPos :: String -> String -> GenState (Maybe Int)
@@ -106,18 +121,17 @@ addParam name typ fstate =
         fstate'' { parameters = M.insert name parVar . parameters $ fstate'' }
 
 
-getParamVar :: String -> GenState (Maybe ParamVar)
-getParamVar paramName = do
-        funcName <- FrameStack.currentFunc
-        fstate   <- getFuncState funcName
+getParamVar :: String -> String -> GenState (Maybe ParamVar)
+getParamVar funcName paramName = do
+        fstate <- getFuncState funcName
         pure $ M.lookup paramName . parameters $ fstate
 
 
-setParamVar :: String -> ParamVar -> GenState ()
-setParamVar name paramVar = do
-        funcName <- FrameStack.currentFunc
-        fstate   <- getFuncState funcName
-        let fstate' = fstate { parameters = M.insert name paramVar . parameters $ fstate }
+setParamVar :: String -> String -> ParamVar -> GenState ()
+setParamVar funcName varName paramVar = do
+        fstate <- getFuncState funcName
+        let fstate' = fstate
+                      { parameters = M.insert varName paramVar . parameters $ fstate }
         setFuncState funcName fstate'
 
 

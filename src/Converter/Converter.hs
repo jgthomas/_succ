@@ -62,7 +62,9 @@ convertToSchema (ParamNode typ (VarNode name _) _) = do
         pure SkipSchema
 
 convertToSchema (FuncCallNode name argList _) = do
-        argSchemas <- mapM convertToSchema argList
+        argPosValues <- argsToPosValue argList
+        argSchemas   <- mapM convertToSchema argList
+        FuncState.paramValuesFromArgs name argPosValues
         pure (ExpressionSchema $ FunctionCallSchema name argSchemas)
 
 convertToSchema (ArgNode arg _) = convertToSchema arg
@@ -349,6 +351,16 @@ processParameters name params = do
         FuncState.initFunction name
         mapM_ convertToSchema params
         FuncState.closeFunction
+
+
+argsToPosValue :: [Tree] -> GenState [(Int, VarValue)]
+argsToPosValue argList = zip [0..] <$> mapM argToValue argList
+
+
+argToValue :: Tree -> GenState VarValue
+argToValue (ArgNode valNode _) = pure $ buildVarableValue valNode
+argToValue tree                = throwError $ FatalError (ConverterBug tree)
+
 
 
 checkReturn :: String -> AssemblySchema -> AssemblySchema
