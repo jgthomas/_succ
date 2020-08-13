@@ -58,12 +58,12 @@ parameterType paramName = do
 
 -- | Set the stored value of the parameter
 setParamValue :: String -> VarValue -> GenState ()
-setParamValue varName varValue = do
+setParamValue paramName varValue = do
         funcName <- FrameStack.currentFunc
-        paramVar <- getParamVar funcName varName
+        paramVar <- getParamVar funcName paramName
         case paramVar of
-             Nothing -> throwError $ StateError (NoStateFound $ errMsg funcName varName)
-             Just pv -> setParamVar funcName varName $ pv { paramValue = varValue }
+             Nothing -> throwError $ StateError (NoStateFound $ errMsg funcName paramName)
+             Just pv -> setParamVar funcName paramName $ pv { paramValue = varValue }
 
 
 -- | Retrieve list of all the type of function parameters
@@ -133,10 +133,10 @@ getParamVar funcName paramName = do
 
 
 setParamVar :: String -> String -> ParamVar -> GenState ()
-setParamVar funcName varName paramVar = do
+setParamVar funcName paramName paramVar = do
         fstate <- getFuncState funcName
         let fstate' = fstate
-                      { parameters = M.insert varName paramVar . parameters $ fstate }
+                      { parameters = M.insert paramName paramVar . parameters $ fstate }
         setFuncState funcName fstate'
 
 
