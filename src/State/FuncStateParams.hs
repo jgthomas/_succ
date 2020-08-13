@@ -47,11 +47,6 @@ parameterPosition paramName = do
         getParamPos paramName funcName
 
 
-parameterNameFromPosition :: String -> Int -> GenState (Maybe String)
-parameterNameFromPosition funcName pos =
-        M.lookup pos . posToParam <$> getFuncState funcName
-
-
 -- | Retrieve the type of function parameter
 parameterType :: String -> GenState (Maybe Type)
 parameterType paramName = do
@@ -87,6 +82,7 @@ parameterDeclared paramName = do
              Nothing -> pure False
 
 
+-- | Set argument values as initial parameter values
 paramValuesFromArgs :: String -> [(Int, VarValue)] -> GenState ()
 paramValuesFromArgs funcName argList = mapM_ (paramValueFromArg funcName) argList
 
@@ -101,6 +97,11 @@ paramValueFromArg funcName (pos, varValue) = do
                      case paramVar of
                           Nothing -> undefined
                           Just pv -> setParamVar funcName pn $ pv { paramValue = varValue }
+
+
+parameterNameFromPosition :: String -> Int -> GenState (Maybe String)
+parameterNameFromPosition funcName pos =
+        M.lookup pos . posToParam <$> getFuncState funcName
 
 
 getParamPos :: String -> String -> GenState (Maybe Int)
