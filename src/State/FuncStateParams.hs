@@ -92,11 +92,15 @@ paramValueFromArg funcName (pos, varValue) = do
         paramName <- parameterNameFromPosition funcName pos
         case paramName of
              Nothing -> undefined
-             Just pn -> do
-                     paramVar <- getParamVar funcName pn
-                     case paramVar of
-                          Nothing -> undefined
-                          Just pv -> setParamVar funcName pn $ pv { paramValue = varValue }
+             Just pn -> setParamVarFromArg funcName pn varValue
+
+
+setParamVarFromArg :: String -> String -> VarValue -> GenState ()
+setParamVarFromArg funcName paramName varValue = do
+        paramVar <- getParamVar funcName paramName
+        case paramVar of
+             Nothing -> undefined
+             Just pv -> setParamVar funcName paramName $ pv { paramValue = varValue }
 
 
 parameterNameFromPosition :: String -> Int -> GenState (Maybe String)
