@@ -62,7 +62,7 @@ setParamValue varName varValue = do
         funcName <- FrameStack.currentFunc
         paramVar <- getParamVar funcName varName
         case paramVar of
-             Nothing -> throwError $ StateError (NoStateFound varName)
+             Nothing -> throwError $ StateError (NoStateFound $ errMsg funcName varName)
              Just pv -> setParamVar funcName varName $ pv { paramValue = varValue }
 
 
@@ -91,7 +91,7 @@ paramValueFromArg :: String -> (Int, VarValue) -> GenState ()
 paramValueFromArg funcName (pos, varValue) = do
         paramName <- parameterNameFromPosition funcName pos
         case paramName of
-             Nothing -> undefined
+             Nothing -> throwError $ StateError (NoStateFound $ errMsg funcName (show pos))
              Just pn -> setParamVarFromArg funcName pn varValue
 
 
@@ -99,7 +99,7 @@ setParamVarFromArg :: String -> String -> VarValue -> GenState ()
 setParamVarFromArg funcName paramName varValue = do
         paramVar <- getParamVar funcName paramName
         case paramVar of
-             Nothing -> undefined
+             Nothing -> throwError $ StateError (NoStateFound $ errMsg funcName paramName)
              Just pv -> setParamVar funcName paramName $ pv { paramValue = varValue }
 
 
@@ -147,3 +147,7 @@ paramData pv = (paramNum pv, paramType pv)
 extract :: (b -> a) -> Maybe b -> Maybe a
 extract f (Just pv) = Just . f $ pv
 extract _ Nothing   = Nothing
+
+
+errMsg :: String -> String -> String
+errMsg funcName paramName = "Function: " ++ funcName ++ ", Parameter: " ++ paramName
