@@ -78,6 +78,7 @@ data LocalVar = LocVar { locOffset :: Int
 -- | Parameter state data type
 data ParamVar = ParVar { paramNum   :: Int
                        , paramType  :: Type
+                       , argValue   :: VarValue
                        , paramValue :: VarValue }
               deriving (Show)
 
@@ -94,7 +95,7 @@ mkLocVar off typ = LocVar off typ UntrackedValue
 
 -- | Parameter state constructor
 mkParVar :: Int -> Type -> ParamVar
-mkParVar pos typ = ParVar pos typ UntrackedValue
+mkParVar pos typ = ParVar pos typ UntrackedValue UntrackedValue
 
 
 -- | Offset step from the stack frame base pointer

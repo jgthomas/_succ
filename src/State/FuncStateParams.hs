@@ -9,6 +9,7 @@ module State.FuncStateParams
          parameterPosition,
          parameterType,
          setParamValue,
+         getParamValue,
          allTypes,
          parameterDeclared,
          paramValuesFromArgs,
@@ -65,6 +66,19 @@ setParamValue paramName varValue = do
         case paramVar of
              Nothing -> throwError $ StateError (NoStateFound $ errMsg funcName paramName)
              Just pv -> setParamVar funcName paramName $ pv { paramValue = varValue }
+
+
+-- | Get the stored value of the parameter
+getParamValue :: String -> GenState VarValue
+getParamValue paramName = do
+        funcName <- FrameStack.currentFunc
+        paramVar <- getParamVar funcName paramName
+        case paramVar of
+             Nothing -> throwError $ StateError (NoStateFound $ errMsg funcName paramName)
+             Just pv ->
+                     if paramValue pv == UntrackedValue
+                        then pure $ argValue pv
+                        else pure $ paramValue pv
 
 
 -- | Retrieve list of all the type of function parameters
@@ -142,7 +156,7 @@ setParamVarFromArg funcName paramName varValue = do
         paramVar <- getParamVar funcName paramName
         case paramVar of
              Nothing -> throwError $ StateError (NoStateFound $ errMsg funcName paramName)
-             Just pv -> setParamVar funcName paramName $ pv { paramValue = varValue }
+             Just pv -> setParamVar funcName paramName $ pv { argValue = varValue }
 
 
 parameterNameFromPosition :: String -> Int -> GenState (Maybe String)
