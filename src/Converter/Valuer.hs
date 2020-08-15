@@ -2,7 +2,7 @@
 Module       : Valuer
 Description  : Evaluates tree values
 
-Determines the value associated with a node in the syntax tree
+Determines the value to be tracked in the state for a node in the syntax tree
 -}
 module Converter.Valuer (variableValue) where
 
