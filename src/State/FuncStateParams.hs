@@ -15,8 +15,7 @@ module State.FuncStateParams
         ) where
 
 
-import           Data.Function         (on)
-import           Data.List             (sortBy)
+import           Data.List             (sortOn)
 import qualified Data.Map              as M
 
 import qualified State.FrameStack      as FrameStack (currentFunc)
@@ -69,8 +68,8 @@ setParamValue paramName varValue = do
 -- | Retrieve list of all the type of function parameters
 allTypes :: String -> GenState [Type]
 allTypes funcName = do
-        paramList <- M.elems . parameters <$> getFuncState funcName
-        pure $ snd <$> sortBy (compare `on` fst) (paramData <$> paramList)
+        paramVars <- orderedParamVars funcName
+        pure $ map paramType paramVars
 
 
 -- | Check a parameter exits for function
@@ -140,8 +139,8 @@ setParamVar funcName paramName paramVar = do
         setFuncState funcName fstate'
 
 
-paramData :: ParamVar -> (Int, Type)
-paramData pv = (paramNum pv, paramType pv)
+orderedParamVars :: String -> GenState [ParamVar]
+orderedParamVars funcName = sortOn paramNum . M.elems . parameters <$> getFuncState funcName
 
 
 extract :: (b -> a) -> Maybe b -> Maybe a
