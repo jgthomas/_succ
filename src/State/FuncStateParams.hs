@@ -67,9 +67,7 @@ setParamValue paramName varValue = do
 
 -- | Retrieve list of all the type of function parameters
 allTypes :: String -> GenState [Type]
-allTypes funcName = do
-        paramVars <- orderedParamVars funcName
-        pure $ map paramType paramVars
+allTypes funcName = map paramType <$> orderedParamVars funcName
 
 
 -- | Check a parameter exits for function
