@@ -9,16 +9,18 @@ module State.State
          SymTab,
          labelNum,
          memOffset,
-         getVariable
+         getVariable,
+         setVariableValue
         ) where
 
 
 import           State.FrameStack  (currentFunc, getScope)
-import qualified State.FuncState   (parameterPosition, variableOffset)
+import qualified State.FuncState   (parameterPosition, setLocalValue,
+                                    setParamValue, variableOffset)
 import           State.GenState    (GenState, labelNum)
-import qualified State.GlobalState (getLabel)
+import qualified State.GlobalState (getLabel, setValue)
 import           State.SymbolTable (SymTab, memOffset)
-import           Types.Variables   (VarLookup (..), VarType (..))
+import           Types.Variables   (VarLookup (..), VarType (..), VarValue (..))
 
 
 -- | Build variable data type from retrieved data
@@ -32,6 +34,19 @@ getVariable name = do
              (_, var@(VarType ParamVar{}), _)  -> pure var
              (_, _, var@(VarType GlobalVar{})) -> pure var
              (_, _, _)                         -> pure NotFound
+
+
+
+setVariableValue :: String -> VarValue -> GenState ()
+setVariableValue varName varValue = do
+        localVar  <- State.FuncState.variableOffset varName
+        paramVar  <- State.FuncState.parameterPosition varName
+        globalVar <- State.GlobalState.getLabel varName
+        case (localVar, paramVar, globalVar) of
+             (Just _, _, _) -> State.FuncState.setLocalValue varName varValue
+             (_, Just _, _) -> State.FuncState.setParamValue varName varValue
+             (_, _, Just _) -> State.GlobalState.setValue varName varValue
+             (_, _, _)      -> undefined
 
 
 mkVarLocal :: Maybe Int -> VarLookup
