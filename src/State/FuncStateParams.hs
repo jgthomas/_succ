@@ -11,10 +11,12 @@ module State.FuncStateParams
          setParamValue,
          allTypes,
          parameterDeclared,
-         paramValuesFromArgs
+         paramValuesFromArgs,
+         updateParameters
         ) where
 
 
+import           Control.Monad         (when)
 import           Data.List             (sortOn)
 import qualified Data.Map              as M
 
@@ -82,6 +84,49 @@ parameterDeclared paramName = do
 -- | Set argument values as initial parameter values
 paramValuesFromArgs :: String -> [(Int, VarValue)] -> GenState ()
 paramValuesFromArgs funcName argList = mapM_ (paramValueFromArg funcName) argList
+
+
+-- | Update parameter data on function redeclaration
+updateParameters :: [(Int, String)] -> GenState ()
+updateParameters posAndName = mapM_ updateParameter posAndName
+
+
+updateParameter :: (Int, String) -> GenState ()
+updateParameter (pos, newName) = do
+        prevName <- previousName pos
+        when (prevName /= newName) $ do
+            updateParamName prevName newName
+            updateParamPos pos newName
+
+
+previousName :: Int -> GenState String
+previousName pos = do
+        currFuncName <- FrameStack.currentFunc
+        nameAtPos    <- M.lookup pos . posToParam <$> getFuncState currFuncName
+        case nameAtPos of
+             Nothing   -> throwError $ StateError (NoStateFound $ errMsg currFuncName (show pos))
+             Just name -> pure name
+
+
+updateParamName :: String -> String -> GenState ()
+updateParamName prevName newName = do
+        currFuncName  <- FrameStack.currentFunc
+        fstate        <- getFuncState currFuncName
+        let prevData = M.lookup prevName . parameters $ fstate
+        case prevData of
+             Nothing  -> throwError $ StateError (NoStateFound $ errMsg currFuncName prevName)
+             Just dat -> do
+                     let fstate'  = fstate { parameters = M.delete prevName . parameters $ fstate }
+                         fstate'' = fstate' { parameters = M.insert newName dat . parameters $ fstate' }
+                     setFuncState currFuncName  fstate''
+
+
+updateParamPos :: Int -> String -> GenState ()
+updateParamPos pos newName = do
+        currFuncName <- FrameStack.currentFunc
+        fstate       <- getFuncState currFuncName
+        let fstate' = fstate { posToParam = M.insert pos newName . posToParam $ fstate }
+        setFuncState currFuncName fstate'
 
 
 paramValueFromArg :: String -> (Int, VarValue) -> GenState ()

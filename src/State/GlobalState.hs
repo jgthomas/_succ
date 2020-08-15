@@ -20,7 +20,8 @@ module State.GlobalState
          checkFuncDefined,
          getUndefinedVarData,
          defineGlobal,
-         makeLabel
+         makeLabel,
+         incrementDecSeq
         ) where
 
 
@@ -145,6 +146,15 @@ getUndefinedVarData = do
          . M.filterWithKey (\k _ -> k `elem` undefinedSet)
          . declaredVars
          <$> getGlobalScope
+
+
+-- | Change declaration sequence number on redeclaration
+incrementDecSeq :: GenState ()
+incrementDecSeq = do
+        currFunc <- FrameStack.currentFunc
+        gscope   <- getGlobalScope
+        gscope'  <- addSymbol currFunc gscope
+        putGlobalScope gscope'
 
 
 getGlobalData :: GlobalVar -> (String, Type)

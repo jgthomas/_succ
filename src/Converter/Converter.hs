@@ -341,8 +341,7 @@ declareRepeatFunction (FunctionNode typ funcName paramList _ _) = do
         GlobalState.declareFunction typ funcName (length paramList)
         defined <- GlobalState.checkFuncDefined funcName
         unless defined $
-           do FuncState.delFuncState funcName
-              processParameters funcName paramList
+           reprocessParameters funcName paramList
 declareRepeatFunction tree = throwError $ FatalError (ConverterBug tree)
 
 
@@ -351,6 +350,20 @@ processParameters name params = do
         FuncState.initFunction name
         mapM_ convertToSchema params
         FuncState.closeFunction
+
+
+reprocessParameters :: String -> [Tree] -> GenState ()
+reprocessParameters funcName paramList = do
+        FuncState.initFunction funcName
+        posAndName <- zip [0..] <$> mapM paramName paramList
+        FuncState.updateParameters posAndName
+        GlobalState.incrementDecSeq
+        FuncState.closeFunction
+
+
+paramName :: Tree -> GenState String
+paramName (ParamNode _ (VarNode name _) _) = pure name
+paramName tree = throwError $ FatalError (ConverterBug tree)
 
 
 argsToPosValue :: [Tree] -> GenState [(Int, VarValue)]

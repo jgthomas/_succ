@@ -18,7 +18,7 @@ import State.FuncStateAccess (delFuncState)
 import State.FuncStateOffset (incrementOffsetByN, stackPointerValue)
 import State.FuncStateParams (addParameter, allTypes, paramValuesFromArgs,
                               parameterDeclared, parameterPosition,
-                              parameterType)
+                              parameterType, updateParameters)
 import State.FuncStateScope  (closeFunction, closeScope, initFunction,
                               initScope)
 import State.FuncStateVars   (addVariable, checkVariable, getBreak, getContinue,
