@@ -32,3 +32,8 @@ binaryFunction BitwiseAND           = (.&.)
 binaryFunction BitwiseOR            = (.|.)
 binaryFunction (ShiftOp LeftShift)  = \x y -> shiftL x (fromIntegral y)
 binaryFunction (ShiftOp RightShift) = \x y -> shiftR x (fromIntegral y)
+
+
+constantTrue :: Int -> Bool
+constantTrue 0 = False
+constantTrue _ = True

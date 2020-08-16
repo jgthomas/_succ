@@ -10,6 +10,7 @@ module Converter.Converter (convert) where
 import           Control.Monad        (unless)
 import           Data.Maybe           (fromMaybe)
 
+import qualified Converter.Analyser   as Analyser (analyse)
 import qualified Converter.Valuer     as Valuer (value)
 import qualified State.FuncState      as FuncState
 import           State.GenState       (GenState, runGenState, throwError)
@@ -54,7 +55,8 @@ convertToSchema funcNode@(FunctionNode _ _ _ Nothing _) = do
 convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
         declareFunction funcNode
         FuncState.initFunction name
-        bodySchema <- checkReturn name <$> convertToSchema body
+        checkedBody <- Analyser.analyse body
+        bodySchema  <- checkReturn name <$> convertToSchema checkedBody
         FuncState.closeFunction
         GlobalState.defineFunction name
         pure (FunctionSchema name bodySchema)
