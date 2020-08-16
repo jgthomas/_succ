@@ -1,4 +1,9 @@
+{-|
+Module       : Analyser
+Description  : Analyses statements
 
+Analyses the logic of statements
+-}
 module Converter.Analyser (analyse) where
 
 
@@ -7,6 +12,7 @@ import State.GenState            (GenState)
 import Types.AST                 (NodeDat (isSkipped), Tree (..))
 
 
+-- | Analyse a syntax tree node
 analyse :: Tree -> GenState Tree
 
 analyse (CompoundStmtNode trees dat) = do

@@ -12,7 +12,7 @@ import Data.Bits
 import Types.Operator
 
 
--- | Matches binary operator to Haskell function
+-- | Calculate result of binary operation
 binaryFunction :: (Bits a, Integral a) => BinaryOp -> (a -> a -> a)
 binaryFunction Plus                 = (+)
 binaryFunction Minus                = (-)
@@ -34,6 +34,7 @@ binaryFunction (ShiftOp LeftShift)  = \x y -> shiftL x (fromIntegral y)
 binaryFunction (ShiftOp RightShift) = \x y -> shiftR x (fromIntegral y)
 
 
+-- | Constant to bool conversion
 constantTrue :: Int -> Bool
 constantTrue 0 = False
 constantTrue _ = True
