@@ -10,15 +10,17 @@ module State.State
          labelNum,
          memOffset,
          getVariable,
-         setVariableValue
+         setVariableValue,
+         getVariableValue
         ) where
 
 
 import           State.FrameStack  (currentFunc, getScope)
-import qualified State.FuncState   (parameterPosition, setLocalValue,
+import qualified State.FuncState   (getLocalValue, getParamValue,
+                                    parameterPosition, setLocalValue,
                                     setParamValue, variableOffset)
 import           State.GenState    (GenState, labelNum)
-import qualified State.GlobalState (getLabel, setValue)
+import qualified State.GlobalState (getLabel, getValue, setValue)
 import           State.SymbolTable (SymTab, memOffset)
 import           Types.Variables   (VarLookup (..), VarType (..), VarValue (..))
 
@@ -35,6 +37,18 @@ getVariable name = do
              (_, _, var@(VarType GlobalVar{})) -> pure var
              (_, _, _)                         -> pure NotFound
 
+
+
+getVariableValue :: String -> GenState VarValue
+getVariableValue varName = do
+        locValue    <- State.FuncState.getLocalValue varName
+        paramValue  <- State.FuncState.getParamValue varName
+        globalValue <- State.GlobalState.getValue varName
+        case (locValue, paramValue, globalValue) of
+             (Just lv, _, _) -> pure lv
+             (_, Just pv, _) -> pure pv
+             (_, _, Just gv) -> pure gv
+             (_, _, _)       -> undefined
 
 
 setVariableValue :: String -> VarValue -> GenState ()

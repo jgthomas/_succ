@@ -4,14 +4,32 @@ Description  : Evaluates tree values
 
 Determines the value to be tracked in the state for a node in the syntax tree
 -}
-module Converter.Valuer (variableValue) where
+module Converter.Valuer (value) where
 
 
-import Types.AST       (Tree (..))
-import Types.Variables (VarValue (..))
+import Compute.ComputeExpression as Compute (binaryFunction)
+import State.GenState            (GenState)
+import State.State               as State (getVariableValue)
+import Types.AST                 (Tree (..))
+import Types.Operator
+import Types.Variables           (VarValue (..))
 
 
 -- | Determine a tree node value
-variableValue :: Tree -> VarValue
-variableValue (ConstantNode n _) = SingleValue n
-variableValue _                  = UntrackedValue
+value :: Tree -> GenState VarValue
+
+value (ConstantNode n _)           = pure $ SingleValue n
+
+value (VarNode name _)             = State.getVariableValue name
+
+value (BinaryNode left right op _) = do
+        leftValue  <- value left
+        rightValue <- value right
+        combineBinary op leftValue rightValue
+
+value _                            = pure UntrackedValue
+
+
+combineBinary :: BinaryOp -> VarValue -> VarValue -> GenState VarValue
+combineBinary op (SingleValue n) (SingleValue m) = pure $ SingleValue (Compute.binaryFunction op n m)
+combineBinary _ _ _                              = pure UntrackedValue

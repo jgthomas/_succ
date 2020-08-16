@@ -69,16 +69,16 @@ setParamValue paramName varValue = do
 
 
 -- | Get the stored value of the parameter
-getParamValue :: String -> GenState VarValue
+getParamValue :: String -> GenState (Maybe VarValue)
 getParamValue paramName = do
         funcName <- FrameStack.currentFunc
         paramVar <- getParamVar funcName paramName
         case paramVar of
-             Nothing -> throwError $ StateError (NoStateFound $ errMsg funcName paramName)
+             Nothing -> pure Nothing
              Just pv ->
                      if paramValue pv == UntrackedValue
-                        then pure $ argValue pv
-                        else pure $ paramValue pv
+                        then pure (Just $ argValue pv)
+                        else pure (Just $ paramValue pv)
 
 
 -- | Retrieve list of all the type of function parameters

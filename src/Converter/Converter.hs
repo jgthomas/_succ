@@ -10,7 +10,7 @@ module Converter.Converter (convert) where
 import           Control.Monad        (unless)
 import           Data.Maybe           (fromMaybe)
 
-import qualified Converter.Valuer     as Valuer (variableValue)
+import qualified Converter.Valuer     as Valuer (value)
 import qualified State.FuncState      as FuncState
 import           State.GenState       (GenState, runGenState, throwError)
 import qualified State.GenState       as GenState (getState, startState)
@@ -372,7 +372,7 @@ argsToPosValue argList = zip [0..] <$> mapM argToValue argList
 
 
 argToValue :: Tree -> GenState VarValue
-argToValue (ArgNode valNode _) = pure $ Valuer.variableValue valNode
+argToValue (ArgNode valNode _) = Valuer.value valNode
 argToValue tree                = throwError $ FatalError (ConverterBug tree)
 
 
@@ -427,11 +427,11 @@ processGlobalAssignment tree = throwError $ FatalError (ConverterBug tree)
 defineGlobal :: Tree -> GenState AssemblySchema
 defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ _) = do
         GlobalState.defineGlobal name
-        State.setVariableValue name (Valuer.variableValue valNode)
+        storeValue name valNode
         buildAssignmentSchema varNode valNode
 defineGlobal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ _) = do
         GlobalState.defineGlobal name
-        State.setVariableValue name (Valuer.variableValue valNode)
+        storeValue name derefNode
         buildAssignmentSchema derefNode valNode
 defineGlobal tree = throwError $ FatalError (ConverterBug tree)
 
@@ -459,16 +459,22 @@ declareLocal tree = throwError $ FatalError (ConverterBug tree)
 
 defineLocal :: Tree -> GenState AssemblySchema
 defineLocal (AssignmentNode varNode@(VarNode name _) valNode _ _) = do
-        State.setVariableValue name (Valuer.variableValue valNode)
+        storeValue name valNode
         buildAssignmentSchema varNode valNode
 defineLocal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ _) = do
-        State.setVariableValue name (Valuer.variableValue valNode)
+        storeValue name derefNode
         buildAssignmentSchema derefNode valNode
 defineLocal tree = throwError $ FatalError (ConverterBug tree)
 
 
 
 -- Shared
+
+storeValue :: String -> Tree -> GenState ()
+storeValue varName valNode = do
+        varValue <- Valuer.value valNode
+        State.setVariableValue varName varValue
+
 
 buildAssignmentSchema :: Tree -> Tree -> GenState AssemblySchema
 buildAssignmentSchema varNode valNode = do
