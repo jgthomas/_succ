@@ -23,18 +23,16 @@ analyse ifNode@(IfNode cond (ExprStmtNode assign@AssignmentNode{} d) e d') = do
         condTrue <- conditionTrue cond
         if condTrue
            then pure ifNode
-           else do
-                   skippedAssign <- setAsSkipped assign
-                   pure (IfNode cond (ExprStmtNode skippedAssign d) e d')
+           else pure (IfNode cond (ExprStmtNode (setAsSkipped assign) d) e d')
 
 analyse tree = pure tree
 
 
-setAsSkipped :: Tree -> GenState Tree
+setAsSkipped :: Tree -> Tree
 
-setAsSkipped (AssignmentNode a b o dat) = pure (AssignmentNode a b o $ dat { isSkipped = True })
+setAsSkipped (AssignmentNode a b o dat) = AssignmentNode a b o $ dat { isSkipped = True }
 
-setAsSkipped tree                       = pure tree
+setAsSkipped tree                       = tree
 
 
 conditionTrue :: Tree -> GenState Bool
