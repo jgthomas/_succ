@@ -19,7 +19,8 @@ import           State.State          (SymTab)
 import qualified State.State          as State (getScope, getVariable, labelNum,
                                                 memOffset, setVariableValue)
 import           Types.AssemblySchema
-import           Types.AST            (ArrayNode (..), Tree (..))
+import           Types.AST            (ArrayNode (..), NodeDat (isSkipped),
+                                       Tree (..))
 import           Types.Error          (CompilerError (FatalError),
                                        FatalError (ConverterBug))
 import           Types.Operator
@@ -425,13 +426,13 @@ processGlobalAssignment tree = throwError $ FatalError (ConverterBug tree)
 
 
 defineGlobal :: Tree -> GenState AssemblySchema
-defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ _) = do
+defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ dat) = do
         GlobalState.defineGlobal name
-        storeValue name valNode
+        storeValue dat name valNode
         buildAssignmentSchema varNode valNode
-defineGlobal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ _) = do
+defineGlobal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ dat) = do
         GlobalState.defineGlobal name
-        storeValue name derefNode
+        storeValue dat name derefNode
         buildAssignmentSchema derefNode valNode
 defineGlobal tree = throwError $ FatalError (ConverterBug tree)
 
@@ -458,11 +459,11 @@ declareLocal tree = throwError $ FatalError (ConverterBug tree)
 
 
 defineLocal :: Tree -> GenState AssemblySchema
-defineLocal (AssignmentNode varNode@(VarNode name _) valNode _ _) = do
-        storeValue name valNode
+defineLocal (AssignmentNode varNode@(VarNode name _) valNode _ dat) = do
+        storeValue dat name valNode
         buildAssignmentSchema varNode valNode
-defineLocal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ _) = do
-        storeValue name derefNode
+defineLocal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ dat) = do
+        storeValue dat name derefNode
         buildAssignmentSchema derefNode valNode
 defineLocal tree = throwError $ FatalError (ConverterBug tree)
 
@@ -470,10 +471,11 @@ defineLocal tree = throwError $ FatalError (ConverterBug tree)
 
 -- Shared
 
-storeValue :: String -> Tree -> GenState ()
-storeValue varName valNode = do
-        varValue <- Valuer.value valNode
-        State.setVariableValue varName varValue
+storeValue :: NodeDat -> String -> Tree -> GenState ()
+storeValue dat varName valNode =
+        unless (isSkipped dat) $ do
+             varValue <- Valuer.value valNode
+             State.setVariableValue varName varValue
 
 
 buildAssignmentSchema :: Tree -> Tree -> GenState AssemblySchema

@@ -16,4 +16,4 @@ makeLexDat t = LexDat t dummyLine
 
 
 mockNodeDat :: NodeDat
-mockNodeDat = NodeDat dummyLine dummyLine
+mockNodeDat = NodeDat dummyLine dummyLine False 1
