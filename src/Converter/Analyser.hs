@@ -13,13 +13,22 @@ analyse (CompoundStmtNode trees dat) = do
         checkedTrees <- mapM analyse trees
         pure (CompoundStmtNode checkedTrees dat)
 
-analyse ifNode@(IfNode cond (ExprStmtNode (AssignmentNode a b o dat) d) e d') = do
+analyse ifNode@(IfNode cond (ExprStmtNode assign@AssignmentNode{} d) e d') = do
         condTrue <- conditionTrue cond
         if condTrue
            then pure ifNode
-           else pure (IfNode cond (ExprStmtNode (AssignmentNode a b o $ dat { isSkipped = True }) d) e d')
+           else do
+                   skippedAssign <- setAsSkipped assign
+                   pure (IfNode cond (ExprStmtNode skippedAssign d) e d')
 
 analyse tree = pure tree
+
+
+setAsSkipped :: Tree -> GenState Tree
+
+setAsSkipped (AssignmentNode a b o dat) = pure (AssignmentNode a b o $ dat { isSkipped = True })
+
+setAsSkipped tree                       = pure tree
 
 
 conditionTrue :: Tree -> GenState Bool
