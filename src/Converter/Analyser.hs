@@ -29,7 +29,7 @@ analyse tree = pure tree
 
 
 setAsSkipped :: Tree -> Tree
-setAsSkipped (AssignmentNode a b o dat) = AssignmentNode a b o $ dat { isSkipped = True }
+setAsSkipped (AssignmentNode l r o dat) = AssignmentNode l r o $ dat { isSkipped = True }
 setAsSkipped tree                       = tree
 
 
