@@ -29,14 +29,10 @@ analyse tree = pure tree
 
 
 setAsSkipped :: Tree -> Tree
-
 setAsSkipped (AssignmentNode a b o dat) = AssignmentNode a b o $ dat { isSkipped = True }
-
 setAsSkipped tree                       = tree
 
 
 conditionTrue :: Tree -> GenState Bool
-
 conditionTrue (ConstantNode n _) = pure $ Compute.constantTrue n
-
 conditionTrue _                  = pure True
