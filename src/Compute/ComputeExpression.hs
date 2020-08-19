@@ -12,7 +12,7 @@ import Data.Bits
 import Types.Operator
 
 
--- | Calculate result of binary operation
+-- | Calculate result of a binary operation
 binaryFunction :: (Bits a, Integral a) => BinaryOp -> (a -> a -> a)
 binaryFunction Plus                 = (+)
 binaryFunction Minus                = (-)
@@ -32,6 +32,18 @@ binaryFunction BitwiseAND           = (.&.)
 binaryFunction BitwiseOR            = (.|.)
 binaryFunction (ShiftOp LeftShift)  = \x y -> shiftL x (fromIntegral y)
 binaryFunction (ShiftOp RightShift) = \x y -> shiftR x (fromIntegral y)
+
+
+-- | Calculate the result of a unary operation
+unaryFunction :: (Bits a, Num a) => UnaryOp -> (a -> a)
+unaryFunction (Unary Negate)              = \x -> negate x
+unaryFunction (Unary Positive)            = \x -> abs x
+unaryFunction (Unary BitwiseComp)         = \x -> complement x
+unaryFunction (Unary LogicalNeg)          = \x -> if x == 0 then 1 else 0
+unaryFunction (PreOpUnary PreIncrement)   = \x -> x + 1
+unaryFunction (PreOpUnary PreDecrement)   = \x -> x - 1
+unaryFunction (PostOpUnary PostIncrement) = \x -> x + 1
+unaryFunction (PostOpUnary PostDecrement) = \x -> x - 1
 
 
 -- | Constant to bool conversion
