@@ -36,14 +36,14 @@ binaryFunction (ShiftOp RightShift) = \x y -> shiftR x (fromIntegral y)
 
 -- | Calculate the result of a unary operation
 unaryFunction :: (Bits a, Num a) => UnaryOp -> (a -> a)
-unaryFunction (Unary Negate)              = \x -> negate x
-unaryFunction (Unary Positive)            = \x -> abs x
-unaryFunction (Unary BitwiseComp)         = \x -> complement x
+unaryFunction (Unary Negate)              = negate
+unaryFunction (Unary Positive)            = abs
+unaryFunction (Unary BitwiseComp)         = complement
 unaryFunction (Unary LogicalNeg)          = \x -> if x == 0 then 1 else 0
-unaryFunction (PreOpUnary PreIncrement)   = \x -> x + 1
-unaryFunction (PreOpUnary PreDecrement)   = \x -> x - 1
-unaryFunction (PostOpUnary PostIncrement) = \x -> x + 1
-unaryFunction (PostOpUnary PostDecrement) = \x -> x - 1
+unaryFunction (PreOpUnary PreIncrement)   = (+1)
+unaryFunction (PreOpUnary PreDecrement)   = subtract 1
+unaryFunction (PostOpUnary PostIncrement) = (+1)
+unaryFunction (PostOpUnary PostDecrement) = subtract 1
 
 
 -- | Constant to bool conversion
