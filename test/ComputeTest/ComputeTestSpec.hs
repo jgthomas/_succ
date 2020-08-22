@@ -39,71 +39,80 @@ computeTest = hspec $ do
                   (1 :: Int)
 
                 it "Should compute equal" $
-                  map (testBool Equal) boolTestData
+                  map (testBin Equal) boolTestData
                   `shouldBe`
                   [1, 1, 0, 0, 0, 0, 0]
 
                 it "Should compute not equal" $
-                  map (testBool NotEqual) boolTestData
+                  map (testBin NotEqual) boolTestData
                   `shouldBe`
                   [0, 0, 1, 1, 1, 1, 1]
 
                 it "Should compute greater than" $
-                  map (testBool GreaterThan) boolTestData
+                  map (testBin GreaterThan) boolTestData
                   `shouldBe`
                   [0, 0, 1, 1, 0, 0, 1]
 
                 it "Should compute less than" $
-                  map (testBool LessThan) boolTestData
+                  map (testBin LessThan) boolTestData
                   `shouldBe`
                   [0, 0, 0, 0, 1, 1, 0]
 
                 it "Should compute greater than or equal" $
-                  map (testBool GThanOrEqu) boolTestData
+                  map (testBin GThanOrEqu) boolTestData
                   `shouldBe`
                   [1, 1, 1, 1, 0, 0, 1]
 
                 it "Should compute less than or equal" $
-                  map (testBool LThanOrEqu) boolTestData
+                  map (testBin LThanOrEqu) boolTestData
                   `shouldBe`
                   [1, 1, 0, 0, 1, 1, 0]
 
                 it "Should compute logical OR" $
-                  map (testBool LogicalOR) boolTestData
+                  map (testBin LogicalOR) boolTestData
                   `shouldBe`
                   [1, 0, 1, 1, 1, 1, 1]
 
                 it "Should compute logical AND" $
-                  map (testBool LogicalAND) boolTestData
+                  map (testBin LogicalAND) boolTestData
                   `shouldBe`
                   [1, 0, 1, 1, 1, 0, 0]
 
                 it "Should compute bitwise XOR" $
-                  map (testBool BitwiseXOR) boolTestData
+                  map (testBin BitwiseXOR) boolTestData
                   `shouldBe`
-                  [0, 0, 14, -16, 9, 1, 1]
+                  [0, 0, 15, -16, 9, 1, 1]
 
                 it "Should compute bitwise AND" $
-                  map (testBool BitwiseAND) boolTestData
+                  map (testBin BitwiseAND) boolTestData
                   `shouldBe`
-                  [3, 0, 1, 13, 2, 0, 0]
+                  [3, 0, 0, 13, 2, 0, 0]
 
                 it "Should compute bitwise OR" $
-                  map (testBool BitwiseOR) boolTestData
+                  map (testBin BitwiseOR) boolTestData
                   `shouldBe`
                   [3, 0, 15, -3, 11, 1, 1]
 
+                it "Should compute left shift" $
+                  map (testBin (ShiftOp LeftShift)) shiftTestData
+                  `shouldBe`
+                  [24, 0, 52, 104, 3072, 0, 1]
 
-testBool :: (Bits a, Integral a) => BinaryOp -> (a, a) -> a
-testBool op pair = binaryFunction op (fst pair) (snd pair)
+
+testBin :: (Bits a, Integral a) => BinaryOp -> (a, a) -> a
+testBin op pair = binaryFunction op (fst pair) (snd pair)
 
 
 boolTestData :: [(Int, Int)]
 boolTestData = [(3, 3),
                 (0, 0),
-                (13, 3),
+                (13, 2),
                 (13, -3),
                 (3, 10),
                 (0, 1),
                 (1, 0)
                ]
+
+
+shiftTestData :: [(Int, Int)]
+shiftTestData = map (\(a, b) -> (abs a, abs b)) boolTestData
