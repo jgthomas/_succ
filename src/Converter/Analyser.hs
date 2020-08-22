@@ -14,6 +14,7 @@ import           State.GenState            (GenState)
 import qualified State.State               as State (getVariableValue)
 import           Types.AST                 (NodeDat (inLoop, isSkipped),
                                             Tree (..))
+import           Types.Operator
 import           Types.Variables           (VarValue (..))
 
 
@@ -107,15 +108,33 @@ conditionTrue _ = pure True
 
 
 setAsSkipped :: Tree -> Tree
-setAsSkipped (AssignmentNode l r o dat) = AssignmentNode l r o $ dat { isSkipped = True }
-setAsSkipped tree                       = tree
+
+setAsSkipped (AssignmentNode l r o dat) =
+        AssignmentNode l r o $ dat { isSkipped = True }
+
+setAsSkipped (ExprStmtNode (UnaryNode varNode@VarNode{} op@PreOpUnary{} dat) d') =
+        ExprStmtNode (UnaryNode varNode op $ dat { isSkipped = True }) d'
+
+setAsSkipped (ExprStmtNode (UnaryNode varNode@VarNode{} op@PostOpUnary{} dat) d') =
+        ExprStmtNode (UnaryNode varNode op $ dat { isSkipped = True }) d'
+
+setAsSkipped tree = tree
 
 
 setInLoop :: Tree -> Tree
+
 setInLoop (ExprStmtNode assign@AssignmentNode{} dat) =
         ExprStmtNode (inALoop assign) dat
+
 setInLoop (DeclarationNode varNode typ (Just assign@AssignmentNode{}) dat) =
         DeclarationNode varNode typ (Just $ inALoop assign) dat
+
+setInLoop (ExprStmtNode (UnaryNode varNode@VarNode{} op@PreOpUnary{} dat) d') =
+        ExprStmtNode (UnaryNode varNode op $ dat { inLoop = True }) d'
+
+setInLoop (ExprStmtNode (UnaryNode varNode@VarNode{} op@PostOpUnary{} dat) d') =
+        ExprStmtNode (UnaryNode varNode op $ dat { inLoop = True }) d'
+
 setInLoop tree = tree
 
 

@@ -211,7 +211,8 @@ convertToSchema (BinaryNode leftNode rightNode operator _) = do
               )
              )
 
-convertToSchema (UnaryNode val unOp _) = do
+convertToSchema node@(UnaryNode val unOp _) = do
+        checkValueIncDec node
         value <- convertToSchema val
         pure (ExpressionSchema $ UnarySchema value unOp)
 
@@ -473,13 +474,22 @@ defineLocal tree = throwError $ FatalError (ConverterBug tree)
 -- Shared
 
 storeValue :: NodeDat -> String -> Tree -> GenState ()
-storeValue dat varName valNode =
+storeValue dat varName valNode = setValue dat varName valNode 0
+
+
+setValue :: NodeDat -> String -> Tree -> Int -> GenState ()
+setValue dat varName valNode n =
         unless (isSkipped dat) $
              if inLoop dat
                 then State.setVariableValue varName UntrackedValue
                 else do
                         varValue <- Valuer.value valNode
-                        State.setVariableValue varName varValue
+                        State.setVariableValue varName (changeValue varValue n)
+
+
+changeValue :: VarValue -> Int -> VarValue
+changeValue (SingleValue n) m = SingleValue (n + m)
+changeValue varValue _        = varValue
 
 
 buildAssignmentSchema :: Tree -> Tree -> GenState AssemblySchema
@@ -527,3 +537,15 @@ adjustVariable _ _ varType                        = varType
 
 analyseAndConvert :: Tree -> GenState AssemblySchema
 analyseAndConvert tree = Analyser.analyse tree >>= convertToSchema
+
+
+checkValueIncDec :: Tree -> GenState ()
+checkValueIncDec (UnaryNode valNode@(VarNode name _) (PreOpUnary PreIncrement) dat) =
+        setValue dat name valNode 1
+checkValueIncDec (UnaryNode valNode@(VarNode name _) (PreOpUnary PreDecrement) dat) =
+        setValue dat name valNode (-1)
+checkValueIncDec (UnaryNode valNode@(VarNode name _) (PostOpUnary PostIncrement) dat) =
+        setValue dat name valNode 1
+checkValueIncDec (UnaryNode valNode@(VarNode name _) (PostOpUnary PostDecrement) dat) =
+        setValue dat name valNode (-1)
+checkValueIncDec _ = pure ()
