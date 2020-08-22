@@ -20,8 +20,8 @@ import           State.State          (SymTab)
 import qualified State.State          as State (getScope, getVariable, labelNum,
                                                 memOffset, setVariableValue)
 import           Types.AssemblySchema
-import           Types.AST            (ArrayNode (..), NodeDat (isSkipped),
-                                       Tree (..))
+import           Types.AST            (ArrayNode (..),
+                                       NodeDat (inLoop, isSkipped), Tree (..))
 import           Types.Error          (CompilerError (FatalError),
                                        FatalError (ConverterBug))
 import           Types.Operator
@@ -474,9 +474,12 @@ defineLocal tree = throwError $ FatalError (ConverterBug tree)
 
 storeValue :: NodeDat -> String -> Tree -> GenState ()
 storeValue dat varName valNode =
-        unless (isSkipped dat) $ do
-             varValue <- Valuer.value valNode
-             State.setVariableValue varName varValue
+        unless (isSkipped dat) $
+             if inLoop dat
+                then State.setVariableValue varName UntrackedValue
+                else do
+                        varValue <- Valuer.value valNode
+                        State.setVariableValue varName varValue
 
 
 buildAssignmentSchema :: Tree -> Tree -> GenState AssemblySchema
