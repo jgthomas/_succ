@@ -42,6 +42,12 @@ conditionTrue (VarNode name _) = do
 conditionTrue (UnaryNode (ConstantNode n _) op _) =
         pure $ isTrue $ Compute.unaryFunction op n
 
+conditionTrue (UnaryNode (VarNode name _) op _) = do
+        varValue <- State.getVariableValue name
+        case varValue of
+             (SingleValue n) -> pure $ isTrue $ Compute.unaryFunction op n
+             _               -> pure True
+
 conditionTrue (BinaryNode (ConstantNode n _) (ConstantNode m _) op _) =
         pure $ isTrue $ Compute.binaryFunction op n m
 
