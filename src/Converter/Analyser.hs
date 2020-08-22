@@ -24,7 +24,7 @@ analyse ifNode@(IfNode cond _ _ _) = do
         condTrue <- conditionTrue cond
         if condTrue
            then pure $ setVarsUntracked ifNode
-           else pure $ setStatementsSkipped . setVarsUntracked $ ifNode
+           else pure $ setStatementsSkipped ifNode
 
 analyse whileNode@WhileNode{} = pure $ setVarsUntracked whileNode
 
@@ -62,6 +62,17 @@ setVarsUntracked (ForLoopNode ini test iter statement d) =
 
 setVarsUntracked (IfNode cond (ExprStmtNode assign@AssignmentNode{} d) e d') =
         IfNode cond (ExprStmtNode (setInLoop assign) d) e d'
+
+setVarsUntracked (IfNode
+                  cond
+                  (CompoundStmtNode statements d)
+                  (Just (CompoundStmtNode elseStatements d'))
+                  d''
+                 ) = IfNode
+                     cond
+                     (CompoundStmtNode (map setInLoop statements) d)
+                     (Just $ CompoundStmtNode (map setInLoop elseStatements) d')
+                     d''
 
 setVarsUntracked (IfNode cond (CompoundStmtNode statements d) e d') =
         IfNode cond (CompoundStmtNode (map setInLoop statements) d) e d'
