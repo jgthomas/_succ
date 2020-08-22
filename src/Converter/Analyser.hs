@@ -19,20 +19,20 @@ import           Types.Variables           (VarValue (..))
 
 -- | Analyse a syntax tree node
 analyse :: Tree -> GenState Tree
+analyse ifNode@IfNode{}           = setConditional ifNode
+analyse whileNode@WhileNode{}     = pure $ setVarsUntracked whileNode
+analyse doWhileNode@DoWhileNode{} = pure $ setVarsUntracked doWhileNode
+analyse forLoopNode@ForLoopNode{} = pure $ setVarsUntracked forLoopNode
+analyse tree                      = pure tree
 
-analyse ifNode@(IfNode cond _ _ _) = do
+
+setConditional :: Tree -> GenState Tree
+setConditional ifNode@(IfNode cond _ _ _) = do
         condTrue <- conditionTrue cond
         if condTrue
            then pure $ setVarsUntracked ifNode
            else pure $ setStatementsSkipped ifNode
-
-analyse whileNode@WhileNode{} = pure $ setVarsUntracked whileNode
-
-analyse doWhileNode@DoWhileNode{} = pure $ setVarsUntracked doWhileNode
-
-analyse forLoopNode@ForLoopNode{} = pure $ setVarsUntracked forLoopNode
-
-analyse tree = pure tree
+setConditional tree = pure tree
 
 
 setStatementsSkipped :: Tree -> Tree
