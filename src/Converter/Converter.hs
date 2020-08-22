@@ -55,8 +55,7 @@ convertToSchema funcNode@(FunctionNode _ _ _ Nothing _) = do
 convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
         declareFunction funcNode
         FuncState.initFunction name
-        checkedBody <- Analyser.analyse body
-        bodySchema  <- checkReturn name <$> convertToSchema checkedBody
+        bodySchema  <- checkReturn name <$> convertToSchema body
         FuncState.closeFunction
         GlobalState.defineFunction name
         pure (FunctionSchema name bodySchema)
@@ -75,7 +74,7 @@ convertToSchema (ArgNode arg _) = convertToSchema arg
 
 convertToSchema (CompoundStmtNode statements _) = do
         FuncState.initScope
-        statementsSchema <- mapM convertToSchema statements
+        statementsSchema <- mapM analyseStatement statements
         FuncState.closeScope
         pure (StatementSchema $ CompoundStatementSchema statementsSchema)
 
@@ -521,3 +520,7 @@ adjustVariable Nothing (Just y) (LocalVar n m _)  = LocalVar n m y
 adjustVariable (Just x) _ (ParamVar n _)          = ParamVar n x
 adjustVariable (Just x) _ (GlobalVar l _)         = GlobalVar l x
 adjustVariable _ _ varType                        = varType
+
+
+analyseStatement :: Tree -> GenState AssemblySchema
+analyseStatement tree = Analyser.analyse tree >>= convertToSchema

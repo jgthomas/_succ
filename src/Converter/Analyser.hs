@@ -11,7 +11,9 @@ import qualified Compute.ComputeExpression as Compute (binaryFunction,
                                                        constantTrue,
                                                        unaryFunction)
 import           State.GenState            (GenState)
+import qualified State.State               as State (getVariableValue)
 import           Types.AST                 (NodeDat (isSkipped), Tree (..))
+import           Types.Variables           (VarValue (..))
 
 
 -- | Analyse a syntax tree node
@@ -30,15 +32,16 @@ analyse ifNode@(IfNode cond (ExprStmtNode assign@AssignmentNode{} d) e d') = do
 analyse tree = pure tree
 
 
-setAsSkipped :: Tree -> Tree
-setAsSkipped (AssignmentNode l r o dat) = AssignmentNode l r o $ dat { isSkipped = True }
-setAsSkipped tree                       = tree
-
-
 conditionTrue :: Tree -> GenState Bool
 
 conditionTrue (ConstantNode n _) =
         pure $ isTrue . Compute.constantTrue $ n
+
+conditionTrue (VarNode name _) = do
+        varValue <- State.getVariableValue name
+        case varValue of
+             (SingleValue n) -> pure $ isTrue $ Compute.constantTrue n
+             _               -> pure True
 
 conditionTrue (UnaryNode (ConstantNode n _) op _) =
         pure $ isTrue $ Compute.unaryFunction op n
@@ -47,6 +50,11 @@ conditionTrue (BinaryNode (ConstantNode n _) (ConstantNode m _) op _) =
         pure $ isTrue $ Compute.binaryFunction op n m
 
 conditionTrue _ = pure True
+
+
+setAsSkipped :: Tree -> Tree
+setAsSkipped (AssignmentNode l r o dat) = AssignmentNode l r o $ dat { isSkipped = True }
+setAsSkipped tree                       = tree
 
 
 isTrue :: Int -> Bool
