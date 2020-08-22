@@ -26,13 +26,19 @@ analyse ifNode@(IfNode cond (ExprStmtNode assign@AssignmentNode{} d) e d') = do
            then pure ifNode
            else pure (IfNode cond (ExprStmtNode (setAsSkipped assign) d) e d')
 
-analyse (WhileNode cond (CompoundStmtNode statements d) d') =
-        pure (WhileNode cond (CompoundStmtNode (map setInLoop statements) d) d')
+analyse whileNode@WhileNode{} = pure $ setVarsUntracked whileNode
 
-analyse (DoWhileNode (CompoundStmtNode statements d) cond d') =
-        pure (DoWhileNode (CompoundStmtNode (map setInLoop statements) d) cond d')
+analyse doWhileNode@DoWhileNode{} = pure $ setVarsUntracked doWhileNode
 
 analyse tree = pure tree
+
+
+setVarsUntracked :: Tree -> Tree
+setVarsUntracked (WhileNode cond (CompoundStmtNode statements d) d') =
+        WhileNode cond (CompoundStmtNode (map setInLoop statements) d) d'
+setVarsUntracked (DoWhileNode (CompoundStmtNode statements d) cond d') =
+        DoWhileNode (CompoundStmtNode (map setInLoop statements) d) cond d'
+setVarsUntracked tree = tree
 
 
 conditionTrue :: Tree -> GenState Bool
