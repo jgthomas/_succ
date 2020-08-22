@@ -34,5 +34,10 @@ setAsSkipped tree                       = tree
 
 
 conditionTrue :: Tree -> GenState Bool
-conditionTrue (ConstantNode n _) = pure $ Compute.constantTrue n
+conditionTrue (ConstantNode n _) = pure $ isTrue . Compute.constantTrue $ n
 conditionTrue _                  = pure True
+
+
+isTrue :: Int -> Bool
+isTrue 0 = False
+isTrue _ = True

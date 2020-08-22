@@ -46,7 +46,7 @@ unaryFunction (PostOpUnary PostIncrement) = (+1)
 unaryFunction (PostOpUnary PostDecrement) = subtract 1
 
 
--- | Constant to bool conversion
-constantTrue :: Int -> Bool
-constantTrue 0 = False
-constantTrue _ = True
+-- | Constant to bool
+constantTrue :: Int -> Int
+constantTrue 0 = 0
+constantTrue _ = 1
