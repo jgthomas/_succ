@@ -74,7 +74,7 @@ convertToSchema (ArgNode arg _) = convertToSchema arg
 
 convertToSchema (CompoundStmtNode statements _) = do
         FuncState.initScope
-        statementsSchema <- mapM analyseStatement statements
+        statementsSchema <- mapM analyseAndConvert statements
         FuncState.closeScope
         pure (StatementSchema $ CompoundStatementSchema statementsSchema)
 
@@ -522,5 +522,5 @@ adjustVariable (Just x) _ (GlobalVar l _)         = GlobalVar l x
 adjustVariable _ _ varType                        = varType
 
 
-analyseStatement :: Tree -> GenState AssemblySchema
-analyseStatement tree = Analyser.analyse tree >>= convertToSchema
+analyseAndConvert :: Tree -> GenState AssemblySchema
+analyseAndConvert tree = Analyser.analyse tree >>= convertToSchema
