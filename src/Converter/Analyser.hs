@@ -7,9 +7,11 @@ Analyses the logic of statements
 module Converter.Analyser (analyse) where
 
 
-import Compute.ComputeExpression as Compute (constantTrue)
-import State.GenState            (GenState)
-import Types.AST                 (NodeDat (isSkipped), Tree (..))
+import qualified Compute.ComputeExpression as Compute (binaryFunction,
+                                                       constantTrue,
+                                                       unaryFunction)
+import           State.GenState            (GenState)
+import           Types.AST                 (NodeDat (isSkipped), Tree (..))
 
 
 -- | Analyse a syntax tree node
@@ -34,8 +36,17 @@ setAsSkipped tree                       = tree
 
 
 conditionTrue :: Tree -> GenState Bool
-conditionTrue (ConstantNode n _) = pure $ isTrue . Compute.constantTrue $ n
-conditionTrue _                  = pure True
+
+conditionTrue (ConstantNode n _) =
+        pure $ isTrue . Compute.constantTrue $ n
+
+conditionTrue (UnaryNode (ConstantNode n _) op _) =
+        pure $ isTrue $ Compute.unaryFunction op n
+
+conditionTrue (BinaryNode (ConstantNode n _) (ConstantNode m _) op _) =
+        pure $ isTrue $ Compute.binaryFunction op n m
+
+conditionTrue _ = pure True
 
 
 isTrue :: Int -> Bool
