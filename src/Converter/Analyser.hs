@@ -2,7 +2,7 @@
 Module       : Analyser
 Description  : Analyses statements
 
-Analyses the logic of statements
+Analyse the logic of statements, setting metadata properties.
 -}
 module Converter.Analyser (analyse) where
 
@@ -20,24 +20,52 @@ import           Types.Variables           (VarValue (..))
 -- | Analyse a syntax tree node
 analyse :: Tree -> GenState Tree
 
-analyse ifNode@(IfNode cond (ExprStmtNode assign@AssignmentNode{} d) e d') = do
+analyse ifNode@(IfNode cond _ _ _) = do
         condTrue <- conditionTrue cond
         if condTrue
-           then pure ifNode
-           else pure (IfNode cond (ExprStmtNode (setAsSkipped assign) d) e d')
+           then pure $ setVarsUntracked ifNode
+           else pure $ setStatementsSkipped . setVarsUntracked $ ifNode
 
 analyse whileNode@WhileNode{} = pure $ setVarsUntracked whileNode
 
 analyse doWhileNode@DoWhileNode{} = pure $ setVarsUntracked doWhileNode
 
+analyse forLoopNode@ForLoopNode{} = pure $ setVarsUntracked forLoopNode
+
 analyse tree = pure tree
 
 
+setStatementsSkipped :: Tree -> Tree
+
+setStatementsSkipped (IfNode cond (ExprStmtNode assign@AssignmentNode{} d) e d') =
+        IfNode cond (ExprStmtNode (setAsSkipped assign) d) e d'
+
+setStatementsSkipped (IfNode cond (CompoundStmtNode statements d) e d') =
+        IfNode cond (CompoundStmtNode (map setAsSkipped statements) d) e d'
+
+setStatementsSkipped tree = tree
+
+
 setVarsUntracked :: Tree -> Tree
+
 setVarsUntracked (WhileNode cond (CompoundStmtNode statements d) d') =
         WhileNode cond (CompoundStmtNode (map setInLoop statements) d) d'
+
 setVarsUntracked (DoWhileNode (CompoundStmtNode statements d) cond d') =
         DoWhileNode (CompoundStmtNode (map setInLoop statements) d) cond d'
+
+setVarsUntracked (ForLoopNode ini test iter (CompoundStmtNode statements d) d') =
+        ForLoopNode ini test iter (CompoundStmtNode (map setInLoop statements) d) d'
+
+setVarsUntracked (ForLoopNode ini test iter statement d) =
+        ForLoopNode ini test iter (setInLoop statement) d
+
+setVarsUntracked (IfNode cond (ExprStmtNode assign@AssignmentNode{} d) e d') =
+        IfNode cond (ExprStmtNode (setInLoop assign) d) e d'
+
+setVarsUntracked (IfNode cond (CompoundStmtNode statements d) e d') =
+        IfNode cond (CompoundStmtNode (map setInLoop statements) d) e d'
+
 setVarsUntracked tree = tree
 
 
