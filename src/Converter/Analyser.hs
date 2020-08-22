@@ -19,10 +19,6 @@ import           Types.Variables           (VarValue (..))
 -- | Analyse a syntax tree node
 analyse :: Tree -> GenState Tree
 
-analyse (CompoundStmtNode trees dat) = do
-        checkedTrees <- mapM analyse trees
-        pure (CompoundStmtNode checkedTrees dat)
-
 analyse ifNode@(IfNode cond (ExprStmtNode assign@AssignmentNode{} d) e d') = do
         condTrue <- conditionTrue cond
         if condTrue
