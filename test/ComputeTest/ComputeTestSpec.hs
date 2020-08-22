@@ -78,6 +78,21 @@ computeTest = hspec $ do
                   `shouldBe`
                   [1, 0, 1, 1, 1, 0, 0]
 
+                it "Should compute bitwise XOR" $
+                  map (testBool BitwiseXOR) boolTestData
+                  `shouldBe`
+                  [0, 0, 14, -16, 9, 1, 1]
+
+                it "Should compute bitwise AND" $
+                  map (testBool BitwiseAND) boolTestData
+                  `shouldBe`
+                  [3, 0, 1, 13, 2, 0, 0]
+
+                it "Should compute bitwise OR" $
+                  map (testBool BitwiseOR) boolTestData
+                  `shouldBe`
+                  [3, 0, 15, -3, 11, 1, 1]
+
 
 testBool :: (Bits a, Integral a) => BinaryOp -> (a, a) -> a
 testBool op pair = binaryFunction op (fst pair) (snd pair)
