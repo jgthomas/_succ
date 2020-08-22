@@ -20,4 +20,4 @@ makeNodeDat (d:_) = pure . lexDatToNodeDat $ d
 
 
 lexDatToNodeDat :: LexDat -> NodeDat
-lexDatToNodeDat lexDat = NodeDat (line lexDat) (line lexDat) False 1
+lexDatToNodeDat lexDat = NodeDat (line lexDat) (line lexDat) False False 1
