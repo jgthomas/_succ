@@ -37,7 +37,7 @@ binaryFunction (ShiftOp RightShift) = \x y -> shiftR x (fromIntegral y)
 -- | Calculate the result of a unary operation
 unaryFunction :: (Bits a, Num a) => UnaryOp -> (a -> a)
 unaryFunction (Unary Negate)              = negate
-unaryFunction (Unary Positive)            = abs
+unaryFunction (Unary Positive)            = id
 unaryFunction (Unary BitwiseComp)         = complement
 unaryFunction (Unary LogicalNeg)          = \x -> if x == 0 then 1 else 0
 unaryFunction (PreOpUnary PreIncrement)   = (+1)

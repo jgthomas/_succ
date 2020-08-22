@@ -103,6 +103,52 @@ computeTest = hspec $ do
                   `shouldBe`
                   [0, 0, 3, 1, 0, 0, 1, 16]
 
+        describe "Compute unary expressions" $ do
+
+                it "Should compute unary minus" $
+                  map (unaryFunction $ Unary Negate) unaryTestData
+                  `shouldBe`
+                  [-1, 0, 1, -100, -2, -3, -99, 100]
+
+                it "Should compute unary plus" $
+                  map (unaryFunction $ Unary Positive) unaryTestData
+                  `shouldBe`
+                  [1, 0, -1, 100, 2, 3, 99, -100]
+
+                it "Should compute bitwise complement" $
+                  map (unaryFunction $ Unary BitwiseComp) unaryTestData
+                  `shouldBe`
+                  [-2, -1, 0, -101, -3, -4, -100, 99]
+
+                it "Should compute logic negation" $
+                  map (unaryFunction $ Unary LogicalNeg) unaryTestData
+                  `shouldBe`
+                  [0, 1, 0, 0, 0, 0, 0, 0]
+
+                it "Should compute pre-increment" $
+                  map (unaryFunction $ PreOpUnary PreIncrement) unaryTestData
+                  `shouldBe`
+                  [2, 1, 0, 101, 3, 4, 100, -99]
+
+                it "Should compute pre-decrement" $
+                  map (unaryFunction $ PreOpUnary PreDecrement) unaryTestData
+                  `shouldBe`
+                  [0, -1, -2, 99, 1, 2, 98, -101]
+
+                it "Should compute post-increment" $
+                  map (unaryFunction $ PostOpUnary PostIncrement) unaryTestData
+                  `shouldBe`
+                  [2, 1, 0, 101, 3, 4, 100, -99]
+
+                it "Should compute post-decrement" $
+                  map (unaryFunction $ PostOpUnary PostDecrement) unaryTestData
+                  `shouldBe`
+                  [0, -1, -2, 99, 1, 2, 98, -101]
+
+
+unaryTestData :: [Int]
+unaryTestData = [1, 0, -1, 100, 2, 3, 99, -100]
+
 
 testBin :: (Bits a, Integral a) => BinaryOp -> (a, a) -> a
 testBin op pair = binaryFunction op (fst pair) (snd pair)
