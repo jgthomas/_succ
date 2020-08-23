@@ -27,4 +27,4 @@ data VarValue = SingleValue Int
               | MultiValue (M.Map Int Int)
               | AddressValue Int
               | UntrackedValue
-              deriving (Eq, Show)
+              deriving (Eq, Show, Data)

@@ -17,7 +17,8 @@ import           State.GenState       (GenState, runGenState, throwError)
 import qualified State.GenState       as GenState (getState, startState)
 import qualified State.GlobalState    as GlobalState
 import           State.State          (SymTab)
-import qualified State.State          as State (getScope, getVariable, labelNum,
+import qualified State.State          as State (getScope, getVariable,
+                                                getVariableValue, labelNum,
                                                 memOffset, setVariableValue)
 import           Types.AssemblySchema
 import           Types.AST            (ArrayNode (..),
@@ -220,10 +221,11 @@ convertToSchema node@(UnaryNode val unOp _) = do
 convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ LiteralSchema n)
 
 convertToSchema node@(VarNode name _) = do
-        varType <- State.getVariable name
+        varType  <- State.getVariable name
+        varValue <- State.getVariableValue name
         case varType of
              NotFound    -> throwError $ FatalError (ConverterBug node)
-             VarType typ -> pure (ExpressionSchema $ VariableSchema typ)
+             VarType typ -> pure (ExpressionSchema $ VariableSchema typ varValue)
 
 convertToSchema (DereferenceNode name dat) =
         ExpressionSchema . DereferenceSchema <$> convertToSchema (VarNode name dat)
@@ -304,8 +306,8 @@ processArrayItem varNode (item, pos) = do
 
 
 setSchemaOffset :: Int -> AssemblySchema -> AssemblySchema
-setSchemaOffset n (ExpressionSchema (VariableSchema varType)) =
-        ExpressionSchema $ VariableSchema $ adjustVariable (Just n) Nothing varType
+setSchemaOffset n (ExpressionSchema (VariableSchema varType varValue)) =
+        ExpressionSchema $ VariableSchema (adjustVariable (Just n) Nothing varType) varValue
 setSchemaOffset _ _ = undefined
 
 
@@ -417,19 +419,23 @@ processGlobalAssignment tree = throwError $ FatalError (ConverterBug tree)
 defineGlobal :: Tree -> GenState AssemblySchema
 defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ dat) = do
         GlobalState.defineGlobal name
+        assignmentSchema <- buildAssignmentSchema varNode valNode
         storeValue dat name valNode
-        buildAssignmentSchema varNode valNode
+        pure assignmentSchema
+        --buildAssignmentSchema varNode valNode
 defineGlobal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ dat) = do
         GlobalState.defineGlobal name
+        assignmentSchema <- buildAssignmentSchema derefNode valNode
         storeValue dat name derefNode
-        buildAssignmentSchema derefNode valNode
+        pure assignmentSchema
+        --buildAssignmentSchema derefNode valNode
 defineGlobal tree = throwError $ FatalError (ConverterBug tree)
 
 
 buildUndefinedSchema :: (String, Type) -> AssemblySchema
 buildUndefinedSchema (label, typ) =
         DeclarationSchema
-        (ExpressionSchema $ VariableSchema $ GlobalVar label 0)
+        (ExpressionSchema $ VariableSchema (GlobalVar label 0) (SingleValue 0))
         SkipSchema
         Global
         typ
@@ -449,11 +455,15 @@ declareLocal tree = throwError $ FatalError (ConverterBug tree)
 
 defineLocal :: Tree -> GenState AssemblySchema
 defineLocal (AssignmentNode varNode@(VarNode name _) valNode _ dat) = do
+        assignmentSchema <- buildAssignmentSchema varNode valNode
         storeValue dat name valNode
-        buildAssignmentSchema varNode valNode
+        pure assignmentSchema
+        --buildAssignmentSchema varNode valNode
 defineLocal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ dat) = do
+        assignmentSchema <- buildAssignmentSchema derefNode valNode
         storeValue dat name derefNode
-        buildAssignmentSchema derefNode valNode
+        pure assignmentSchema
+        --buildAssignmentSchema derefNode valNode
 defineLocal tree = throwError $ FatalError (ConverterBug tree)
 
 

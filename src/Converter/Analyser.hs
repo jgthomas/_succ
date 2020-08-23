@@ -56,7 +56,11 @@ setVarsUntracked (DoWhileNode (CompoundStmtNode statements d) cond d') =
         DoWhileNode (CompoundStmtNode (map setNotTracked statements) d) cond d'
 
 setVarsUntracked (ForLoopNode ini test iter (CompoundStmtNode statements d) d') =
-        ForLoopNode ini test iter (CompoundStmtNode (map setNotTracked statements) d) d'
+        ForLoopNode
+        (setNotTracked ini)
+        (setNotTracked test)
+        (setNotTracked iter)
+        (CompoundStmtNode (map setNotTracked statements) d) d'
 
 setVarsUntracked (ForLoopNode ini test iter statement d) =
         ForLoopNode ini test iter (setNotTracked statement) d
@@ -122,6 +126,9 @@ setNotTracked :: Tree -> Tree
 
 setNotTracked (ExprStmtNode assign@AssignmentNode{} dat) =
         ExprStmtNode (setMetaDataFlag NotTracked assign) dat
+
+setNotTracked assign@AssignmentNode{} =
+        setMetaDataFlag NotTracked assign
 
 setNotTracked (DeclarationNode varNode typ (Just assign@AssignmentNode{}) dat) =
         DeclarationNode varNode typ (Just $ setMetaDataFlag NotTracked assign) dat

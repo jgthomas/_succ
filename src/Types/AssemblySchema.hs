@@ -7,7 +7,7 @@ import Data.Data       (Data)
 
 import Types.Operator  (BinaryOp, UnaryOp)
 import Types.Type      (Type (..))
-import Types.Variables (Scope, VarType)
+import Types.Variables (Scope, VarType, VarValue)
 
 
 data AssemblySchema = ProgramSchema
@@ -75,6 +75,7 @@ data ExpressionSchema = LiteralSchema
                          Int
                       | VariableSchema
                          VarType
+                         VarValue
                       | DereferenceSchema
                          AssemblySchema
                       | AddressOfSchema

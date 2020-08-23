@@ -78,7 +78,7 @@ buildASM (FunctionSchema name bodyBlock) = do
         pure $ BuildFunction.funcPrologue name ++ body
 
 buildASM (DeclarationSchema
-          (ExpressionSchema (VariableSchema global@GlobalVar{}))
+          (ExpressionSchema (VariableSchema global@GlobalVar{} _))
           SkipSchema
           Global
           _
@@ -101,7 +101,7 @@ buildASM (DeclarationSchema
                  pure $ assignAsm ++ BuildVariables.postDeclareAction (LocalVar 0 0 finalPos)
 
 buildASM (DeclarationSchema
-          (ExpressionSchema (VariableSchema varType))
+          (ExpressionSchema (VariableSchema varType _))
           assign@(StatementSchema _)
           _
           _
@@ -131,13 +131,13 @@ buildStatementASM (BreakSchema (LocalLabel n)) = pure $ BuildStatement.breakStat
 buildStatementASM (ContinueSchema (LocalLabel n)) = pure $ BuildStatement.continueStatement n
 
 buildStatementASM (AssignmentSchema
-                   (ExpressionSchema (VariableSchema globalVar@GlobalVar{}))
+                   (ExpressionSchema (VariableSchema globalVar@GlobalVar{} _))
                    (ExpressionSchema (LiteralSchema n))
                    Global
                   ) = pure $ BuildVariables.declareGlobal globalVar n
 
 buildStatementASM (AssignmentSchema
-                   (ExpressionSchema (VariableSchema varType))
+                   (ExpressionSchema (VariableSchema varType _))
                    derefSchema@(ExpressionSchema DereferenceSchema{})
                    _
                   ) = do
@@ -145,7 +145,7 @@ buildStatementASM (AssignmentSchema
                           pure $ valueAsm ++ BuildVariables.derefStore varType
 
 buildStatementASM (AssignmentSchema
-                   (ExpressionSchema (VariableSchema varType))
+                   (ExpressionSchema (VariableSchema varType _))
                    valSchema
                    _
                   ) = do
@@ -153,7 +153,7 @@ buildStatementASM (AssignmentSchema
                           pure $ valueAsm ++ BuildVariables.storeVariable varType
 
 buildStatementASM (AssignmentSchema
-                   (ExpressionSchema (DereferenceSchema (ExpressionSchema (VariableSchema varType))))
+                   (ExpressionSchema (DereferenceSchema (ExpressionSchema (VariableSchema varType _))))
                    valSchema
                    _
                   ) = do
@@ -217,7 +217,7 @@ buildExpressionASM :: ExpressionSchema -> BuildState String
 
 buildExpressionASM (LiteralSchema n) = pure $ BuildVariables.loadLiteral n
 
-buildExpressionASM (UnarySchema varSchema@(ExpressionSchema (VariableSchema varType)) operator) = do
+buildExpressionASM (UnarySchema varSchema@(ExpressionSchema (VariableSchema varType _)) operator) = do
         expressionAsm <- processSchema varSchema
         pure $ expressionAsm ++ BuildUnary.unary operator varType
 
@@ -262,13 +262,13 @@ buildExpressionASM (FunctionCallSchema name arguments) = do
         argAsmList <- mapM processSchema arguments
         pure $ BuildFunction.functionCall name (zip argAsmList [0..])
 
-buildExpressionASM (VariableSchema varType) =
+buildExpressionASM (VariableSchema varType _) =
         pure $ BuildVariables.loadVariable varType
 
-buildExpressionASM (AddressOfSchema (ExpressionSchema (VariableSchema varType))) =
+buildExpressionASM (AddressOfSchema (ExpressionSchema (VariableSchema varType _))) =
         pure $ BuildVariables.addressOf varType
 
-buildExpressionASM (DereferenceSchema (ExpressionSchema (VariableSchema varType))) =
+buildExpressionASM (DereferenceSchema (ExpressionSchema (VariableSchema varType _))) =
         pure $ BuildVariables.derefLoad varType
 
 buildExpressionASM schema = throwError $ FatalError (BuilderBug $ ExpressionSchema schema)

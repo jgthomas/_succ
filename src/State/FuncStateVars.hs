@@ -18,9 +18,10 @@ module State.FuncStateVars
         ) where
 
 
+import           Control.Monad         (unless)
 import qualified Data.Map              as M
 
-import qualified State.FrameStack      as FrameStack (currentFunc)
+import qualified State.FrameStack      as FrameStack (currentFunc, getScope)
 import           State.FuncStateAccess (getFuncState, setFuncState)
 import           State.FuncStateOffset (currentOffset, incrementOffsetByN)
 import           State.FuncStateScope  (scopeDepth)
@@ -30,7 +31,7 @@ import qualified State.SymbolTable     as SymbolTable (mkLocVar)
 import           Types.Error           (CompilerError (StateError),
                                         StateError (..))
 import           Types.Type            (Type (Label))
-import           Types.Variables       (VarValue (..))
+import           Types.Variables       (Scope (..), VarValue (..))
 
 
 -- | Check if variable name is in use in current scope
@@ -55,17 +56,23 @@ variableType name = getAttribute locType name
 
 
 getLocalValue :: String -> GenState (Maybe VarValue)
-getLocalValue name = getAttribute locValue name
+getLocalValue name = do
+        scope <- FrameStack.getScope
+        if scope == Global
+           then pure Nothing
+           else getAttribute locValue name
 
 
 setLocalValue :: String -> VarValue -> GenState ()
 setLocalValue varName varValue = do
-        funcName <- FrameStack.currentFunc
-        level    <- scopeDepth funcName
-        (localVar, varLevel) <- findVarAndScopeLevel funcName varName level
-        case localVar of
-             Nothing -> throwError $ StateError (NoStateFound varName)
-             Just lv -> setLocalVar funcName varName varLevel $ lv { locValue = varValue }
+        scope <- FrameStack.getScope
+        unless (scope == Global) $ do
+            funcName <- FrameStack.currentFunc
+            level    <- scopeDepth funcName
+            (localVar, varLevel) <- findVarAndScopeLevel funcName varName level
+            case localVar of
+                 Nothing -> throwError $ StateError (NoStateFound varName)
+                 Just lv -> setLocalVar funcName varName varLevel $ lv { locValue = varValue }
 
 
 -- | Store new variable, returning offset from base pointer

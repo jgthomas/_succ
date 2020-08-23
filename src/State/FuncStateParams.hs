@@ -17,11 +17,11 @@ module State.FuncStateParams
         ) where
 
 
-import           Control.Monad         (when)
+import           Control.Monad         (unless, when)
 import           Data.List             (sortOn)
 import qualified Data.Map              as M
 
-import qualified State.FrameStack      as FrameStack (currentFunc)
+import qualified State.FrameStack      as FrameStack (currentFunc, getScope)
 import           State.FuncStateAccess (getFuncState, setFuncState)
 import           State.GenState        (GenState, throwError)
 import           State.SymbolTable     (FuncState (paramCount, parameters, posToParam),
@@ -30,7 +30,7 @@ import qualified State.SymbolTable     as SymbolTable (mkParVar)
 import           Types.Error           (CompilerError (StateError),
                                         StateError (..))
 import           Types.Type            (Type)
-import           Types.Variables       (VarValue (..))
+import           Types.Variables       (Scope (..), VarValue (..))
 
 
 -- | Add a new parameter to the state of a function
@@ -61,24 +61,30 @@ parameterType paramName = do
 -- | Set the stored value of the parameter
 setParamValue :: String -> VarValue -> GenState ()
 setParamValue paramName varValue = do
-        funcName <- FrameStack.currentFunc
-        paramVar <- getParamVar funcName paramName
-        case paramVar of
-             Nothing -> throwError $ StateError (NoStateFound $ errMsg funcName paramName)
-             Just pv -> setParamVar funcName paramName $ pv { paramValue = varValue }
+        scope <- FrameStack.getScope
+        unless (scope == Global) $ do
+           funcName <- FrameStack.currentFunc
+           paramVar <- getParamVar funcName paramName
+           case paramVar of
+                Nothing -> throwError $ StateError (NoStateFound $ errMsg funcName paramName)
+                Just pv -> setParamVar funcName paramName $ pv { paramValue = varValue }
 
 
 -- | Get the stored value of the parameter
 getParamValue :: String -> GenState (Maybe VarValue)
 getParamValue paramName = do
-        funcName <- FrameStack.currentFunc
-        paramVar <- getParamVar funcName paramName
-        case paramVar of
-             Nothing -> pure Nothing
-             Just pv ->
-                     if paramValue pv == UntrackedValue
-                        then pure (Just $ argValue pv)
-                        else pure (Just $ paramValue pv)
+        scope <- FrameStack.getScope
+        if scope == Global
+           then pure Nothing
+           else do
+                   funcName <- FrameStack.currentFunc
+                   paramVar <- getParamVar funcName paramName
+                   case paramVar of
+                        Nothing -> pure Nothing
+                        Just pv ->
+                                if paramValue pv == UntrackedValue
+                                   then pure (Just $ argValue pv)
+                                   else pure (Just $ paramValue pv)
 
 
 -- | Retrieve list of all the type of function parameters
