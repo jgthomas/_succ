@@ -21,7 +21,8 @@ import qualified State.State          as State (getScope, getVariable, labelNum,
                                                 memOffset, setVariableValue)
 import           Types.AssemblySchema
 import           Types.AST            (ArrayNode (..),
-                                       NodeDat (inLoop, isSkipped), Tree (..))
+                                       NodeDat (isSkipped, notTracked),
+                                       Tree (..))
 import           Types.Error          (CompilerError (FatalError),
                                        FatalError (ConverterBug))
 import           Types.Operator
@@ -480,7 +481,7 @@ storeValue dat varName valNode = setValue dat varName valNode 0
 setValue :: NodeDat -> String -> Tree -> Int -> GenState ()
 setValue dat varName valNode n =
         unless (isSkipped dat) $
-             if inLoop dat
+             if notTracked dat
                 then State.setVariableValue varName UntrackedValue
                 else do
                         varValue <- Valuer.value valNode

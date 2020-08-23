@@ -12,7 +12,7 @@ import qualified Compute.ComputeExpression as Compute (binaryFunction,
                                                        unaryFunction)
 import           State.GenState            (GenState)
 import qualified State.State               as State (getVariableValue)
-import           Types.AST                 (NodeDat (inLoop, isSkipped),
+import           Types.AST                 (NodeDat (isSkipped, notTracked),
                                             Tree (..))
 import           Types.Operator
 import           Types.Variables           (VarValue (..))
@@ -50,19 +50,19 @@ setStatementsSkipped tree = tree
 setVarsUntracked :: Tree -> Tree
 
 setVarsUntracked (WhileNode cond (CompoundStmtNode statements d) d') =
-        WhileNode cond (CompoundStmtNode (map setInLoop statements) d) d'
+        WhileNode cond (CompoundStmtNode (map setNotTracked statements) d) d'
 
 setVarsUntracked (DoWhileNode (CompoundStmtNode statements d) cond d') =
-        DoWhileNode (CompoundStmtNode (map setInLoop statements) d) cond d'
+        DoWhileNode (CompoundStmtNode (map setNotTracked statements) d) cond d'
 
 setVarsUntracked (ForLoopNode ini test iter (CompoundStmtNode statements d) d') =
-        ForLoopNode ini test iter (CompoundStmtNode (map setInLoop statements) d) d'
+        ForLoopNode ini test iter (CompoundStmtNode (map setNotTracked statements) d) d'
 
 setVarsUntracked (ForLoopNode ini test iter statement d) =
-        ForLoopNode ini test iter (setInLoop statement) d
+        ForLoopNode ini test iter (setNotTracked statement) d
 
 setVarsUntracked (IfNode cond (ExprStmtNode assign@AssignmentNode{} d) e d') =
-        IfNode cond (ExprStmtNode (setInLoop assign) d) e d'
+        IfNode cond (ExprStmtNode (setNotTracked assign) d) e d'
 
 setVarsUntracked (IfNode
                   cond
@@ -71,12 +71,12 @@ setVarsUntracked (IfNode
                   d''
                  ) = IfNode
                      cond
-                     (CompoundStmtNode (map setInLoop statements) d)
-                     (Just $ CompoundStmtNode (map setInLoop elseStatements) d')
+                     (CompoundStmtNode (map setNotTracked statements) d)
+                     (Just $ CompoundStmtNode (map setNotTracked elseStatements) d')
                      d''
 
 setVarsUntracked (IfNode cond (CompoundStmtNode statements d) e d') =
-        IfNode cond (CompoundStmtNode (map setInLoop statements) d) e d'
+        IfNode cond (CompoundStmtNode (map setNotTracked statements) d) e d'
 
 setVarsUntracked tree = tree
 
@@ -121,26 +121,26 @@ setAsSkipped (ExprStmtNode (UnaryNode varNode@VarNode{} op@PostOpUnary{} dat) d'
 setAsSkipped tree = tree
 
 
-setInLoop :: Tree -> Tree
+setNotTracked :: Tree -> Tree
 
-setInLoop (ExprStmtNode assign@AssignmentNode{} dat) =
-        ExprStmtNode (inALoop assign) dat
+setNotTracked (ExprStmtNode assign@AssignmentNode{} dat) =
+        ExprStmtNode (untracked assign) dat
 
-setInLoop (DeclarationNode varNode typ (Just assign@AssignmentNode{}) dat) =
-        DeclarationNode varNode typ (Just $ inALoop assign) dat
+setNotTracked (DeclarationNode varNode typ (Just assign@AssignmentNode{}) dat) =
+        DeclarationNode varNode typ (Just $ untracked assign) dat
 
-setInLoop (ExprStmtNode (UnaryNode varNode@VarNode{} op@PreOpUnary{} dat) d') =
-        ExprStmtNode (UnaryNode varNode op $ dat { inLoop = True }) d'
+setNotTracked (ExprStmtNode (UnaryNode varNode@VarNode{} op@PreOpUnary{} dat) d') =
+        ExprStmtNode (UnaryNode varNode op $ dat { notTracked = True }) d'
 
-setInLoop (ExprStmtNode (UnaryNode varNode@VarNode{} op@PostOpUnary{} dat) d') =
-        ExprStmtNode (UnaryNode varNode op $ dat { inLoop = True }) d'
+setNotTracked (ExprStmtNode (UnaryNode varNode@VarNode{} op@PostOpUnary{} dat) d') =
+        ExprStmtNode (UnaryNode varNode op $ dat { notTracked = True }) d'
 
-setInLoop tree = tree
+setNotTracked tree = tree
 
 
-inALoop :: Tree -> Tree
-inALoop (AssignmentNode l r o dat) = AssignmentNode l r o $ dat { inLoop = True }
-inALoop tree                       = tree
+untracked :: Tree -> Tree
+untracked (AssignmentNode l r o dat) = AssignmentNode l r o $ dat { notTracked = True }
+untracked tree                       = tree
 
 
 isTrue :: Int -> Bool
