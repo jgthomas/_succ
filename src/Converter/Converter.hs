@@ -419,16 +419,10 @@ processGlobalAssignment tree = throwError $ FatalError (ConverterBug tree)
 defineGlobal :: Tree -> GenState AssemblySchema
 defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ dat) = do
         GlobalState.defineGlobal name
-        assignmentSchema <- buildAssignmentSchema varNode valNode
-        storeValue dat name valNode
-        pure assignmentSchema
-        --buildAssignmentSchema varNode valNode
+        processAssignment name dat varNode valNode
 defineGlobal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ dat) = do
         GlobalState.defineGlobal name
-        assignmentSchema <- buildAssignmentSchema derefNode valNode
-        storeValue dat name derefNode
-        pure assignmentSchema
-        --buildAssignmentSchema derefNode valNode
+        processAssignment name dat derefNode valNode
 defineGlobal tree = throwError $ FatalError (ConverterBug tree)
 
 
@@ -454,21 +448,22 @@ declareLocal tree = throwError $ FatalError (ConverterBug tree)
 
 
 defineLocal :: Tree -> GenState AssemblySchema
-defineLocal (AssignmentNode varNode@(VarNode name _) valNode _ dat) = do
-        assignmentSchema <- buildAssignmentSchema varNode valNode
-        storeValue dat name valNode
-        pure assignmentSchema
-        --buildAssignmentSchema varNode valNode
-defineLocal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ dat) = do
-        assignmentSchema <- buildAssignmentSchema derefNode valNode
-        storeValue dat name derefNode
-        pure assignmentSchema
-        --buildAssignmentSchema derefNode valNode
+defineLocal (AssignmentNode varNode@(VarNode name _) valNode _ dat) =
+        processAssignment name dat varNode valNode
+defineLocal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ dat) =
+        processAssignment name dat derefNode valNode
 defineLocal tree = throwError $ FatalError (ConverterBug tree)
 
 
 
 -- Shared
+
+processAssignment :: String -> NodeDat -> Tree -> Tree -> GenState AssemblySchema
+processAssignment varName dat varNode valNode = do
+        assignmentSchema <- buildAssignmentSchema varNode valNode
+        storeValue dat varName valNode
+        pure assignmentSchema
+
 
 storeValue :: NodeDat -> String -> Tree -> GenState ()
 storeValue dat varName valNode = setValue dat varName valNode 0
