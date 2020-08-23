@@ -109,14 +109,11 @@ conditionTrue _ = pure True
 
 setAsSkipped :: Tree -> Tree
 
-setAsSkipped (AssignmentNode l r o dat) =
-        AssignmentNode l r o $ dat { isSkipped = True }
+setAsSkipped assign@AssignmentNode{} =
+        skipped assign
 
-setAsSkipped (ExprStmtNode (UnaryNode varNode@VarNode{} op@PreOpUnary{} dat) d') =
-        ExprStmtNode (UnaryNode varNode op $ dat { isSkipped = True }) d'
-
-setAsSkipped (ExprStmtNode (UnaryNode varNode@VarNode{} op@PostOpUnary{} dat) d') =
-        ExprStmtNode (UnaryNode varNode op $ dat { isSkipped = True }) d'
+setAsSkipped (ExprStmtNode unary@UnaryNode{} d') =
+        ExprStmtNode (skipped unary) d'
 
 setAsSkipped tree = tree
 
@@ -133,6 +130,20 @@ setNotTracked (ExprStmtNode unary@UnaryNode{} d') =
         ExprStmtNode (untracked unary) d'
 
 setNotTracked tree = tree
+
+
+skipped :: Tree -> Tree
+
+skipped (AssignmentNode l r o dat) =
+        AssignmentNode l r o $ dat { isSkipped = True }
+
+skipped (UnaryNode v@VarNode{} op@PreOpUnary{} dat) =
+        UnaryNode v op $ dat { isSkipped = True }
+
+skipped (UnaryNode v@VarNode{} op@PostOpUnary{} dat) =
+        UnaryNode v op $ dat { isSkipped = True }
+
+skipped tree = tree
 
 
 untracked :: Tree -> Tree
