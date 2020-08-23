@@ -129,18 +129,24 @@ setNotTracked (ExprStmtNode assign@AssignmentNode{} dat) =
 setNotTracked (DeclarationNode varNode typ (Just assign@AssignmentNode{}) dat) =
         DeclarationNode varNode typ (Just $ untracked assign) dat
 
-setNotTracked (ExprStmtNode (UnaryNode varNode@VarNode{} op@PreOpUnary{} dat) d') =
-        ExprStmtNode (UnaryNode varNode op $ dat { notTracked = True }) d'
-
-setNotTracked (ExprStmtNode (UnaryNode varNode@VarNode{} op@PostOpUnary{} dat) d') =
-        ExprStmtNode (UnaryNode varNode op $ dat { notTracked = True }) d'
+setNotTracked (ExprStmtNode unary@UnaryNode{} d') =
+        ExprStmtNode (untracked unary) d'
 
 setNotTracked tree = tree
 
 
 untracked :: Tree -> Tree
-untracked (AssignmentNode l r o dat) = AssignmentNode l r o $ dat { notTracked = True }
-untracked tree                       = tree
+
+untracked (AssignmentNode l r o dat) =
+        AssignmentNode l r o $ dat { notTracked = True }
+
+untracked (UnaryNode v@VarNode{} op@PreOpUnary{} dat) =
+        UnaryNode v op $ dat { notTracked = True }
+
+untracked (UnaryNode v@VarNode{} op@PostOpUnary{} dat) =
+        UnaryNode v op $ dat { notTracked = True }
+
+untracked tree = tree
 
 
 isTrue :: Int -> Bool
