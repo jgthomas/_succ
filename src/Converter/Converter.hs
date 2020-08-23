@@ -225,25 +225,11 @@ convertToSchema node@(VarNode name _) = do
              NotFound    -> throwError $ FatalError (ConverterBug node)
              VarType typ -> pure (ExpressionSchema $ VariableSchema typ)
 
-convertToSchema node@(DereferenceNode name _) = do
-        varType <- State.getVariable name
-        case varType of
-             NotFound    -> throwError $ FatalError (ConverterBug node)
-             VarType var -> pure (ExpressionSchema
-                                  (DereferenceSchema
-                                   (ExpressionSchema $ VariableSchema var)
-                                  )
-                                 )
+convertToSchema (DereferenceNode name dat) =
+        ExpressionSchema . DereferenceSchema <$> convertToSchema (VarNode name dat)
 
-convertToSchema node@(AddressOfNode name _) = do
-        varType <- State.getVariable name
-        case varType of
-             NotFound    -> throwError $ FatalError (ConverterBug node)
-             VarType var -> pure (ExpressionSchema
-                                  (AddressOfSchema
-                                   (ExpressionSchema $ VariableSchema var)
-                                  )
-                                 )
+convertToSchema (AddressOfNode name dat) =
+        ExpressionSchema . AddressOfSchema <$> convertToSchema (VarNode name dat)
 
 convertToSchema NullExprNode{} = pure SkipSchema
 
