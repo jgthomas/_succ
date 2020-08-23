@@ -145,6 +145,13 @@ computeTest = hspec $ do
                   `shouldBe`
                   [0, -1, -2, 99, 1, 2, 98, -101]
 
+        describe "Compute literal bool values" $ do
+
+                it "Should compute literal to bool" $
+                  map constantTrue [0, 1, -1, 100, 99, 55, -87]
+                  `shouldBe`
+                  [0, 1, 1, 1, 1, 1, 1]
+
 
 unaryTestData :: [Int]
 unaryTestData = [1, 0, -1, 100, 2, 3, 99, -100]
