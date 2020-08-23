@@ -5,9 +5,9 @@ module Types.AssemblySchema where
 
 import Data.Data       (Data)
 
-import Types.Operator
-import Types.Type
-import Types.Variables
+import Types.Operator  (BinaryOp, UnaryOp)
+import Types.Type      (Type (..))
+import Types.Variables (Scope, VarType)
 
 
 data AssemblySchema = ProgramSchema
