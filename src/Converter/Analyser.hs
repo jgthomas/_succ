@@ -110,10 +110,10 @@ conditionTrue _ = pure True
 setAsSkipped :: Tree -> Tree
 
 setAsSkipped assign@AssignmentNode{} =
-        skipped assign
+        setMetaDataFlag Skipped assign
 
 setAsSkipped (ExprStmtNode unary@UnaryNode{} d') =
-        ExprStmtNode (skipped unary) d'
+        ExprStmtNode (setMetaDataFlag Skipped unary) d'
 
 setAsSkipped tree = tree
 
@@ -121,43 +121,39 @@ setAsSkipped tree = tree
 setNotTracked :: Tree -> Tree
 
 setNotTracked (ExprStmtNode assign@AssignmentNode{} dat) =
-        ExprStmtNode (untracked assign) dat
+        ExprStmtNode (setMetaDataFlag NotTracked assign) dat
 
 setNotTracked (DeclarationNode varNode typ (Just assign@AssignmentNode{}) dat) =
-        DeclarationNode varNode typ (Just $ untracked assign) dat
+        DeclarationNode varNode typ (Just $ setMetaDataFlag NotTracked assign) dat
 
 setNotTracked (ExprStmtNode unary@UnaryNode{} d') =
-        ExprStmtNode (untracked unary) d'
+        ExprStmtNode (setMetaDataFlag NotTracked unary) d'
 
 setNotTracked tree = tree
 
 
-skipped :: Tree -> Tree
+setMetaDataFlag :: Flag -> Tree -> Tree
 
-skipped (AssignmentNode l r o dat) =
-        AssignmentNode l r o $ dat { isSkipped = True }
+setMetaDataFlag flag (AssignmentNode l r o dat) =
+        AssignmentNode l r o $ metaDataUpdate flag dat
 
-skipped (UnaryNode v@VarNode{} op@PreOpUnary{} dat) =
-        UnaryNode v op $ dat { isSkipped = True }
+setMetaDataFlag flag (UnaryNode v@VarNode{} op@PreOpUnary{} dat) =
+        UnaryNode v op $ metaDataUpdate flag dat
 
-skipped (UnaryNode v@VarNode{} op@PostOpUnary{} dat) =
-        UnaryNode v op $ dat { isSkipped = True }
+setMetaDataFlag flag (UnaryNode v@VarNode{} op@PostOpUnary{} dat) =
+        UnaryNode v op $ metaDataUpdate flag dat
 
-skipped tree = tree
+setMetaDataFlag _ tree = tree
 
 
-untracked :: Tree -> Tree
+metaDataUpdate :: Flag -> NodeDat -> NodeDat
+metaDataUpdate Skipped dat    = dat { isSkipped = True }
+metaDataUpdate NotTracked dat = dat { notTracked = True }
 
-untracked (AssignmentNode l r o dat) =
-        AssignmentNode l r o $ dat { notTracked = True }
 
-untracked (UnaryNode v@VarNode{} op@PreOpUnary{} dat) =
-        UnaryNode v op $ dat { notTracked = True }
-
-untracked (UnaryNode v@VarNode{} op@PostOpUnary{} dat) =
-        UnaryNode v op $ dat { notTracked = True }
-
-untracked tree = tree
+data Flag = Skipped
+          | NotTracked
+          deriving (Eq, Show)
 
 
 isTrue :: Int -> Bool
