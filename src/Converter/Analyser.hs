@@ -7,15 +7,11 @@ Analyse the logic of statements, setting metadata properties.
 module Converter.Analyser (analyse) where
 
 
-import qualified Compute.ComputeExpression as Compute (binaryFunction,
-                                                       constantTrue,
-                                                       unaryFunction)
-import           State.GenState            (GenState)
-import qualified State.State               as State (getVariableValue)
-import           Types.AST                 (NodeDat (isSkipped, notTracked),
-                                            Tree (..))
+import qualified Converter.AnalyserBool as AnalyserBool (conditionTrue)
+import           State.GenState         (GenState)
+import           Types.AST              (NodeDat (isSkipped, notTracked),
+                                         Tree (..))
 import           Types.Operator
-import           Types.Variables           (VarValue (..))
 
 
 -- | Analyse a syntax tree node
@@ -29,7 +25,7 @@ analyse tree                      = pure tree
 
 setConditional :: Tree -> GenState Tree
 setConditional ifNode@(IfNode cond _ _ _) = do
-        condTrue <- conditionTrue cond
+        condTrue <- AnalyserBool.conditionTrue cond
         if condTrue
            then pure $ setVarsUntracked ifNode
            else pure $ setStatementsSkipped ifNode
@@ -85,32 +81,6 @@ setVarsUntracked (IfNode cond (CompoundStmtNode statements d) e d') =
 setVarsUntracked tree = tree
 
 
-conditionTrue :: Tree -> GenState Bool
-
-conditionTrue (ConstantNode n _) =
-        pure $ isTrue . Compute.constantTrue $ n
-
-conditionTrue (VarNode name _) = do
-        varValue <- State.getVariableValue name
-        case varValue of
-             (SingleValue n) -> pure $ isTrue $ Compute.constantTrue n
-             _               -> pure True
-
-conditionTrue (UnaryNode (ConstantNode n _) op _) =
-        pure $ isTrue $ Compute.unaryFunction op n
-
-conditionTrue (UnaryNode (VarNode name _) op _) = do
-        varValue <- State.getVariableValue name
-        case varValue of
-             (SingleValue n) -> pure $ isTrue $ Compute.unaryFunction op n
-             _               -> pure True
-
-conditionTrue (BinaryNode (ConstantNode n _) (ConstantNode m _) op _) =
-        pure $ isTrue $ Compute.binaryFunction op n m
-
-conditionTrue _ = pure True
-
-
 setAsSkipped :: Tree -> Tree
 
 setAsSkipped assign@AssignmentNode{} =
@@ -161,8 +131,3 @@ metaDataUpdate NotTracked dat = dat { notTracked = True }
 data Flag = Skipped
           | NotTracked
           deriving (Eq, Show)
-
-
-isTrue :: Int -> Bool
-isTrue 0 = False
-isTrue _ = True
