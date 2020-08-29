@@ -10,6 +10,7 @@ module Converter.Converter (convert) where
 import           Control.Monad        (unless)
 import           Data.Maybe           (fromMaybe)
 
+import qualified Checker.LogicCheck   as LogicCheck
 import qualified Checker.ScopeCheck   as ScopeCheck
 import qualified Converter.Analyser   as Analyser (analyse)
 import qualified Converter.Valuer     as Valuer (value)
@@ -215,7 +216,13 @@ convertToSchema (BinaryNode leftNode rightNode operator _) = do
               )
              )
 
+convertToSchema node@(UnaryNode varNode@VarNode{} unOp _) = do
+        LogicCheck.checkUnaryLogic node
+        varSchema <- convertToSchema varNode
+        pure (ExpressionSchema $ UnarySchema varSchema unOp)
+
 convertToSchema node@(UnaryNode val unOp _) = do
+        LogicCheck.checkUnaryLogic node
         checkValueIncDec node
         value <- convertToSchema val
         pure (ExpressionSchema $ UnarySchema value unOp)
@@ -228,12 +235,10 @@ convertToSchema node@(VarNode name _) = do
              NotFound    -> throwError $ FatalError (ConverterBug node)
              VarType typ -> pure (ExpressionSchema $ VariableSchema typ varValue)
 
-convertToSchema node@(DereferenceNode name dat) = do
-        ScopeCheck.variableExists node
+convertToSchema (DereferenceNode name dat) =
         ExpressionSchema . DereferenceSchema <$> convertToSchema (VarNode name dat)
 
-convertToSchema node@(AddressOfNode name dat) = do
-        ScopeCheck.variableExists node
+convertToSchema (AddressOfNode name dat) =
         ExpressionSchema . AddressOfSchema <$> convertToSchema (VarNode name dat)
 
 convertToSchema NullExprNode{} =
