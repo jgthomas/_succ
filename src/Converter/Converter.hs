@@ -56,11 +56,11 @@ convertToSchema funcNode@(FunctionNode _ _ _ Nothing _) = do
         pure SkipSchema
 
 convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
-        declareFunction funcNode
         FuncState.initFunction name
-        bodySchema  <- checkReturn name <$> convertToSchema body
-        FuncState.closeFunction
+        declareFunction funcNode
+        bodySchema <- checkReturn name <$> convertToSchema body
         GlobalState.defineFunction name
+        FuncState.closeFunction
         pure (FunctionSchema name bodySchema)
 
 convertToSchema (ParamNode typ (VarNode name _) _) = do
