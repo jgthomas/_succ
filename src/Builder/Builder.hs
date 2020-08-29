@@ -13,8 +13,8 @@ import qualified Builder.BuildBinary    as BuildBinary (binary)
 import qualified Builder.BuildFunction  as BuildFunction (funcEpilogue,
                                                           funcPrologue,
                                                           functionCall)
-import           Builder.BuildState     (BuildState, runBuildState, throwError)
-import qualified Builder.BuildState     as BuildState (getState)
+import           Builder.BuildState     (BuildState, throwError)
+import qualified Builder.BuildState     as BuildState (evaluate, getState)
 import qualified Builder.BuildStatement as BuildStatement (breakStatement,
                                                            continueStatement,
                                                            doWhile,
@@ -48,7 +48,7 @@ import           Types.Variables        (Scope (..), VarType (..))
 
 -- | Builds output assembly code
 build :: Optimise -> AssemblySchema -> Either CompilerError String
-build optimise schema = runBuildState processSchema schema optimise
+build optimise schema = BuildState.evaluate processSchema schema optimise
 
 
 processSchema :: AssemblySchema -> BuildState String

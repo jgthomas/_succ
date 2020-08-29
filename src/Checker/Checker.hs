@@ -13,7 +13,8 @@ import qualified Checker.LogicCheck as LogicCheck
 import qualified Checker.ScopeCheck as ScopeCheck
 import qualified Checker.TypeCheck  as TypeCheck
 import qualified State.FuncState    as FuncState
-import           State.GenState     (GenState, runGenState, startState)
+import           State.GenState     (GenState)
+import qualified State.GenState     as GenState (evaluate, startState)
 import qualified State.GlobalState  as GlobalState
 import qualified State.State        as State (getScope, labelNum)
 import           Types.AST          (ArrayNode (..), Tree (..))
@@ -24,7 +25,7 @@ import           Types.Variables    (Scope (..))
 
 -- | Check an AST for errors
 check :: Tree -> Either CompilerError Tree
-check ast = runGenState checker ast startState
+check ast = GenState.evaluate checker ast GenState.startState
 
 
 checker :: Tree -> GenState Tree

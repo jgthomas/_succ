@@ -10,9 +10,9 @@ module Parser.Parser (parse) where
 
 import           Parser.ParserDeclaration (parseDeclaration)
 import           Parser.ParserFunction    (parseFunction)
-import           Parser.ParState          (ParserState, runParState, throwError)
-import qualified Parser.ParState          as ParState (getState, putState,
-                                                       startState)
+import           Parser.ParState          (ParserState, throwError)
+import qualified Parser.ParState          as ParState (evaluate, getState,
+                                                       putState, startState)
 import           Types.AST                (Tree (..))
 import           Types.Error              (CompilerError (ParserError, SyntaxError),
                                            ParserError (..), SyntaxError (..))
@@ -23,7 +23,7 @@ import           Types.Tokens             (OpTok (..), OpenBracket (..),
 
 -- | Convert a list of tokens into an AST
 parse :: [LexDat] -> Either CompilerError Tree
-parse lexData = runParState parseTokens lexData ParState.startState
+parse lexData = ParState.evaluate parseTokens lexData ParState.startState
 
 
 parseTokens :: [LexDat] -> ParserState Tree

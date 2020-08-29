@@ -6,7 +6,7 @@ State holder for the lexing stage of compilation.
 -}
 module Lexer.LexState
         (LexerState,
-         runLexState,
+         evaluate,
          throwError,
          getState,
          startState,
@@ -15,11 +15,10 @@ module Lexer.LexState
         ) where
 
 
-import           Types.Error     (CompilerError)
 import           Types.LexDat    (LexDat)
 import qualified Types.LexDat    as LexDat (mkLexDat)
-import           Types.SuccState (SuccStateM, throwError)
-import qualified Types.SuccState as SuccState (getState, putState, runSuccState)
+import           Types.SuccState (SuccStateM, evaluate, throwError)
+import qualified Types.SuccState as SuccState (getState, putState)
 import           Types.Tokens    (Token)
 
 
@@ -60,8 +59,3 @@ mkLexDat tok = do
 -- | Return the list of LexDat from the state
 getState :: LexerState [LexDat]
 getState = datList <$> SuccState.getState
-
-
--- | Run the state extracting the error or result
-runLexState :: (t -> SuccStateM s a) -> t -> s -> Either CompilerError a
-runLexState f t s = SuccState.runSuccState f t s

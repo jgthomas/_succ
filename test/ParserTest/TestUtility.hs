@@ -18,7 +18,8 @@ import Parser.ParserDeclaration (parseDeclaration)
 import Parser.ParserExpression  (parseExpression)
 import Parser.ParserFunction    (parseFunction)
 import Parser.ParserStatement   (parseStatement)
-import Parser.ParState
+import Parser.ParState          (ParserState, evaluate, getState, putState,
+                                 startState)
 import TestUtility              (makeLexDat)
 import Types.AST
 import Types.Error
@@ -111,7 +112,7 @@ getError (Left err)   = err
 extractParsed :: ([LexDat] -> ParserState (Tree, [LexDat]))
               -> [LexDat]
               -> Either CompilerError Tree
-extractParsed f lexData = runParState run lexData startState
+extractParsed f lexData = evaluate run lexData startState
         where
                 run = runTheParse f
 

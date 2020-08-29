@@ -6,7 +6,7 @@ State holder for the parsing stage of compilation.
 -}
 module Parser.ParState
         (ParserState,
-         runParState,
+         evaluate,
          throwError,
          getState,
          putState,
@@ -16,8 +16,8 @@ module Parser.ParState
 
 import           Types.AST       (Tree (ProgramNode))
 import           Types.Error     (CompilerError (ImpossibleError))
-import           Types.SuccState (SuccStateM, throwError)
-import qualified Types.SuccState as SuccState (getState, putState, runSuccState)
+import           Types.SuccState (SuccStateM, evaluate, throwError)
+import qualified Types.SuccState as SuccState (getState, putState)
 
 
 -- | State definition
@@ -27,11 +27,6 @@ type ParserState = SuccStateM Tree
 -- | State constructor
 startState :: Tree
 startState = ProgramNode []
-
-
--- | Run the state extracting the error or result
-runParState :: (t -> SuccStateM s a) -> t -> s -> Either CompilerError a
-runParState f t s = SuccState.runSuccState f t s
 
 
 -- | Get the state

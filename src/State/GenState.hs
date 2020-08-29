@@ -6,7 +6,7 @@ State holder for the code generation stage of compilation.
 -}
 module State.GenState
         (GenState,
-         runGenState,
+         evaluate,
          throwError,
          getGlobalScope,
          putGlobalScope,
@@ -25,10 +25,8 @@ import qualified Data.Map          as M
 
 import           State.SymbolTable (FuncState, GlobalScope, Stack, SymTab (..),
                                     mkSymTab)
-import           Types.Error       (CompilerError)
-import           Types.SuccState   (SuccStateM, throwError)
-import qualified Types.SuccState   as SuccState (getState, putState,
-                                                 runSuccState)
+import           Types.SuccState   (SuccStateM, evaluate, throwError)
+import qualified Types.SuccState   as SuccState (getState, putState)
 
 
 -- | State definition
@@ -38,11 +36,6 @@ type GenState = SuccStateM SymTab
 -- | State constructor
 startState :: SymTab
 startState = mkSymTab
-
-
--- | Run the state extracting the error or result
-runGenState :: (t -> SuccStateM s a) -> t -> s -> Either CompilerError a
-runGenState f t s = SuccState.runSuccState f t s
 
 
 -- | Get the global scope state holder

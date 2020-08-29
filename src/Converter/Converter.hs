@@ -13,8 +13,9 @@ import           Data.Maybe           (fromMaybe)
 import qualified Converter.Analyser   as Analyser (analyse)
 import qualified Converter.Valuer     as Valuer (value)
 import qualified State.FuncState      as FuncState
-import           State.GenState       (GenState, runGenState, throwError)
-import qualified State.GenState       as GenState (getState, startState)
+import           State.GenState       (GenState, throwError)
+import qualified State.GenState       as GenState (evaluate, getState,
+                                                   startState)
 import qualified State.GlobalState    as GlobalState
 import           State.State          (SymTab)
 import qualified State.State          as State (getScope, getVariable,
@@ -33,7 +34,7 @@ import           Types.Variables
 
 -- | Builds an assembly schema
 convert :: Tree -> Either CompilerError (AssemblySchema, SymTab)
-convert ast = runGenState convertWithState ast GenState.startState
+convert ast = GenState.evaluate convertWithState ast GenState.startState
 
 
 convertWithState :: Tree -> GenState (AssemblySchema, SymTab)

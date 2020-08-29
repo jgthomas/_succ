@@ -12,7 +12,7 @@ module Types.SuccState
          getState,
          putState,
          throwError,
-         runSuccState
+         evaluate
         ) where
 
 
@@ -44,5 +44,5 @@ throwError e = CM $ throwE e
 
 
 -- | Run the state extracting the error or result
-runSuccState :: (t -> SuccStateM s a) -> t -> s -> Either CompilerError a
-runSuccState f t s = evalState (runExceptT . unCM $ f t) s
+evaluate :: (t -> SuccStateM s a) -> t -> s -> Either CompilerError a
+evaluate f t s = evalState (runExceptT . unCM $ f t) s

@@ -10,9 +10,9 @@ module Lexer.Lexer (tokenize) where
 
 import           Data.Char      (isAlpha, isDigit, isSpace)
 
-import           Lexer.LexState (LexerState, runLexState, throwError)
-import qualified Lexer.LexState as LexState (addToken, getState, incLineNum,
-                                             startState)
+import           Lexer.LexState (LexerState, throwError)
+import qualified Lexer.LexState as LexState (addToken, evaluate, getState,
+                                             incLineNum, startState)
 import           Types.Error    (CompilerError (ImpossibleError, LexerError),
                                  LexerError (..))
 import           Types.LexDat   (LexDat)
@@ -21,7 +21,7 @@ import           Types.Tokens
 
 -- | Convert a string representing a C program to a list of tokens
 tokenize :: String -> Either CompilerError [LexDat]
-tokenize input = runLexState lexer input LexState.startState
+tokenize input = LexState.evaluate lexer input LexState.startState
 
 
 lexer :: String -> LexerState [LexDat]
