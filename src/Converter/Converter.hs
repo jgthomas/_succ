@@ -10,6 +10,7 @@ module Converter.Converter (convert) where
 import           Control.Monad        (unless)
 import           Data.Maybe           (fromMaybe)
 
+import qualified Checker.ScopeCheck   as ScopeCheck
 import qualified Converter.Analyser   as Analyser (analyse)
 import qualified Converter.Valuer     as Valuer (value)
 import qualified State.FuncState      as FuncState
@@ -219,24 +220,30 @@ convertToSchema node@(UnaryNode val unOp _) = do
         value <- convertToSchema val
         pure (ExpressionSchema $ UnarySchema value unOp)
 
-convertToSchema (ConstantNode n _) = pure (ExpressionSchema $ LiteralSchema n)
-
 convertToSchema node@(VarNode name _) = do
+        ScopeCheck.variableExists node
         varType  <- State.getVariable name
         varValue <- State.getVariableValue name
         case varType of
              NotFound    -> throwError $ FatalError (ConverterBug node)
              VarType typ -> pure (ExpressionSchema $ VariableSchema typ varValue)
 
-convertToSchema (DereferenceNode name dat) =
+convertToSchema node@(DereferenceNode name dat) = do
+        ScopeCheck.variableExists node
         ExpressionSchema . DereferenceSchema <$> convertToSchema (VarNode name dat)
 
-convertToSchema (AddressOfNode name dat) =
+convertToSchema node@(AddressOfNode name dat) = do
+        ScopeCheck.variableExists node
         ExpressionSchema . AddressOfSchema <$> convertToSchema (VarNode name dat)
 
-convertToSchema NullExprNode{} = pure SkipSchema
+convertToSchema NullExprNode{} =
+        pure SkipSchema
 
-convertToSchema (ArrayNode arrayNode) = convertToSchemaArray arrayNode
+convertToSchema (ConstantNode n _) =
+        pure (ExpressionSchema $ LiteralSchema n)
+
+convertToSchema (ArrayNode arrayNode) =
+        convertToSchemaArray arrayNode
 
 convertToSchema node = throwError $ FatalError (ConverterBug node)
 
