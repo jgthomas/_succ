@@ -15,9 +15,8 @@ module Parser.ParState
 
 
 import           Types.AST       (Tree (ProgramNode))
-import           Types.Error     (CompilerError (ImpossibleError))
-import           Types.SuccState (SuccStateM, evaluate, throwError)
-import qualified Types.SuccState as SuccState (getState, putState)
+import           Types.SuccState (SuccStateM, evaluate, putState, throwError)
+import qualified Types.SuccState as SuccState (getState)
 
 
 -- | State definition
@@ -33,14 +32,6 @@ startState = ProgramNode []
 getState :: ParserState [Tree]
 getState = do
         ast <- SuccState.getState
-        getTreeList ast
-
-
--- | Update the state
-putState :: s -> SuccStateM s ()
-putState s = SuccState.putState s
-
-
-getTreeList :: Tree -> ParserState [Tree]
-getTreeList (ProgramNode treeList) = pure treeList
-getTreeList _                      = throwError ImpossibleError
+        case ast of
+             (ProgramNode treeList) -> pure treeList
+             _                      -> pure []
