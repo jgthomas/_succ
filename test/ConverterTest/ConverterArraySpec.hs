@@ -262,13 +262,16 @@ converterArrayTest = hspec $ do
                                    []
                                    (Just $ CompoundStmtNode
                                     [ArrayNode $ ArrayDeclareNode
-                                     1
+                                     2
                                      (VarNode "a" mockNodeDat)
                                      IntArray
                                      (Just $ ArrayNode $ ArrayItemsNode
                                       (VarNode "a" mockNodeDat)
                                       [ArrayNode $ ArraySingleItemNode
                                        (ConstantNode 20 mockNodeDat)
+                                       mockNodeDat,
+                                       ArrayNode $ ArraySingleItemNode
+                                       (ConstantNode 100 mockNodeDat)
                                        mockNodeDat
                                       ]
                                       mockNodeDat
@@ -276,13 +279,13 @@ converterArrayTest = hspec $ do
                                      mockNodeDat,
                                      (ArrayNode $ ArrayAssignPosNode
                                       (ArrayNode $ ArrayItemAssign
-                                       0
+                                       1
                                        (VarNode "a" mockNodeDat)
                                        mockNodeDat
                                       )
                                       (BinaryNode
                                        (ArrayNode $ ArrayItemAssign
-                                        0
+                                        1
                                         (VarNode "a" mockNodeDat)
                                         mockNodeDat
                                        )
@@ -295,7 +298,7 @@ converterArrayTest = hspec $ do
                                      ),
                                      ReturnNode
                                      (ArrayNode $ ArrayItemAccess
-                                      0
+                                      1
                                       (VarNode "a" mockNodeDat)
                                       mockNodeDat
                                      )
@@ -315,21 +318,25 @@ converterArrayTest = hspec $ do
                     [DeclarationSchema
                      (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16) UntrackedValue)
                      (StatementSchema $ ArrayItemsSchema
-                      16
+                      24
                       [StatementSchema $ AssignmentSchema
                        (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16) UntrackedValue)
                        (ExpressionSchema $ LiteralSchema 20)
+                       Local,
+                       StatementSchema $ AssignmentSchema
+                       (ExpressionSchema $ VariableSchema (LocalVar (-16) (-8) 24) UntrackedValue)
+                       (ExpressionSchema $ LiteralSchema 100)
                        Local
                       ]
                      )
                      Local
                      IntArray,
                      (StatementSchema $ AssignmentSchema
-                      (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16) UntrackedValue)
+                      (ExpressionSchema $ VariableSchema (LocalVar (-16) (-8) 24) UntrackedValue)
                       (ExpressionSchema $ BinarySchema
-                       (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16) UntrackedValue)
+                       (ExpressionSchema $ VariableSchema (LocalVar (-16) (-8) 24) UntrackedValue)
                        (ExpressionSchema $ BinarySchema
-                        (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16) UntrackedValue)
+                        (ExpressionSchema $ VariableSchema (LocalVar (-16) (-8) 24) UntrackedValue)
                         (ExpressionSchema $ LiteralSchema 30)
                         Plus
                         (LocalLabel 3)
@@ -343,7 +350,7 @@ converterArrayTest = hspec $ do
                      ),
                      (StatementSchema
                       (ReturnSchema
-                       (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16) UntrackedValue)
+                       (ExpressionSchema $ VariableSchema (LocalVar (-16) (-8) 24) UntrackedValue)
                       )
                      )
                     ]
