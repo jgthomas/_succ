@@ -281,7 +281,11 @@ converterArrayTest = hspec $ do
                                        mockNodeDat
                                       )
                                       (BinaryNode
-                                       (VarNode "a" mockNodeDat)
+                                       (ArrayNode $ ArrayItemAssign
+                                        0
+                                        (VarNode "a" mockNodeDat)
+                                        mockNodeDat
+                                       )
                                        (ConstantNode 30 mockNodeDat)
                                        Plus
                                        mockNodeDat

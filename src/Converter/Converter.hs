@@ -12,7 +12,7 @@ import           Data.Maybe           (fromMaybe)
 
 import qualified Checker.LogicCheck   as LogicCheck
 import qualified Checker.ScopeCheck   as ScopeCheck
---import qualified Checker.TypeCheck    as TypeCheck
+import qualified Checker.TypeCheck    as TypeCheck
 import qualified Converter.Analyser   as Analyser (analyse)
 import qualified Converter.Valuer     as Valuer (value)
 import qualified State.FuncState      as FuncState
@@ -532,13 +532,13 @@ buildAssignment (AssignmentNode varNode valNode (BinaryOp binOp) dat ) =
                           (BinaryNode varNode valNode binOp dat)
                           Assignment
                           dat
-buildAssignment (AssignmentNode
+buildAssignment node@(AssignmentNode
                  (ArrayNode (ArrayItemAssign pos varNode _))
                  valNode
                  _
                  _
                 ) = do
-                        --TypeCheck.assignment node
+                        TypeCheck.assignment node
                         processArrayItem varNode (valNode, pos)
 buildAssignment node@(AssignmentNode _ _ Assignment _) =
         buildBasicAssignment node
