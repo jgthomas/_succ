@@ -295,13 +295,13 @@ getArrayIndexItem _ node = throwError $ FatalError (ConverterBug node)
 
 processArrayItems :: Tree -> [Tree] -> GenState AssemblySchema
 processArrayItems varNode items = do
-        arrayItemsSchema <- mapM (processArrayItem varNode) (zip items [0..])
+        arrayItems <- mapM (processArrayItem varNode) (zip items [0..])
         FuncState.incrementOffsetByN (length items - 1)
-        adjust           <- FuncState.stackPointerValue
+        adjust <- FuncState.stackPointerValue
         pure (StatementSchema
               (ArrayItemsSchema
                adjust
-               arrayItemsSchema
+               arrayItems
               )
              )
 
