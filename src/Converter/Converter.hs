@@ -289,7 +289,6 @@ convertToSchemaArray node@(ArrayAssignPosNode
                                                              valNode
                                                              op
                                                              dat
-                                           --processArrayItem varNode (valNode, pos)
                                    UnaryOp _ ->
                                            throwError $ FatalError (ConverterBug $ ArrayNode node)
                                    BinaryOp binOp ->
