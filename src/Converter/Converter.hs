@@ -12,6 +12,7 @@ import           Data.Maybe           (fromMaybe)
 
 import qualified Checker.LogicCheck   as LogicCheck
 import qualified Checker.ScopeCheck   as ScopeCheck
+--import qualified Checker.TypeCheck    as TypeCheck
 import qualified Converter.Analyser   as Analyser (analyse)
 import qualified Converter.Valuer     as Valuer (value)
 import qualified State.FuncState      as FuncState
@@ -206,7 +207,7 @@ convertToSchema (TernaryNode test true false _) = do
 convertToSchema (BinaryNode leftNode rightNode operator _) = do
         trueLabel   <- LocalLabel <$> State.labelNum
         falseLabel  <- LocalLabel <$> State.labelNum
-        leftSchema  <- convertToSchema leftNode
+        leftSchema  <- binaryLeftSchema leftNode
         rightSchema <- convertToSchema rightNode
         pure (ExpressionSchema
               (BinarySchema
@@ -265,21 +266,38 @@ convertToSchemaArray (ArrayDeclareNode len var typ Nothing dat) = do
 convertToSchemaArray  (ArrayDeclareNode _ var typ assign dat) =
         convertToSchema (DeclarationNode var typ assign dat)
 
-convertToSchemaArray (ArrayItemsNode varNode items _) = processArrayItems varNode items
+convertToSchemaArray (ArrayItemsNode varNode items _) =
+        processArrayItems varNode items
 
-convertToSchemaArray (ArraySingleItemNode item _) = convertToSchema item
+convertToSchemaArray (ArraySingleItemNode item _) =
+        convertToSchema item
 
-convertToSchemaArray (ArrayItemAccess pos varNode _) = getArrayIndexItem pos varNode
+convertToSchemaArray (ArrayItemAccess pos varNode _) =
+        getArrayIndexItem pos varNode
 
-convertToSchemaArray node@(ArrayAssignPosNode (ArrayNode (ArrayItemAssign pos varNode iDat)) valNode op dat) =
-        case op of
-             Assignment     -> processArrayItem varNode (valNode, pos)
-             UnaryOp _      -> throwError $ FatalError (ConverterBug $ ArrayNode node)
-             BinaryOp binOp -> convertToSchema $ AssignmentNode
-                                                 varNode
-                                                 (BinaryNode varNode valNode binOp iDat)
-                                                 Assignment
-                                                 dat
+convertToSchemaArray node@(ArrayAssignPosNode
+                           arrayPosVar@(ArrayNode
+                            (ArrayItemAssign _ _ iDat)
+                           )
+                           valNode
+                           op
+                           dat
+                          ) = case op of
+                                   Assignment ->
+                                           buildAssignment $ AssignmentNode
+                                                             arrayPosVar
+                                                             valNode
+                                                             op
+                                                             dat
+                                           --processArrayItem varNode (valNode, pos)
+                                   UnaryOp _ ->
+                                           throwError $ FatalError (ConverterBug $ ArrayNode node)
+                                   BinaryOp binOp ->
+                                           buildAssignment $ AssignmentNode
+                                                             arrayPosVar
+                                                             (BinaryNode arrayPosVar valNode binOp iDat)
+                                                             Assignment
+                                                             dat
 
 convertToSchemaArray (ArrayItemAssign pos varNode _) = getArrayIndexItem pos varNode
 
@@ -508,14 +526,22 @@ buildAssignmentSchema varNode valNode = do
 
 
 buildAssignment :: Tree -> GenState AssemblySchema
-buildAssignment node@(AssignmentNode _ _ Assignment _) =
-        buildBasicAssignment node
 buildAssignment (AssignmentNode varNode valNode (BinaryOp binOp) dat ) =
         convertToSchema $ AssignmentNode
                           varNode
                           (BinaryNode varNode valNode binOp dat)
                           Assignment
                           dat
+buildAssignment (AssignmentNode
+                 (ArrayNode (ArrayItemAssign pos varNode _))
+                 valNode
+                 _
+                 _
+                ) = do
+                        --TypeCheck.assignment node
+                        processArrayItem varNode (valNode, pos)
+buildAssignment node@(AssignmentNode _ _ Assignment _) =
+        buildBasicAssignment node
 buildAssignment node = throwError $ FatalError (ConverterBug node)
 
 
@@ -556,3 +582,8 @@ checkValueIncDec (UnaryNode valNode@(VarNode name _) (PostOpUnary PostIncrement)
 checkValueIncDec (UnaryNode valNode@(VarNode name _) (PostOpUnary PostDecrement) dat) =
         setValue dat name valNode (-1)
 checkValueIncDec _ = pure ()
+
+
+binaryLeftSchema :: Tree -> GenState AssemblySchema
+binaryLeftSchema (ArrayNode (ArrayItemAssign pos varNode _)) = getArrayIndexItem pos varNode
+binaryLeftSchema tree                                        = convertToSchema tree
