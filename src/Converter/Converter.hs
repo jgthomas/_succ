@@ -163,7 +163,7 @@ convertToSchema (IfNode test body possElse _) = do
               )
              )
 
-convertToSchema (PointerNode varNode typ value dat) = do
+convertToSchema (PointerNode varNode typ value dat) =
         convertToSchema (DeclarationNode varNode typ value dat)
 
 convertToSchema node@DeclarationNode{} = do
@@ -173,6 +173,18 @@ convertToSchema node@DeclarationNode{} = do
              Global -> declareGlobal node
 
 convertToSchema node@(AssignmentNode varNode@VarNode{} valNode@VarNode{} _ _) = do
+        ScopeCheck.variableExists varNode
+        ScopeCheck.variableExists valNode
+        TypeCheck.assignment node
+        buildAssignment node
+
+convertToSchema node@(AssignmentNode varNode@VarNode{} valNode@AddressOfNode{} _ _) = do
+        ScopeCheck.variableExists varNode
+        ScopeCheck.variableExists valNode
+        TypeCheck.assignment node
+        buildAssignment node
+
+convertToSchema node@(AssignmentNode varNode@VarNode{} valNode@DereferenceNode{} _ _) = do
         ScopeCheck.variableExists varNode
         ScopeCheck.variableExists valNode
         TypeCheck.assignment node
