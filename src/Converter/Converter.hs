@@ -487,9 +487,11 @@ declareLocal tree = throwError $ FatalError (ConverterBug tree)
 
 
 defineLocal :: Tree -> GenState AssemblySchema
-defineLocal (AssignmentNode varNode@(VarNode name _) valNode _ dat) =
+defineLocal (AssignmentNode varNode@(VarNode name _) valNode op dat) = do
+        LogicCheck.checkAssignLocalLogic varNode valNode op
         processAssignment name dat varNode valNode
-defineLocal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ dat) =
+defineLocal (AssignmentNode derefNode@(DereferenceNode name _) valNode op dat) = do
+        LogicCheck.checkAssignLocalLogic derefNode valNode op
         processAssignment name dat derefNode valNode
 defineLocal tree = throwError $ FatalError (ConverterBug tree)
 
