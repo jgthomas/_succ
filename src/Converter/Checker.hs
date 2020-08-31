@@ -17,4 +17,10 @@ check node@(FuncCallNode name _ _) = do
         TypeCheck.typesMatch node
         ScopeCheck.validateCall node
 
+check node@BreakNode{} =
+        ScopeCheck.checkGotoJump node
+
+check node@ContinueNode{} =
+        ScopeCheck.checkGotoJump node
+
 check _ = pure ()

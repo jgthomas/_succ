@@ -190,12 +190,12 @@ convertToSchema (AssignDereferenceNode varNode valNode operator dat) =
 convertToSchema (ExprStmtNode exprStatement _) = convertToSchema exprStatement
 
 convertToSchema node@ContinueNode{} = do
-        ScopeCheck.checkGotoJump node
+        Checker.check node
         contineLabel <- LocalLabel . fromMaybe (-1) <$> FuncState.getContinue
         pure (StatementSchema $ ContinueSchema contineLabel)
 
 convertToSchema node@BreakNode{} = do
-        ScopeCheck.checkGotoJump node
+        Checker.check node
         breakLabel <- LocalLabel . fromMaybe (-1) <$> FuncState.getBreak
         pure (StatementSchema $ BreakSchema breakLabel)
 
