@@ -226,18 +226,18 @@ convertToSchema (BinaryNode leftNode rightNode operator _) = do
              )
 
 convertToSchema node@(UnaryNode varNode@VarNode{} unOp _) = do
-        LogicCheck.checkUnaryLogic node
+        Checker.check node
         varSchema <- convertToSchema varNode
         pure (ExpressionSchema $ UnarySchema varSchema unOp)
 
 convertToSchema node@(UnaryNode val unOp _) = do
-        LogicCheck.checkUnaryLogic node
+        Checker.check node
         checkValueIncDec node
         value <- convertToSchema val
         pure (ExpressionSchema $ UnarySchema value unOp)
 
 convertToSchema node@(VarNode name _) = do
-        ScopeCheck.variableExists node
+        Checker.check node
         varType  <- State.getVariable name
         varValue <- State.getVariableValue name
         case varType of
@@ -245,11 +245,11 @@ convertToSchema node@(VarNode name _) = do
              VarType typ -> pure (ExpressionSchema $ VariableSchema typ varValue)
 
 convertToSchema node@(DereferenceNode name dat) = do
-        ScopeCheck.variableExists node
+        Checker.check node
         ExpressionSchema . DereferenceSchema <$> convertToSchema (VarNode name dat)
 
 convertToSchema node@(AddressOfNode name dat) = do
-        ScopeCheck.variableExists node
+        Checker.check node
         ExpressionSchema . AddressOfSchema <$> convertToSchema (VarNode name dat)
 
 convertToSchema NullExprNode{} =

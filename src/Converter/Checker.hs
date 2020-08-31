@@ -2,6 +2,7 @@
 module Converter.Checker (check) where
 
 
+import qualified Converter.LogicCheck as LogicCheck
 import qualified Converter.ScopeCheck as ScopeCheck
 import qualified Converter.TypeCheck  as TypeCheck
 import           State.GenState       (GenState)
@@ -30,11 +31,27 @@ check node@(AssignmentNode varNode _ _ _) = do
         ScopeCheck.variableExists varNode
         TypeCheck.assignment node
 
+check node@(UnaryNode varNode@VarNode{} _ _) = do
+        ScopeCheck.variableExists varNode
+        LogicCheck.checkUnaryLogic node
+
+check node@UnaryNode{} =
+        LogicCheck.checkUnaryLogic node
+
 check node@BreakNode{} =
         ScopeCheck.checkGotoJump node
 
 check node@ContinueNode{} =
         ScopeCheck.checkGotoJump node
+
+check node@VarNode{} =
+        ScopeCheck.variableExists node
+
+check node@DereferenceNode{} =
+        ScopeCheck.variableExists node
+
+check node@AddressOfNode{} =
+        ScopeCheck.variableExists node
 
 check _ = pure ()
 
