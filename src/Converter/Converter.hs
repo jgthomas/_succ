@@ -354,32 +354,19 @@ setSchemaOffset _ _ = undefined
 -- Function
 
 declareFunction :: Tree -> GenState ()
-declareFunction node@(FunctionNode _ funcName _ _ _) = do
-        ScopeCheck.validateFuncDeclaration node
+declareFunction node@(FunctionNode typ funcName paramList _ _) = do
+        Checker.check node
         prevParamCount <- GlobalState.decParamCount funcName
         case prevParamCount of
-             Nothing -> declareNewFunction node
-             Just n  -> declareRepeatFunction n node
+             Nothing -> do
+                     GlobalState.declareFunction typ funcName (length paramList)
+                     processParameters funcName paramList
+             Just _  -> do
+                     GlobalState.declareFunction typ funcName (length paramList)
+                     defined <- GlobalState.checkFuncDefined funcName
+                     unless defined $
+                        reprocessParameters funcName paramList
 declareFunction node = ScopeCheck.validateFuncDeclaration node
-
-
-declareNewFunction :: Tree -> GenState ()
-declareNewFunction (FunctionNode typ funcName paramList _ _) = do
-        GlobalState.declareFunction typ funcName (length paramList)
-        processParameters funcName paramList
-declareNewFunction node = ScopeCheck.validateFuncDeclaration node
-
-
-declareRepeatFunction :: Int -> Tree -> GenState ()
-declareRepeatFunction count node@(FunctionNode typ funcName paramList _ _) = do
-        ScopeCheck.checkParameters count node
-        TypeCheck.typesMatch node
-        TypeCheck.funcDeclaration node
-        GlobalState.declareFunction typ funcName (length paramList)
-        defined <- GlobalState.checkFuncDefined funcName
-        unless defined $
-           reprocessParameters funcName paramList
-declareRepeatFunction _ node = ScopeCheck.validateFuncDeclaration node
 
 
 processParameters :: String -> [Tree] -> GenState ()

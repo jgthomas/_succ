@@ -12,6 +12,16 @@ import           Types.AST            (Tree (..))
 
 check :: Tree -> GenState ()
 
+check node@(FunctionNode _ funcName _ _ _) = do
+        ScopeCheck.validateFuncDeclaration node
+        prevParamCount <- GlobalState.decParamCount funcName
+        case prevParamCount of
+             Nothing -> pure ()
+             Just n  -> do
+                     ScopeCheck.checkParameters n node
+                     TypeCheck.typesMatch node
+                     TypeCheck.funcDeclaration node
+
 check node@(FuncCallNode name _ _) = do
         paramCount <- GlobalState.decParamCount name
         ScopeCheck.checkArguments paramCount node
