@@ -12,7 +12,6 @@ import           Data.Maybe           (fromMaybe)
 
 import qualified Converter.Analyser   as Analyser (analyse)
 import qualified Converter.Checker    as Checker (check)
-import qualified Converter.ScopeCheck as ScopeCheck
 import qualified Converter.TypeCheck  as TypeCheck
 import qualified Converter.Valuer     as Valuer (value)
 import qualified State.FuncState      as FuncState
@@ -366,7 +365,7 @@ declareFunction (FunctionNode typ funcName paramList _ _) = do
                    defined <- GlobalState.checkFuncDefined funcName
                    unless defined $
                       reprocessParameters funcName paramList
-declareFunction node = ScopeCheck.validateFuncDeclaration node
+declareFunction node = throwError $ FatalError (ConverterBug node)
 
 
 processParameters :: String -> [Tree] -> GenState ()
@@ -476,8 +475,7 @@ buildUndefinedSchema (label, typ) =
 -- Variables Local
 
 declareLocal :: Tree -> GenState AssemblySchema
-declareLocal node@(DeclarationNode varNode@(VarNode name _) typ value _) = do
-        ScopeCheck.checkIfUsedInScope node
+declareLocal (DeclarationNode varNode@(VarNode name _) typ value _) = do
         _ <- FuncState.addVariable name typ
         currScope <- State.getScope
         varSchema <- convertToSchema varNode
