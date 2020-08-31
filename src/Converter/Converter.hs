@@ -445,7 +445,8 @@ declareGlobal tree = throwError $ FatalError (ConverterBug tree)
 
 
 processGlobalAssignment :: Tree -> GenState AssemblySchema
-processGlobalAssignment (DeclarationNode varNode typ (Just assignNode) _) = do
+processGlobalAssignment node@(DeclarationNode varNode typ (Just assignNode) _) = do
+        TypeCheck.globalDeclaration node
         currScope    <- State.getScope
         varSchema    <- convertToSchema varNode
         assignSchema <- convertToSchema assignNode
