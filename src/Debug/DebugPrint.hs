@@ -20,7 +20,6 @@ printDebug stage content =
              Input  -> printInputDebug content
              Lexer  -> printLexerDebug content
              Parser -> printParserDebug content
-             Check  -> printCheckerDebug content
              Schema -> printSchemaDebug content
              State  -> printStateDebug content
              Output -> printOutputDebug content
@@ -51,13 +50,6 @@ printParserDebug content = do
         where
                 title = "ABSTRACT SYNTAX TREE"
                 message = "Syntax tree parsed from the lexed tokens"
-
-
-printCheckerDebug :: Show a => a -> IO ()
-printCheckerDebug _ = printTitleAndMessage title message
-        where
-                title = "ERROR CHECKING PASS"
-                message = "No errors found in syntax tree"
 
 
 printSchemaDebug :: Show a => a -> IO ()

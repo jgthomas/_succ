@@ -20,9 +20,6 @@ fatalErrorMsg err@(LexerBug input) = (msg, None)
 fatalErrorMsg err@(ParserBug lexData) = (msg, None)
         where msg = fatalErrorMsgIntro err ++ show lexData ++ fatalErrorMsgOutro
 
-fatalErrorMsg err@(CheckerBug tree) = (msg, None)
-        where msg = fatalErrorMsgIntro err ++ show tree ++ fatalErrorMsgOutro
-
 fatalErrorMsg err@(ConverterBug tree) = (msg, None)
         where msg = fatalErrorMsgIntro err ++ show tree ++ fatalErrorMsgOutro
 
@@ -41,7 +38,6 @@ fatalComponent err =
         case err of
              LexerBug{}     -> "lexer"
              ParserBug{}    -> "parser"
-             CheckerBug{}   -> "syntax tree checker"
              ConverterBug{} -> "syntax tree to assembly schema converter"
              BuilderBug{}   -> "assembly generator"
 

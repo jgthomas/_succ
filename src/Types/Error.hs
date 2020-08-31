@@ -76,7 +76,6 @@ data LogicError = OperatorUseError Tree Operator
 
 data FatalError = LexerBug String
                 | ParserBug [LexDat]
-                | CheckerBug Tree
                 | ConverterBug Tree
                 | BuilderBug AssemblySchema
                 deriving (Show, Eq)
