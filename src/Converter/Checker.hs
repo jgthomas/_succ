@@ -7,7 +7,9 @@ import qualified Converter.ScopeCheck as ScopeCheck
 import qualified Converter.TypeCheck  as TypeCheck
 import           State.GenState       (GenState)
 import qualified State.GlobalState    as GlobalState
+import qualified State.State          as State (getScope)
 import           Types.AST            (Tree (..))
+import           Types.Variables      (Scope (..))
 
 
 check :: Tree -> GenState ()
@@ -37,6 +39,7 @@ check node@(AssignmentNode varNode@VarNode{} valNode@DereferenceNode{} _ _) =
 check node@(AssignmentNode varNode _ _ _) = do
         ScopeCheck.variableExists varNode
         TypeCheck.assignment node
+        checkScopedAssignment node
 
 check node@(UnaryNode varNode@VarNode{} _ _) = do
         ScopeCheck.variableExists varNode
@@ -81,3 +84,13 @@ checkAssignment assign varNode valNode = do
         ScopeCheck.variableExists varNode
         ScopeCheck.variableExists valNode
         TypeCheck.assignment assign
+        checkScopedAssignment assign
+
+
+checkScopedAssignment :: Tree -> GenState ()
+checkScopedAssignment node@(AssignmentNode varNode valNode op _) = do
+        currScope <- State.getScope
+        case currScope of
+             Local  -> LogicCheck.checkAssignLocalLogic varNode valNode op
+             Global -> ScopeCheck.checkIfDefined node
+checkScopedAssignment _ = pure ()
