@@ -350,18 +350,19 @@ setSchemaOffset _ _ = undefined
 
 declareFunction :: Tree -> GenState ()
 declareFunction node@(FunctionNode _ funcName _ _ _) = do
+        ScopeCheck.validateFuncDeclaration node
         prevParamCount <- GlobalState.decParamCount funcName
         case prevParamCount of
              Nothing -> declareNewFunction node
              Just _  -> declareRepeatFunction node
-declareFunction tree = throwError $ FatalError (ConverterBug tree)
+declareFunction node = ScopeCheck.validateFuncDeclaration node
 
 
 declareNewFunction :: Tree -> GenState ()
 declareNewFunction (FunctionNode typ funcName paramList _ _) = do
         GlobalState.declareFunction typ funcName (length paramList)
         processParameters funcName paramList
-declareNewFunction tree = throwError $ FatalError (ConverterBug tree)
+declareNewFunction node = ScopeCheck.validateFuncDeclaration node
 
 
 declareRepeatFunction :: Tree -> GenState ()
@@ -370,7 +371,7 @@ declareRepeatFunction (FunctionNode typ funcName paramList _ _) = do
         defined <- GlobalState.checkFuncDefined funcName
         unless defined $
            reprocessParameters funcName paramList
-declareRepeatFunction tree = throwError $ FatalError (ConverterBug tree)
+declareRepeatFunction node = ScopeCheck.validateFuncDeclaration node
 
 
 processParameters :: String -> [Tree] -> GenState ()
