@@ -21,7 +21,8 @@ module State.GlobalState
          getUndefinedVarData,
          defineGlobal,
          makeLabel,
-         incrementDecSeq
+         incrementDecSeq,
+         previouslyDeclaredFunc
         ) where
 
 
@@ -47,6 +48,15 @@ decParamCount name = lookUp name funcParams
 -- | Get the declaration sequence number
 decSeqNumber :: String -> GenState (Maybe Int)
 decSeqNumber name = lookUp name funcDecSeq
+
+
+-- | Check whether a function has been declared before
+previouslyDeclaredFunc :: String -> GenState Bool
+previouslyDeclaredFunc name = do
+        n <- decSeqNumber name
+        case n of
+             Nothing -> pure False
+             Just _  -> pure True
 
 
 -- | Get the assembly label associated with a named variable

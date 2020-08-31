@@ -356,16 +356,16 @@ setSchemaOffset _ _ = undefined
 declareFunction :: Tree -> GenState ()
 declareFunction node@(FunctionNode typ funcName paramList _ _) = do
         Checker.check node
-        prevParamCount <- GlobalState.decParamCount funcName
-        case prevParamCount of
-             Nothing -> do
-                     GlobalState.declareFunction typ funcName (length paramList)
-                     processParameters funcName paramList
-             Just _  -> do
-                     GlobalState.declareFunction typ funcName (length paramList)
-                     defined <- GlobalState.checkFuncDefined funcName
-                     unless defined $
-                        reprocessParameters funcName paramList
+        declaredBefore <- GlobalState.previouslyDeclaredFunc funcName
+        if not declaredBefore
+           then do
+                   GlobalState.declareFunction typ funcName (length paramList)
+                   processParameters funcName paramList
+           else do
+                   GlobalState.declareFunction typ funcName (length paramList)
+                   defined <- GlobalState.checkFuncDefined funcName
+                   unless defined $
+                      reprocessParameters funcName paramList
 declareFunction node = ScopeCheck.validateFuncDeclaration node
 
 
