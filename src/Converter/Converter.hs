@@ -164,11 +164,12 @@ convertToSchema (PointerNode varNode typ value dat) =
         convertToSchema (DeclarationNode varNode typ value dat)
 
 convertToSchema node@DeclarationNode{} = do
-        Checker.check node
         currScope <- State.getScope
         case currScope of
-             Local  -> declareLocal node
              Global -> declareGlobal node
+             Local  -> do
+                     Checker.check node
+                     declareLocal node
 
 convertToSchema node@AssignmentNode{} = do
         Checker.check node
@@ -423,29 +424,30 @@ addReturnZero bodySchema = bodySchema ++ [StatementSchema
 
 declareGlobal :: Tree -> GenState AssemblySchema
 declareGlobal node@(DeclarationNode (VarNode name _) typ Nothing _) = do
+        Checker.check node
         currLabel <- GlobalState.getLabel name
         case currLabel of
              Nothing -> do
                      globLab <- GlobalState.makeLabel name
                      GlobalState.declareGlobal name typ globLab
                      pure SkipSchema
-             Just _  -> do
-                     TypeCheck.globalDeclaration node
-                     pure SkipSchema
+             Just _  -> pure SkipSchema
 declareGlobal node@(DeclarationNode (VarNode name _) typ _ _) = do
         currLabel <- GlobalState.getLabel name
         case currLabel of
-             Just _  -> processGlobalAssignment node
+             Just _  -> do
+                     Checker.check node
+                     processGlobalAssignment node
              Nothing -> do
                      globLab <- GlobalState.makeLabel name
                      GlobalState.declareGlobal name typ globLab
+                     Checker.check node
                      processGlobalAssignment node
 declareGlobal tree = throwError $ FatalError (ConverterBug tree)
 
 
 processGlobalAssignment :: Tree -> GenState AssemblySchema
-processGlobalAssignment node@(DeclarationNode varNode typ (Just assignNode) _) = do
-        TypeCheck.globalDeclaration node
+processGlobalAssignment (DeclarationNode varNode typ (Just assignNode) _) = do
         currScope    <- State.getScope
         varSchema    <- convertToSchema varNode
         assignSchema <- convertToSchema assignNode

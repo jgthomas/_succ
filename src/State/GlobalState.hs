@@ -22,7 +22,8 @@ module State.GlobalState
          defineGlobal,
          makeLabel,
          incrementDecSeq,
-         previouslyDeclaredFunc
+         previouslyDeclaredFunc,
+         previouslyDeclaredVar
         ) where
 
 
@@ -55,6 +56,15 @@ previouslyDeclaredFunc :: String -> GenState Bool
 previouslyDeclaredFunc name = do
         n <- decSeqNumber name
         case n of
+             Nothing -> pure False
+             Just _  -> pure True
+
+
+-- | Check whether a variable has been declared before
+previouslyDeclaredVar :: String -> GenState Bool
+previouslyDeclaredVar name = do
+        label <- getLabel name
+        case label of
              Nothing -> pure False
              Just _  -> pure True
 

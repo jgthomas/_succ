@@ -90,8 +90,21 @@ checkScopedDeclaration node@DeclarationNode{} = do
         currScope <- State.getScope
         case currScope of
              Local  -> ScopeCheck.checkIfUsedInScope node
-             Global -> ScopeCheck.validateGlobalDeclaration node
+             Global -> do
+                     ScopeCheck.validateGlobalDeclaration node
+                     conditionalTypeCheck node
 checkScopedDeclaration _ = pure ()
+
+
+conditionalTypeCheck :: Tree -> GenState ()
+conditionalTypeCheck node@(DeclarationNode (VarNode name _) _ Nothing _) = do
+        declaredBefore <- GlobalState.previouslyDeclaredVar name
+        if declaredBefore
+           then TypeCheck.globalDeclaration node
+           else pure ()
+conditionalTypeCheck node@DeclarationNode{} =
+        TypeCheck.globalDeclaration node
+conditionalTypeCheck _ = pure ()
 
 
 checkAssignment :: Tree -> Tree -> Tree -> GenState ()
