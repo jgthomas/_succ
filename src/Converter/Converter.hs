@@ -59,6 +59,7 @@ convertToSchema funcNode@(FunctionNode _ _ _ Nothing _) = do
         pure SkipSchema
 
 convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
+        ScopeCheck.checkIfFuncDefined funcNode
         FuncState.initFunction name
         declareFunction funcNode
         bodySchema <- checkReturn name <$> convertToSchema body
@@ -70,7 +71,11 @@ convertToSchema (ParamNode typ (VarNode name _) _) = do
         FuncState.addParameter name typ
         pure SkipSchema
 
-convertToSchema (FuncCallNode name argList _) = do
+convertToSchema node@(FuncCallNode name argList _) = do
+        paramCount <- GlobalState.decParamCount name
+        ScopeCheck.checkArguments paramCount node
+        TypeCheck.typesMatch node
+        ScopeCheck.validateCall node
         argPosValues <- argsToPosValue argList
         argSchemas   <- mapM convertToSchema argList
         FuncState.paramValuesFromArgs name argPosValues
@@ -187,8 +192,9 @@ convertToSchema node@BreakNode{} = do
         breakLabel <- LocalLabel . fromMaybe (-1) <$> FuncState.getBreak
         pure (StatementSchema $ BreakSchema breakLabel)
 
-convertToSchema (ReturnNode val _) = do
-        valueSchema <- convertToSchema val
+convertToSchema node@(ReturnNode valNode _) = do
+        valueSchema <- convertToSchema valNode
+        TypeCheck.funcReturn node valNode
         pure (StatementSchema $ ReturnSchema valueSchema)
 
 convertToSchema (TernaryNode test true false _) = do
@@ -433,9 +439,15 @@ addReturnZero bodySchema = bodySchema ++ [StatementSchema
 declareGlobal :: Tree -> GenState AssemblySchema
 declareGlobal node@(DeclarationNode (VarNode name _) typ Nothing _) = do
         ScopeCheck.validateGlobalDeclaration node
-        globLab <- GlobalState.makeLabel name
-        GlobalState.declareGlobal name typ globLab
-        pure SkipSchema
+        currLabel <- GlobalState.getLabel name
+        case currLabel of
+             Nothing -> do
+                     globLab <- GlobalState.makeLabel name
+                     GlobalState.declareGlobal name typ globLab
+                     pure SkipSchema
+             Just _  -> do
+                     TypeCheck.globalDeclaration node
+                     pure SkipSchema
 declareGlobal node@(DeclarationNode (VarNode name _) typ _ _) = do
         ScopeCheck.validateGlobalDeclaration node
         currLabel <- GlobalState.getLabel name
