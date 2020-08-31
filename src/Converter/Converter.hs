@@ -427,11 +427,13 @@ addReturnZero bodySchema = bodySchema ++ [StatementSchema
 -- Variables Global
 
 declareGlobal :: Tree -> GenState AssemblySchema
-declareGlobal (DeclarationNode (VarNode name _) typ Nothing _) = do
+declareGlobal node@(DeclarationNode (VarNode name _) typ Nothing _) = do
+        ScopeCheck.validateGlobalDeclaration node
         globLab <- GlobalState.makeLabel name
         GlobalState.declareGlobal name typ globLab
         pure SkipSchema
 declareGlobal node@(DeclarationNode (VarNode name _) typ _ _) = do
+        ScopeCheck.validateGlobalDeclaration node
         currLabel <- GlobalState.getLabel name
         case currLabel of
              Just _  -> processGlobalAssignment node
@@ -473,7 +475,8 @@ buildUndefinedSchema (label, typ) =
 -- Variables Local
 
 declareLocal :: Tree -> GenState AssemblySchema
-declareLocal (DeclarationNode varNode@(VarNode name _) typ value _) = do
+declareLocal node@(DeclarationNode varNode@(VarNode name _) typ value _) = do
+        ScopeCheck.checkIfUsedInScope node
         _ <- FuncState.addVariable name typ
         currScope <- State.getScope
         varSchema <- convertToSchema varNode
