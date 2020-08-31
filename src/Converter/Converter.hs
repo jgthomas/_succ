@@ -354,7 +354,7 @@ declareFunction node@(FunctionNode _ funcName _ _ _) = do
         prevParamCount <- GlobalState.decParamCount funcName
         case prevParamCount of
              Nothing -> declareNewFunction node
-             Just _  -> declareRepeatFunction node
+             Just n  -> declareRepeatFunction n node
 declareFunction node = ScopeCheck.validateFuncDeclaration node
 
 
@@ -365,13 +365,16 @@ declareNewFunction (FunctionNode typ funcName paramList _ _) = do
 declareNewFunction node = ScopeCheck.validateFuncDeclaration node
 
 
-declareRepeatFunction :: Tree -> GenState ()
-declareRepeatFunction (FunctionNode typ funcName paramList _ _) = do
+declareRepeatFunction :: Int -> Tree -> GenState ()
+declareRepeatFunction count node@(FunctionNode typ funcName paramList _ _) = do
+        ScopeCheck.checkParameters count node
+        TypeCheck.typesMatch node
+        TypeCheck.funcDeclaration node
         GlobalState.declareFunction typ funcName (length paramList)
         defined <- GlobalState.checkFuncDefined funcName
         unless defined $
            reprocessParameters funcName paramList
-declareRepeatFunction node = ScopeCheck.validateFuncDeclaration node
+declareRepeatFunction _ node = ScopeCheck.validateFuncDeclaration node
 
 
 processParameters :: String -> [Tree] -> GenState ()
