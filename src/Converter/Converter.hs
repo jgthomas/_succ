@@ -167,7 +167,10 @@ convertToSchema node@DeclarationNode{} = do
              Local  -> declareLocal node
              Global -> declareGlobal node
 
-convertToSchema node@AssignmentNode{} = buildAssignment node
+convertToSchema node@(AssignmentNode varNode _ _ _) = do
+        ScopeCheck.variableExists varNode
+        TypeCheck.assignment node
+        buildAssignment node
 
 convertToSchema (AssignDereferenceNode varNode valNode operator dat) =
         convertToSchema (AssignmentNode varNode valNode operator dat)

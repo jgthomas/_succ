@@ -31,7 +31,7 @@ import qualified State.GlobalState as GlobalState (checkFuncDefined,
                                                    decParamCount, decSeqNumber,
                                                    getLabel)
 import qualified State.State       as State (getVariable)
-import           Types.AST         (Tree (..))
+import           Types.AST         (ArrayNode (..), Tree (..))
 import           Types.Error       (CompilerError (ScopeError), ScopeError (..))
 import           Types.Variables   (VarLookup (..), VarType (ParamVar))
 
@@ -124,10 +124,16 @@ validateGlobalDeclaration tree = throwError $ ScopeError (UnexpectedNode tree)
 
 -- | Throw error if trying to use an indentifier that has not been declared
 variableExists :: Tree -> GenState ()
-variableExists node@(VarNode a _)         = varExists node a
-variableExists node@(AddressOfNode a _)   = addressableVarExists node a
-variableExists node@(DereferenceNode a _) = varExists node a
-variableExists tree = throwError $ ScopeError (UnexpectedNode tree)
+variableExists node@(VarNode a _ ) =
+        varExists node a
+variableExists node@(AddressOfNode a _) =
+        addressableVarExists node a
+variableExists node@(DereferenceNode a _) =
+        varExists node a
+variableExists (ArrayNode (ArrayAssignPosNode _ node@(VarNode a _) _ _)) =
+        varExists node a
+variableExists tree =
+        throwError $ ScopeError (UnexpectedNode tree)
 
 
 varExists :: Tree -> String -> GenState ()
