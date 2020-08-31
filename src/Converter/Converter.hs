@@ -10,10 +10,10 @@ module Converter.Converter (convert) where
 import           Control.Monad        (unless)
 import           Data.Maybe           (fromMaybe)
 
-import qualified Checker.LogicCheck   as LogicCheck
-import qualified Checker.ScopeCheck   as ScopeCheck
-import qualified Checker.TypeCheck    as TypeCheck
 import qualified Converter.Analyser   as Analyser (analyse)
+import qualified Converter.LogicCheck as LogicCheck
+import qualified Converter.ScopeCheck as ScopeCheck
+import qualified Converter.TypeCheck  as TypeCheck
 import qualified Converter.Valuer     as Valuer (value)
 import qualified State.FuncState      as FuncState
 import           State.GenState       (GenState, throwError)
@@ -163,7 +163,7 @@ convertToSchema (IfNode test body possElse _) = do
               )
              )
 
-convertToSchema (PointerNode varNode typ value dat) =
+convertToSchema (PointerNode varNode typ value dat) = do
         convertToSchema (DeclarationNode varNode typ value dat)
 
 convertToSchema node@DeclarationNode{} = do
@@ -247,10 +247,12 @@ convertToSchema node@(VarNode name _) = do
              NotFound    -> throwError $ FatalError (ConverterBug node)
              VarType typ -> pure (ExpressionSchema $ VariableSchema typ varValue)
 
-convertToSchema (DereferenceNode name dat) =
+convertToSchema node@(DereferenceNode name dat) = do
+        ScopeCheck.variableExists node
         ExpressionSchema . DereferenceSchema <$> convertToSchema (VarNode name dat)
 
-convertToSchema (AddressOfNode name dat) =
+convertToSchema node@(AddressOfNode name dat) = do
+        ScopeCheck.variableExists node
         ExpressionSchema . AddressOfSchema <$> convertToSchema (VarNode name dat)
 
 convertToSchema NullExprNode{} =

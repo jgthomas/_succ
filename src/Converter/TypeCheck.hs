@@ -4,7 +4,7 @@ Description  : Checks for type errors
 
 Provides basic type checking capabilities.
 -}
-module Checker.TypeCheck
+module Converter.TypeCheck
         (typesMatch,
          funcDeclaration,
          globalDeclaration,

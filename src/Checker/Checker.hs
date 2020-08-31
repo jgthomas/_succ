@@ -4,299 +4,299 @@ Description  : Check AST for errors
 
 Checks the AST for scope, type and other errors
 -}
-module Checker.Checker (check) where
-
-
-import           Control.Monad      (unless)
-
-import qualified Checker.LogicCheck as LogicCheck
-import qualified Checker.ScopeCheck as ScopeCheck
-import qualified Checker.TypeCheck  as TypeCheck
-import qualified State.FuncState    as FuncState
-import           State.GenState     (GenState)
-import qualified State.GenState     as GenState (evaluate, startState)
-import qualified State.GlobalState  as GlobalState
-import qualified State.State        as State (getScope, labelNum)
-import           Types.AST          (ArrayNode (..), Tree (..))
-import           Types.Error        (CompilerError)
-import           Types.Operator     (Operator (..), UnaryOp (..))
-import           Types.Variables    (Scope (..))
-
-
--- | Check an AST for errors
-check :: Tree -> Either CompilerError Tree
-check ast = GenState.evaluate checker ast GenState.startState
-
-
-checker :: Tree -> GenState Tree
-checker ast = do
-        checkAST ast
-        pure ast
-
-
-checkAST :: Tree -> GenState ()
-
-checkAST (ProgramNode topLevelItems) = mapM_ checkAST topLevelItems
-
-checkAST node@(FunctionNode _ _ _ Nothing _) =
-        checkFuncDec node
-
-checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
-        ScopeCheck.checkIfFuncDefined node
-        checkFuncDec node
-        FuncState.initFunction name
-        checkAST stmts
-        FuncState.closeFunction
-        GlobalState.defineFunction name
-
-checkAST (ParamNode typ (VarNode name _) _) =
-        FuncState.addParameter name typ
-
-checkAST node@ParamNode{} =
-        LogicCheck.validateNode node
-
-checkAST node@(FuncCallNode name argList _) = do
-        paramCount <- GlobalState.decParamCount name
-        ScopeCheck.checkArguments paramCount node
-        TypeCheck.typesMatch node
-        ScopeCheck.validateCall node
-        mapM_ checkAST argList
-
-checkAST (ArgNode arg _) = checkAST arg
-
-checkAST (CompoundStmtNode blockItems _) = do
-        FuncState.initScope
-        mapM_ checkAST blockItems
-        FuncState.closeScope
-
-checkAST (ForLoopNode ini test iter block _) = do
-        FuncState.initScope
-        _         <- State.labelNum
-        failLabel <- State.labelNum
-        contLabel <- State.labelNum
-        FuncState.setBreak failLabel
-        FuncState.setContinue contLabel
-        checkAST ini
-        checkAST test
-        checkAST iter
-        checkAST block
-        FuncState.closeScope
-
-checkAST (WhileNode test whileBlock _) = do
-        loopLabel <- State.labelNum
-        checkAST test
-        testLabel <- State.labelNum
-        checkAST whileBlock
-        FuncState.setContinue loopLabel
-        FuncState.setBreak testLabel
-
-checkAST (DoWhileNode block test _) = do
-        _         <- State.labelNum
-        contLabel <- State.labelNum
-        checkAST block
-        checkAST test
-        testLabel <- State.labelNum
-        FuncState.setContinue contLabel
-        FuncState.setBreak testLabel
-
-checkAST (IfNode test action possElse _) = do
-        checkAST test
-        checkAST action
-        _ <- State.labelNum
-        case possElse of
-             Nothing -> pure ()
-             Just e  -> do
-                     _ <- State.labelNum
-                     checkAST e
-
-checkAST (PointerNode varNode typ Nothing dat) =
-        checkAST (DeclarationNode varNode typ Nothing dat)
-
-checkAST (PointerNode varNode typ (Just a) dat) = do
-        checkAST (DeclarationNode varNode typ Nothing dat)
-        ScopeCheck.variableExists varNode
-        checkAST a
-
-checkAST node@DeclarationNode{} = do
-        currScope <- State.getScope
-        case currScope of
-             Global -> checkDeclareGlobal node
-             Local  -> checkDeclareLocal node
-
-checkAST node@(AssignmentNode varNode value op _) = do
-        checkAST varNode
-        checkAST value
-        TypeCheck.assignment node
-        currScope <- State.getScope
-        case currScope of
-             Global -> checkDefineGlobal node
-             Local  -> checkAssignLocal varNode value op
-
-checkAST node@(AssignDereferenceNode derefNode value op _) = do
-        ScopeCheck.variableExists derefNode
-        TypeCheck.assignment node
-        checkAssignLocal derefNode value op
-
-checkAST (ExprStmtNode expression _) = checkAST expression
-
-checkAST node@(ContinueNode _) = ScopeCheck.checkGotoJump node
-
-checkAST node@(BreakNode _) = ScopeCheck.checkGotoJump node
-
-checkAST node@(ReturnNode tree _) = do
-        checkAST tree
-        TypeCheck.funcReturn node tree
-
-checkAST (TernaryNode cond pass fails _) = do
-        _ <- State.labelNum
-        _ <- State.labelNum
-        checkAST cond
-        checkAST pass
-        checkAST fails
-
-checkAST (BinaryNode lft rgt _ _) = do
-        _ <- State.labelNum
-        _ <- State.labelNum
-        checkAST lft
-        checkAST rgt
-
-checkAST node@(UnaryNode varNode@VarNode{} _ _) = do
-        LogicCheck.checkUnaryLogic node
-        checkAST varNode
-        ScopeCheck.variableExists varNode
-
-checkAST node@(UnaryNode tree (Unary _) _) = do
-        LogicCheck.checkUnaryLogic node
-        checkAST tree
-
-checkAST node@UnaryNode{} = LogicCheck.checkUnaryLogic node
-
-checkAST node@VarNode{} = ScopeCheck.variableExists node
-
-checkAST node@AddressOfNode{} = ScopeCheck.variableExists node
-
-checkAST node@DereferenceNode{} = ScopeCheck.variableExists node
-
-checkAST NullExprNode{} = pure ()
-
-checkAST ConstantNode{} = pure ()
-
-checkAST (ArrayNode arrayNode) = checkArrayAST arrayNode
-
-
-checkArrayAST :: ArrayNode -> GenState ()
-
-checkArrayAST (ArrayDeclareNode len var typ assign dat) = do
-        checkDeclareLocal (DeclarationNode var typ assign dat)
-        FuncState.incrementOffsetByN (len - 1)
-
-checkArrayAST (ArrayItemsNode varNode itemList _) = do
-        checkAST varNode
-        mapM_ checkAST itemList
-
-checkArrayAST (ArraySingleItemNode item _) = checkAST item
-
-checkArrayAST (ArrayItemAccess _ varNode _) = checkAST varNode
-
-checkArrayAST (ArrayItemAssign _ varNode _) = checkAST varNode
-
-checkArrayAST (ArrayAssignPosNode varNode valNode _ _) = do
-        checkAST varNode
-        checkAST valNode
-
-
-checkFuncDec :: Tree -> GenState ()
-checkFuncDec node@(FunctionNode _ funcName _ _ _) = do
-        ScopeCheck.validateFuncDeclaration node
-        prevParamCount <- GlobalState.decParamCount funcName
-        case prevParamCount of
-             Nothing -> checkNewFuncDec node
-             Just ns -> checkRepeatFuncDec ns node
-checkFuncDec node = ScopeCheck.validateFuncDeclaration node
-
-
-checkNewFuncDec :: Tree -> GenState ()
-checkNewFuncDec (FunctionNode typ funcName paramList _ _) = do
-        GlobalState.declareFunction typ funcName (length paramList)
-        checkParams funcName paramList
-checkNewFuncDec node = ScopeCheck.validateFuncDeclaration node
-
-
-checkRepeatFuncDec :: Int -> Tree -> GenState ()
-checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _ _) = do
-        ScopeCheck.checkParameters count node
-        TypeCheck.typesMatch node
-        TypeCheck.funcDeclaration node
-        GlobalState.declareFunction typ funcName (length paramList)
-        defined <- GlobalState.checkFuncDefined funcName
-        unless defined $ do
-            FuncState.delFuncState funcName
-            checkParams funcName paramList
-checkRepeatFuncDec _ node = ScopeCheck.validateFuncDeclaration node
-
-
-checkParams :: String -> [Tree] -> GenState ()
-checkParams name params = do
-        FuncState.initFunction name
-        mapM_ checkAST params
-        FuncState.closeFunction
-
-
-checkDeclareGlobal :: Tree -> GenState ()
-checkDeclareGlobal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
-        ScopeCheck.validateGlobalDeclaration node
-        currLabel <- GlobalState.getLabel name
-        case currLabel of
-             Just _  -> do
-                     checkAssignment toAssign
-                     TypeCheck.globalDeclaration node
-             Nothing -> do
-                     globLab <- GlobalState.makeLabel name
-                     GlobalState.declareGlobal name typ globLab
-                     checkAssignment toAssign
-checkDeclareGlobal node = ScopeCheck.validateGlobalDeclaration node
-
-
-checkAssignment :: Maybe Tree -> GenState ()
-checkAssignment Nothing  = pure ()
-checkAssignment (Just t) = checkAST t
-
-
-checkDeclareLocal :: Tree -> GenState ()
-checkDeclareLocal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
-        ScopeCheck.checkIfUsedInScope node
-        _ <- FuncState.addVariable name typ
-        _ <- FuncState.stackPointerValue
-        case toAssign of
-             Just val -> checkAST val
-             Nothing  -> pure ()
-checkDeclareLocal node = ScopeCheck.checkIfUsedInScope node
-
-
-checkDefineGlobal :: Tree -> GenState ()
-checkDefineGlobal node@(AssignmentNode (VarNode name _) _ _ _) = do
-        ScopeCheck.checkIfDefined node
-        label <- GlobalState.getLabel name
-        GlobalState.defineGlobal name
-        checkPrevDecGlob label node
-checkDefineGlobal node = ScopeCheck.checkIfDefined node
-
-
-checkPrevDecGlob :: Maybe String -> Tree -> GenState ()
-checkPrevDecGlob (Just _) (AssignmentNode _ node@ConstantNode{} _ _)  = checkAST node
-checkPrevDecGlob (Just _) (AssignmentNode _ node@AddressOfNode{} _ _) = checkAST node
-checkPrevDecGlob name node = ScopeCheck.validatePrevDecGlobal name node
-
-
-checkAssignLocal :: Tree -> Tree -> Operator -> GenState ()
-checkAssignLocal varTree valTree Assignment = do
-        LogicCheck.checkAssignLocalLogic varTree valTree Assignment
-        checkAST valTree
-checkAssignLocal varTree@(DereferenceNode _ dat) valTree op@(BinaryOp binOp) = do
-        LogicCheck.checkAssignLocalLogic varTree valTree op
-        checkAST (BinaryNode varTree valTree binOp dat)
-checkAssignLocal varTree@(VarNode _ dat) valTree op@(BinaryOp binOp) = do
-        LogicCheck.checkAssignLocalLogic varTree valTree op
-        checkAST (BinaryNode varTree valTree binOp dat)
-checkAssignLocal varTree valTree op =
-        LogicCheck.checkAssignLocalLogic varTree valTree op
+module Checker.Checker where
+--
+--
+--import           Control.Monad      (unless)
+--
+--import qualified Checker.LogicCheck as LogicCheck
+--import qualified Checker.ScopeCheck as ScopeCheck
+--import qualified Checker.TypeCheck  as TypeCheck
+--import qualified State.FuncState    as FuncState
+--import           State.GenState     (GenState)
+--import qualified State.GenState     as GenState (evaluate, startState)
+--import qualified State.GlobalState  as GlobalState
+--import qualified State.State        as State (getScope, labelNum)
+--import           Types.AST          (ArrayNode (..), Tree (..))
+--import           Types.Error        (CompilerError)
+--import           Types.Operator     (Operator (..), UnaryOp (..))
+--import           Types.Variables    (Scope (..))
+--
+--
+---- | Check an AST for errors
+--check :: Tree -> Either CompilerError Tree
+--check ast = GenState.evaluate checker ast GenState.startState
+--
+--
+--checker :: Tree -> GenState Tree
+--checker ast = do
+--        checkAST ast
+--        pure ast
+--
+--
+--checkAST :: Tree -> GenState ()
+--
+--checkAST (ProgramNode topLevelItems) = mapM_ checkAST topLevelItems
+--
+--checkAST node@(FunctionNode _ _ _ Nothing _) =
+--        checkFuncDec node
+--
+--checkAST node@(FunctionNode _ name _ (Just stmts) _) = do
+--        ScopeCheck.checkIfFuncDefined node
+--        checkFuncDec node
+--        FuncState.initFunction name
+--        checkAST stmts
+--        FuncState.closeFunction
+--        GlobalState.defineFunction name
+--
+--checkAST (ParamNode typ (VarNode name _) _) =
+--        FuncState.addParameter name typ
+--
+--checkAST node@ParamNode{} =
+--        LogicCheck.validateNode node
+--
+--checkAST node@(FuncCallNode name argList _) = do
+--        paramCount <- GlobalState.decParamCount name
+--        ScopeCheck.checkArguments paramCount node
+--        TypeCheck.typesMatch node
+--        ScopeCheck.validateCall node
+--        mapM_ checkAST argList
+--
+--checkAST (ArgNode arg _) = checkAST arg
+--
+--checkAST (CompoundStmtNode blockItems _) = do
+--        FuncState.initScope
+--        mapM_ checkAST blockItems
+--        FuncState.closeScope
+--
+--checkAST (ForLoopNode ini test iter block _) = do
+--        FuncState.initScope
+--        _         <- State.labelNum
+--        failLabel <- State.labelNum
+--        contLabel <- State.labelNum
+--        FuncState.setBreak failLabel
+--        FuncState.setContinue contLabel
+--        checkAST ini
+--        checkAST test
+--        checkAST iter
+--        checkAST block
+--        FuncState.closeScope
+--
+--checkAST (WhileNode test whileBlock _) = do
+--        loopLabel <- State.labelNum
+--        checkAST test
+--        testLabel <- State.labelNum
+--        checkAST whileBlock
+--        FuncState.setContinue loopLabel
+--        FuncState.setBreak testLabel
+--
+--checkAST (DoWhileNode block test _) = do
+--        _         <- State.labelNum
+--        contLabel <- State.labelNum
+--        checkAST block
+--        checkAST test
+--        testLabel <- State.labelNum
+--        FuncState.setContinue contLabel
+--        FuncState.setBreak testLabel
+--
+--checkAST (IfNode test action possElse _) = do
+--        checkAST test
+--        checkAST action
+--        _ <- State.labelNum
+--        case possElse of
+--             Nothing -> pure ()
+--             Just e  -> do
+--                     _ <- State.labelNum
+--                     checkAST e
+--
+--checkAST (PointerNode varNode typ Nothing dat) =
+--        checkAST (DeclarationNode varNode typ Nothing dat)
+--
+--checkAST (PointerNode varNode typ (Just a) dat) = do
+--        checkAST (DeclarationNode varNode typ Nothing dat)
+--        ScopeCheck.variableExists varNode
+--        checkAST a
+--
+--checkAST node@DeclarationNode{} = do
+--        currScope <- State.getScope
+--        case currScope of
+--             Global -> checkDeclareGlobal node
+--             Local  -> checkDeclareLocal node
+--
+--checkAST node@(AssignmentNode varNode value op _) = do
+--        checkAST varNode
+--        checkAST value
+--        TypeCheck.assignment node
+--        currScope <- State.getScope
+--        case currScope of
+--             Global -> checkDefineGlobal node
+--             Local  -> checkAssignLocal varNode value op
+--
+--checkAST node@(AssignDereferenceNode derefNode value op _) = do
+--        ScopeCheck.variableExists derefNode
+--        TypeCheck.assignment node
+--        checkAssignLocal derefNode value op
+--
+--checkAST (ExprStmtNode expression _) = checkAST expression
+--
+--checkAST node@(ContinueNode _) = ScopeCheck.checkGotoJump node
+--
+--checkAST node@(BreakNode _) = ScopeCheck.checkGotoJump node
+--
+--checkAST node@(ReturnNode tree _) = do
+--        checkAST tree
+--        TypeCheck.funcReturn node tree
+--
+--checkAST (TernaryNode cond pass fails _) = do
+--        _ <- State.labelNum
+--        _ <- State.labelNum
+--        checkAST cond
+--        checkAST pass
+--        checkAST fails
+--
+--checkAST (BinaryNode lft rgt _ _) = do
+--        _ <- State.labelNum
+--        _ <- State.labelNum
+--        checkAST lft
+--        checkAST rgt
+--
+--checkAST node@(UnaryNode varNode@VarNode{} _ _) = do
+--        LogicCheck.checkUnaryLogic node
+--        checkAST varNode
+--        ScopeCheck.variableExists varNode
+--
+--checkAST node@(UnaryNode tree (Unary _) _) = do
+--        LogicCheck.checkUnaryLogic node
+--        checkAST tree
+--
+--checkAST node@UnaryNode{} = LogicCheck.checkUnaryLogic node
+--
+--checkAST node@VarNode{} = ScopeCheck.variableExists node
+--
+--checkAST node@AddressOfNode{} = ScopeCheck.variableExists node
+--
+--checkAST node@DereferenceNode{} = ScopeCheck.variableExists node
+--
+--checkAST NullExprNode{} = pure ()
+--
+--checkAST ConstantNode{} = pure ()
+--
+--checkAST (ArrayNode arrayNode) = checkArrayAST arrayNode
+--
+--
+--checkArrayAST :: ArrayNode -> GenState ()
+--
+--checkArrayAST (ArrayDeclareNode len var typ assign dat) = do
+--        checkDeclareLocal (DeclarationNode var typ assign dat)
+--        FuncState.incrementOffsetByN (len - 1)
+--
+--checkArrayAST (ArrayItemsNode varNode itemList _) = do
+--        checkAST varNode
+--        mapM_ checkAST itemList
+--
+--checkArrayAST (ArraySingleItemNode item _) = checkAST item
+--
+--checkArrayAST (ArrayItemAccess _ varNode _) = checkAST varNode
+--
+--checkArrayAST (ArrayItemAssign _ varNode _) = checkAST varNode
+--
+--checkArrayAST (ArrayAssignPosNode varNode valNode _ _) = do
+--        checkAST varNode
+--        checkAST valNode
+--
+--
+--checkFuncDec :: Tree -> GenState ()
+--checkFuncDec node@(FunctionNode _ funcName _ _ _) = do
+--        ScopeCheck.validateFuncDeclaration node
+--        prevParamCount <- GlobalState.decParamCount funcName
+--        case prevParamCount of
+--             Nothing -> checkNewFuncDec node
+--             Just ns -> checkRepeatFuncDec ns node
+--checkFuncDec node = ScopeCheck.validateFuncDeclaration node
+--
+--
+--checkNewFuncDec :: Tree -> GenState ()
+--checkNewFuncDec (FunctionNode typ funcName paramList _ _) = do
+--        GlobalState.declareFunction typ funcName (length paramList)
+--        checkParams funcName paramList
+--checkNewFuncDec node = ScopeCheck.validateFuncDeclaration node
+--
+--
+--checkRepeatFuncDec :: Int -> Tree -> GenState ()
+--checkRepeatFuncDec count node@(FunctionNode typ funcName paramList _ _) = do
+--        ScopeCheck.checkParameters count node
+--        TypeCheck.typesMatch node
+--        TypeCheck.funcDeclaration node
+--        GlobalState.declareFunction typ funcName (length paramList)
+--        defined <- GlobalState.checkFuncDefined funcName
+--        unless defined $ do
+--            FuncState.delFuncState funcName
+--            checkParams funcName paramList
+--checkRepeatFuncDec _ node = ScopeCheck.validateFuncDeclaration node
+--
+--
+--checkParams :: String -> [Tree] -> GenState ()
+--checkParams name params = do
+--        FuncState.initFunction name
+--        mapM_ checkAST params
+--        FuncState.closeFunction
+--
+--
+--checkDeclareGlobal :: Tree -> GenState ()
+--checkDeclareGlobal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
+--        ScopeCheck.validateGlobalDeclaration node
+--        currLabel <- GlobalState.getLabel name
+--        case currLabel of
+--             Just _  -> do
+--                     checkAssignment toAssign
+--                     TypeCheck.globalDeclaration node
+--             Nothing -> do
+--                     globLab <- GlobalState.makeLabel name
+--                     GlobalState.declareGlobal name typ globLab
+--                     checkAssignment toAssign
+--checkDeclareGlobal node = ScopeCheck.validateGlobalDeclaration node
+--
+--
+--checkAssignment :: Maybe Tree -> GenState ()
+--checkAssignment Nothing  = pure ()
+--checkAssignment (Just t) = checkAST t
+--
+--
+--checkDeclareLocal :: Tree -> GenState ()
+--checkDeclareLocal node@(DeclarationNode (VarNode name _) typ toAssign _) = do
+--        ScopeCheck.checkIfUsedInScope node
+--        _ <- FuncState.addVariable name typ
+--        _ <- FuncState.stackPointerValue
+--        case toAssign of
+--             Just val -> checkAST val
+--             Nothing  -> pure ()
+--checkDeclareLocal node = ScopeCheck.checkIfUsedInScope node
+--
+--
+--checkDefineGlobal :: Tree -> GenState ()
+--checkDefineGlobal node@(AssignmentNode (VarNode name _) _ _ _) = do
+--        ScopeCheck.checkIfDefined node
+--        label <- GlobalState.getLabel name
+--        GlobalState.defineGlobal name
+--        checkPrevDecGlob label node
+--checkDefineGlobal node = ScopeCheck.checkIfDefined node
+--
+--
+--checkPrevDecGlob :: Maybe String -> Tree -> GenState ()
+--checkPrevDecGlob (Just _) (AssignmentNode _ node@ConstantNode{} _ _)  = checkAST node
+--checkPrevDecGlob (Just _) (AssignmentNode _ node@AddressOfNode{} _ _) = checkAST node
+--checkPrevDecGlob name node = ScopeCheck.validatePrevDecGlobal name node
+--
+--
+--checkAssignLocal :: Tree -> Tree -> Operator -> GenState ()
+--checkAssignLocal varTree valTree Assignment = do
+--        LogicCheck.checkAssignLocalLogic varTree valTree Assignment
+--        checkAST valTree
+--checkAssignLocal varTree@(DereferenceNode _ dat) valTree op@(BinaryOp binOp) = do
+--        LogicCheck.checkAssignLocalLogic varTree valTree op
+--        checkAST (BinaryNode varTree valTree binOp dat)
+--checkAssignLocal varTree@(VarNode _ dat) valTree op@(BinaryOp binOp) = do
+--        LogicCheck.checkAssignLocalLogic varTree valTree op
+--        checkAST (BinaryNode varTree valTree binOp dat)
+--checkAssignLocal varTree valTree op =
+--        LogicCheck.checkAssignLocalLogic varTree valTree op

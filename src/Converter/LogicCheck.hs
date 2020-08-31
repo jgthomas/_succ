@@ -4,7 +4,7 @@ Description  : Checks for logic errors
 
 Provides general logic checking capabilities.
 -}
-module Checker.LogicCheck
+module Converter.LogicCheck
         (checkUnaryLogic,
          checkAssignLocalLogic,
          validateNode
