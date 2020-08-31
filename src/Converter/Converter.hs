@@ -455,10 +455,12 @@ processGlobalAssignment tree = throwError $ FatalError (ConverterBug tree)
 
 
 defineGlobal :: Tree -> GenState AssemblySchema
-defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ dat) = do
+defineGlobal node@(AssignmentNode varNode@(VarNode name _) valNode _ dat) = do
+        ScopeCheck.checkIfDefined node
         GlobalState.defineGlobal name
         processAssignment name dat varNode valNode
-defineGlobal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ dat) = do
+defineGlobal node@(AssignmentNode derefNode@(DereferenceNode name _) valNode _ dat) = do
+        ScopeCheck.checkIfDefined node
         GlobalState.defineGlobal name
         processAssignment name dat derefNode valNode
 defineGlobal tree = throwError $ FatalError (ConverterBug tree)
