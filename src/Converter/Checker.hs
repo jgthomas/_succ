@@ -27,6 +27,9 @@ check node@(FuncCallNode name _ _) = do
         TypeCheck.typesMatch node
         ScopeCheck.validateCall node
 
+check node@DeclarationNode{} =
+        checkScopedDeclaration node
+
 check node@(AssignmentNode varNode@VarNode{} valNode@VarNode{} _ _) =
         checkAssignment node varNode valNode
 
@@ -77,6 +80,15 @@ checkFunction node@(FunctionNode _ funcName _ _ _) = do
                      TypeCheck.typesMatch node
                      TypeCheck.funcDeclaration node
 checkFunction _ = pure ()
+
+
+checkScopedDeclaration :: Tree -> GenState ()
+checkScopedDeclaration node@DeclarationNode{} = do
+        currScope <- State.getScope
+        case currScope of
+             Local  -> ScopeCheck.checkIfUsedInScope node
+             Global -> ScopeCheck.validateGlobalDeclaration node
+checkScopedDeclaration _ = pure ()
 
 
 checkAssignment :: Tree -> Tree -> Tree -> GenState ()

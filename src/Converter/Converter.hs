@@ -165,6 +165,7 @@ convertToSchema (PointerNode varNode typ value dat) =
         convertToSchema (DeclarationNode varNode typ value dat)
 
 convertToSchema node@DeclarationNode{} = do
+        Checker.check node
         currScope <- State.getScope
         case currScope of
              Local  -> declareLocal node
@@ -423,7 +424,6 @@ addReturnZero bodySchema = bodySchema ++ [StatementSchema
 
 declareGlobal :: Tree -> GenState AssemblySchema
 declareGlobal node@(DeclarationNode (VarNode name _) typ Nothing _) = do
-        ScopeCheck.validateGlobalDeclaration node
         currLabel <- GlobalState.getLabel name
         case currLabel of
              Nothing -> do
@@ -434,7 +434,6 @@ declareGlobal node@(DeclarationNode (VarNode name _) typ Nothing _) = do
                      TypeCheck.globalDeclaration node
                      pure SkipSchema
 declareGlobal node@(DeclarationNode (VarNode name _) typ _ _) = do
-        ScopeCheck.validateGlobalDeclaration node
         currLabel <- GlobalState.getLabel name
         case currLabel of
              Just _  -> processGlobalAssignment node
