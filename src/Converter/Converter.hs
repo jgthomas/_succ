@@ -11,6 +11,7 @@ import           Control.Monad        (unless)
 import           Data.Maybe           (fromMaybe)
 
 import qualified Converter.Analyser   as Analyser (analyse)
+import qualified Converter.Checker    as Checker (check)
 import qualified Converter.LogicCheck as LogicCheck
 import qualified Converter.ScopeCheck as ScopeCheck
 import qualified Converter.TypeCheck  as TypeCheck
@@ -72,10 +73,7 @@ convertToSchema (ParamNode typ (VarNode name _) _) = do
         pure SkipSchema
 
 convertToSchema node@(FuncCallNode name argList _) = do
-        paramCount <- GlobalState.decParamCount name
-        ScopeCheck.checkArguments paramCount node
-        TypeCheck.typesMatch node
-        ScopeCheck.validateCall node
+        Checker.check node
         argPosValues <- argsToPosValue argList
         argSchemas   <- mapM convertToSchema argList
         FuncState.paramValuesFromArgs name argPosValues
