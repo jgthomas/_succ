@@ -170,18 +170,8 @@ convertToSchema node@DeclarationNode{} = do
              Local  -> declareLocal node
              Global -> declareGlobal node
 
-convertToSchema node@(AssignmentNode varNode@VarNode{} valNode@VarNode{} _ _) =
-        checkAndBuildAssignment node varNode valNode
-
-convertToSchema node@(AssignmentNode varNode@VarNode{} valNode@AddressOfNode{} _ _) =
-        checkAndBuildAssignment node varNode valNode
-
-convertToSchema node@(AssignmentNode varNode@VarNode{} valNode@DereferenceNode{} _ _) =
-        checkAndBuildAssignment node varNode valNode
-
-convertToSchema node@(AssignmentNode varNode _ _ _) = do
-        ScopeCheck.variableExists varNode
-        TypeCheck.assignment node
+convertToSchema node@AssignmentNode{} = do
+        Checker.check node
         buildAssignment node
 
 convertToSchema (AssignDereferenceNode varNode valNode operator dat) =
@@ -622,11 +612,3 @@ checkValueIncDec _ = pure ()
 binaryLeftSchema :: Tree -> GenState AssemblySchema
 binaryLeftSchema (ArrayNode (ArrayItemAssign pos varNode _)) = getArrayIndexItem pos varNode
 binaryLeftSchema tree                                        = convertToSchema tree
-
-
-checkAndBuildAssignment :: Tree -> Tree -> Tree -> GenState AssemblySchema
-checkAndBuildAssignment assign varNode valNode = do
-        ScopeCheck.variableExists varNode
-        ScopeCheck.variableExists valNode
-        TypeCheck.assignment assign
-        buildAssignment assign
