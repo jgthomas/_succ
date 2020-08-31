@@ -12,7 +12,6 @@ import           Data.Maybe           (fromMaybe)
 
 import qualified Converter.Analyser   as Analyser (analyse)
 import qualified Converter.Checker    as Checker (check)
-import qualified Converter.TypeCheck  as TypeCheck
 import qualified Converter.Valuer     as Valuer (value)
 import qualified State.FuncState      as FuncState
 import           State.GenState       (GenState, throwError)
@@ -538,14 +537,12 @@ buildAssignment (AssignmentNode varNode valNode (BinaryOp binOp) dat ) =
                           (BinaryNode varNode valNode binOp dat)
                           Assignment
                           dat
-buildAssignment node@(AssignmentNode
+buildAssignment (AssignmentNode
                  (ArrayNode (ArrayItemAssign pos varNode _))
                  valNode
                  _
                  _
-                ) = do
-                        TypeCheck.assignment node
-                        processArrayItem varNode (valNode, pos)
+                ) = processArrayItem varNode (valNode, pos)
 buildAssignment node@(AssignmentNode _ _ Assignment _) =
         buildBasicAssignment node
 buildAssignment node = throwError $ FatalError (ConverterBug node)
