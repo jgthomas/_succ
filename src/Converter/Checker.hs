@@ -44,6 +44,9 @@ check node@(AssignmentNode varNode _ _ _) = do
         TypeCheck.assignment node
         checkScopedAssignment node
 
+check node@(ReturnNode valNode _) =
+        TypeCheck.funcReturn node valNode
+
 check node@(UnaryNode varNode@VarNode{} _ _) = do
         ScopeCheck.variableExists varNode
         LogicCheck.checkUnaryLogic node

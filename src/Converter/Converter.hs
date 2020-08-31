@@ -191,7 +191,7 @@ convertToSchema node@BreakNode{} = do
 
 convertToSchema node@(ReturnNode valNode _) = do
         valueSchema <- convertToSchema valNode
-        TypeCheck.funcReturn node valNode
+        Checker.check node
         pure (StatementSchema $ ReturnSchema valueSchema)
 
 convertToSchema (TernaryNode test true false _) = do
