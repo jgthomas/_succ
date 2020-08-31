@@ -12,15 +12,12 @@ import           Types.AST            (Tree (..))
 
 check :: Tree -> GenState ()
 
-check node@(FunctionNode _ funcName _ _ _) = do
-        ScopeCheck.validateFuncDeclaration node
-        prevParamCount <- GlobalState.decParamCount funcName
-        case prevParamCount of
-             Nothing -> pure ()
-             Just n  -> do
-                     ScopeCheck.checkParameters n node
-                     TypeCheck.typesMatch node
-                     TypeCheck.funcDeclaration node
+check node@(FunctionNode _ _ _ Nothing _) =
+        checkFunction node
+
+check node@(FunctionNode _ _ _ (Just _) _) = do
+        ScopeCheck.checkIfFuncDefined node
+        checkFunction node
 
 check node@(FuncCallNode name _ _) = do
         paramCount <- GlobalState.decParamCount name
@@ -64,6 +61,19 @@ check node@AddressOfNode{} =
         ScopeCheck.variableExists node
 
 check _ = pure ()
+
+
+checkFunction :: Tree -> GenState ()
+checkFunction node@(FunctionNode _ funcName _ _ _) = do
+        ScopeCheck.validateFuncDeclaration node
+        prevParamCount <- GlobalState.decParamCount funcName
+        case prevParamCount of
+             Nothing -> pure ()
+             Just n  -> do
+                     ScopeCheck.checkParameters n node
+                     TypeCheck.typesMatch node
+                     TypeCheck.funcDeclaration node
+checkFunction _ = pure ()
 
 
 checkAssignment :: Tree -> Tree -> Tree -> GenState ()

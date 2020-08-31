@@ -56,11 +56,12 @@ convertToSchema (ProgramNode trees) = do
         pure (ProgramSchema $ undefSchemas ++ schemas)
 
 convertToSchema funcNode@(FunctionNode _ _ _ Nothing _) = do
+        Checker.check funcNode
         declareFunction funcNode
         pure SkipSchema
 
 convertToSchema funcNode@(FunctionNode _ name _ (Just body) _) = do
-        ScopeCheck.checkIfFuncDefined funcNode
+        Checker.check funcNode
         FuncState.initFunction name
         declareFunction funcNode
         bodySchema <- checkReturn name <$> convertToSchema body
@@ -354,8 +355,7 @@ setSchemaOffset _ _ = undefined
 -- Function
 
 declareFunction :: Tree -> GenState ()
-declareFunction node@(FunctionNode typ funcName paramList _ _) = do
-        Checker.check node
+declareFunction (FunctionNode typ funcName paramList _ _) = do
         declaredBefore <- GlobalState.previouslyDeclaredFunc funcName
         if not declaredBefore
            then do
