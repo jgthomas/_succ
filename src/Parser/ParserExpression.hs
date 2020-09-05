@@ -25,14 +25,14 @@ parseExpression :: [Token] -> ParserState (Tree, [Token])
 parseExpression tokens = do
         (tree, tokens') <- parseTernaryExp tokens
         case tokens' of
-             (d@(OpTok op _):rest)
+             (opTok@(OpTok op _):rest)
                 | TokClass.isAssign op  -> parseAssignment tree tokens'
                 | TokClass.isPostPos op -> do
                         dat <- makeNodeDat tokens'
                         let unOp = TokConvert.tokToPostUnaryOp op
                         pure (UnaryNode tree unOp dat, rest)
                 | otherwise ->
-                        throwError $ SyntaxError (UnexpectedLexDat d)
+                        throwError $ SyntaxError (UnexpectedLexDat opTok)
              _ -> pure (tree, tokens')
 
 
@@ -154,7 +154,7 @@ parseIdent tokens@(Ident _ _:OpenBracket OpenSqBracket _:_) =
 parseIdent tokens@(Ident a _:rest) = do
         dat <- makeNodeDat tokens
         pure (VarNode a dat, rest)
-parseIdent (a:_) = throwError $ SyntaxError (UnexpectedLexDat a)
+parseIdent (token:_) = throwError $ SyntaxError (UnexpectedLexDat token)
 parseIdent tokens = throwError $ ParserError (LexDataError tokens)
 
 
@@ -237,7 +237,7 @@ parseAddressOf :: [Token] -> ParserState (Tree, [Token])
 parseAddressOf tokens@(OpTok Ampersand _:Ident n _:rest) = do
         dat <- makeNodeDat tokens
         pure (AddressOfNode n dat, rest)
-parseAddressOf (_:a:_)   = throwError $ SyntaxError (NonValidIdentifier a)
+parseAddressOf (_:token:_) = throwError $ SyntaxError (NonValidIdentifier token)
 parseAddressOf tokens = throwError $ ParserError (LexDataError tokens)
 
 
@@ -245,7 +245,7 @@ parseDereference :: [Token] -> ParserState (Tree, [Token])
 parseDereference tokens@(OpTok Asterisk _:Ident n _:rest) = do
         dat <- makeNodeDat tokens
         pure (DereferenceNode n dat, rest)
-parseDereference (_:a:_)   = throwError $ SyntaxError (NonValidIdentifier a)
+parseDereference (_:token:_)   = throwError $ SyntaxError (NonValidIdentifier token)
 parseDereference tokens = throwError $ ParserError (LexDataError tokens)
 
 
@@ -256,12 +256,12 @@ parseFuncCall tokens@(Ident a _:OpenBracket OpenParen _:_) = do
         (tree, tokens'') <- parseArgs [] tokens'
         tokens'''        <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens'') tokens''
         pure (FuncCallNode a tree dat, tokens''')
-parseFuncCall (d@(Ident _ _):_:_) =
-        throwError $ SyntaxError (MissingToken (OpenBracket OpenParen dummyLexDat) d)
-parseFuncCall (a:OpenBracket OpenParen _:_) =
-        throwError $ SyntaxError (NonValidIdentifier a)
-parseFuncCall (a:_:_) =
-        throwError $ SyntaxError (UnexpectedLexDat a)
+parseFuncCall (token@(Ident _ _):_:_) =
+        throwError $ SyntaxError (MissingToken (OpenBracket OpenParen dummyLexDat) token)
+parseFuncCall (token:OpenBracket OpenParen _:_) =
+        throwError $ SyntaxError (NonValidIdentifier token)
+parseFuncCall (token:_:_) =
+        throwError $ SyntaxError (UnexpectedLexDat token)
 parseFuncCall tokens =
         throwError $ ParserError (LexDataError tokens)
 
