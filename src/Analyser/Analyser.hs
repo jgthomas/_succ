@@ -4,13 +4,13 @@ Description  : Analyses statements
 
 Analyse the logic of statements, setting metadata properties.
 -}
-module Converter.Analyser (analyse) where
+module Analyser.Analyser (analyse) where
 
 
-import qualified Converter.AnalyserBool as AnalyserBool (conditionTrue)
-import           State.GenState         (GenState)
-import           Types.AST              (NodeDat (isSkipped, notTracked),
-                                         Tree (..))
+import qualified Analyser.AnalyserBool as AnalyserBool (conditionTrue)
+import           State.GenState        (GenState)
+import           Types.AST             (NodeDat (isSkipped, notTracked),
+                                        Tree (..))
 import           Types.Operator
 
 

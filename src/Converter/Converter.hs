@@ -10,9 +10,9 @@ module Converter.Converter (convert) where
 import           Control.Monad        (unless)
 import           Data.Maybe           (fromMaybe)
 
-import qualified Converter.Analyser   as Analyser (analyse)
+import qualified Analyser.Analyser    as Analyser (analyse)
+import qualified Analyser.Valuer      as Valuer (value)
 import qualified Converter.Checker    as Checker (check)
-import qualified Converter.Valuer     as Valuer (value)
 import qualified State.FuncState      as FuncState
 import           State.GenState       (GenState, throwError)
 import qualified State.GenState       as GenState (evaluate, getState,

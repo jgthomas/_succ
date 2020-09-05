@@ -4,7 +4,7 @@ Description  : Evaluates tree values
 
 Determines the value to be tracked in the state for a node in the syntax tree
 -}
-module Converter.Valuer (value) where
+module Analyser.Valuer (value) where
 
 
 import Compute.ComputeExpression as Compute (binaryFunction)

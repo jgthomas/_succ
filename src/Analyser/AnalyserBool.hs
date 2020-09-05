@@ -4,7 +4,7 @@ Description  : Analyse Boolean values
 
 Analyse the truth value of Boolean tree nodes.
 -}
-module Converter.AnalyserBool (conditionTrue) where
+module Analyser.AnalyserBool (conditionTrue) where
 
 
 import qualified Compute.ComputeExpression as Compute (binaryFunction,
