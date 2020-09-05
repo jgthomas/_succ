@@ -20,7 +20,8 @@ import qualified State.GenState       as GenState (evaluate, getState,
 import qualified State.GlobalState    as GlobalState
 import           State.State          (SymTab)
 import qualified State.State          as State (getScope, getVariable,
-                                                getVariableValue, labelNum)
+                                                getVariableValue, labelNum,
+                                                memOffset)
 import           Types.AssemblySchema
 import           Types.AST            (ArrayNode (..), NodeDat, Tree (..))
 import           Types.Error          (CompilerError (FatalError),
@@ -344,7 +345,7 @@ processArrayItem varNode (item, pos) = do
 
 setSchemaOffset :: Int -> AssemblySchema -> AssemblySchema
 setSchemaOffset n (ExpressionSchema (VariableSchema varType varValue)) =
-        ExpressionSchema $ VariableSchema (Valuer.adjustVariable (Just n) Nothing varType) varValue
+        ExpressionSchema $ VariableSchema (adjustVariable (Just n) Nothing varType) varValue
 setSchemaOffset _ _ = undefined
 
 
@@ -531,6 +532,20 @@ processPossibleNode (Just node) = convertToSchema node
 
 analyseAndConvert :: Tree -> GenState AssemblySchema
 analyseAndConvert tree = Analyser.analyse tree >>= convertToSchema
+
+
+adjustVariable :: Maybe Int -> Maybe Int -> VarType -> VarType
+adjustVariable (Just multiplier) (Just total) (LocalVar offset _ _) =
+        LocalVar offset (multiplier * State.memOffset) total
+adjustVariable (Just multiplier) Nothing (LocalVar offset _ total) =
+        LocalVar offset (multiplier * State.memOffset) (total - (multiplier * State.memOffset))
+adjustVariable Nothing (Just total) (LocalVar offset multiplier _)  =
+        LocalVar offset multiplier total
+adjustVariable (Just offset) _ (ParamVar position _) =
+        ParamVar position offset
+adjustVariable (Just offset) _ (GlobalVar label _) =
+        GlobalVar label offset
+adjustVariable _ _ varType = varType
 
 
 binaryLeftSchema :: Tree -> GenState AssemblySchema
