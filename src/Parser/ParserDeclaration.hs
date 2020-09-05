@@ -84,7 +84,7 @@ inferredLen _                                             = Undeclared
 parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
 parseOptAssign tokens = do
         (tree, tokens') <- parseOptionalAssign tokens
-        tokens''        <- verifyAndConsume (SemiColon dummyLexDat) tokens'
+        tokens''        <- verifyAndConsume (SemiColon $ headTokenData tokens') tokens'
         pure (tree, tokens'')
 
 

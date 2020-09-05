@@ -59,7 +59,7 @@ parseTernaryExp tokens = do
         case tokens' of
              (QuestMark _:rest) -> do
                      (expr1, tokens'')   <- parseExpression rest
-                     tokens'''           <- verifyAndConsume (Colon dummyLexDat) tokens''
+                     tokens'''           <- verifyAndConsume (Colon $ headTokenData tokens'') tokens''
                      (expr2, tokens'''') <- parseTernaryExp tokens'''
                      pure (TernaryNode cond expr1 expr2 dat, tokens'''')
              _ -> pure (cond, tokens')
@@ -164,7 +164,7 @@ parseArrayItems tokens@(Ident name _:OpenBracket OpenBrace _:_) = do
         tokens'           <- consumeTok tokens
         dat               <- makeNodeDat tokens'
         (items, tokens'') <- parseItems [] tokens'
-        tokens'''         <- verifyAndConsume (CloseBracket CloseBrace dummyLexDat) tokens''
+        tokens'''         <- verifyAndConsume (CloseBracket CloseBrace $ headTokenData tokens'') tokens''
         pure (ArrayNode (ArrayItemsNode (VarNode name varDat) items dat), tokens''')
 parseArrayItems tokens = throwError $ ParserError (LexDataError tokens)
 
@@ -189,7 +189,7 @@ parseItem tokens = do
 parseNullExpression :: [Token] -> ParserState (Tree, [Token])
 parseNullExpression tokens = do
         dat     <- makeNodeDat tokens
-        tokens' <- verifyAndConsume (SemiColon dummyLexDat) tokens
+        tokens' <- verifyAndConsume (SemiColon $ headTokenData tokens) tokens
         pure (NullExprNode dat, tokens')
 
 
@@ -229,7 +229,7 @@ parseArrayIndex tokens = throwError $ ParserError (LexDataError tokens)
 parseParenExp :: [Token] -> ParserState (Tree, [Token])
 parseParenExp tokens = do
         (tree, tokens') <- parseExpression tokens
-        tokens''        <- verifyAndConsume (CloseBracket CloseParen dummyLexDat) tokens'
+        tokens''        <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens') tokens'
         pure (tree, tokens'')
 
 
@@ -254,7 +254,7 @@ parseFuncCall tokens@(Ident a _:OpenBracket OpenParen _:_) = do
         dat              <- makeNodeDat tokens
         tokens'          <- consumeTok tokens
         (tree, tokens'') <- parseArgs [] tokens'
-        tokens'''        <- verifyAndConsume (CloseBracket CloseParen dummyLexDat) tokens''
+        tokens'''        <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens'') tokens''
         pure (FuncCallNode a tree dat, tokens''')
 parseFuncCall (d@(Ident _ _):_:_) =
         throwError $ SyntaxError (MissingToken (OpenBracket OpenParen dummyLexDat) d)

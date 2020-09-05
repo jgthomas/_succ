@@ -38,9 +38,9 @@ parseStatement tokens@(first:_) =
 parseCompoundStmt :: [Token] -> ParserState (Tree, [Token])
 parseCompoundStmt tokens = do
         dat               <- makeNodeDat tokens
-        tokens'           <- verifyAndConsume (OpenBracket OpenBrace dummyLexDat) tokens
+        tokens'           <- verifyAndConsume (OpenBracket OpenBrace $ headTokenData tokens) tokens
         (items, tokens'') <- parseStatementBlock [] tokens'
-        tokens'''         <- verifyAndConsume (CloseBracket CloseBrace dummyLexDat) tokens''
+        tokens'''         <- verifyAndConsume (CloseBracket CloseBrace $ headTokenData tokens'') tokens''
         pure (CompoundStmtNode items dat, tokens''')
 
 
@@ -75,7 +75,7 @@ parseExprStatement tokens@(SemiColon _:_) = parseNullStatement tokens
 parseExprStatement tokens = do
         dat             <- makeNodeDat tokens
         (tree, tokens') <- parseExpression tokens
-        tokens''        <- verifyAndConsume (SemiColon dummyLexDat) tokens'
+        tokens''        <- verifyAndConsume (SemiColon $ headTokenData tokens') tokens'
         pure (ExprStmtNode tree dat, tokens'')
 
 
@@ -100,12 +100,12 @@ parseContinue tokens = throwError $ ParserError (LexDataError tokens)
 parseForLoop :: [Token] -> ParserState (Tree, [Token])
 parseForLoop tokens = do
         dat                    <- makeNodeDat tokens
-        tokens'                <- verifyAndConsume (Keyword For dummyLexDat) tokens
-        tokens''               <- verifyAndConsume (OpenBracket OpenParen dummyLexDat) tokens'
+        tokens'                <- verifyAndConsume (Keyword For $ headTokenData tokens) tokens
+        tokens''               <- verifyAndConsume (OpenBracket OpenParen $ headTokenData tokens') tokens'
         (ini, tokens''')       <- parseBlockItem tokens''
         (test, tokens'''')     <- parseExprStatement tokens'''
         (change, tokens''''')  <- parsePostExp tokens''''
-        tokens''''''           <- verifyAndConsume (CloseBracket CloseParen dummyLexDat) tokens'''''
+        tokens''''''           <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens''''') tokens'''''
         (stmts, tokens''''''') <- parseStatement tokens''''''
         case test of
              (NullExprNode _) ->
@@ -133,13 +133,13 @@ parseForLoopPostExp tokens = parseExpression tokens
 parseDoWhile :: [Token] -> ParserState (Tree, [Token])
 parseDoWhile tokens@(Keyword Do _:OpenBracket OpenBrace _:_) = do
         dat               <- makeNodeDat tokens
-        tokens'           <- verifyAndConsume (Keyword Do dummyLexDat) tokens
+        tokens'           <- verifyAndConsume (Keyword Do $ headTokenData tokens) tokens
         (stmts, tokens'') <- parseStatement tokens'
         case tokens'' of
              (Keyword While _:OpenBracket OpenParen _:rest) -> do
                      (test, tokens''') <- parseExpression rest
-                     tokens''''        <- verifyAndConsume (CloseBracket CloseParen dummyLexDat) tokens'''
-                     tokens'''''       <- verifyAndConsume (SemiColon dummyLexDat) tokens''''
+                     tokens''''        <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens''') tokens'''
+                     tokens'''''       <- verifyAndConsume (SemiColon $ headTokenData tokens'''') tokens''''
                      pure (DoWhileNode stmts test dat, tokens''''')
              (_:d@(OpenBracket OpenParen _):_) ->
                      throwError $ SyntaxError (MissingKeyword While d)
@@ -153,7 +153,7 @@ parseDoWhile [] = throwError $ ParserError (LexDataError [])
 parseWhileStatement :: [Token] -> ParserState (Tree, [Token])
 parseWhileStatement tokens = do
         dat                <- makeNodeDat tokens
-        tokens'            <- verifyAndConsume (Keyword While dummyLexDat) tokens
+        tokens'            <- verifyAndConsume (Keyword While $ headTokenData tokens) tokens
         (test, tokens'')   <- parseConditionalParen tokens'
         (stmts, tokens''') <- parseStatement tokens''
         pure (WhileNode test stmts dat, tokens''')
@@ -162,7 +162,7 @@ parseWhileStatement tokens = do
 parseIfStatement :: [Token] -> ParserState (Tree, [Token])
 parseIfStatement tokens = do
         dat                    <- makeNodeDat tokens
-        tokens'                <- verifyAndConsume (Keyword If dummyLexDat) tokens
+        tokens'                <- verifyAndConsume (Keyword If $ headTokenData tokens) tokens
         (test, tokens'')       <- parseConditionalParen tokens'
         (stmts, tokens''')     <- parseStatement tokens''
         (possElse, tokens'''') <- parseOptionalElse tokens'''
@@ -171,9 +171,9 @@ parseIfStatement tokens = do
 
 parseConditionalParen :: [Token] -> ParserState (Tree, [Token])
 parseConditionalParen tokens = do
-        tokens'             <- verifyAndConsume (OpenBracket OpenParen dummyLexDat) tokens
+        tokens'             <- verifyAndConsume (OpenBracket OpenParen $ headTokenData tokens) tokens
         (test, tokens'')    <- parseExpression tokens'
-        tokens'''           <- verifyAndConsume (CloseBracket CloseParen dummyLexDat) tokens''
+        tokens'''           <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens'') tokens''
         pure (test, tokens''')
 
 
@@ -187,16 +187,16 @@ parseOptionalElse tokens = pure (Nothing, tokens)
 parseReturnStmt :: [Token] -> ParserState (Tree, [Token])
 parseReturnStmt tokens = do
         dat              <- makeNodeDat tokens
-        tokens'          <- verifyAndConsume (Keyword Return dummyLexDat) tokens
+        tokens'          <- verifyAndConsume (Keyword Return $ headTokenData tokens) tokens
         (tree, tokens'') <- parseExpression tokens'
-        tokens'''        <- verifyAndConsume (SemiColon dummyLexDat) tokens''
+        tokens'''        <- verifyAndConsume (SemiColon $ headTokenData tokens'') tokens''
         pure (ReturnNode tree dat, tokens''')
 
 
 parseNullStatement :: [Token] -> ParserState (Tree, [Token])
 parseNullStatement tokens = do
         dat     <- makeNodeDat tokens
-        tokens' <- verifyAndConsume (SemiColon dummyLexDat) tokens
+        tokens' <- verifyAndConsume (SemiColon $ headTokenData tokens) tokens
         pure (NullExprNode dat, tokens')
 
 
