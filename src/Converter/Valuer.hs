@@ -17,10 +17,12 @@ import           Types.Operator
 import           Types.Variables (VarType (..), VarValue (..))
 
 
+-- | Determine the value of a node
 value :: Tree -> GenState VarValue
 value tree = Valuer.value tree
 
 
+-- | Store the value of a variable
 storeValue :: NodeDat -> String -> Tree -> GenState ()
 storeValue dat varName valNode = setValue dat varName valNode 0
 
@@ -40,6 +42,7 @@ changeValue (SingleValue n) m = SingleValue (n + m)
 changeValue varValue _        = varValue
 
 
+-- | Adjust the value of a variable
 adjustVariable :: Maybe Int -> Maybe Int -> VarType -> VarType
 adjustVariable (Just x) (Just y) (LocalVar n _ _) = LocalVar n (x * State.memOffset) y
 adjustVariable (Just x) Nothing (LocalVar n _ sp) =
@@ -50,6 +53,7 @@ adjustVariable (Just x) _ (GlobalVar l _)         = GlobalVar l x
 adjustVariable _ _ varType                        = varType
 
 
+-- | Adjust the value of a pre- or post-incremented variable
 checkValueIncDec :: Tree -> GenState ()
 checkValueIncDec (UnaryNode valNode@(VarNode name _) (PreOpUnary PreIncrement) dat) =
         setValue dat name valNode 1
