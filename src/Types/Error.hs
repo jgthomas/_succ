@@ -4,7 +4,6 @@ module Types.Error where
 
 import Types.AssemblySchema (AssemblySchema)
 import Types.AST            (Tree)
-import Types.LexDat         (LexDat)
 import Types.Operator       (Operator)
 import Types.Tokens         (Keyword, Token)
 import Types.Type           (Type)
@@ -75,7 +74,7 @@ data LogicError = OperatorUseError Tree Operator
 
 
 data FatalError = LexerBug String
-                | ParserBug [LexDat]
+                | ParserBug [Token]
                 | ConverterBug Tree
                 | BuilderBug AssemblySchema
                 deriving (Show, Eq)

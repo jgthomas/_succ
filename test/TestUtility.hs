@@ -1,18 +1,12 @@
 
-module TestUtility (makeLexDat, mockNodeDat) where
+module TestUtility (mockNodeDat) where
 
 
-import Types.AST    (NodeDat (..))
-import Types.LexDat (LexDat (LexDat))
-import Types.Tokens (Token)
+import Types.AST (NodeDat (..))
 
 
 dummyLine :: Int
 dummyLine = 0
-
-
-makeLexDat :: Token -> LexDat
-makeLexDat t = LexDat t dummyLine
 
 
 mockNodeDat :: NodeDat
