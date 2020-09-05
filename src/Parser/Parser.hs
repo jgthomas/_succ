@@ -45,5 +45,5 @@ parseTopLevelItem tokens@(_:_:_:OpenBracket OpenParen _:_) = parseFunction token
 parseTopLevelItem tokens@(_:_:OpenBracket OpenParen _:_)   = parseFunction tokens
 parseTopLevelItem tokens@(_:Ident _ _:_)                   = parseDeclaration tokens
 parseTopLevelItem tokens@(_:OpTok Asterisk _:_)            = parseDeclaration tokens
-parseTopLevelItem (_:b:_) = throwError $ SyntaxError (NonValidIdentifier b)
+parseTopLevelItem (_:token:_) = throwError $ SyntaxError (NonValidIdentifier token)
 parseTopLevelItem tokens = throwError $ ParserError (LexDataError tokens)

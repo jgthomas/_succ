@@ -34,7 +34,7 @@ parseFunction tokens = do
 parseFuncName :: [Token] -> ParserState String
 parseFuncName (_:Ident name _:_)   = pure name
 parseFuncName (_:_:Ident name _:_) = pure name
-parseFuncName (d:_) = throwError $ SyntaxError (NonValidIdentifier d)
+parseFuncName (token:_) = throwError $ SyntaxError (NonValidIdentifier token)
 parseFuncName [] = throwError $ ParserError (LexDataError [])
 
 
@@ -56,13 +56,13 @@ parseAllParams tokens = do
 
 
 parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseParams prms tokens = parseBracketedSeq prms tokens parseTheParams
+parseParams params tokens = parseBracketedSeq params tokens parseTheParams
 
 
 parseTheParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseTheParams prms tokens@(Keyword _ _:_) = do
+parseTheParams params tokens@(Keyword _ _:_) = do
         (tree, tokens') <- parseParam tokens
-        parseParams (tree:prms) tokens'
+        parseParams (tree:params) tokens'
 parseTheParams _ tokens = throwError $ ParserError (LexDataError tokens)
 
 
