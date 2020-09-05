@@ -32,15 +32,13 @@ data ArrayLen = Undeclared
 
 -- | Parse tokens for a declaration into an AST
 parseDeclaration :: [Token] -> ParserState (Tree, [Token])
-parseDeclaration tokens@(
-        _:Ident name _:
-        OpenBracket OpenSqBracket _:
-        CloseBracket CloseSqBracket _:_)     = parseDec ArrayDec name tokens
-parseDeclaration tokens@(
-        _:Ident name _:
-        OpenBracket OpenSqBracket _:
-        ConstInt n _:
-        CloseBracket CloseSqBracket _:_)     = parseDec (ArrayDecExplicit n) name tokens
+parseDeclaration tokens@(_:Ident name _:
+                         OpenBracket OpenSqBracket _:
+                         CloseBracket CloseSqBracket _:_) = parseDec ArrayDec name tokens
+parseDeclaration tokens@(_:Ident name _:
+                         OpenBracket OpenSqBracket _:
+                         ConstInt n _:
+                         CloseBracket CloseSqBracket _:_) = parseDec (ArrayDecExplicit n) name tokens
 parseDeclaration tokens@(_:Ident name _:_)   = parseDec ValueDec name tokens
 parseDeclaration tokens@(_:_:Ident name _:_) = parseDec PointerDec name tokens
 parseDeclaration (_:c:_:_) = throwError $ SyntaxError (NonValidIdentifier c)
@@ -89,16 +87,16 @@ parseOptAssign tokens = do
 
 
 parseOptionalAssign :: [Token] -> ParserState (Maybe Tree, [Token])
-parseOptionalAssign tokens@(_:d@(OpTok _ _):_) = parseAssign d tokens
+parseOptionalAssign tokens@(_:opTok@(OpTok _ _):_) = parseAssign opTok tokens
 parseOptionalAssign (ident@(Ident _ _):
                      OpenBracket OpenSqBracket _:
                      ConstInt _ _:
                      CloseBracket CloseSqBracket _:
-                     d@(OpTok _ _):rest) = parseAssign d (ident:rest)
+                     opTok@(OpTok _ _):rest) = parseAssign opTok (ident:rest)
 parseOptionalAssign (ident@(Ident _ _):
                      OpenBracket OpenSqBracket _:
                      CloseBracket CloseSqBracket _:
-                     d@(OpTok _ _):rest) = parseAssign d (ident:rest)
+                     opTok@(OpTok _ _):rest) = parseAssign opTok (ident:rest)
 parseOptionalAssign (_:OpenBracket OpenSqBracket _:
                      ConstInt _ _:
                      CloseBracket CloseSqBracket _:
@@ -109,11 +107,11 @@ parseOptionalAssign tokens = do
 
 
 parseAssign :: Token -> [Token] -> ParserState (Maybe Tree, [Token])
-parseAssign opDat@(OpTok op _) tokens
+parseAssign opTok@(OpTok op _) tokens
         | TokClass.isAssign op = do
                 (tree, tokens') <- parseExpression tokens
                 pure (Just tree, tokens')
-        | otherwise = throwError $ SyntaxError (UnexpectedLexDat opDat)
+        | otherwise = throwError $ SyntaxError (UnexpectedLexDat opTok)
 parseAssign _ tokens = throwError $ ParserError (LexDataError tokens)
 
 
