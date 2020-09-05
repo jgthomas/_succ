@@ -20,10 +20,8 @@ import Parser.ParserFunction    (parseFunction)
 import Parser.ParserStatement   (parseStatement)
 import Parser.ParState          (ParserState, evaluate, getState, putState,
                                  startState)
-import TestUtility              (makeLexDat)
 import Types.AST
 import Types.Error
-import Types.LexDat
 import Types.Tokens
 
 
@@ -62,11 +60,11 @@ extractFunctionError toks = extractError parseFunction toks
 
 -- | Extracts the abstract syntax tree for a full program
 extractFullProgramTree :: [Token] -> Tree
-extractFullProgramTree toks = getTree . parse . makeLexData $ toks
+extractFullProgramTree toks = getTree . parse $ toks
 
 
 extractFullProgramError :: [Token] -> CompilerError
-extractFullProgramError toks = getError . parse . makeLexData $ toks
+extractFullProgramError toks = getError . parse $ toks
 
 
 {-
@@ -74,18 +72,14 @@ extractFullProgramError toks = getError . parse . makeLexData $ toks
 - an extra token here to prevent that error.
 -}
 addExtraToken :: [Token] -> [Token]
-addExtraToken toks = toks ++ [SemiColon]
+addExtraToken toks = toks ++ [SemiColon dummyLexDat]
 
 
-makeLexData :: [Token] -> [LexDat]
-makeLexData toks = map makeLexDat toks
-
-
-extractTree :: ([LexDat] -> ParserState (Tree, [LexDat]))
+extractTree :: ([Token] -> ParserState (Tree, [Token]))
             -> [Token]
             -> Tree
 extractTree f toks = do
-        getTree . extract . makeLexData $ toks
+        getTree . extract $ toks
         where
                 extract = extractParsed f
 
@@ -95,11 +89,11 @@ getTree (Right tree) = tree
 getTree (Left err)   = error $ show err
 
 
-extractError :: ([LexDat] -> ParserState (Tree, [LexDat]))
+extractError :: ([Token] -> ParserState (Tree, [Token]))
             -> [Token]
             -> CompilerError
 extractError f toks = do
-        getError . extract . makeLexData $ toks
+        getError . extract $ toks
         where
                 extract = extractParsed f
 
@@ -109,18 +103,18 @@ getError (Right tree) = error $ show tree
 getError (Left err)   = err
 
 
-extractParsed :: ([LexDat] -> ParserState (Tree, [LexDat]))
-              -> [LexDat]
+extractParsed :: ([Token] -> ParserState (Tree, [Token]))
+              -> [Token]
               -> Either CompilerError Tree
 extractParsed f lexData = evaluate run lexData startState
         where
                 run = runTheParse f
 
 
-runTheParse :: ([LexDat] -> ParserState (Tree, [LexDat]))
-            -> [LexDat]
+runTheParse :: ([Token] -> ParserState (Tree, [Token]))
+            -> [Token]
             -> ParserState Tree
-runTheParse f lexData = do
-        (item, _) <- f lexData
+runTheParse f tokens = do
+        (item, _) <- f tokens
         putState $ ProgramNode [item]
         ProgramNode . reverse <$> getState

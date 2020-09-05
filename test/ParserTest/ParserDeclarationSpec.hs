@@ -18,7 +18,7 @@ parserDeclarationTest = hspec $ do
         describe "Build abstract syntax trees for declarations" $ do
 
                 it "Should build a tree for variable declaration" $
-                  (extractDeclarationTree [Keyword Int, Ident "a"])
+                  (extractDeclarationTree [Keyword Int dummyLexDat, Ident "a" dummyLexDat])
                   `shouldBe`
                   ProgramNode [DeclarationNode
                                (VarNode "a" mockNodeDat)
@@ -27,10 +27,10 @@ parserDeclarationTest = hspec $ do
                                mockNodeDat]
 
                 it "Should build a tree for variable declaration and assignment" $
-                  (extractDeclarationTree [Keyword Int,
-                                           Ident "a",
-                                           OpTok EqualSign,
-                                           ConstInt 2])
+                  (extractDeclarationTree [Keyword Int dummyLexDat,
+                                           Ident "a" dummyLexDat,
+                                           OpTok EqualSign dummyLexDat,
+                                           ConstInt 2 dummyLexDat])
                   `shouldBe`
                   ProgramNode [DeclarationNode
                                (VarNode "a" mockNodeDat)
@@ -43,9 +43,9 @@ parserDeclarationTest = hspec $ do
                                mockNodeDat]
 
                 it "Should build a tree for a pointer declaration" $
-                  (extractDeclarationTree [Keyword Int,
-                                           OpTok Asterisk,
-                                           Ident "a"])
+                  (extractDeclarationTree [Keyword Int dummyLexDat,
+                                           OpTok Asterisk dummyLexDat,
+                                           Ident "a" dummyLexDat])
                   `shouldBe`
                   ProgramNode [PointerNode
                                (VarNode "a" mockNodeDat)
@@ -54,12 +54,12 @@ parserDeclarationTest = hspec $ do
                                mockNodeDat]
 
                 it "Should build a tree for a pointer declaration and assignment" $
-                  (extractDeclarationTree [Keyword Int,
-                                           OpTok Asterisk,
-                                           Ident "a",
-                                           OpTok EqualSign,
-                                           OpTok Ampersand,
-                                           Ident "b"])
+                  (extractDeclarationTree [Keyword Int dummyLexDat,
+                                           OpTok Asterisk dummyLexDat,
+                                           Ident "a" dummyLexDat,
+                                           OpTok EqualSign dummyLexDat,
+                                           OpTok Ampersand dummyLexDat,
+                                           Ident "b" dummyLexDat])
                   `shouldBe`
                   ProgramNode [PointerNode
                                (VarNode "a" mockNodeDat)
@@ -73,11 +73,11 @@ parserDeclarationTest = hspec $ do
                                mockNodeDat]
 
                 it "Should build a tree for an array declaration" $
-                  (extractDeclarationTree [Keyword Int,
-                                           Ident "a",
-                                           OpenBracket OpenSqBracket,
-                                           ConstInt 2,
-                                           CloseBracket CloseSqBracket])
+                  (extractDeclarationTree [Keyword Int dummyLexDat,
+                                           Ident "a" dummyLexDat,
+                                           OpenBracket OpenSqBracket dummyLexDat,
+                                           ConstInt 2 dummyLexDat,
+                                           CloseBracket CloseSqBracket dummyLexDat])
                   `shouldBe`
                   ProgramNode [ArrayNode
                                (ArrayDeclareNode 2
@@ -87,18 +87,18 @@ parserDeclarationTest = hspec $ do
                                 mockNodeDat)]
 
                 it "Should build a tree for an array declaration and assignment" $
-                  (extractDeclarationTree [Keyword Int,
-                                           Ident "a",
-                                           OpenBracket OpenSqBracket,
-                                           ConstInt 2,
-                                           CloseBracket CloseSqBracket,
-                                           OpTok EqualSign,
-                                           OpenBracket OpenBrace,
-                                           ConstInt 10,
-                                           Comma,
-                                           ConstInt 20,
-                                           CloseBracket CloseBrace,
-                                           SemiColon
+                  (extractDeclarationTree [Keyword Int dummyLexDat,
+                                           Ident "a" dummyLexDat,
+                                           OpenBracket OpenSqBracket dummyLexDat,
+                                           ConstInt 2 dummyLexDat,
+                                           CloseBracket CloseSqBracket dummyLexDat,
+                                           OpTok EqualSign dummyLexDat,
+                                           OpenBracket OpenBrace dummyLexDat,
+                                           ConstInt 10 dummyLexDat,
+                                           Comma dummyLexDat,
+                                           ConstInt 20 dummyLexDat,
+                                           CloseBracket CloseBrace dummyLexDat,
+                                           SemiColon dummyLexDat
                                           ]
                   )
                   `shouldBe`
@@ -128,17 +128,17 @@ parserDeclarationTest = hspec $ do
                               ]
 
                 it "Should build a tree for an array declaration and assignment with implicit length" $
-                  (extractDeclarationTree [Keyword Int,
-                                           Ident "a",
-                                           OpenBracket OpenSqBracket,
-                                           CloseBracket CloseSqBracket,
-                                           OpTok EqualSign,
-                                           OpenBracket OpenBrace,
-                                           ConstInt 10,
-                                           Comma,
-                                           ConstInt 20,
-                                           CloseBracket CloseBrace,
-                                           SemiColon
+                  (extractDeclarationTree [Keyword Int dummyLexDat,
+                                           Ident "a" dummyLexDat,
+                                           OpenBracket OpenSqBracket dummyLexDat,
+                                           CloseBracket CloseSqBracket dummyLexDat,
+                                           OpTok EqualSign dummyLexDat,
+                                           OpenBracket OpenBrace dummyLexDat,
+                                           ConstInt 10 dummyLexDat,
+                                           Comma dummyLexDat,
+                                           ConstInt 20 dummyLexDat,
+                                           CloseBracket CloseBrace dummyLexDat,
+                                           SemiColon dummyLexDat
                                           ]
                   )
                   `shouldBe`
@@ -171,18 +171,18 @@ parserDeclarationTest = hspec $ do
 
                 -- This should probably be a warning not an error, like in gcc
                 it "Should throw error if explicit and implicit array length differ" $
-                  (extractDeclarationError [Keyword Int,
-                                            Ident "a",
-                                            OpenBracket OpenSqBracket,
-                                            ConstInt 1,
-                                            CloseBracket CloseSqBracket,
-                                            OpTok EqualSign,
-                                            OpenBracket OpenBrace,
-                                            ConstInt 10,
-                                            Comma,
-                                            ConstInt 20,
-                                            CloseBracket CloseBrace,
-                                            SemiColon
+                  (extractDeclarationError [Keyword Int dummyLexDat,
+                                            Ident "a" dummyLexDat,
+                                            OpenBracket OpenSqBracket dummyLexDat,
+                                            ConstInt 1 dummyLexDat,
+                                            CloseBracket CloseSqBracket dummyLexDat,
+                                            OpTok EqualSign dummyLexDat,
+                                            OpenBracket OpenBrace dummyLexDat,
+                                            ConstInt 10 dummyLexDat,
+                                            Comma dummyLexDat,
+                                            ConstInt 20 dummyLexDat,
+                                            CloseBracket CloseBrace dummyLexDat,
+                                            SemiColon dummyLexDat
                                            ]
                   )
                   `shouldBe`

@@ -5,7 +5,7 @@ module ParserTest.ParserFunctionSpec (parserFunctionTest) where
 import Test.Hspec
 
 import ParserTest.TestUtility (extractFunctionError, extractFunctionTree)
-import TestUtility            (makeLexDat, mockNodeDat)
+import TestUtility            (mockNodeDat)
 import Types.AST
 import Types.Error
 import Types.Tokens
@@ -17,11 +17,11 @@ parserFunctionTest = hspec $ do
         describe "Build abstract syntax trees for functions" $ do
 
                 it "Should build a tree for a function declaration" $
-                  (extractFunctionTree [Keyword Int,
-                                        Ident "dog",
-                                        OpenBracket OpenParen,
-                                        CloseBracket CloseParen,
-                                        SemiColon
+                  (extractFunctionTree [Keyword Int dummyLexDat,
+                                        Ident "dog" dummyLexDat,
+                                        OpenBracket OpenParen dummyLexDat,
+                                        CloseBracket CloseParen dummyLexDat,
+                                        SemiColon dummyLexDat
                                        ])
                   `shouldBe`
                   ProgramNode [FunctionNode
@@ -33,12 +33,12 @@ parserFunctionTest = hspec $ do
                               ]
 
                 it "Should build a tree for a function definition" $
-                  (extractFunctionTree [Keyword Int,
-                                        Ident "main",
-                                        OpenBracket OpenParen,
-                                        CloseBracket CloseParen,
-                                        OpenBracket OpenBrace,
-                                        CloseBracket CloseBrace
+                  (extractFunctionTree [Keyword Int dummyLexDat,
+                                        Ident "main" dummyLexDat,
+                                        OpenBracket OpenParen dummyLexDat,
+                                        CloseBracket CloseParen dummyLexDat,
+                                        OpenBracket OpenBrace dummyLexDat,
+                                        CloseBracket CloseBrace dummyLexDat
                                        ])
                   `shouldBe`
                   ProgramNode [FunctionNode
@@ -49,18 +49,18 @@ parserFunctionTest = hspec $ do
                                mockNodeDat]
 
                 it "Should build a tree for a function with arguments" $
-                  (extractFunctionTree [Keyword Int,
-                                        Ident "main",
-                                        OpenBracket OpenParen,
-                                        Keyword Int,
-                                        Ident "a",
-                                        Comma,
-                                        Keyword Int,
-                                        OpTok Asterisk,
-                                        Ident "b",
-                                        CloseBracket CloseParen,
-                                        OpenBracket OpenBrace,
-                                        CloseBracket CloseBrace
+                  (extractFunctionTree [Keyword Int dummyLexDat,
+                                        Ident "main" dummyLexDat,
+                                        OpenBracket OpenParen dummyLexDat,
+                                        Keyword Int dummyLexDat,
+                                        Ident "a" dummyLexDat,
+                                        Comma dummyLexDat,
+                                        Keyword Int dummyLexDat,
+                                        OpTok Asterisk dummyLexDat,
+                                        Ident "b" dummyLexDat,
+                                        CloseBracket CloseParen dummyLexDat,
+                                        OpenBracket OpenBrace dummyLexDat,
+                                        CloseBracket CloseBrace dummyLexDat
                                        ])
                   `shouldBe`
                   ProgramNode [FunctionNode
@@ -79,15 +79,15 @@ parserFunctionTest = hspec $ do
                                mockNodeDat]
 
                 it "Should build a tree for a function returning a pointer" $
-                  (extractFunctionTree [Keyword Int,
-                                        OpTok Asterisk,
-                                        Ident "dog",
-                                        OpenBracket OpenParen,
-                                        Keyword Int,
-                                        Ident "a",
-                                        CloseBracket CloseParen,
-                                        OpenBracket OpenBrace,
-                                        CloseBracket CloseBrace
+                  (extractFunctionTree [Keyword Int dummyLexDat,
+                                        OpTok Asterisk dummyLexDat,
+                                        Ident "dog" dummyLexDat,
+                                        OpenBracket OpenParen dummyLexDat,
+                                        Keyword Int dummyLexDat,
+                                        Ident "a" dummyLexDat,
+                                        CloseBracket CloseParen dummyLexDat,
+                                        OpenBracket OpenBrace dummyLexDat,
+                                        CloseBracket CloseBrace dummyLexDat
                                        ])
                   `shouldBe`
                   ProgramNode [FunctionNode
@@ -102,15 +102,15 @@ parserFunctionTest = hspec $ do
                                mockNodeDat]
 
                 it "Should build a tree for a function with body statements" $
-                  (extractFunctionTree [Keyword Int,
-                                        Ident "main",
-                                        OpenBracket OpenParen,
-                                        CloseBracket CloseParen,
-                                        OpenBracket OpenBrace,
-                                        Keyword Return,
-                                        ConstInt 2,
-                                        SemiColon,
-                                        CloseBracket CloseBrace
+                  (extractFunctionTree [Keyword Int dummyLexDat,
+                                        Ident "main" dummyLexDat,
+                                        OpenBracket OpenParen dummyLexDat,
+                                        CloseBracket CloseParen dummyLexDat,
+                                        OpenBracket OpenBrace dummyLexDat,
+                                        Keyword Return dummyLexDat,
+                                        ConstInt 2 dummyLexDat,
+                                        SemiColon dummyLexDat,
+                                        CloseBracket CloseBrace dummyLexDat
                                        ])
                   `shouldBe`
                   ProgramNode [FunctionNode
@@ -129,17 +129,17 @@ parserFunctionTest = hspec $ do
         describe "Throw errors on bad input" $ do
 
                 it "Should throw error on missing function identifier" $
-                  (extractFunctionError [Keyword Int,
-                                         Comma,
-                                         OpenBracket OpenParen,
-                                         CloseBracket CloseParen,
-                                         OpenBracket OpenBrace,
-                                         CloseBracket CloseBrace
+                  (extractFunctionError [Keyword Int dummyLexDat,
+                                         Comma dummyLexDat,
+                                         OpenBracket OpenParen dummyLexDat,
+                                         CloseBracket CloseParen dummyLexDat,
+                                         OpenBracket OpenBrace dummyLexDat,
+                                         CloseBracket CloseBrace dummyLexDat
                                         ])
                   `shouldBe`
-                  SyntaxError (NonValidIdentifier $ makeLexDat (Keyword Int))
+                  SyntaxError (NonValidIdentifier $ Keyword Int dummyLexDat)
 
                 it "Should throw error on unfinished function" $
-                  (extractFunctionError [Keyword Int, Ident "a"])
+                  (extractFunctionError [Keyword Int dummyLexDat, Ident "a" dummyLexDat])
                   `shouldBe`
-                  ParserError (LexDataError [(makeLexDat $ Keyword Int), (makeLexDat $ Ident "a")])
+                  ParserError (LexDataError [Keyword Int dummyLexDat, Ident "a" dummyLexDat])

@@ -5,7 +5,7 @@ module ParserTest.ParserStatementSpec (parserStatementTest) where
 import Test.Hspec
 
 import ParserTest.TestUtility (extractStatementError, extractStatementTree)
-import TestUtility            (makeLexDat, mockNodeDat)
+import TestUtility            (mockNodeDat)
 import Types.AST
 import Types.Error
 import Types.Operator
@@ -18,17 +18,19 @@ parserStatementTest = hspec $ do
         describe "Build abstract syntax trees for statements" $ do
 
                 it "Should build a tree for a continue statement" $
-                  (extractStatementTree [Keyword Continue, SemiColon])
+                  (extractStatementTree [Keyword Continue dummyLexDat, SemiColon dummyLexDat])
                   `shouldBe`
                   ProgramNode [ContinueNode mockNodeDat]
 
                 it "Should build a tree for a break statement" $
-                  (extractStatementTree [Keyword Break, SemiColon])
+                  (extractStatementTree [Keyword Break dummyLexDat, SemiColon dummyLexDat])
                   `shouldBe`
                   ProgramNode [BreakNode mockNodeDat]
 
                 it "Should build a tree for a return statement" $
-                  (extractStatementTree [Keyword Return, ConstInt 2, SemiColon])
+                  (extractStatementTree [Keyword Return dummyLexDat,
+                                         ConstInt 2 dummyLexDat,
+                                         SemiColon dummyLexDat])
                   `shouldBe`
                   ProgramNode [ReturnNode
                                (ConstantNode 2 mockNodeDat)
@@ -36,19 +38,19 @@ parserStatementTest = hspec $ do
                               ]
 
                 it "Should build a tree for a null statement" $
-                  (extractStatementTree [SemiColon])
+                  (extractStatementTree [SemiColon dummyLexDat])
                   `shouldBe`
                   ProgramNode [NullExprNode mockNodeDat]
 
                 it "Should build a tree for a simple compound statement" $
-                  (extractStatementTree [OpenBracket OpenBrace,
-                                         ConstInt 2,
-                                         OpTok PlusSign,
-                                         ConstInt 2,
-                                         SemiColon,
-                                         Keyword Break,
-                                         SemiColon,
-                                         CloseBracket CloseBrace
+                  (extractStatementTree [OpenBracket OpenBrace dummyLexDat,
+                                         ConstInt 2 dummyLexDat,
+                                         OpTok PlusSign dummyLexDat,
+                                         ConstInt 2 dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         Keyword Break dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         CloseBracket CloseBrace dummyLexDat
                                         ])
                   `shouldBe`
                   ProgramNode [CompoundStmtNode
@@ -67,17 +69,17 @@ parserStatementTest = hspec $ do
                               ]
 
                 it "Should build a tree for compound statement with a declaration" $
-                  (extractStatementTree [OpenBracket OpenBrace,
-                                         ConstInt 2,
-                                         OpTok PlusSign,
-                                         ConstInt 2,
-                                         SemiColon,
-                                         Keyword Int,
-                                         Ident "a",
-                                         OpTok EqualSign,
-                                         ConstInt 3,
-                                         SemiColon,
-                                         CloseBracket CloseBrace
+                  (extractStatementTree [OpenBracket OpenBrace dummyLexDat,
+                                         ConstInt 2 dummyLexDat,
+                                         OpTok PlusSign dummyLexDat,
+                                         ConstInt 2 dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         Keyword Int dummyLexDat,
+                                         Ident "a" dummyLexDat,
+                                         OpTok EqualSign dummyLexDat,
+                                         ConstInt 3 dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         CloseBracket CloseBrace dummyLexDat
                                         ])
                   `shouldBe`
                   ProgramNode [CompoundStmtNode
@@ -104,14 +106,14 @@ parserStatementTest = hspec $ do
                               ]
 
                 it "Should build a tree for a simple if statement" $
-                  (extractStatementTree [Keyword If,
-                                         OpenBracket OpenParen,
-                                         Ident "a",
-                                         CloseBracket CloseParen,
-                                         Ident "b",
-                                         OpTok EqualSign,
-                                         ConstInt 1,
-                                         SemiColon
+                  (extractStatementTree [Keyword If dummyLexDat,
+                                         OpenBracket OpenParen dummyLexDat,
+                                         Ident "a" dummyLexDat,
+                                         CloseBracket CloseParen dummyLexDat,
+                                         Ident "b" dummyLexDat,
+                                         OpTok EqualSign dummyLexDat,
+                                         ConstInt 1 dummyLexDat,
+                                         SemiColon dummyLexDat
                                         ])
                   `shouldBe`
                   ProgramNode [IfNode
@@ -130,16 +132,16 @@ parserStatementTest = hspec $ do
                               ]
 
                 it "Should build a tree for an if statement with a block" $
-                  (extractStatementTree [Keyword If,
-                                         OpenBracket OpenParen,
-                                         Ident "a",
-                                         CloseBracket CloseParen,
-                                         OpenBracket OpenBrace,
-                                         Ident "b",
-                                         OpTok EqualSign,
-                                         ConstInt 1,
-                                         SemiColon,
-                                         CloseBracket CloseBrace
+                  (extractStatementTree [Keyword If dummyLexDat,
+                                         OpenBracket OpenParen dummyLexDat,
+                                         Ident "a" dummyLexDat,
+                                         CloseBracket CloseParen dummyLexDat,
+                                         OpenBracket OpenBrace dummyLexDat,
+                                         Ident "b" dummyLexDat,
+                                         OpTok EqualSign dummyLexDat,
+                                         ConstInt 1 dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         CloseBracket CloseBrace dummyLexDat
                                         ])
                   `shouldBe`
                   ProgramNode [IfNode
@@ -161,19 +163,19 @@ parserStatementTest = hspec $ do
                               ]
 
                 it "Should build a tree for a simple if statement with an else clause" $
-                  (extractStatementTree [Keyword If,
-                                         OpenBracket OpenParen,
-                                         Ident "a",
-                                         CloseBracket CloseParen,
-                                         Ident "b",
-                                         OpTok EqualSign,
-                                         ConstInt 1,
-                                         SemiColon,
-                                         Keyword Else,
-                                         Ident "b",
-                                         OpTok EqualSign,
-                                         ConstInt 2,
-                                         SemiColon
+                  (extractStatementTree [Keyword If dummyLexDat,
+                                         OpenBracket OpenParen dummyLexDat,
+                                         Ident "a" dummyLexDat,
+                                         CloseBracket CloseParen dummyLexDat,
+                                         Ident "b" dummyLexDat,
+                                         OpTok EqualSign dummyLexDat,
+                                         ConstInt 1 dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         Keyword Else dummyLexDat,
+                                         Ident "b" dummyLexDat,
+                                         OpTok EqualSign dummyLexDat,
+                                         ConstInt 2 dummyLexDat,
+                                         SemiColon dummyLexDat
                                         ])
                   `shouldBe`
                   ProgramNode [IfNode
@@ -200,23 +202,23 @@ parserStatementTest = hspec $ do
                               ]
 
                 it "Should build a tree for an if statement with an else clause and a block" $
-                  (extractStatementTree [Keyword If,
-                                         OpenBracket OpenParen,
-                                         Ident "a",
-                                         CloseBracket CloseParen,
-                                         OpenBracket OpenBrace,
-                                         Ident "b",
-                                         OpTok EqualSign,
-                                         ConstInt 1,
-                                         SemiColon,
-                                         CloseBracket CloseBrace,
-                                         Keyword Else,
-                                         OpenBracket OpenBrace,
-                                         Ident "b",
-                                         OpTok EqualSign,
-                                         ConstInt 2,
-                                         SemiColon,
-                                         CloseBracket CloseBrace
+                  (extractStatementTree [Keyword If dummyLexDat,
+                                         OpenBracket OpenParen dummyLexDat,
+                                         Ident "a" dummyLexDat,
+                                         CloseBracket CloseParen dummyLexDat,
+                                         OpenBracket OpenBrace dummyLexDat,
+                                         Ident "b" dummyLexDat,
+                                         OpTok EqualSign dummyLexDat,
+                                         ConstInt 1 dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         CloseBracket CloseBrace dummyLexDat,
+                                         Keyword Else dummyLexDat,
+                                         OpenBracket OpenBrace dummyLexDat,
+                                         Ident "b" dummyLexDat,
+                                         OpTok EqualSign dummyLexDat,
+                                         ConstInt 2 dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         CloseBracket CloseBrace dummyLexDat
                                         ])
                   `shouldBe`
                   ProgramNode [IfNode
@@ -249,20 +251,20 @@ parserStatementTest = hspec $ do
                               ]
 
                 it "Should build a tree for a do-while loop" $
-                  (extractStatementTree [Keyword Do,
-                                         OpenBracket OpenBrace,
-                                         Ident "a",
-                                         OpTok PlusEqual,
-                                         ConstInt 2,
-                                         SemiColon,
-                                         CloseBracket CloseBrace,
-                                         Keyword While,
-                                         OpenBracket OpenParen,
-                                         Ident "a",
-                                         OpTok LeftArrowEqual,
-                                         ConstInt 10,
-                                         CloseBracket CloseParen,
-                                         SemiColon]
+                  (extractStatementTree [Keyword Do dummyLexDat,
+                                         OpenBracket OpenBrace dummyLexDat,
+                                         Ident "a" dummyLexDat,
+                                         OpTok PlusEqual dummyLexDat,
+                                         ConstInt 2 dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         CloseBracket CloseBrace dummyLexDat,
+                                         Keyword While dummyLexDat,
+                                         OpenBracket OpenParen dummyLexDat,
+                                         Ident "a" dummyLexDat,
+                                         OpTok LeftArrowEqual dummyLexDat,
+                                         ConstInt 10 dummyLexDat,
+                                         CloseBracket CloseParen dummyLexDat,
+                                         SemiColon dummyLexDat]
                   )
                   `shouldBe`
                   ProgramNode [DoWhileNode
@@ -289,18 +291,18 @@ parserStatementTest = hspec $ do
                               ]
 
                 it "Should build a tree for a while loop" $
-                  (extractStatementTree [Keyword While,
-                                         OpenBracket OpenParen,
-                                         Ident "a",
-                                         OpTok LeftArrow,
-                                         ConstInt 3,
-                                         CloseBracket CloseParen,
-                                         OpenBracket OpenBrace,
-                                         Ident "a",
-                                         OpTok PlusEqual,
-                                         ConstInt 1,
-                                         SemiColon,
-                                         CloseBracket CloseBrace]
+                  (extractStatementTree [Keyword While dummyLexDat,
+                                         OpenBracket OpenParen dummyLexDat,
+                                         Ident "a" dummyLexDat,
+                                         OpTok LeftArrow dummyLexDat,
+                                         ConstInt 3 dummyLexDat,
+                                         CloseBracket CloseParen dummyLexDat,
+                                         OpenBracket OpenBrace dummyLexDat,
+                                         Ident "a" dummyLexDat,
+                                         OpTok PlusEqual dummyLexDat,
+                                         ConstInt 1 dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         CloseBracket CloseBrace dummyLexDat]
                   )
                   `shouldBe`
                   ProgramNode [WhileNode
@@ -326,26 +328,26 @@ parserStatementTest = hspec $ do
                               ]
 
                 it "Should build a tree for a conventional for loop" $
-                  (extractStatementTree [Keyword For,
-                                         OpenBracket OpenParen,
-                                         Keyword Int,
-                                         Ident "i",
-                                         OpTok EqualSign,
-                                         ConstInt 0,
-                                         SemiColon,
-                                         Ident "i",
-                                         OpTok LeftArrow,
-                                         ConstInt 10,
-                                         SemiColon,
-                                         Ident "i",
-                                         OpTok PlusPlus,
-                                         CloseBracket CloseParen,
-                                         OpenBracket OpenBrace,
-                                         Ident "a",
-                                         OpTok PlusEqual,
-                                         ConstInt 1,
-                                         SemiColon,
-                                         CloseBracket CloseBrace
+                  (extractStatementTree [Keyword For dummyLexDat,
+                                         OpenBracket OpenParen dummyLexDat,
+                                         Keyword Int dummyLexDat,
+                                         Ident "i" dummyLexDat,
+                                         OpTok EqualSign dummyLexDat,
+                                         ConstInt 0 dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         Ident "i" dummyLexDat,
+                                         OpTok LeftArrow dummyLexDat,
+                                         ConstInt 10 dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         Ident "i" dummyLexDat,
+                                         OpTok PlusPlus dummyLexDat,
+                                         CloseBracket CloseParen dummyLexDat,
+                                         OpenBracket OpenBrace dummyLexDat,
+                                         Ident "a" dummyLexDat,
+                                         OpTok PlusEqual dummyLexDat,
+                                         ConstInt 1 dummyLexDat,
+                                         SemiColon dummyLexDat,
+                                         CloseBracket CloseBrace dummyLexDat
                                         ]
                   )
                   `shouldBe`
@@ -393,64 +395,64 @@ parserStatementTest = hspec $ do
         describe "Throw errors on bad input" $ do
 
                 it "Should throw error for do-while loop missing while keyword" $
-                  let toks = [Keyword Do,
-                              OpenBracket OpenBrace,
-                              Ident "a",
-                              OpTok PlusEqual,
-                              ConstInt 2,
-                              SemiColon,
-                              CloseBracket CloseBrace,
-                              SemiColon,
-                              OpenBracket OpenParen,
-                              Ident "a",
-                              OpTok LeftArrowEqual,
-                              ConstInt 10,
-                              CloseBracket CloseParen,
-                              SemiColon]
+                  let toks = [Keyword Do dummyLexDat,
+                              OpenBracket OpenBrace dummyLexDat,
+                              Ident "a" dummyLexDat,
+                              OpTok PlusEqual dummyLexDat,
+                              ConstInt 2 dummyLexDat,
+                              SemiColon dummyLexDat,
+                              CloseBracket CloseBrace dummyLexDat,
+                              SemiColon dummyLexDat,
+                              OpenBracket OpenParen dummyLexDat,
+                              Ident "a" dummyLexDat,
+                              OpTok LeftArrowEqual dummyLexDat,
+                              ConstInt 10 dummyLexDat,
+                              CloseBracket CloseParen dummyLexDat,
+                              SemiColon dummyLexDat]
                       in
                   (extractStatementError toks)
                   `shouldBe`
-                  SyntaxError (MissingKeyword While $ makeLexDat (OpenBracket OpenParen))
+                  SyntaxError (MissingKeyword While $ OpenBracket OpenParen dummyLexDat)
 
                 it "Should throw error for do-while loop missing while open paren" $
-                  let toks = [Keyword Do,
-                              OpenBracket OpenBrace,
-                              Ident "a",
-                              OpTok PlusEqual,
-                              ConstInt 2,
-                              SemiColon,
-                              CloseBracket CloseBrace,
-                              Keyword While,
-                              SemiColon,
-                              Ident "a",
-                              OpTok LeftArrowEqual,
-                              ConstInt 10,
-                              CloseBracket CloseParen,
-                              SemiColon]
+                  let toks = [Keyword Do dummyLexDat,
+                              OpenBracket OpenBrace dummyLexDat,
+                              Ident "a" dummyLexDat,
+                              OpTok PlusEqual dummyLexDat,
+                              ConstInt 2 dummyLexDat,
+                              SemiColon dummyLexDat,
+                              CloseBracket CloseBrace dummyLexDat,
+                              Keyword While dummyLexDat,
+                              SemiColon dummyLexDat,
+                              Ident "a" dummyLexDat,
+                              OpTok LeftArrowEqual dummyLexDat,
+                              ConstInt 10 dummyLexDat,
+                              CloseBracket CloseParen dummyLexDat,
+                              SemiColon dummyLexDat]
                       in
                   (extractStatementError toks)
                   `shouldBe`
                   SyntaxError (MissingToken
-                               (OpenBracket OpenParen)
-                               $ makeLexDat (Keyword While)
+                               (OpenBracket OpenParen dummyLexDat)
+                               $ Keyword While dummyLexDat
                               )
 
                 it "Should throw error for do-while loop missing semicolon after while" $
-                  let toks = [Keyword Do,
-                              OpenBracket OpenBrace,
-                              Ident "a",
-                              OpTok PlusEqual,
-                              ConstInt 2,
-                              SemiColon,
-                              CloseBracket CloseBrace,
-                              Keyword While,
-                              OpenBracket OpenParen,
-                              Ident "a",
-                              OpTok LeftArrowEqual,
-                              ConstInt 10,
-                              CloseBracket CloseParen,
-                              Colon]
+                  let toks = [Keyword Do dummyLexDat,
+                              OpenBracket OpenBrace dummyLexDat,
+                              Ident "a" dummyLexDat,
+                              OpTok PlusEqual dummyLexDat,
+                              ConstInt 2 dummyLexDat,
+                              SemiColon dummyLexDat,
+                              CloseBracket CloseBrace dummyLexDat,
+                              Keyword While dummyLexDat,
+                              OpenBracket OpenParen dummyLexDat,
+                              Ident "a" dummyLexDat,
+                              OpTok LeftArrowEqual dummyLexDat,
+                              ConstInt 10 dummyLexDat,
+                              CloseBracket CloseParen dummyLexDat,
+                              Colon dummyLexDat]
                       in
                   (extractStatementError toks)
                   `shouldBe`
-                  SyntaxError (MissingToken SemiColon $ makeLexDat Colon)
+                  SyntaxError (MissingToken (SemiColon dummyLexDat) (Colon dummyLexDat))

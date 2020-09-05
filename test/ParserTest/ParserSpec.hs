@@ -5,7 +5,7 @@ module ParserTest.ParserSpec (fullParserTest) where
 import Test.Hspec
 
 import ParserTest.TestUtility (extractFullProgramError, extractFullProgramTree)
-import TestUtility            (makeLexDat, mockNodeDat)
+import TestUtility            (mockNodeDat)
 import Types.AST
 import Types.Error
 import Types.Operator
@@ -18,15 +18,15 @@ fullParserTest = hspec $ do
         describe "Build abstract syntax trees for full programs" $ do
 
                 it "Should build a tree for a simple program returning a constant" $
-                  (extractFullProgramTree [Keyword Int,
-                                           Ident "main",
-                                           OpenBracket OpenParen,
-                                           CloseBracket CloseParen,
-                                           OpenBracket OpenBrace,
-                                           Keyword Return,
-                                           ConstInt 2,
-                                           SemiColon,
-                                           CloseBracket CloseBrace])
+                  (extractFullProgramTree [Keyword Int dummyLexDat,
+                                           Ident "main" dummyLexDat,
+                                           OpenBracket OpenParen dummyLexDat,
+                                           CloseBracket CloseParen dummyLexDat,
+                                           OpenBracket OpenBrace dummyLexDat,
+                                           Keyword Return dummyLexDat,
+                                           ConstInt 2 dummyLexDat,
+                                           SemiColon dummyLexDat,
+                                           CloseBracket CloseBrace dummyLexDat])
                   `shouldBe`
                   ProgramNode [FunctionNode
                                IntVar
@@ -41,26 +41,26 @@ fullParserTest = hspec $ do
                                mockNodeDat]
 
                 it "Should build a tree for a program with two functions" $
-                  (extractFullProgramTree [Keyword Int,
-                                           Ident "dog",
-                                           OpenBracket OpenParen,
-                                           CloseBracket CloseParen,
-                                           OpenBracket OpenBrace,
-                                           Keyword Return,
-                                           ConstInt 2,
-                                           SemiColon,
-                                           CloseBracket CloseBrace,
-                                           Keyword Int,
-                                           Ident "main",
-                                           OpenBracket OpenParen,
-                                           CloseBracket CloseParen,
-                                           OpenBracket OpenBrace,
-                                           Keyword Return,
-                                           Ident "dog",
-                                           OpenBracket OpenParen,
-                                           CloseBracket CloseParen,
-                                           SemiColon,
-                                           CloseBracket CloseBrace])
+                  (extractFullProgramTree [Keyword Int dummyLexDat,
+                                           Ident "dog" dummyLexDat,
+                                           OpenBracket OpenParen dummyLexDat,
+                                           CloseBracket CloseParen dummyLexDat,
+                                           OpenBracket OpenBrace dummyLexDat,
+                                           Keyword Return dummyLexDat,
+                                           ConstInt 2 dummyLexDat,
+                                           SemiColon dummyLexDat,
+                                           CloseBracket CloseBrace dummyLexDat,
+                                           Keyword Int dummyLexDat,
+                                           Ident "main" dummyLexDat,
+                                           OpenBracket OpenParen dummyLexDat,
+                                           CloseBracket CloseParen dummyLexDat,
+                                           OpenBracket OpenBrace dummyLexDat,
+                                           Keyword Return dummyLexDat,
+                                           Ident "dog" dummyLexDat,
+                                           OpenBracket OpenParen dummyLexDat,
+                                           CloseBracket CloseParen dummyLexDat,
+                                           SemiColon dummyLexDat,
+                                           CloseBracket CloseBrace dummyLexDat])
                   `shouldBe`
                   ProgramNode [FunctionNode
                                IntVar
@@ -91,20 +91,20 @@ fullParserTest = hspec $ do
                                mockNodeDat]
 
                 it "Should build a tree for a program with a global variable and a function" $
-                  (extractFullProgramTree [Keyword Int,
-                                           Ident "a",
-                                           OpTok EqualSign,
-                                           ConstInt 2,
-                                           SemiColon,
-                                           Keyword Int,
-                                           Ident "main",
-                                           OpenBracket OpenParen,
-                                           CloseBracket CloseParen,
-                                           OpenBracket OpenBrace,
-                                           Keyword Return,
-                                           Ident "a",
-                                           SemiColon,
-                                           CloseBracket CloseBrace])
+                  (extractFullProgramTree [Keyword Int dummyLexDat,
+                                           Ident "a" dummyLexDat,
+                                           OpTok EqualSign dummyLexDat,
+                                           ConstInt 2 dummyLexDat,
+                                           SemiColon dummyLexDat,
+                                           Keyword Int dummyLexDat,
+                                           Ident "main" dummyLexDat,
+                                           OpenBracket OpenParen dummyLexDat,
+                                           CloseBracket CloseParen dummyLexDat,
+                                           OpenBracket OpenBrace dummyLexDat,
+                                           Keyword Return dummyLexDat,
+                                           Ident "a" dummyLexDat,
+                                           SemiColon dummyLexDat,
+                                           CloseBracket CloseBrace dummyLexDat])
                   `shouldBe`
                   ProgramNode [DeclarationNode
                                (VarNode "a" mockNodeDat)
@@ -138,16 +138,18 @@ fullParserTest = hspec $ do
                   ParserError (LexDataError [])
 
                 it "Should throw error on junk input" $
-                  (extractFullProgramError [Keyword Int])
+                  (extractFullProgramError [Keyword Int dummyLexDat])
                   `shouldBe`
-                  ParserError (LexDataError $ map makeLexDat [Keyword Int])
+                  ParserError (LexDataError $ [Keyword Int dummyLexDat])
 
                 it "Should throw an error on invalid top level items" $
-                  (extractFullProgramError [SemiColon, OpTok PlusSign])
+                  (extractFullProgramError [SemiColon dummyLexDat, OpTok PlusSign dummyLexDat])
                   `shouldBe`
-                  ParserError (LexDataError $ map makeLexDat [SemiColon, OpTok PlusSign])
+                  ParserError (LexDataError $ [SemiColon dummyLexDat, OpTok PlusSign dummyLexDat])
 
                 it "Should throw error on invalid identifier for top level item" $
-                  (extractFullProgramError [Keyword Int, SemiColon, OpTok PlusSign])
+                  (extractFullProgramError [Keyword Int dummyLexDat,
+                                            SemiColon dummyLexDat,
+                                            OpTok PlusSign dummyLexDat])
                   `shouldBe`
-                  SyntaxError (NonValidIdentifier $ makeLexDat SemiColon)
+                  SyntaxError (NonValidIdentifier $ SemiColon dummyLexDat)

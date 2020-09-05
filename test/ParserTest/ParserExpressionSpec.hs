@@ -18,17 +18,19 @@ parserExpressionTest = hspec $ do
         describe "Build abstract syntax trees for expressions" $ do
 
                 it "Should build a constant tree" $
-                  (extractExpressionTree [ConstInt 3])
+                  (extractExpressionTree [ConstInt 3 dummyLexDat])
                   `shouldBe`
                   ProgramNode [ConstantNode 3 mockNodeDat]
 
                 it "Should build a variable tree" $
-                  (extractExpressionTree [Ident "a"])
+                  (extractExpressionTree [Ident "a" dummyLexDat])
                   `shouldBe`
                   ProgramNode [VarNode "a" mockNodeDat]
 
                 it "Should build basic assignment tree" $
-                  (extractExpressionTree [Ident "a", OpTok EqualSign, ConstInt 2])
+                  (extractExpressionTree [Ident "a" dummyLexDat,
+                                          OpTok EqualSign dummyLexDat,
+                                          ConstInt 2 dummyLexDat])
                   `shouldBe`
                   ProgramNode [AssignmentNode
                                (VarNode "a" mockNodeDat)
@@ -37,7 +39,7 @@ parserExpressionTest = hspec $ do
                                mockNodeDat]
 
                 it "Should build a null expression tree" $
-                  (extractExpressionTree [SemiColon])
+                  (extractExpressionTree [SemiColon dummyLexDat])
                   `shouldBe`
                   ProgramNode [NullExprNode mockNodeDat]
 
@@ -62,14 +64,14 @@ parserExpressionTest = hspec $ do
                   (map makeBinaryShadowAssignTree binaryShadowAssignTokens)
 
                 it "Should build a ternary operator tree" $
-                  (extractExpressionTree [ConstInt 2,
-                                          OpTok EqualEqual,
-                                          ConstInt 2,
-                                          QuestMark,
-                                          ConstInt 10,
-                                          Colon,
-                                          ConstInt 6,
-                                          SemiColon
+                  (extractExpressionTree [ConstInt 2 dummyLexDat,
+                                          OpTok EqualEqual dummyLexDat,
+                                          ConstInt 2 dummyLexDat,
+                                          QuestMark dummyLexDat,
+                                          ConstInt 10 dummyLexDat,
+                                          Colon dummyLexDat,
+                                          ConstInt 6 dummyLexDat,
+                                          SemiColon dummyLexDat
                                          ]
                   )
                   `shouldBe`
@@ -86,17 +88,19 @@ parserExpressionTest = hspec $ do
                               ]
 
                 it "Should build a simple function call tree" $
-                  (extractExpressionTree [Ident "dog", OpenBracket OpenParen, CloseBracket CloseParen])
+                  (extractExpressionTree [Ident "dog" dummyLexDat,
+                                          OpenBracket OpenParen dummyLexDat,
+                                          CloseBracket CloseParen dummyLexDat])
                   `shouldBe`
                   ProgramNode [FuncCallNode "dog" [] mockNodeDat]
 
                 it "Should build a function call node with arguments tree" $
-                  (extractExpressionTree [Ident "cat",
-                                          OpenBracket OpenParen,
-                                          ConstInt 3,
-                                          Comma,
-                                          ConstInt 4,
-                                          CloseBracket CloseParen
+                  (extractExpressionTree [Ident "cat" dummyLexDat,
+                                          OpenBracket OpenParen dummyLexDat,
+                                          ConstInt 3 dummyLexDat,
+                                          Comma dummyLexDat,
+                                          ConstInt 4 dummyLexDat,
+                                          CloseBracket CloseParen dummyLexDat
                                          ])
                   `shouldBe`
                   ProgramNode [FuncCallNode "cat"
@@ -106,21 +110,21 @@ parserExpressionTest = hspec $ do
                                mockNodeDat]
 
                 it "Should build a pointer dereference tree" $
-                  (extractExpressionTree [OpTok Asterisk, Ident "b"])
+                  (extractExpressionTree [OpTok Asterisk dummyLexDat, Ident "b" dummyLexDat])
                   `shouldBe`
                   ProgramNode [DereferenceNode "b" mockNodeDat]
 
                 it "Should build a tree with a parenthesised calculation" $
-                  (extractExpressionTree [Ident "a",
-                                          OpTok EqualSign,
-                                          OpenBracket OpenParen,
-                                          ConstInt 2,
-                                          OpTok MinusSign,
-                                          ConstInt 1,
-                                          CloseBracket CloseParen,
-                                          OpTok Asterisk,
-                                          ConstInt 3,
-                                          SemiColon
+                  (extractExpressionTree [Ident "a" dummyLexDat,
+                                          OpTok EqualSign dummyLexDat,
+                                          OpenBracket OpenParen dummyLexDat,
+                                          ConstInt 2 dummyLexDat,
+                                          OpTok MinusSign dummyLexDat,
+                                          ConstInt 1 dummyLexDat,
+                                          CloseBracket CloseParen dummyLexDat,
+                                          OpTok Asterisk dummyLexDat,
+                                          ConstInt 3 dummyLexDat,
+                                          SemiColon dummyLexDat
                                          ]
                   )
                   `shouldBe`
@@ -142,13 +146,13 @@ parserExpressionTest = hspec $ do
                               ]
 
                 it "Should build a tree assigning item from an array" $
-                  (extractExpressionTree [Ident "a",
-                                          OpTok EqualSign,
-                                          Ident "arr",
-                                          OpenBracket OpenSqBracket,
-                                          ConstInt 1,
-                                          CloseBracket CloseSqBracket,
-                                          SemiColon
+                  (extractExpressionTree [Ident "a" dummyLexDat,
+                                          OpTok EqualSign dummyLexDat,
+                                          Ident "arr" dummyLexDat,
+                                          OpenBracket OpenSqBracket dummyLexDat,
+                                          ConstInt 1 dummyLexDat,
+                                          CloseBracket CloseSqBracket dummyLexDat,
+                                          SemiColon dummyLexDat
                                          ]
                   )
                   `shouldBe`
@@ -166,13 +170,13 @@ parserExpressionTest = hspec $ do
                               ]
 
                 it "Should build a tree assigning an item to an array index" $
-                  (extractExpressionTree [Ident "arr",
-                                          OpenBracket OpenSqBracket,
-                                          ConstInt 1,
-                                          CloseBracket CloseSqBracket,
-                                          OpTok EqualSign,
-                                          ConstInt 10,
-                                          SemiColon
+                  (extractExpressionTree [Ident "arr" dummyLexDat,
+                                          OpenBracket OpenSqBracket dummyLexDat,
+                                          ConstInt 1 dummyLexDat,
+                                          CloseBracket CloseSqBracket dummyLexDat,
+                                          OpTok EqualSign dummyLexDat,
+                                          ConstInt 10 dummyLexDat,
+                                          SemiColon dummyLexDat
                                          ]
                   )
                   `shouldBe`
@@ -192,11 +196,11 @@ parserExpressionTest = hspec $ do
                               ]
 
                 it "Should build a tree for assigning from a dereferenced node" $
-                  (extractExpressionTree [OpTok Asterisk,
-                                          Ident "b",
-                                          OpTok PlusEqual,
-                                          ConstInt 10,
-                                          SemiColon
+                  (extractExpressionTree [OpTok Asterisk dummyLexDat,
+                                          Ident "b" dummyLexDat,
+                                          OpTok PlusEqual dummyLexDat,
+                                          ConstInt 10 dummyLexDat,
+                                          SemiColon dummyLexDat
                                          ]
                   )
                   `shouldBe`
@@ -231,7 +235,7 @@ makeUnaryPostOpTree opTok =
 
 
 makeUnaryPostOpTokenList :: OpTok -> [Token]
-makeUnaryPostOpTokenList tok = [Ident "a", OpTok tok]
+makeUnaryPostOpTokenList tok = [Ident "a" dummyLexDat, OpTok tok dummyLexDat]
 
 
 unaryOpTokens :: [OpTok]
@@ -246,7 +250,7 @@ unaryOpTokens = [
 
 
 makeUnaryTokenList :: OpTok -> [Token]
-makeUnaryTokenList tok = [OpTok tok, Ident "a"]
+makeUnaryTokenList tok = [OpTok tok dummyLexDat, Ident "a" dummyLexDat]
 
 
 makeUnaryTree :: OpTok -> Tree
@@ -258,7 +262,7 @@ makeUnaryTree opTok =
 
 
 makeBinaryTokenList :: OpTok -> [Token]
-makeBinaryTokenList tok = [Ident "a", OpTok tok, ConstInt 2]
+makeBinaryTokenList tok = [Ident "a" dummyLexDat, OpTok tok dummyLexDat, ConstInt 2 dummyLexDat]
 
 
 makeBinaryTree :: OpTok -> Tree
