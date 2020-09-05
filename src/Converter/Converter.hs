@@ -11,8 +11,8 @@ import           Control.Monad        (unless)
 import           Data.Maybe           (fromMaybe)
 
 import qualified Analyser.Analyser    as Analyser (analyse)
-import qualified Analyser.Valuer      as Valuer (value)
 import qualified Converter.Checker    as Checker (check)
+import qualified Converter.Valuer     as Valuer
 import qualified State.FuncState      as FuncState
 import           State.GenState       (GenState, throwError)
 import qualified State.GenState       as GenState (evaluate, getState,
@@ -20,12 +20,9 @@ import qualified State.GenState       as GenState (evaluate, getState,
 import qualified State.GlobalState    as GlobalState
 import           State.State          (SymTab)
 import qualified State.State          as State (getScope, getVariable,
-                                                getVariableValue, labelNum,
-                                                memOffset, setVariableValue)
+                                                getVariableValue, labelNum)
 import           Types.AssemblySchema
-import           Types.AST            (ArrayNode (..),
-                                       NodeDat (isSkipped, notTracked),
-                                       Tree (..))
+import           Types.AST            (ArrayNode (..), NodeDat, Tree (..))
 import           Types.Error          (CompilerError (FatalError),
                                        FatalError (ConverterBug))
 import           Types.Operator
@@ -232,7 +229,7 @@ convertToSchema node@(UnaryNode varNode@VarNode{} unOp _) = do
 
 convertToSchema node@(UnaryNode val unOp _) = do
         Checker.check node
-        checkValueIncDec node
+        Valuer.checkValueIncDec node
         value <- convertToSchema val
         pure (ExpressionSchema $ UnarySchema value unOp)
 
@@ -347,7 +344,7 @@ processArrayItem varNode (item, pos) = do
 
 setSchemaOffset :: Int -> AssemblySchema -> AssemblySchema
 setSchemaOffset n (ExpressionSchema (VariableSchema varType varValue)) =
-        ExpressionSchema $ VariableSchema (adjustVariable (Just n) Nothing varType) varValue
+        ExpressionSchema $ VariableSchema (Valuer.adjustVariable (Just n) Nothing varType) varValue
 setSchemaOffset _ _ = undefined
 
 
@@ -499,27 +496,8 @@ defineLocal tree = throwError $ FatalError (ConverterBug tree)
 processAssignment :: String -> NodeDat -> Tree -> Tree -> GenState AssemblySchema
 processAssignment varName dat varNode valNode = do
         assignmentSchema <- buildAssignmentSchema varNode valNode
-        storeValue dat varName valNode
+        Valuer.storeValue dat varName valNode
         pure assignmentSchema
-
-
-storeValue :: NodeDat -> String -> Tree -> GenState ()
-storeValue dat varName valNode = setValue dat varName valNode 0
-
-
-setValue :: NodeDat -> String -> Tree -> Int -> GenState ()
-setValue dat varName valNode n =
-        unless (isSkipped dat) $
-             if notTracked dat
-                then State.setVariableValue varName UntrackedValue
-                else do
-                        varValue <- Valuer.value valNode
-                        State.setVariableValue varName (changeValue varValue n)
-
-
-changeValue :: VarValue -> Int -> VarValue
-changeValue (SingleValue n) m = SingleValue (n + m)
-changeValue varValue _        = varValue
 
 
 buildAssignmentSchema :: Tree -> Tree -> GenState AssemblySchema
@@ -561,30 +539,8 @@ processPossibleNode Nothing     = pure SkipSchema
 processPossibleNode (Just node) = convertToSchema node
 
 
-adjustVariable :: Maybe Int -> Maybe Int -> VarType -> VarType
-adjustVariable (Just x) (Just y) (LocalVar n _ _) = LocalVar n (x * State.memOffset) y
-adjustVariable (Just x) Nothing (LocalVar n _ sp) =
-        LocalVar n (x * State.memOffset) (sp + (x * (-State.memOffset)))
-adjustVariable Nothing (Just y) (LocalVar n m _)  = LocalVar n m y
-adjustVariable (Just x) _ (ParamVar n _)          = ParamVar n x
-adjustVariable (Just x) _ (GlobalVar l _)         = GlobalVar l x
-adjustVariable _ _ varType                        = varType
-
-
 analyseAndConvert :: Tree -> GenState AssemblySchema
 analyseAndConvert tree = Analyser.analyse tree >>= convertToSchema
-
-
-checkValueIncDec :: Tree -> GenState ()
-checkValueIncDec (UnaryNode valNode@(VarNode name _) (PreOpUnary PreIncrement) dat) =
-        setValue dat name valNode 1
-checkValueIncDec (UnaryNode valNode@(VarNode name _) (PreOpUnary PreDecrement) dat) =
-        setValue dat name valNode (-1)
-checkValueIncDec (UnaryNode valNode@(VarNode name _) (PostOpUnary PostIncrement) dat) =
-        setValue dat name valNode 1
-checkValueIncDec (UnaryNode valNode@(VarNode name _) (PostOpUnary PostDecrement) dat) =
-        setValue dat name valNode (-1)
-checkValueIncDec _ = pure ()
 
 
 binaryLeftSchema :: Tree -> GenState AssemblySchema
