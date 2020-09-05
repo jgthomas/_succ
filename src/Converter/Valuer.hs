@@ -21,12 +21,12 @@ argsToPosValue :: [Tree] -> GenState [(Int, VarValue)]
 argsToPosValue argList = zip [0..] <$> mapM Valuer.value argList
 
 
--- | Store the value of a variable
+-- | Store the value of a node
 storeValue :: NodeDat -> String -> Tree -> GenState ()
 storeValue dat varName valNode = setValue dat varName valNode 0
 
 
--- | Adjust the value of a pre- or post-incremented variable
+-- | Adjust the stored value of a pre- or post-incremented node
 checkValueIncDec :: Tree -> GenState ()
 checkValueIncDec (UnaryNode valNode@(VarNode name _) (PreOpUnary PreIncrement) dat) =
         setValue dat name valNode 1
