@@ -19,18 +19,19 @@ import           State.FrameStack  (currentFunc, getScope)
 import qualified State.FuncState   (getLocalValue, getParamValue,
                                     parameterPosition, setLocalValue,
                                     setParamValue, variableOffset)
-import           State.GenState    (GenState, labelNum)
+import           State.GenState    (GenState, labelNum, throwError)
 import qualified State.GlobalState (getLabel, getValue, setValue)
 import           State.SymbolTable (SymTab, memOffset)
+import           Types.Error       (CompilerError (StateError), StateError (..))
 import           Types.Variables   (VarLookup (..), VarType (..), VarValue (..))
 
 
 -- | Build variable data type from retrieved data
 getVariable :: String -> GenState VarLookup
-getVariable name = do
-        localVar  <- mkVarLocal <$> State.FuncState.variableOffset name
-        paramVar  <- mkVarParam <$> State.FuncState.parameterPosition name
-        globalVar <- mkVarGlobal <$> State.GlobalState.getLabel name
+getVariable varName = do
+        localVar  <- mkVarLocal <$> State.FuncState.variableOffset varName
+        paramVar  <- mkVarParam <$> State.FuncState.parameterPosition varName
+        globalVar <- mkVarGlobal <$> State.GlobalState.getLabel varName
         case (localVar, paramVar, globalVar) of
              (var@(VarType LocalVar{}), _, _)  -> pure var
              (_, var@(VarType ParamVar{}), _)  -> pure var
@@ -48,7 +49,7 @@ getVariableValue varName = do
              (Just lv, _, _) -> pure lv
              (_, Just pv, _) -> pure pv
              (_, _, Just gv) -> pure gv
-             (_, _, _)       -> undefined
+             (_, _, _)       -> throwError $ StateError (NoStateFound $ errMsg varName)
 
 
 setVariableValue :: String -> VarValue -> GenState ()
@@ -60,7 +61,7 @@ setVariableValue varName varValue = do
              (Just _, _, _) -> State.FuncState.setLocalValue varName varValue
              (_, Just _, _) -> State.FuncState.setParamValue varName varValue
              (_, _, Just _) -> State.GlobalState.setValue varName varValue
-             (_, _, _)      -> undefined
+             (_, _, _)      -> throwError $ StateError (NoStateFound $ errMsg varName)
 
 
 mkVarLocal :: Maybe Int -> VarLookup
@@ -76,3 +77,7 @@ mkVarParam Nothing  = NotFound
 mkVarGlobal :: Maybe String -> VarLookup
 mkVarGlobal (Just s) = VarType (GlobalVar s 0)
 mkVarGlobal Nothing  = NotFound
+
+
+errMsg :: String -> String
+errMsg varName = "Variable: " ++ varName
