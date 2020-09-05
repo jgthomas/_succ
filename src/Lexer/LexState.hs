@@ -11,18 +11,19 @@ module Lexer.LexState
          getState,
          startState,
          addToken,
-         incLineNum
+         incLineNum,
+         mkLexDat
         ) where
 
 
-import           Types.LexDat    (LexDat)
-import qualified Types.LexDat    as LexDat (mkLexDat)
+--import           Types.LexDat    (LexDat)
+--import qualified Types.LexDat    as LexDat (mkLexDat)
 import           Types.SuccState (SuccStateM, evaluate, throwError)
 import qualified Types.SuccState as SuccState (getState, putState)
-import           Types.Tokens    (Token)
+import           Types.Tokens    (LexDat (LexDat), Token)
 
 
-data LexTab = LexTab { datList :: [LexDat]
+data LexTab = LexTab { datList :: [Token]
                      , lineNum :: Int }
 
 
@@ -45,17 +46,23 @@ incLineNum = do
 -- | Build LexDat from token and add to state
 addToken :: Token -> LexerState ()
 addToken tok = do
-        lexDat <- mkLexDat tok
+        --lexDat <- mkLexDat tok
         state  <- SuccState.getState
-        SuccState.putState $ state { datList = lexDat:datList state }
+        SuccState.putState $ state { datList = tok:datList state }
 
 
-mkLexDat :: Token -> LexerState LexDat
-mkLexDat tok = do
+--mkLexDat :: Token -> LexerState LexDat
+--mkLexDat tok = do
+--        lineN <- lineNum <$> SuccState.getState
+--        pure $ LexDat.mkLexDat tok lineN
+
+
+mkLexDat :: String -> LexerState LexDat
+mkLexDat input = do
         lineN <- lineNum <$> SuccState.getState
-        pure $ LexDat.mkLexDat tok lineN
+        pure $ LexDat input lineN
 
 
 -- | Return the list of LexDat from the state
-getState :: LexerState [LexDat]
+getState :: LexerState [Token]
 getState = datList <$> SuccState.getState

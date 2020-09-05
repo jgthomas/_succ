@@ -17,9 +17,7 @@ import           Parser.TokToNodeData    (makeNodeDat)
 import           Types.AST               (ArrayNode (..), Tree (..))
 import           Types.Error             (CompilerError (ParserError, SyntaxError),
                                           ParserError (..), SyntaxError (..))
-import           Types.LexDat            (LexDat (..))
-import           Types.Tokens            (CloseBracket (..), OpenBracket (..),
-                                          Token (..))
+import           Types.Tokens
 
 
 data Declaration = ValueDec
@@ -33,39 +31,39 @@ data ArrayLen = Undeclared
 
 
 -- | Parse tokens for a declaration into an AST
-parseDeclaration :: [LexDat] -> ParserState (Tree, [LexDat])
-parseDeclaration lexData@(
-        _:LexDat{tok=Ident name}:
-        LexDat{tok=OpenBracket OpenSqBracket}:
-        LexDat{tok=CloseBracket CloseSqBracket}:_)      = parseDec ArrayDec name lexData
-parseDeclaration lexData@(
-        _:LexDat{tok=Ident name}:
-        LexDat{tok=OpenBracket OpenSqBracket}:
-        LexDat{tok=ConstInt n}:
-        LexDat{tok=CloseBracket CloseSqBracket}:_)      = parseDec (ArrayDecExplicit n) name lexData
-parseDeclaration lexData@(_:LexDat{tok=Ident name}:_)   = parseDec ValueDec name lexData
-parseDeclaration lexData@(_:_:LexDat{tok=Ident name}:_) = parseDec PointerDec name lexData
+parseDeclaration :: [Token] -> ParserState (Tree, [Token])
+parseDeclaration tokens@(
+        _:Ident name _:
+        OpenBracket OpenSqBracket _:
+        CloseBracket CloseSqBracket _:_)     = parseDec ArrayDec name tokens
+parseDeclaration tokens@(
+        _:Ident name _:
+        OpenBracket OpenSqBracket _:
+        ConstInt n _:
+        CloseBracket CloseSqBracket _:_)     = parseDec (ArrayDecExplicit n) name tokens
+parseDeclaration tokens@(_:Ident name _:_)   = parseDec ValueDec name tokens
+parseDeclaration tokens@(_:_:Ident name _:_) = parseDec PointerDec name tokens
 parseDeclaration (_:c:_:_) = throwError $ SyntaxError (NonValidIdentifier c)
-parseDeclaration lexData   = throwError $ ParserError (LexDataError lexData)
+parseDeclaration tokens   = throwError $ ParserError (LexDataError tokens)
 
 
-parseDec :: Declaration -> String -> [LexDat] -> ParserState (Tree, [LexDat])
-parseDec decType name lexData = do
-        dat               <- makeNodeDat lexData
-        typ               <- parseType lexData
-        lexData'          <- findVarName lexData
-        varDat            <- makeNodeDat lexData'
-        (tree, lexData'') <- parseOptAssign lexData'
+parseDec :: Declaration -> String -> [Token] -> ParserState (Tree, [Token])
+parseDec decType name tokens = do
+        dat              <- makeNodeDat tokens
+        typ              <- parseType tokens
+        tokens'          <- findVarName tokens
+        varDat           <- makeNodeDat tokens'
+        (tree, tokens'') <- parseOptAssign tokens'
         let var = VarNode name varDat
         case decType of
-             PointerDec -> pure (PointerNode var typ tree dat, lexData'')
-             ValueDec   -> pure (DeclarationNode var typ tree dat, lexData'')
+             PointerDec -> pure (PointerNode var typ tree dat, tokens'')
+             ValueDec   -> pure (DeclarationNode var typ tree dat, tokens'')
              ArrayDec   -> do
                      len <- findArraylen var (inferredLen tree) Undeclared
-                     pure (ArrayNode (ArrayDeclareNode len var typ tree dat), lexData'')
+                     pure (ArrayNode (ArrayDeclareNode len var typ tree dat), tokens'')
              (ArrayDecExplicit n) -> do
                      len <- findArraylen var (inferredLen tree) (Declared n)
-                     pure (ArrayNode (ArrayDeclareNode len var typ tree dat), lexData'')
+                     pure (ArrayNode (ArrayDeclareNode len var typ tree dat), tokens'')
 
 
 findArraylen :: Tree -> ArrayLen -> ArrayLen -> ParserState Int
@@ -83,45 +81,45 @@ inferredLen Nothing                                       = Undeclared
 inferredLen _                                             = Undeclared
 
 
-parseOptAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
-parseOptAssign lexData = do
-        (tree, lexData') <- parseOptionalAssign lexData
-        lexData''        <- verifyAndConsume SemiColon lexData'
-        pure (tree, lexData'')
+parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
+parseOptAssign tokens = do
+        (tree, tokens') <- parseOptionalAssign tokens
+        tokens''        <- verifyAndConsume (SemiColon dummyLexDat) tokens'
+        pure (tree, tokens'')
 
 
-parseOptionalAssign :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
-parseOptionalAssign lexData@(_:d@LexDat{tok=OpTok _}:_) = parseAssign d lexData
-parseOptionalAssign (ident@LexDat{tok=Ident _}:
-                     LexDat{tok=OpenBracket OpenSqBracket}:
-                     LexDat{tok=ConstInt _}:
-                     LexDat{tok=CloseBracket CloseSqBracket}:
-                     d@LexDat{tok=OpTok _}:rest) = parseAssign d (ident:rest)
-parseOptionalAssign (ident@LexDat{tok=Ident _}:
-                     LexDat{tok=OpenBracket OpenSqBracket}:
-                     LexDat{tok=CloseBracket CloseSqBracket}:
-                     d@LexDat{tok=OpTok _}:rest) = parseAssign d (ident:rest)
-parseOptionalAssign (_:LexDat{tok=OpenBracket OpenSqBracket}:
-                     LexDat{tok=ConstInt _}:
-                     LexDat{tok=CloseBracket CloseSqBracket}:
+parseOptionalAssign :: [Token] -> ParserState (Maybe Tree, [Token])
+parseOptionalAssign tokens@(_:d@(OpTok _ _):_) = parseAssign d tokens
+parseOptionalAssign (ident@(Ident _ _):
+                     OpenBracket OpenSqBracket _:
+                     ConstInt _ _:
+                     CloseBracket CloseSqBracket _:
+                     d@(OpTok _ _):rest) = parseAssign d (ident:rest)
+parseOptionalAssign (ident@(Ident _ _):
+                     OpenBracket OpenSqBracket _:
+                     CloseBracket CloseSqBracket _:
+                     d@(OpTok _ _):rest) = parseAssign d (ident:rest)
+parseOptionalAssign (_:OpenBracket OpenSqBracket _:
+                     ConstInt _ _:
+                     CloseBracket CloseSqBracket _:
                      rest) = pure (Nothing, rest)
-parseOptionalAssign lexData = do
-        lexData' <- consumeTok lexData
-        pure (Nothing, lexData')
+parseOptionalAssign tokens = do
+        tokens' <- consumeTok tokens
+        pure (Nothing, tokens')
 
 
-parseAssign :: LexDat -> [LexDat] -> ParserState (Maybe Tree, [LexDat])
-parseAssign opDat@LexDat{tok=OpTok op} lexData
+parseAssign :: Token -> [Token] -> ParserState (Maybe Tree, [Token])
+parseAssign opDat@(OpTok op _) tokens
         | TokClass.isAssign op = do
-                (tree, lexData') <- parseExpression lexData
-                pure (Just tree, lexData')
+                (tree, tokens') <- parseExpression tokens
+                pure (Just tree, tokens')
         | otherwise = throwError $ SyntaxError (UnexpectedLexDat opDat)
-parseAssign _ lexData = throwError $ ParserError (LexDataError lexData)
+parseAssign _ tokens = throwError $ ParserError (LexDataError tokens)
 
 
-findVarName :: [LexDat] -> ParserState [LexDat]
+findVarName :: [Token] -> ParserState [Token]
 findVarName [] = pure []
-findVarName lexData@(LexDat{tok=Ident _}:_) = pure lexData
-findVarName lexData = do
-        lexData' <- consumeTok lexData
-        findVarName lexData'
+findVarName tokens@(Ident _ _:_) = pure tokens
+findVarName tokens = do
+        tokens' <- consumeTok tokens
+        findVarName tokens'

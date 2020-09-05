@@ -28,17 +28,17 @@ data LexerError = EmptyInput
 
 
 data ParserError = TreeError Tree
-                 | LexDataError [LexDat]
+                 | LexDataError [Token]
                  deriving (Show, Eq)
 
 
-data SyntaxError = NonValidIdentifier LexDat
-                 | MissingToken Token LexDat
-                 | UnexpectedLexDat LexDat
-                 | MissingKeyword Keyword LexDat
+data SyntaxError = NonValidIdentifier Token
+                 | MissingToken Token Token
+                 | UnexpectedLexDat Token
+                 | MissingKeyword Keyword Token
                  | LengthMismatch Tree Int Int
                  | UndeclaredLen Tree
-                 | BadType LexDat
+                 | BadType Token
                  deriving (Show, Eq)
 
 

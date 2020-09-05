@@ -12,145 +12,150 @@ import           Data.Char      (isAlpha, isDigit, isSpace)
 
 import           Lexer.LexState (LexerState, throwError)
 import qualified Lexer.LexState as LexState (addToken, evaluate, getState,
-                                             incLineNum, startState)
+                                             incLineNum, mkLexDat, startState)
 import           Types.Error    (CompilerError (ImpossibleError, LexerError),
                                  LexerError (..))
-import           Types.LexDat   (LexDat)
 import           Types.Tokens
 
 
 -- | Convert a string representing a C program to a list of tokens
-tokenize :: String -> Either CompilerError [LexDat]
-tokenize input = LexState.evaluate lexer input LexState.startState
+tokenize :: String -> Either CompilerError [Token]
+tokenize inputCode = LexState.evaluate lexer inputCode LexState.startState
 
 
-lexer :: String -> LexerState [LexDat]
-lexer []    = throwError (LexerError EmptyInput)
-lexer input = lexInput input
+lexer :: String -> LexerState [Token]
+lexer []        = throwError (LexerError EmptyInput)
+lexer inputCode = lexInput inputCode
 
 
-lexInput :: String -> LexerState [LexDat]
+lexInput :: String -> LexerState [Token]
 lexInput [] = do
         lexOut <- LexState.getState
         pure . reverse $ lexOut
-lexInput input@(c:cs)
+lexInput inputCode@(c:cs)
         | c == '\n' = do
                 LexState.incLineNum
                 lexInput cs
         | isSpace c = lexInput cs
         | otherwise = do
-                (tok, input') <- lexToken input
+                (tok, inputCode') <- lexToken inputCode
                 LexState.addToken tok
-                lexInput input'
+                lexInput inputCode'
 
 
 lexToken :: String -> LexerState (Token, String)
 lexToken [] = throwError ImpossibleError
-lexToken input@(c:_)
-        | isSeparator c = lexSeparator input
-        | isOpSymbol c  = lexOperator input
-        | identStart c  = lexIdentifier input
-        | isDigit c     = lexNumber input
-        | otherwise     = throwError $ LexerError (UnexpectedInput input)
+lexToken inputCode@(c:_)
+        | isSeparator c = lexSeparator inputCode
+        | isOpSymbol c  = lexOperator inputCode
+        | identStart c  = lexIdentifier inputCode
+        | isDigit c     = lexNumber inputCode
+        | otherwise     = throwError $ LexerError (UnexpectedInput inputCode)
 
 
 lexSeparator :: String -> LexerState (Token, String)
 lexSeparator [] = throwError ImpossibleError
-lexSeparator (c:cs) =
+lexSeparator (c:cs) = do
+        dat <- LexState.mkLexDat [c]
         case c of
-             '(' -> pure (OpenBracket OpenParen, cs)
-             '{' -> pure (OpenBracket OpenBrace, cs)
-             '[' -> pure (OpenBracket OpenSqBracket, cs)
-             ')' -> pure (CloseBracket CloseParen, cs)
-             '}' -> pure (CloseBracket CloseBrace, cs)
-             ']' -> pure (CloseBracket CloseSqBracket, cs)
-             ';' -> pure (SemiColon, cs)
-             ':' -> pure (Colon, cs)
-             '?' -> pure (QuestMark, cs)
-             ',' -> pure (Comma, cs)
+             '(' -> pure (OpenBracket OpenParen dat, cs)
+             '{' -> pure (OpenBracket OpenBrace dat, cs)
+             '[' -> pure (OpenBracket OpenSqBracket dat, cs)
+             ')' -> pure (CloseBracket CloseParen dat, cs)
+             '}' -> pure (CloseBracket CloseBrace dat, cs)
+             ']' -> pure (CloseBracket CloseSqBracket dat, cs)
+             ';' -> pure (SemiColon dat, cs)
+             ':' -> pure (Colon dat, cs)
+             '?' -> pure (QuestMark dat, cs)
+             ',' -> pure (Comma dat, cs)
              _   -> throwError $ LexerError (UnexpectedInput [c])
 
 
 lexIdentifier :: String -> LexerState (Token, String)
 lexIdentifier [] = throwError ImpossibleError
-lexIdentifier (c:cs) =
+lexIdentifier (c:cs) = do
         let (str, cs') = span isValidInIdentifier cs
-            in
+        dat <- LexState.mkLexDat (c:str)
         case c:str of
-             "int"      -> pure (Keyword Int, cs')
-             "return"   -> pure (Keyword Return, cs')
-             "if"       -> pure (Keyword If, cs')
-             "else"     -> pure (Keyword Else, cs')
-             "for"      -> pure (Keyword For, cs')
-             "while"    -> pure (Keyword While, cs')
-             "do"       -> pure (Keyword Do, cs')
-             "break"    -> pure (Keyword Break, cs')
-             "continue" -> pure (Keyword Continue, cs')
-             _          -> pure (Ident (c:str), cs')
+             "int"      -> pure (Keyword Int dat, cs')
+             "return"   -> pure (Keyword Return dat, cs')
+             "if"       -> pure (Keyword If dat, cs')
+             "else"     -> pure (Keyword Else dat, cs')
+             "for"      -> pure (Keyword For dat, cs')
+             "while"    -> pure (Keyword While dat, cs')
+             "do"       -> pure (Keyword Do dat, cs')
+             "break"    -> pure (Keyword Break dat, cs')
+             "continue" -> pure (Keyword Continue dat, cs')
+             _          -> pure (Ident (c:str) dat, cs')
 
 
 lexNumber :: String -> LexerState (Token, String)
 lexNumber [] = throwError ImpossibleError
 lexNumber (c:cs) = do
         let (digs, cs') = span isDigit cs
-        pure (ConstInt $ read (c:digs), cs')
+            digits      = c:digs
+        dat <- LexState.mkLexDat digits
+        pure (ConstInt (read digits) dat, cs')
 
 
 lexOperator :: String -> LexerState (Token, String)
 lexOperator []    = throwError ImpossibleError
 lexOperator [a]   = oneCharOperator [a]
 lexOperator [a,b] = twoCharOperator [a,b]
-lexOperator input@(c:n:m:cs) =
+lexOperator inputCode@(c:n:m:cs) = do
+        dat <- LexState.mkLexDat (c:n:[m])
         case c:n:[m] of
-             "<<=" -> pure (OpTok DoubleLArrowEqual, cs)
-             ">>=" -> pure (OpTok DoubleRArrowEqual, cs)
-             _     -> twoCharOperator input
+             "<<=" -> pure (OpTok DoubleLArrowEqual dat, cs)
+             ">>=" -> pure (OpTok DoubleRArrowEqual dat, cs)
+             _     -> twoCharOperator inputCode
 
 
 twoCharOperator :: String -> LexerState (Token, String)
 twoCharOperator []  = throwError ImpossibleError
 twoCharOperator [a] = oneCharOperator [a]
-twoCharOperator input@(c:n:cs) =
+twoCharOperator inputCode@(c:n:cs) = do
+        dat <- LexState.mkLexDat (c:[n])
         case c:[n] of
-             "||" -> pure (OpTok PipePipe, cs)
-             "&&" -> pure (OpTok AmpAmp, cs)
-             ">=" -> pure (OpTok RightArrowEqual, cs)
-             "<=" -> pure (OpTok LeftArrowEqual, cs)
-             "==" -> pure (OpTok EqualEqual, cs)
-             "!=" -> pure (OpTok BangEqual, cs)
-             "+=" -> pure (OpTok PlusEqual, cs)
-             "-=" -> pure (OpTok MinusEqual, cs)
-             "*=" -> pure (OpTok AsteriskEqual, cs)
-             "/=" -> pure (OpTok BackslashEqual, cs)
-             "%=" -> pure (OpTok PercentEqual, cs)
-             "++" -> pure (OpTok PlusPlus, cs)
-             "--" -> pure (OpTok MinusMinus, cs)
-             "&=" -> pure (OpTok AmpEqual, cs)
-             "^=" -> pure (OpTok CaretEqual, cs)
-             "|=" -> pure (OpTok PipeEqual, cs)
-             "<<" -> pure (OpTok DoubleLeftArrow, cs)
-             ">>" -> pure (OpTok DoubleRightArrow, cs)
-             _    -> oneCharOperator input
+             "||" -> pure (OpTok PipePipe dat, cs)
+             "&&" -> pure (OpTok AmpAmp dat, cs)
+             ">=" -> pure (OpTok RightArrowEqual dat, cs)
+             "<=" -> pure (OpTok LeftArrowEqual dat, cs)
+             "==" -> pure (OpTok EqualEqual dat, cs)
+             "!=" -> pure (OpTok BangEqual dat, cs)
+             "+=" -> pure (OpTok PlusEqual dat, cs)
+             "-=" -> pure (OpTok MinusEqual dat, cs)
+             "*=" -> pure (OpTok AsteriskEqual dat, cs)
+             "/=" -> pure (OpTok BackslashEqual dat, cs)
+             "%=" -> pure (OpTok PercentEqual dat, cs)
+             "++" -> pure (OpTok PlusPlus dat, cs)
+             "--" -> pure (OpTok MinusMinus dat, cs)
+             "&=" -> pure (OpTok AmpEqual dat, cs)
+             "^=" -> pure (OpTok CaretEqual dat, cs)
+             "|=" -> pure (OpTok PipeEqual dat, cs)
+             "<<" -> pure (OpTok DoubleLeftArrow dat, cs)
+             ">>" -> pure (OpTok DoubleRightArrow dat, cs)
+             _    -> oneCharOperator inputCode
 
 
 oneCharOperator :: String -> LexerState (Token, String)
 oneCharOperator [] = throwError ImpossibleError
-oneCharOperator input@(c:cs) =
+oneCharOperator inputCode@(c:cs) = do
+        dat <- LexState.mkLexDat [c]
         case c of
-             '+' -> pure (OpTok PlusSign, cs)
-             '-' -> pure (OpTok MinusSign, cs)
-             '*' -> pure (OpTok Asterisk, cs)
-             '%' -> pure (OpTok Percent, cs)
-             '/' -> pure (OpTok Backslash, cs)
-             '~' -> pure (OpTok Tilde, cs)
-             '!' -> pure (OpTok Bang, cs)
-             '>' -> pure (OpTok RightArrow, cs)
-             '<' -> pure (OpTok LeftArrow, cs)
-             '=' -> pure (OpTok EqualSign, cs)
-             '&' -> pure (OpTok Ampersand, cs)
-             '^' -> pure (OpTok Caret, cs)
-             '|' -> pure (OpTok Pipe, cs)
-             _   -> throwError $ LexerError (UnexpectedInput input)
+             '+' -> pure (OpTok PlusSign dat, cs)
+             '-' -> pure (OpTok MinusSign dat, cs)
+             '*' -> pure (OpTok Asterisk dat, cs)
+             '%' -> pure (OpTok Percent dat, cs)
+             '/' -> pure (OpTok Backslash dat, cs)
+             '~' -> pure (OpTok Tilde dat, cs)
+             '!' -> pure (OpTok Bang dat, cs)
+             '>' -> pure (OpTok RightArrow dat, cs)
+             '<' -> pure (OpTok LeftArrow dat, cs)
+             '=' -> pure (OpTok EqualSign dat, cs)
+             '&' -> pure (OpTok Ampersand dat, cs)
+             '^' -> pure (OpTok Caret dat, cs)
+             '|' -> pure (OpTok Pipe dat, cs)
+             _   -> throwError $ LexerError (UnexpectedInput inputCode)
 
 
 isSeparator :: Char -> Bool

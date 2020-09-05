@@ -17,76 +17,75 @@ import Parser.TokToNodeData    (makeNodeDat)
 import Types.AST               (Tree (..))
 import Types.Error             (CompilerError (ParserError, SyntaxError),
                                 ParserError (..), SyntaxError (..))
-import Types.LexDat            (LexDat (..))
 import Types.Tokens
 
 
 -- | Parse tokens for a function into an AST
-parseFunction :: [LexDat] -> ParserState (Tree, [LexDat])
-parseFunction lexData = do
-        nodeDat            <- makeNodeDat lexData
-        typ                <- parseType lexData
-        name               <- parseFuncName lexData
-        (params, lexData') <- parseFuncParams lexData
-        (items, lexData'') <- parseFuncBody lexData'
-        pure (FunctionNode typ name params items nodeDat, lexData'')
+parseFunction :: [Token] -> ParserState (Tree, [Token])
+parseFunction tokens = do
+        nodeDat           <- makeNodeDat tokens
+        typ               <- parseType tokens
+        name              <- parseFuncName tokens
+        (params, tokens') <- parseFuncParams tokens
+        (items, tokens'') <- parseFuncBody tokens'
+        pure (FunctionNode typ name params items nodeDat, tokens'')
 
 
-parseFuncName :: [LexDat] -> ParserState String
-parseFuncName (_:LexDat{tok=Ident name}:_)   = pure name
-parseFuncName (_:_:LexDat{tok=Ident name}:_) = pure name
+parseFuncName :: [Token] -> ParserState String
+parseFuncName (_:Ident name _:_)   = pure name
+parseFuncName (_:_:Ident name _:_) = pure name
 parseFuncName (d:_) = throwError $ SyntaxError (NonValidIdentifier d)
 parseFuncName [] = throwError $ ParserError (LexDataError [])
 
 
-parseFuncParams :: [LexDat] -> ParserState ([Tree], [LexDat])
-parseFuncParams lexData@(_:LexDat{tok=OpTok Asterisk}:_:LexDat{tok=OpenBracket OpenParen}:_) = do
-        lexData' <- consumeNToks 3 lexData
-        parseAllParams lexData'
-parseFuncParams lexData@(_:LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenParen}:_) = do
-        lexData' <- consumeNToks 2 lexData
-        parseAllParams lexData'
-parseFuncParams lexData = throwError $ ParserError (LexDataError lexData)
+parseFuncParams :: [Token] -> ParserState ([Tree], [Token])
+parseFuncParams tokens@(_:OpTok Asterisk _:_:OpenBracket OpenParen _:_) = do
+        tokens' <- consumeNToks 3 tokens
+        parseAllParams tokens'
+parseFuncParams tokens@(_:Ident _ _:OpenBracket OpenParen _:_) = do
+        tokens' <- consumeNToks 2 tokens
+        parseAllParams tokens'
+parseFuncParams tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseAllParams :: [LexDat] -> ParserState ([Tree], [LexDat])
-parseAllParams lexData = do
-        (params, lexData') <- parseParams [] lexData
-        lexData''          <- verifyAndConsume (CloseBracket CloseParen) lexData'
-        pure (params, lexData'')
+parseAllParams :: [Token] -> ParserState ([Tree], [Token])
+parseAllParams tokens = do
+        (params, tokens') <- parseParams [] tokens
+        tokens''          <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens') tokens'
+        pure (params, tokens'')
 
 
-parseParams :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
-parseParams prms lexData = parseBracketedSeq prms lexData parseTheParams
+parseParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseParams prms tokens = parseBracketedSeq prms tokens parseTheParams
 
 
-parseTheParams :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
-parseTheParams prms lexData@(LexDat{tok=Keyword _}:_) = do
-        (tree, lexData') <- parseParam lexData
-        parseParams (tree:prms) lexData'
-parseTheParams _ lexData = throwError $ ParserError (LexDataError lexData)
+parseTheParams :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseTheParams prms tokens@(Keyword _ _:_) = do
+        (tree, tokens') <- parseParam tokens
+        parseParams (tree:prms) tokens'
+parseTheParams _ tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseParam :: [LexDat] -> ParserState (Tree, [LexDat])
-parseParam lexData = do
-        nodeDat           <- makeNodeDat lexData
-        typ               <- parseType lexData
-        lexData'          <- consumeTok lexData
-        (tree, lexData'') <- parseParamValue lexData'
+parseParam :: [Token] -> ParserState (Tree, [Token])
+parseParam tokens = do
+        nodeDat          <- makeNodeDat tokens
+        typ              <- parseType tokens
+        tokens'          <- consumeTok tokens
+        (tree, tokens'') <- parseParamValue tokens'
         case tree of
-             VarNode{} -> pure (ParamNode typ tree nodeDat, lexData'')
+             VarNode{} -> pure (ParamNode typ tree nodeDat, tokens'')
              _         -> throwError $ ParserError (TreeError tree)
 
 
-parseParamValue :: [LexDat] -> ParserState (Tree, [LexDat])
-parseParamValue (LexDat{tok=OpTok Asterisk}:rest) = parseExpression rest
-parseParamValue lexData@(LexDat{tok=Ident _}:_)   = parseExpression lexData
-parseParamValue lexData = throwError $ ParserError (LexDataError lexData)
+parseParamValue :: [Token] -> ParserState (Tree, [Token])
+parseParamValue (OpTok Asterisk _:rest) = parseExpression rest
+parseParamValue tokens@(Ident _ _:_)    = parseExpression tokens
+parseParamValue tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseFuncBody :: [LexDat] -> ParserState (Maybe Tree, [LexDat])
-parseFuncBody (LexDat{tok=SemiColon}:rest) = pure (Nothing, rest)
-parseFuncBody body@(LexDat{tok=OpenBracket OpenBrace}:_) = do
-        (tree, lexData') <- parseStatement body
-        pure (Just tree, lexData')
-parseFuncBody lexData = throwError $ ParserError (LexDataError lexData)
+parseFuncBody :: [Token] -> ParserState (Maybe Tree, [Token])
+parseFuncBody (SemiColon _:rest) = pure (Nothing, rest)
+parseFuncBody body@(OpenBracket OpenBrace _:_) = do
+        (tree, tokens') <- parseStatement body
+        pure (Just tree, tokens')
+parseFuncBody tokens = throwError $ ParserError (LexDataError tokens)

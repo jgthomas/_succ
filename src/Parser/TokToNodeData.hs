@@ -10,13 +10,14 @@ module Parser.TokToNodeData (makeNodeDat) where
 import Parser.ParState (ParserState, throwError)
 import Types.AST       (NodeDat (NodeDat))
 import Types.Error     (CompilerError (ParserError), ParserError (..))
-import Types.LexDat    (LexDat (line))
+--import Types.LexDat    (LexDat (line))
+import Types.Tokens
 
 
 -- | Make metadata for node in an AST
-makeNodeDat :: [LexDat] -> ParserState NodeDat
-makeNodeDat []    = throwError $ ParserError (LexDataError [])
-makeNodeDat (d:_) = pure . lexDatToNodeDat $ d
+makeNodeDat :: [Token] -> ParserState NodeDat
+makeNodeDat []        = throwError $ ParserError (LexDataError [])
+makeNodeDat (token:_) = pure . lexDatToNodeDat . tokenData $ token
 
 
 lexDatToNodeDat :: LexDat -> NodeDat

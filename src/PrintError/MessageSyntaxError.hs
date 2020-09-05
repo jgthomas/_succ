@@ -2,44 +2,53 @@
 module PrintError.MessageSyntaxError (syntaxErrorMsg) where
 
 
-import PrintError.PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
-import Types.Error                 (SyntaxError (..))
-import Types.LexDat                (LexDat (..))
+import           PrintError.PrintErrorTokens (PrintRange (..))
+import qualified PrintError.PrintErrorTokens as PrintErrorTokens (buildLineMsg,
+                                                                  buildTokMsg)
+import           Types.Error                 (SyntaxError (..))
+import           Types.Tokens
 
 
 syntaxErrorMsg :: SyntaxError -> (String, PrintRange)
 
-syntaxErrorMsg (MissingToken t d) = (msg, mkRange d)
-        where msg = unexpectedLexDatMsg d
+syntaxErrorMsg (MissingToken t1 t2) = (msg, mkRange t2)
+        where msg = unexpectedLexDatMsg t2
                     ++ ", Expected "
-                    ++ buildTokMsg t
+                    ++ PrintErrorTokens.buildTokMsg t1
 
 syntaxErrorMsg (BadType d) = (msg, mkRange d)
-        where msg = buildLineMsg (line d)
+        where msg = buildLineMsg d
                     ++ "Invalid type "
-                    ++ buildTokMsg (tok d)
+                    ++ PrintErrorTokens.buildTokMsg d
 
 syntaxErrorMsg (UnexpectedLexDat d) = (msg, mkRange d)
         where msg = unexpectedLexDatMsg d
 
 syntaxErrorMsg (NonValidIdentifier d) = (msg, mkRange d)
-        where msg = buildLineMsg (line d)
+        where msg = buildLineMsg d
                     ++ "Invalid identifier "
-                    ++ buildTokMsg (tok d)
+                    ++ PrintErrorTokens.buildTokMsg d
 
 syntaxErrorMsg (MissingKeyword kwd d) = (msg, mkRange d)
-        where msg = buildLineMsg (line d)
+        where msg = buildLineMsg d
                     ++ "Expected keyword " ++ show kwd
 
 syntaxErrorMsg err = (show err, All)
 
 
-mkRange :: LexDat -> PrintRange
-mkRange d = Range (pred . line $ d) (succ . line $ d)
+mkRange :: Token -> PrintRange
+mkRange token =
+        let dat = tokenData token
+            in
+        Range (pred . line $ dat) (succ . line $ dat)
 
 
-unexpectedLexDatMsg :: LexDat -> String
-unexpectedLexDatMsg d =
-        buildLineMsg (line d)
+buildLineMsg :: Token -> String
+buildLineMsg token = PrintErrorTokens.buildLineMsg . line . tokenData $ token
+
+
+unexpectedLexDatMsg :: Token -> String
+unexpectedLexDatMsg token =
+        buildLineMsg token
         ++ "Unexpected token "
-        ++ buildTokMsg (tok d)
+        ++ PrintErrorTokens.buildTokMsg token

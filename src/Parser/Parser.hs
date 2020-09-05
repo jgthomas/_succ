@@ -16,35 +16,34 @@ import qualified Parser.ParState          as ParState (evaluate, getState,
 import           Types.AST                (Tree (..))
 import           Types.Error              (CompilerError (ParserError, SyntaxError),
                                            ParserError (..), SyntaxError (..))
-import           Types.LexDat             (LexDat (..))
 import           Types.Tokens             (OpTok (..), OpenBracket (..),
                                            Token (..))
 
 
 -- | Convert a list of tokens into an AST
-parse :: [LexDat] -> Either CompilerError Tree
-parse lexData = ParState.evaluate parseTokens lexData ParState.startState
+parse :: [Token] -> Either CompilerError Tree
+parse tokens = ParState.evaluate parseTokens tokens ParState.startState
 
 
-parseTokens :: [LexDat] -> ParserState Tree
-parseTokens []      = throwError $ ParserError (LexDataError [])
-parseTokens lexData = parseTopLevelItems lexData
+parseTokens :: [Token] -> ParserState Tree
+parseTokens []     = throwError $ ParserError (LexDataError [])
+parseTokens tokens = parseTopLevelItems tokens
 
 
-parseTopLevelItems :: [LexDat] -> ParserState Tree
+parseTopLevelItems :: [Token] -> ParserState Tree
 parseTopLevelItems [] = ProgramNode . reverse <$> ParState.getState
-parseTopLevelItems lexData@(LexDat{tok=Keyword _}:_) = do
-        items            <- ParState.getState
-        (item, lexData') <- parseTopLevelItem lexData
+parseTopLevelItems tokens@(Keyword _ _:_) = do
+        items           <- ParState.getState
+        (item, tokens') <- parseTopLevelItem tokens
         ParState.putState $ ProgramNode (item:items)
-        parseTopLevelItems lexData'
-parseTopLevelItems lexData = throwError $ ParserError (LexDataError lexData)
+        parseTopLevelItems tokens'
+parseTopLevelItems tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseTopLevelItem :: [LexDat] -> ParserState (Tree, [LexDat])
-parseTopLevelItem lexData@(_:_:_:LexDat{tok=OpenBracket OpenParen}:_) = parseFunction lexData
-parseTopLevelItem lexData@(_:_:LexDat{tok=OpenBracket OpenParen}:_)   = parseFunction lexData
-parseTopLevelItem lexData@(_:LexDat{tok=Ident _}:_)                   = parseDeclaration lexData
-parseTopLevelItem lexData@(_:LexDat{tok=OpTok Asterisk}:_)            = parseDeclaration lexData
+parseTopLevelItem :: [Token] -> ParserState (Tree, [Token])
+parseTopLevelItem tokens@(_:_:_:OpenBracket OpenParen _:_) = parseFunction tokens
+parseTopLevelItem tokens@(_:_:OpenBracket OpenParen _:_)   = parseFunction tokens
+parseTopLevelItem tokens@(_:Ident _ _:_)                   = parseDeclaration tokens
+parseTopLevelItem tokens@(_:OpTok Asterisk _:_)            = parseDeclaration tokens
 parseTopLevelItem (_:b:_) = throwError $ SyntaxError (NonValidIdentifier b)
-parseTopLevelItem lexData = throwError $ ParserError (LexDataError lexData)
+parseTopLevelItem tokens = throwError $ ParserError (LexDataError tokens)

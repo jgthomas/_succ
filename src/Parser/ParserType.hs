@@ -10,34 +10,34 @@ module Parser.ParserType (parseType) where
 import Parser.ParState (ParserState, throwError)
 import Types.Error     (CompilerError (ParserError, SyntaxError),
                         ParserError (..), SyntaxError (..))
-import Types.LexDat    (LexDat (..))
+--import Types.LexDat    (LexDat (..))
 import Types.Tokens
 import Types.Type      (Type (..))
 
 
 -- | Determines the type of a function or variable
-parseType :: [LexDat] -> ParserState Type
-parseType (LexDat{tok=Keyword Int}:rest) = parseIntType rest
+parseType :: [Token] -> ParserState Type
+parseType (Keyword Int _:rest) = parseIntType rest
 parseType (a:_)   = throwError $ SyntaxError (BadType a)
-parseType lexData = throwError $ ParserError (LexDataError lexData)
+parseType tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseIntType :: [LexDat] -> ParserState Type
-parseIntType lexData
-        | isIntPointer lexData = pure IntPointer
-        | isIntArray lexData   = pure IntArray
-        | otherwise            = pure IntVar
+parseIntType :: [Token] -> ParserState Type
+parseIntType tokens
+        | isIntPointer tokens = pure IntPointer
+        | isIntArray tokens   = pure IntArray
+        | otherwise           = pure IntVar
 
 
-isIntArray :: [LexDat] -> Bool
-isIntArray (_:LexDat{tok=OpenBracket OpenSqBracket}:
-              LexDat{tok=CloseBracket CloseSqBracket}:_) = True
-isIntArray (_:LexDat{tok=OpenBracket OpenSqBracket}:
-              LexDat{tok=ConstInt _}:
-              LexDat{tok=CloseBracket CloseSqBracket}:_) = True
-isIntArray _                                             = False
+isIntArray :: [Token] -> Bool
+isIntArray (_:OpenBracket OpenSqBracket _:
+              CloseBracket CloseSqBracket _:_) = True
+isIntArray (_:OpenBracket OpenSqBracket _:
+              ConstInt _ _:
+              CloseBracket CloseSqBracket _:_) = True
+isIntArray _                                   = False
 
 
-isIntPointer :: [LexDat] -> Bool
-isIntPointer (LexDat{tok=OpTok Asterisk}:_) = True
-isIntPointer _                              = False
+isIntPointer :: [Token] -> Bool
+isIntPointer (OpTok Asterisk _:_) = True
+isIntPointer _                    = False

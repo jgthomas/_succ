@@ -17,285 +17,284 @@ import           Parser.TokToNodeData  (makeNodeDat)
 import           Types.AST             (ArrayNode (..), Tree (..))
 import           Types.Error           (CompilerError (ImpossibleError, ParserError, SyntaxError),
                                         ParserError (..), SyntaxError (..))
-import           Types.LexDat          (LexDat (..))
 import           Types.Tokens
 
 
 -- | Parse tokens for an expression into an AST
-parseExpression :: [LexDat] -> ParserState (Tree, [LexDat])
-parseExpression lexData = do
-        (tree, lexData') <- parseTernaryExp lexData
-        case lexData' of
-             (d@LexDat{tok=OpTok op}:rest)
-                | TokClass.isAssign op  -> parseAssignment tree lexData'
+parseExpression :: [Token] -> ParserState (Tree, [Token])
+parseExpression tokens = do
+        (tree, tokens') <- parseTernaryExp tokens
+        case tokens' of
+             (d@(OpTok op _):rest)
+                | TokClass.isAssign op  -> parseAssignment tree tokens'
                 | TokClass.isPostPos op -> do
-                        dat <- makeNodeDat lexData'
+                        dat <- makeNodeDat tokens'
                         let unOp = TokConvert.tokToPostUnaryOp op
                         pure (UnaryNode tree unOp dat, rest)
                 | otherwise ->
                         throwError $ SyntaxError (UnexpectedLexDat d)
-             _ -> pure (tree, lexData')
+             _ -> pure (tree, tokens')
 
 
-parseAssignment :: Tree -> [LexDat] -> ParserState (Tree, [LexDat])
-parseAssignment tree (LexDat{tok=OpTok op}:rest) = do
-                   (asgn, lexData') <- parseExpression rest
+parseAssignment :: Tree -> [Token] -> ParserState (Tree, [Token])
+parseAssignment tree (OpTok op _:rest) = do
+                   (asgn, tokens') <- parseExpression rest
                    let asgnOp = TokConvert.tokToAssignOp op
-                   dat <- makeNodeDat lexData'
+                   dat <- makeNodeDat tokens'
                    case tree of
                      arrPosNode@(ArrayNode ArrayItemAssign{}) ->
-                             pure (ArrayNode (ArrayAssignPosNode arrPosNode asgn asgnOp dat), lexData')
+                             pure (ArrayNode (ArrayAssignPosNode arrPosNode asgn asgnOp dat), tokens')
                      varNode@VarNode{} ->
-                             pure (AssignmentNode varNode asgn asgnOp dat, lexData')
+                             pure (AssignmentNode varNode asgn asgnOp dat, tokens')
                      derefNode@DereferenceNode{} ->
-                             pure (AssignDereferenceNode derefNode asgn asgnOp dat, lexData')
+                             pure (AssignDereferenceNode derefNode asgn asgnOp dat, tokens')
                      _ -> throwError $ ParserError (TreeError tree)
-parseAssignment _ lexData = throwError $ ParserError (LexDataError lexData)
+parseAssignment _ tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseTernaryExp :: [LexDat] -> ParserState (Tree, [LexDat])
-parseTernaryExp lexData = do
-        dat              <- makeNodeDat lexData
-        (cond, lexData') <- parseLogicalOrExp lexData
-        case lexData' of
-             (LexDat{tok=QuestMark}:rest) -> do
-                     (expr1, lexData'')   <- parseExpression rest
-                     lexData'''           <- verifyAndConsume Colon lexData''
-                     (expr2, lexData'''') <- parseTernaryExp lexData'''
-                     pure (TernaryNode cond expr1 expr2 dat, lexData'''')
-             _ -> pure (cond, lexData')
+parseTernaryExp :: [Token] -> ParserState (Tree, [Token])
+parseTernaryExp tokens = do
+        dat             <- makeNodeDat tokens
+        (cond, tokens') <- parseLogicalOrExp tokens
+        case tokens' of
+             (QuestMark _:rest) -> do
+                     (expr1, tokens'')   <- parseExpression rest
+                     tokens'''           <- verifyAndConsume (Colon dummyLexDat) tokens''
+                     (expr2, tokens'''') <- parseTernaryExp tokens'''
+                     pure (TernaryNode cond expr1 expr2 dat, tokens'''')
+             _ -> pure (cond, tokens')
 
 
-parseLogicalOrExp :: [LexDat] -> ParserState (Tree, [LexDat])
-parseLogicalOrExp lexData = do
-        (orTree, lexData') <- parseLogicalAndExp lexData
-        parseBinaryExp orTree lexData' parseLogicalAndExp (TokClass.kind LogicalOR)
+parseLogicalOrExp :: [Token] -> ParserState (Tree, [Token])
+parseLogicalOrExp tokens = do
+        (orTree, tokens') <- parseLogicalAndExp tokens
+        parseBinaryExp orTree tokens' parseLogicalAndExp (TokClass.kind LogicalOR)
 
 
-parseLogicalAndExp :: [LexDat] -> ParserState (Tree, [LexDat])
-parseLogicalAndExp lexData = do
-        (andTree, lexData') <- parseBitwiseOR lexData
-        parseBinaryExp andTree lexData' parseBitwiseOR (TokClass.kind LogicalAND)
+parseLogicalAndExp :: [Token] -> ParserState (Tree, [Token])
+parseLogicalAndExp tokens = do
+        (andTree, tokens') <- parseBitwiseOR tokens
+        parseBinaryExp andTree tokens' parseBitwiseOR (TokClass.kind LogicalAND)
 
 
-parseBitwiseOR :: [LexDat] -> ParserState (Tree, [LexDat])
-parseBitwiseOR lexData = do
-        (orTree, lexData') <- parseBitwiseXOR lexData
-        parseBinaryExp orTree lexData' parseBitwiseXOR (TokClass.kind BitwiseOR)
+parseBitwiseOR :: [Token] -> ParserState (Tree, [Token])
+parseBitwiseOR tokens = do
+        (orTree, tokens') <- parseBitwiseXOR tokens
+        parseBinaryExp orTree tokens' parseBitwiseXOR (TokClass.kind BitwiseOR)
 
 
-parseBitwiseXOR :: [LexDat] -> ParserState (Tree, [LexDat])
-parseBitwiseXOR lexData = do
-        (xorTree, lexData') <- parseBitwiseAND lexData
-        parseBinaryExp xorTree lexData' parseBitwiseAND (TokClass.kind BitwiseXOR)
+parseBitwiseXOR :: [Token] -> ParserState (Tree, [Token])
+parseBitwiseXOR tokens = do
+        (xorTree, tokens') <- parseBitwiseAND tokens
+        parseBinaryExp xorTree tokens' parseBitwiseAND (TokClass.kind BitwiseXOR)
 
 
-parseBitwiseAND :: [LexDat] -> ParserState (Tree, [LexDat])
-parseBitwiseAND lexData = do
-        (andTree, lexData') <- parseEqualityExp lexData
-        parseBinaryExp andTree lexData' parseEqualityExp (TokClass.kind BitwiseAND)
+parseBitwiseAND :: [Token] -> ParserState (Tree, [Token])
+parseBitwiseAND tokens = do
+        (andTree, tokens') <- parseEqualityExp tokens
+        parseBinaryExp andTree tokens' parseEqualityExp (TokClass.kind BitwiseAND)
 
 
-parseEqualityExp :: [LexDat] -> ParserState (Tree, [LexDat])
-parseEqualityExp lexData = do
-        (equTree, lexData') <- parseRelationalExp lexData
-        parseBinaryExp equTree lexData' parseRelationalExp (TokClass.kind Equality)
+parseEqualityExp :: [Token] -> ParserState (Tree, [Token])
+parseEqualityExp tokens = do
+        (equTree, tokens') <- parseRelationalExp tokens
+        parseBinaryExp equTree tokens' parseRelationalExp (TokClass.kind Equality)
 
 
-parseRelationalExp :: [LexDat] -> ParserState (Tree, [LexDat])
-parseRelationalExp lexData = do
-        (relaTree, lexData') <- parseBitShiftExp lexData
-        parseBinaryExp relaTree lexData' parseBitShiftExp (TokClass.kind Relational)
+parseRelationalExp :: [Token] -> ParserState (Tree, [Token])
+parseRelationalExp tokens = do
+        (relaTree, tokens') <- parseBitShiftExp tokens
+        parseBinaryExp relaTree tokens' parseBitShiftExp (TokClass.kind Relational)
 
 
-parseBitShiftExp :: [LexDat] -> ParserState (Tree, [LexDat])
-parseBitShiftExp lexData = do
-        (shiftTree, lexData') <- parseAdditiveExp lexData
-        parseBinaryExp shiftTree lexData' parseAdditiveExp (TokClass.kind Shift)
+parseBitShiftExp :: [Token] -> ParserState (Tree, [Token])
+parseBitShiftExp tokens = do
+        (shiftTree, tokens') <- parseAdditiveExp tokens
+        parseBinaryExp shiftTree tokens' parseAdditiveExp (TokClass.kind Shift)
 
 
-parseAdditiveExp :: [LexDat] -> ParserState (Tree, [LexDat])
-parseAdditiveExp lexData = do
-        (termTree, lexData') <- parseTerm lexData
-        parseBinaryExp termTree lexData' parseTerm (TokClass.kind Term)
+parseAdditiveExp :: [Token] -> ParserState (Tree, [Token])
+parseAdditiveExp tokens = do
+        (termTree, tokens') <- parseTerm tokens
+        parseBinaryExp termTree tokens' parseTerm (TokClass.kind Term)
 
 
-parseTerm :: [LexDat] -> ParserState (Tree, [LexDat])
-parseTerm lexData = do
-        (facTree, lexData') <- parseFactor lexData
-        parseBinaryExp facTree lexData' parseFactor (TokClass.kind Factor)
+parseTerm :: [Token] -> ParserState (Tree, [Token])
+parseTerm tokens = do
+        (facTree, tokens') <- parseFactor tokens
+        parseBinaryExp facTree tokens' parseFactor (TokClass.kind Factor)
 
 
-parseFactor :: [LexDat] -> ParserState (Tree, [LexDat])
+parseFactor :: [Token] -> ParserState (Tree, [Token])
 parseFactor [] = throwError $ ParserError (LexDataError [])
-parseFactor lexData@(next:rest) =
+parseFactor tokens@(next:rest) =
         case next of
-             LexDat{tok=SemiColon}             -> parseNullExpression lexData
-             LexDat{tok=ConstInt _}            -> parseConstant lexData
-             LexDat{tok=OpTok Ampersand}       -> parseAddressOf lexData
-             LexDat{tok=OpTok Asterisk}        -> parseDereference lexData
-             LexDat{tok=OpTok MinusSign}       -> parseUnary lexData
-             LexDat{tok=OpTok Tilde}           -> parseUnary lexData
-             LexDat{tok=OpTok Bang}            -> parseUnary lexData
-             LexDat{tok=OpTok PlusPlus}        -> parseUnary lexData
-             LexDat{tok=OpTok MinusMinus}      -> parseUnary lexData
-             LexDat{tok=OpTok PlusSign}        -> parseUnary lexData
-             LexDat{tok=OpenBracket OpenParen} -> parseParenExp rest
-             LexDat{tok=Ident _}               -> parseIdent lexData
-             _ -> throwError $ ParserError (LexDataError lexData)
+             SemiColon _             -> parseNullExpression tokens
+             ConstInt _ _            -> parseConstant tokens
+             OpTok Ampersand _       -> parseAddressOf tokens
+             OpTok Asterisk _        -> parseDereference tokens
+             OpTok MinusSign _       -> parseUnary tokens
+             OpTok Tilde _           -> parseUnary tokens
+             OpTok Bang _            -> parseUnary tokens
+             OpTok PlusPlus _        -> parseUnary tokens
+             OpTok MinusMinus _      -> parseUnary tokens
+             OpTok PlusSign _        -> parseUnary tokens
+             OpenBracket OpenParen _ -> parseParenExp rest
+             Ident _ _               -> parseIdent tokens
+             _ -> throwError $ ParserError (LexDataError tokens)
 
 
-parseIdent :: [LexDat] -> ParserState (Tree, [LexDat])
-parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenParen}:_) =
-        parseFuncCall lexData
-parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenBrace}:_) =
-        parseArrayItems lexData
-parseIdent lexData@(LexDat{tok=Ident _}:LexDat{tok=OpenBracket OpenSqBracket}:_) =
-        parseArrayIndex lexData
-parseIdent lexData@(LexDat{tok=Ident a}:rest) = do
-        dat <- makeNodeDat lexData
+parseIdent :: [Token] -> ParserState (Tree, [Token])
+parseIdent tokens@(Ident _ _:OpenBracket OpenParen _:_) =
+        parseFuncCall tokens
+parseIdent tokens@(Ident _ _:OpenBracket OpenBrace _:_) =
+        parseArrayItems tokens
+parseIdent tokens@(Ident _ _:OpenBracket OpenSqBracket _:_) =
+        parseArrayIndex tokens
+parseIdent tokens@(Ident a _:rest) = do
+        dat <- makeNodeDat tokens
         pure (VarNode a dat, rest)
 parseIdent (a:_) = throwError $ SyntaxError (UnexpectedLexDat a)
-parseIdent lexData  = throwError $ ParserError (LexDataError lexData)
+parseIdent tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseArrayItems :: [LexDat] -> ParserState (Tree, [LexDat])
-parseArrayItems lexData@(LexDat{tok=Ident name}:LexDat{tok=OpenBracket OpenBrace}:_) = do
-        varDat             <- makeNodeDat lexData
-        lexData'           <- consumeTok lexData
-        dat                <- makeNodeDat lexData'
-        (items, lexData'') <- parseItems [] lexData'
-        lexData'''         <- verifyAndConsume (CloseBracket CloseBrace) lexData''
-        pure (ArrayNode (ArrayItemsNode (VarNode name varDat) items dat), lexData''')
-parseArrayItems lexData = throwError $ ParserError (LexDataError lexData)
+parseArrayItems :: [Token] -> ParserState (Tree, [Token])
+parseArrayItems tokens@(Ident name _:OpenBracket OpenBrace _:_) = do
+        varDat            <- makeNodeDat tokens
+        tokens'           <- consumeTok tokens
+        dat               <- makeNodeDat tokens'
+        (items, tokens'') <- parseItems [] tokens'
+        tokens'''         <- verifyAndConsume (CloseBracket CloseBrace dummyLexDat) tokens''
+        pure (ArrayNode (ArrayItemsNode (VarNode name varDat) items dat), tokens''')
+parseArrayItems tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseItems :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
-parseItems items lexData = parseBracketedSeq items lexData parseTheItems
+parseItems :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseItems items tokens = parseBracketedSeq items tokens parseTheItems
 
 
-parseTheItems :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
-parseTheItems items lexData = do
-        (item, lexData') <- parseItem lexData
-        parseItems (item:items) lexData'
+parseTheItems :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseTheItems items tokens = do
+        (item, tokens') <- parseItem tokens
+        parseItems (item:items) tokens'
 
 
-parseItem :: [LexDat] -> ParserState (Tree, [LexDat])
-parseItem lexData = do
-        dat              <- makeNodeDat lexData
-        (item, lexData') <- parseExpression lexData
-        pure (ArrayNode (ArraySingleItemNode item dat), lexData')
+parseItem :: [Token] -> ParserState (Tree, [Token])
+parseItem tokens = do
+        dat             <- makeNodeDat tokens
+        (item, tokens') <- parseExpression tokens
+        pure (ArrayNode (ArraySingleItemNode item dat), tokens')
 
 
-parseNullExpression :: [LexDat] -> ParserState (Tree, [LexDat])
-parseNullExpression lexData = do
-        dat      <- makeNodeDat lexData
-        lexData' <- verifyAndConsume SemiColon lexData
-        pure (NullExprNode dat, lexData')
+parseNullExpression :: [Token] -> ParserState (Tree, [Token])
+parseNullExpression tokens = do
+        dat     <- makeNodeDat tokens
+        tokens' <- verifyAndConsume (SemiColon dummyLexDat) tokens
+        pure (NullExprNode dat, tokens')
 
 
-parseConstant :: [LexDat] -> ParserState (Tree, [LexDat])
-parseConstant lexData@(LexDat{tok=ConstInt n}:rest) = do
-        dat <- makeNodeDat lexData
+parseConstant :: [Token] -> ParserState (Tree, [Token])
+parseConstant tokens@(ConstInt n _:rest) = do
+        dat <- makeNodeDat tokens
         pure (ConstantNode n dat, rest)
-parseConstant lexData = throwError $ ParserError (LexDataError lexData)
+parseConstant tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseUnary :: [LexDat] -> ParserState (Tree, [LexDat])
-parseUnary lexData@(LexDat{tok=OpTok op}:rest) = do
-        dat              <- makeNodeDat lexData
-        (tree, lexData') <- parseFactor rest
+parseUnary :: [Token] -> ParserState (Tree, [Token])
+parseUnary tokens@(OpTok op _:rest) = do
+        dat             <- makeNodeDat tokens
+        (tree, tokens') <- parseFactor rest
         let unOp = TokConvert.tokToUnaryOp op
-        pure (UnaryNode tree unOp dat, lexData')
-parseUnary lexData = throwError $ ParserError (LexDataError lexData)
+        pure (UnaryNode tree unOp dat, tokens')
+parseUnary tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseArrayIndex :: [LexDat] -> ParserState (Tree, [LexDat])
-parseArrayIndex lexData@(LexDat{tok=Ident a}:
-                         LexDat{tok=OpenBracket OpenSqBracket}:
-                         LexDat{tok=ConstInt n}:
-                         LexDat{tok=CloseBracket CloseSqBracket}:
-                         oper@LexDat{tok=OpTok _}:rest) = do
-        dat <- makeNodeDat lexData
+parseArrayIndex :: [Token] -> ParserState (Tree, [Token])
+parseArrayIndex tokens@(Ident a _:
+                        OpenBracket OpenSqBracket _:
+                        ConstInt n _:
+                        CloseBracket CloseSqBracket _:
+                        oper@(OpTok _ _):rest) = do
+        dat <- makeNodeDat tokens
         pure (ArrayNode $ ArrayItemAssign n (VarNode a dat) dat, oper:rest)
-parseArrayIndex lexData@(LexDat{tok=Ident a}:
-                         LexDat{tok=OpenBracket OpenSqBracket}:
-                         LexDat{tok=ConstInt n}:
-                         LexDat{tok=CloseBracket CloseSqBracket}:rest) = do
-        dat <- makeNodeDat lexData
+parseArrayIndex tokens@(Ident a _:
+                        OpenBracket OpenSqBracket _:
+                        ConstInt n _:
+                        CloseBracket CloseSqBracket _:rest) = do
+        dat <- makeNodeDat tokens
         pure (ArrayNode $ ArrayItemAccess n (VarNode a dat) dat, rest)
-parseArrayIndex lexData = throwError $ ParserError (LexDataError lexData)
+parseArrayIndex tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseParenExp :: [LexDat] -> ParserState (Tree, [LexDat])
-parseParenExp lexData = do
-        (tree, lexData') <- parseExpression lexData
-        lexData''        <- verifyAndConsume (CloseBracket CloseParen) lexData'
-        pure (tree, lexData'')
+parseParenExp :: [Token] -> ParserState (Tree, [Token])
+parseParenExp tokens = do
+        (tree, tokens') <- parseExpression tokens
+        tokens''        <- verifyAndConsume (CloseBracket CloseParen dummyLexDat) tokens'
+        pure (tree, tokens'')
 
 
-parseAddressOf :: [LexDat] -> ParserState (Tree, [LexDat])
-parseAddressOf lexData@(LexDat{tok=OpTok Ampersand}:LexDat{tok=Ident n}:rest) = do
-        dat <- makeNodeDat lexData
+parseAddressOf :: [Token] -> ParserState (Tree, [Token])
+parseAddressOf tokens@(OpTok Ampersand _:Ident n _:rest) = do
+        dat <- makeNodeDat tokens
         pure (AddressOfNode n dat, rest)
 parseAddressOf (_:a:_)   = throwError $ SyntaxError (NonValidIdentifier a)
-parseAddressOf lexData = throwError $ ParserError (LexDataError lexData)
+parseAddressOf tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseDereference :: [LexDat] -> ParserState (Tree, [LexDat])
-parseDereference lexData@(LexDat{tok=OpTok Asterisk}:LexDat{tok=Ident n}:rest) = do
-        dat <- makeNodeDat lexData
+parseDereference :: [Token] -> ParserState (Tree, [Token])
+parseDereference tokens@(OpTok Asterisk _:Ident n _:rest) = do
+        dat <- makeNodeDat tokens
         pure (DereferenceNode n dat, rest)
 parseDereference (_:a:_)   = throwError $ SyntaxError (NonValidIdentifier a)
-parseDereference lexData = throwError $ ParserError (LexDataError lexData)
+parseDereference tokens = throwError $ ParserError (LexDataError tokens)
 
 
-parseFuncCall :: [LexDat] -> ParserState (Tree, [LexDat])
-parseFuncCall lexData@(LexDat{tok=Ident a}:LexDat{tok=OpenBracket OpenParen}:_) = do
-        dat               <- makeNodeDat lexData
-        lexData'          <- consumeTok lexData
-        (tree, lexData'') <- parseArgs [] lexData'
-        lexData'''        <- verifyAndConsume (CloseBracket CloseParen) lexData''
-        pure (FuncCallNode a tree dat, lexData''')
-parseFuncCall (d@LexDat{tok=Ident _}:_:_) =
-        throwError $ SyntaxError (MissingToken (OpenBracket OpenParen) d)
-parseFuncCall (a:LexDat{tok=OpenBracket OpenParen}:_) =
+parseFuncCall :: [Token] -> ParserState (Tree, [Token])
+parseFuncCall tokens@(Ident a _:OpenBracket OpenParen _:_) = do
+        dat              <- makeNodeDat tokens
+        tokens'          <- consumeTok tokens
+        (tree, tokens'') <- parseArgs [] tokens'
+        tokens'''        <- verifyAndConsume (CloseBracket CloseParen dummyLexDat) tokens''
+        pure (FuncCallNode a tree dat, tokens''')
+parseFuncCall (d@(Ident _ _):_:_) =
+        throwError $ SyntaxError (MissingToken (OpenBracket OpenParen dummyLexDat) d)
+parseFuncCall (a:OpenBracket OpenParen _:_) =
         throwError $ SyntaxError (NonValidIdentifier a)
 parseFuncCall (a:_:_) =
         throwError $ SyntaxError (UnexpectedLexDat a)
-parseFuncCall lexData =
-        throwError $ ParserError (LexDataError lexData)
+parseFuncCall tokens =
+        throwError $ ParserError (LexDataError tokens)
 
 
-parseArgs :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
-parseArgs args lexData = parseBracketedSeq args lexData parseTheArgs
+parseArgs :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseArgs args tokens = parseBracketedSeq args tokens parseTheArgs
 
 
-parseTheArgs :: [Tree] -> [LexDat] -> ParserState ([Tree], [LexDat])
-parseTheArgs as lexData = do
-        (tree, lexData') <- parseArg lexData
-        parseArgs (tree:as) lexData'
+parseTheArgs :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseTheArgs as tokens = do
+        (tree, tokens') <- parseArg tokens
+        parseArgs (tree:as) tokens'
 
 
-parseArg :: [LexDat] -> ParserState (Tree, [LexDat])
-parseArg lexData = do
-        dat              <- makeNodeDat lexData
-        (tree, lexData') <- parseExpression lexData
-        pure (ArgNode tree dat, lexData')
+parseArg :: [Token] -> ParserState (Tree, [Token])
+parseArg tokens = do
+        dat              <- makeNodeDat tokens
+        (tree, tokens') <- parseExpression tokens
+        pure (ArgNode tree dat, tokens')
 
 
 parseBinaryExp :: Tree
-               -> [LexDat]
-               -> ([LexDat] -> ParserState (Tree, [LexDat]))
+               -> [Token]
+               -> ([Token] -> ParserState (Tree, [Token]))
                -> [OpTok]
-               -> ParserState (Tree, [LexDat])
+               -> ParserState (Tree, [Token])
 parseBinaryExp _ [] _ _ = throwError $ ParserError (LexDataError [])
 parseBinaryExp _ _ _ [] = throwError ImpossibleError
-parseBinaryExp tree lexData@(LexDat{tok=OpTok op}:rest) f ops
+parseBinaryExp tree tokens@(OpTok op _:rest) f ops
         | op `elem` ops = do
-                dat                <- makeNodeDat lexData
-                (ntree, lexData'') <- f rest
+                dat                <- makeNodeDat tokens
+                (ntree, tokens'') <- f rest
                 let binOp = TokConvert.tokToBinOp op
-                parseBinaryExp (BinaryNode tree ntree binOp dat) lexData'' f ops
-        | otherwise = pure (tree, lexData)
-parseBinaryExp tree lexData _ _ = pure (tree, lexData)
+                parseBinaryExp (BinaryNode tree ntree binOp dat) tokens'' f ops
+        | otherwise = pure (tree, tokens)
+parseBinaryExp tree tokens _ _ = pure (tree, tokens)

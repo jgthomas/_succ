@@ -7,9 +7,12 @@ Formats error messages of the parser error type
 module PrintError.MessageParserError (parserErrorMsg) where
 
 
-import PrintError.PrintErrorTokens (PrintRange (..), buildLineMsg, buildTokMsg)
-import Types.Error                 (ParserError (..))
-import Types.LexDat                (LexDat (..))
+import           PrintError.PrintErrorTokens (PrintRange (..))
+import qualified PrintError.PrintErrorTokens as PrintErrorTokens (buildLineMsg,
+                                                                  buildTokMsg)
+import           Types.Error                 (ParserError (..))
+import           Types.Tokens
+--import Types.LexDat                (LexDat (..))
 
 
 -- | Generate parser error message
@@ -19,12 +22,18 @@ parserErrorMsg err@(TreeError _) = (show err, All)
 parserErrorMsg (LexDataError []) = (msg, None)
         where msg = "Empty input from lexer"
 
-parserErrorMsg (LexDataError [d])  = (msg, Exact $ line d)
-        where msg = buildLineMsg (line d)
+parserErrorMsg (LexDataError [d])  = (msg, range)
+        where msg = buildLineMsg d
                     ++ "Unexpected input "
-                    ++ buildTokMsg (tok d)
+                    ++ PrintErrorTokens.buildTokMsg d
+              range = Exact (line . tokenData $ d)
 
-parserErrorMsg (LexDataError (d:_)) = (msg, From $ line d)
-        where msg = buildLineMsg (line d)
+parserErrorMsg (LexDataError (d:_)) = (msg, range)
+        where msg = buildLineMsg d
                     ++ "Unexpected input starting at '"
-                    ++ buildTokMsg (tok d) ++ "'"
+                    ++ PrintErrorTokens.buildTokMsg d ++ "'"
+              range = From (line . tokenData $ d)
+
+
+buildLineMsg :: Token -> String
+buildLineMsg token = PrintErrorTokens.buildLineMsg . line . tokenData $ token
