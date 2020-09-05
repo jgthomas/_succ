@@ -27,6 +27,8 @@ value (BinaryNode left right op _) = do
         rightValue <- value right
         combineBinary op leftValue rightValue
 
+value (ArgNode valNode _)          = value valNode
+
 value _                            = pure UntrackedValue
 
 

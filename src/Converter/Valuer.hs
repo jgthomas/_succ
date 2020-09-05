@@ -10,23 +10,16 @@ module Converter.Valuer
 import           Control.Monad   (unless)
 
 import qualified Analyser.Valuer as Valuer (value)
-import           State.GenState  (GenState, throwError)
+import           State.GenState  (GenState)
 import qualified State.State     as State (memOffset, setVariableValue)
 import           Types.AST       (NodeDat (..), Tree (..))
-import           Types.Error     (CompilerError (FatalError),
-                                  FatalError (ConverterBug))
 import           Types.Operator
 import           Types.Variables (VarType (..), VarValue (..))
 
 
 -- | Determine the value of a list of nodes
 argsToPosValue :: [Tree] -> GenState [(Int, VarValue)]
-argsToPosValue argList = zip [0..] <$> mapM argToValue argList
-
-
-argToValue :: Tree -> GenState VarValue
-argToValue (ArgNode valNode _) = Valuer.value valNode
-argToValue tree                = throwError $ FatalError (ConverterBug tree)
+argsToPosValue argList = zip [0..] <$> mapM Valuer.value argList
 
 
 -- | Store the value of a variable
