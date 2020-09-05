@@ -19,7 +19,7 @@ import           Types.Operator
 import           Types.Variables (VarType (..), VarValue (..))
 
 
--- |
+-- | Determine the value of a list of nodes
 argsToPosValue :: [Tree] -> GenState [(Int, VarValue)]
 argsToPosValue argList = zip [0..] <$> mapM argToValue argList
 
