@@ -8,8 +8,8 @@ the compilation process undertaken by succ.
 module Debug.Debug (debug, debugPair) where
 
 
-import Debug.DebugPrint (printDebug)
-import Types.SuccTokens (Debug (..), Stage (..))
+import qualified Debug.DebugPrint as DebugPrint (printDebug)
+import           Types.SuccTokens (Debug (..), Stage (..))
 
 
 -- | Print debugging output
@@ -61,5 +61,5 @@ debugMultiple debugLevel (s1, s2) output = do
 debugIt :: Show a => Stage -> IO a -> IO a
 debugIt stage x = do
         y <- x
-        printDebug stage y
+        DebugPrint.printDebug stage y
         x

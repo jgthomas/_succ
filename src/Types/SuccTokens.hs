@@ -7,7 +7,7 @@ Data types used to direct the internal flow of the compilation process.
 module Types.SuccTokens where
 
 
--- | Compiler stage
+-- | Compiler stages
 data Stage = Input
            | Lexer
            | Parser
@@ -17,6 +17,7 @@ data Stage = Input
            deriving (Eq)
 
 
+-- | Debugging options
 data Debug = DebugOn
            | DebugLexer
            | DebugParser
@@ -28,5 +29,6 @@ data Debug = DebugOn
            | DebugOff
 
 
+-- | Optimisation settings
 data Optimise = OptimiseOn
               | OptimiseOff
