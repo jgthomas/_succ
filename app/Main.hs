@@ -2,15 +2,16 @@
 module Main (main) where
 
 
-import Control.DeepSeq        (deepseq)
-import System.Console.CmdArgs
-import System.FilePath        (dropExtension)
-import System.IO              (IOMode (ReadMode), hClose, hGetContents,
-                               openFile, writeFile)
-import System.Process         (system)
+import           Control.DeepSeq        (deepseq)
+import           System.Console.CmdArgs
+import           System.FilePath        (dropExtension)
+import           System.IO              (IOMode (ReadMode), hClose,
+                                         hGetContents, openFile, writeFile)
+import           System.Process         (system)
 
-import Options                (SuccArgs (..), buildOptions)
-import Succ                   (compile)
+import           Options                (SuccArgs (..))
+import qualified Options                (buildOptions)
+import qualified Succ                   (compile)
 
 
 main :: IO ()
@@ -19,11 +20,11 @@ main = do
 
         let infileName     = file arguments
             outfileName    = setOutFile infileName (asmfile arguments)
-            compileOptions = buildOptions arguments
+            compileOptions = Options.buildOptions arguments
 
         cFile <- openFile infileName ReadMode
         cCode <- hGetContents cFile
-        asm   <- compile cCode compileOptions
+        asm   <- Succ.compile cCode compileOptions
 
         -- force evaluation before writing to file
         asm `deepseq` writeFile outfileName asm
