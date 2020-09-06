@@ -10,7 +10,6 @@ module Parser.TokToNodeData (makeNodeDat) where
 import Parser.ParState (ParserState, throwError)
 import Types.AST       (NodeDat (NodeDat))
 import Types.Error     (CompilerError (ParserError), ParserError (..))
---import Types.LexDat    (LexDat (line))
 import Types.Tokens
 
 

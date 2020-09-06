@@ -12,7 +12,6 @@ import Control.Monad   (unless)
 import Parser.ParState (ParserState, throwError)
 import Types.Error     (CompilerError (ImpossibleError, ParserError, SyntaxError),
                         ParserError (..), SyntaxError (..))
---import Types.LexDat    (LexDat (..))
 import Types.Tokens    (Token)
 
 
