@@ -83,6 +83,7 @@ data LexDat = LexDat { input :: String
 dummyLexDat :: LexDat
 dummyLexDat = LexDat "" 0
 
+
 mkLexDat :: String -> Int -> LexDat
 mkLexDat cs n = LexDat cs n
 
