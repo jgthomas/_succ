@@ -1,4 +1,9 @@
+{-|
+Module       : Valuer
+Description  : Modify variable values
 
+Controls the adjustment of stored values for variables.
+-}
 module Converter.Valuer
         (storeValue,
          checkValueIncDec,

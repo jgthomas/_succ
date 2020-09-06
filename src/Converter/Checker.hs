@@ -1,4 +1,9 @@
+{-|
+Module       : Checker
+Description  : Check syntax tree for errors
 
+Checks nodes in the syntax tree for errors.
+-}
 module Converter.Checker (check) where
 
 
@@ -12,6 +17,7 @@ import           Types.AST            (Tree (..))
 import           Types.Variables      (Scope (..))
 
 
+-- | Check tree node for errors
 check :: Tree -> GenState ()
 
 check node@(FunctionNode _ _ _ Nothing _) =
