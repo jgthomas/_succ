@@ -1,4 +1,9 @@
+{-|
+Module       : MessageScopeError
+Description  : Format scope error messages
 
+Formats error messages of the scope error type
+-}
 module PrintError.MessageScopeError (scopeErrorMsg) where
 
 
@@ -7,6 +12,7 @@ import Types.AST                   (NodeDat (..), Tree (..))
 import Types.Error                 (ScopeError (..))
 
 
+-- | Generate scope error message
 scopeErrorMsg :: ScopeError -> (String, PrintRange)
 
 scopeErrorMsg (DoubleDefinedNode (FunctionNode _ name _ _ dat)) = (msg, Exact $ startLine dat)

@@ -12,7 +12,6 @@ import qualified PrintError.PrintErrorTokens as PrintErrorTokens (buildLineMsg,
                                                                   buildTokMsg)
 import           Types.Error                 (ParserError (..))
 import           Types.Tokens
---import Types.LexDat                (LexDat (..))
 
 
 -- | Generate parser error message
