@@ -55,6 +55,7 @@ variableType :: String -> GenState (Maybe Type)
 variableType name = getAttribute locType name
 
 
+-- | Retrieve the value of a local variable
 getLocalValue :: String -> GenState (Maybe VarValue)
 getLocalValue name = do
         scope <- FrameStack.getScope
@@ -63,6 +64,7 @@ getLocalValue name = do
            else getAttribute locValue name
 
 
+-- | Store the value of a local variable
 setLocalValue :: String -> VarValue -> GenState ()
 setLocalValue varName varValue = do
         scope <- FrameStack.getScope
