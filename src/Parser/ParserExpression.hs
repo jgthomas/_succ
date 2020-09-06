@@ -278,7 +278,7 @@ parseTheArgs as tokens = do
 
 parseArg :: [Token] -> ParserState (Tree, [Token])
 parseArg tokens = do
-        dat              <- makeNodeDat tokens
+        dat             <- makeNodeDat tokens
         (tree, tokens') <- parseExpression tokens
         pure (ArgNode tree dat, tokens')
 
