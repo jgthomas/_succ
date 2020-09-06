@@ -2,7 +2,7 @@
 Module       : Builder
 Description  : Build assembly code
 
-Builds the output assembly code based on the assembly schema
+Builds the output assembly code based on the assembly schema.
 -}
 module Builder.Builder (build) where
 
@@ -32,16 +32,13 @@ import qualified Builder.BuildVariables as BuildVariables (addressOf,
                                                            outputInit,
                                                            postDeclareAction,
                                                            storeVariable)
-import qualified Builder.SchemaCheck    as SchemaCheck (getFunctions,
-                                                        getInitialisedInt,
-                                                        getPointersAssignmentsForInit,
-                                                        getUninitialised)
+import qualified Builder.SchemaFilter   as SchemaFilter (filterSchema)
 import qualified Optimiser.Optimiser    as Optimiser (optimise)
 import           Types.AssemblySchema
 import           Types.Error            (CompilerError (FatalError),
                                          FatalError (BuilderBug))
 import           Types.Operator         (BinaryOp (..))
-import           Types.SuccTokens       (Optimise (..))
+import           Types.SuccTokens       (Optimise (..), TopLevelItem (..))
 import           Types.Type             (Type (..))
 import           Types.Variables        (Scope (..), VarType (..))
 
@@ -68,10 +65,10 @@ buildASM (ProgramSchema topLevelItems) = do
         textSection <- concatMapM processSchema functions
         pure $ initSection ++ dataSection ++ bssSection ++ textSection
         where
-                initialised    = SchemaCheck.getInitialisedInt topLevelItems
-                uninitialised  = SchemaCheck.getUninitialised topLevelItems
-                pointersToInit = SchemaCheck.getPointersAssignmentsForInit topLevelItems
-                functions      = SchemaCheck.getFunctions topLevelItems
+                initialised    = SchemaFilter.filterSchema InitialisedVariable topLevelItems
+                uninitialised  = SchemaFilter.filterSchema UninitialisedVariable topLevelItems
+                pointersToInit = SchemaFilter.filterSchema InitialisedPointer topLevelItems
+                functions      = SchemaFilter.filterSchema Function topLevelItems
 
 buildASM (FunctionSchema name bodyBlock) = do
         body <- processSchema bodyBlock

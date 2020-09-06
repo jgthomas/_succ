@@ -32,3 +32,10 @@ data Debug = DebugOn
 -- | Optimisation settings
 data Optimise = OptimiseOn
               | OptimiseOff
+
+
+-- | Categories of top level items
+data TopLevelItem = Function
+                  | InitialisedVariable
+                  | UninitialisedVariable
+                  | InitialisedPointer

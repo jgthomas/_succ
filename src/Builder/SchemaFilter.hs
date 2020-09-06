@@ -1,13 +1,22 @@
+{-|
+Module       : SchemaFilter
+Description  : Filter schema by category
 
-module Builder.SchemaCheck
-        (getFunctions,
-         getInitialisedInt,
-         getUninitialised,
-         getPointersAssignmentsForInit
-        ) where
+Filters top-level assembly schema by category.
+-}
+module Builder.SchemaFilter (filterSchema) where
 
 
 import Types.AssemblySchema
+import Types.SuccTokens     (TopLevelItem (..))
+
+
+-- | Filter schema by category
+filterSchema :: TopLevelItem -> [AssemblySchema] -> [AssemblySchema]
+filterSchema Function schemas              = getFunctions schemas
+filterSchema InitialisedVariable schemas   = getInitialisedInt schemas
+filterSchema UninitialisedVariable schemas = getUninitialised schemas
+filterSchema InitialisedPointer schemas    = getPointersAssignmentsForInit schemas
 
 
 getFunctions :: [AssemblySchema] -> [AssemblySchema]
