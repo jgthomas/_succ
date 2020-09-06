@@ -31,19 +31,7 @@ buildLineMsg :: Int -> String
 buildLineMsg n = "Line " ++ show n ++ ": "
 
 
---tokenData :: Token -> LexDat
---tokenData (SemiColon dat)      = dat
---tokenData (Colon dat)          = dat
---tokenData (QuestMark dat)      = dat
---tokenData (Comma dat)          = dat
---tokenData (OpenBracket _ dat)  = dat
---tokenData (CloseBracket _ dat) = dat
---tokenData (Ident _ dat)        = dat
---tokenData (ConstInt _ dat)     = dat
---tokenData (Keyword _ dat)      = dat
---tokenData (OpTok _ dat)        = dat
-
-
+-- | Builds a message about the token involved in the error
 buildTokMsg :: Token -> String
 buildTokMsg t = "'" ++ toStringToken t ++ "'"
 
