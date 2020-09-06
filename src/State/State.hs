@@ -39,7 +39,7 @@ getVariable varName = do
              (_, _, _)                         -> pure NotFound
 
 
-
+-- | Retrieve the value of a variable
 getVariableValue :: String -> GenState VarValue
 getVariableValue varName = do
         locValue    <- State.FuncState.getLocalValue varName
@@ -52,6 +52,7 @@ getVariableValue varName = do
              (_, _, _)       -> throwError $ StateError (NoStateFound $ errMsg varName)
 
 
+-- | Store the value of a variable
 setVariableValue :: String -> VarValue -> GenState ()
 setVariableValue varName varValue = do
         localVar  <- State.FuncState.variableOffset varName
