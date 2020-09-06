@@ -214,9 +214,9 @@ parseArrayIndex tokens@(Ident a _:
                         OpenBracket OpenSqBracket _:
                         ConstInt n _:
                         CloseBracket CloseSqBracket _:
-                        oper@(OpTok _ _):rest) = do
+                        opTok@(OpTok _ _):rest) = do
         dat <- makeNodeDat tokens
-        pure (ArrayNode $ ArrayItemAssign n (VarNode a dat) dat, oper:rest)
+        pure (ArrayNode $ ArrayItemAssign n (VarNode a dat) dat, opTok:rest)
 parseArrayIndex tokens@(Ident a _:
                         OpenBracket OpenSqBracket _:
                         ConstInt n _:
