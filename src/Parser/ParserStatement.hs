@@ -122,8 +122,8 @@ parsePostExp tokens = do
 
 
 parseForLoopPostExp :: [Token] -> ParserState (Tree, [Token])
-parseForLoopPostExp (d@(SemiColon _):_) =
-        throwError $ SyntaxError (UnexpectedLexDat d)
+parseForLoopPostExp (token@(SemiColon _):_) =
+        throwError $ SyntaxError (UnexpectedLexDat token)
 parseForLoopPostExp tokens@(CloseBracket CloseParen _:_) = do
         dat <- makeNodeDat tokens
         pure (NullExprNode dat, tokens)
