@@ -1,4 +1,9 @@
+{-|
+Module       : MessageTypeError
+Description  : Format type error messages
 
+Formats error messages of the type error type.
+-}
 module PrintError.MessageTypeError (typeErrorMsg) where
 
 
@@ -8,6 +13,7 @@ import Types.Error                 (TypeError (..))
 import Types.Type                  (Type)
 
 
+-- | Generate type error message
 typeErrorMsg :: TypeError -> (String, PrintRange)
 
 typeErrorMsg (TypeMismatch a b (FunctionNode _ name _ _ dat)) =
