@@ -36,7 +36,7 @@ currentOffset = do
 
 incOffset :: Int -> GenState ()
 incOffset n = do
-        name  <- FrameStack.currentFunc
-        fs    <- getFuncState name
+        name <- FrameStack.currentFunc
+        fs   <- getFuncState name
         let fs' = fs { funcOffset = funcOffset fs + (n * memOffset) }
         setFuncState name fs'
