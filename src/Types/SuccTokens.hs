@@ -24,6 +24,7 @@ data Debug = DebugOn
            | DebugSchema
            | DebugAsm
            | DebugCode
+           | DebugTrees
            | DebugOff
 
 

@@ -47,4 +47,5 @@ setDebugStatus "schema" = DebugSchema
 setDebugStatus "state"  = DebugState
 setDebugStatus "asm"    = DebugAsm
 setDebugStatus "code"   = DebugCode
+setDebugStatus "trees"  = DebugTrees
 setDebugStatus _        = DebugOn
