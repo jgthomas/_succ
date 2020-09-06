@@ -16,8 +16,6 @@ module Lexer.LexState
         ) where
 
 
---import           Types.LexDat    (LexDat)
---import qualified Types.LexDat    as LexDat (mkLexDat)
 import           Types.SuccState (SuccStateM, evaluate, throwError)
 import qualified Types.SuccState as SuccState (getState, putState)
 import           Types.Tokens    (LexDat (LexDat), Token)
@@ -49,12 +47,6 @@ addToken tok = do
         --lexDat <- mkLexDat tok
         state  <- SuccState.getState
         SuccState.putState $ state { datList = tok:datList state }
-
-
---mkLexDat :: Token -> LexerState LexDat
---mkLexDat tok = do
---        lineN <- lineNum <$> SuccState.getState
---        pure $ LexDat.mkLexDat tok lineN
 
 
 mkLexDat :: String -> LexerState LexDat
