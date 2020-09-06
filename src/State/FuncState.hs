@@ -9,12 +9,10 @@ module State.FuncState
         (module State.FuncStateOffset,
          module State.FuncStateVars,
          module State.FuncStateScope,
-         module State.FuncStateParams,
-         delFuncState
+         module State.FuncStateParams
         ) where
 
 
-import State.FuncStateAccess (delFuncState)
 import State.FuncStateOffset (incrementOffsetByN, stackPointerValue)
 import State.FuncStateParams (addParameter, allTypes, getParamValue,
                               getParamValue, paramValuesFromArgs,

@@ -9,8 +9,7 @@ module State.FuncStateAccess where
 
 
 import           State.GenState    (GenState, throwError)
-import qualified State.GenState    as GenState (delFuncState, getFuncState,
-                                                updateFuncState)
+import qualified State.GenState    as GenState (getFuncState, updateFuncState)
 import           State.SymbolTable (FuncState)
 import           Types.Error       (CompilerError (StateError),
                                     StateError (NoStateFound))
@@ -33,8 +32,3 @@ getFuncState name = do
 -- | Store a named function state record
 setFuncState :: String -> FuncState -> GenState ()
 setFuncState name fstate = GenState.updateFuncState name fstate
-
-
--- | Delete named function state record
-delFuncState :: String -> GenState ()
-delFuncState name = GenState.delFuncState name

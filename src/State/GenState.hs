@@ -16,7 +16,6 @@ module State.GenState
          labelNum,
          getFuncState,
          updateFuncState,
-         delFuncState,
          SuccState.getState
         ) where
 
@@ -62,13 +61,6 @@ updateFuncState :: String -> FuncState -> GenState ()
 updateFuncState n s = do
         st <- SuccState.getState
         SuccState.putState $ st { funcStates = M.insert n s $ funcStates st }
-
-
--- | Delete function state for named function
-delFuncState :: String -> GenState ()
-delFuncState n = do
-        st <- SuccState.getState
-        SuccState.putState $ st { funcStates = M.delete n $ funcStates st }
 
 
 -- | Get the framestack
