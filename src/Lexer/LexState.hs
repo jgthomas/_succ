@@ -21,8 +21,8 @@ import qualified Types.SuccState as SuccState (getState, putState)
 import           Types.Tokens    (LexDat (LexDat), Token)
 
 
-data LexTab = LexTab { datList :: [Token]
-                     , lineNum :: Int }
+data LexTab = LexTab { tokenList :: [Token]
+                     , lineNum   :: Int }
 
 
 -- | State definition
@@ -43,12 +43,12 @@ incLineNum = do
 
 -- | Build LexDat from token and add to state
 addToken :: Token -> LexerState ()
-addToken tok = do
-        --lexDat <- mkLexDat tok
-        state  <- SuccState.getState
-        SuccState.putState $ state { datList = tok:datList state }
+addToken token = do
+        state <- SuccState.getState
+        SuccState.putState $ state { tokenList = token:tokenList state }
 
 
+-- | Make metadata payload for token
 mkLexDat :: String -> LexerState LexDat
 mkLexDat input = do
         lineN <- lineNum <$> SuccState.getState
@@ -57,4 +57,4 @@ mkLexDat input = do
 
 -- | Return the list of LexDat from the state
 getState :: LexerState [Token]
-getState = datList <$> SuccState.getState
+getState = tokenList <$> SuccState.getState
