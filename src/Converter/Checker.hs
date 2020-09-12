@@ -7,7 +7,7 @@ Checks nodes in the syntax tree for errors.
 module Converter.Checker (check) where
 
 
-import qualified Converter.LogicCheck as LogicCheck
+import qualified Converter.LogicCheck as LogicCheck (validateNode)
 import qualified Converter.ScopeCheck as ScopeCheck
 import qualified Converter.TypeCheck  as TypeCheck
 import           State.GenState       (GenState)
@@ -55,10 +55,10 @@ check node@(ReturnNode valNode _) =
 
 check node@(UnaryNode varNode@VarNode{} _ _) = do
         ScopeCheck.variableExists varNode
-        LogicCheck.checkUnaryLogic node
+        LogicCheck.validateNode node
 
 check node@UnaryNode{} =
-        LogicCheck.checkUnaryLogic node
+        LogicCheck.validateNode node
 
 check node@BreakNode{} =
         ScopeCheck.checkGotoJump node
@@ -122,9 +122,9 @@ checkAssignment assign varNode valNode = do
 
 
 checkScopedAssignment :: Tree -> GenState ()
-checkScopedAssignment node@(AssignmentNode varNode valNode op _) = do
+checkScopedAssignment node@AssignmentNode{} = do
         currScope <- State.getScope
         case currScope of
-             Local  -> LogicCheck.checkAssignLocalLogic varNode valNode op
+             Local  -> LogicCheck.validateNode node
              Global -> ScopeCheck.checkIfDefined node
 checkScopedAssignment _ = pure ()
