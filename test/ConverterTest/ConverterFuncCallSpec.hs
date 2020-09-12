@@ -15,6 +15,32 @@ converterFuncCallTest :: IO ()
 converterFuncCallTest = hspec $ do
         describe "Build assembly schemas for function calls" $ do
 
+                it "Should build a schema for a repeat declaration" $
+                  (extractSchema $ ProgramNode [FunctionNode
+                                                IntVar
+                                                "dog"
+                                                [ParamNode
+                                                 IntVar
+                                                 (VarNode "a" mockNodeDat)
+                                                 mockNodeDat
+                                                ]
+                                                Nothing
+                                                mockNodeDat,
+                                                FunctionNode
+                                                IntVar
+                                                "dog"
+                                                [ParamNode
+                                                 IntVar
+                                                 (VarNode "b" mockNodeDat)
+                                                 mockNodeDat
+                                                ]
+                                                Nothing
+                                                mockNodeDat
+                                               ]
+                  )
+                  `shouldBe`
+                  ProgramSchema [SkipSchema, SkipSchema]
+
                 it "Should build a schema for a function call" $
                   (extractSchema $ ProgramNode [FunctionNode
                                                 IntVar
