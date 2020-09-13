@@ -34,12 +34,12 @@ import qualified Builder.BuildVariables as BuildVariables (addressOf,
                                                            storeVariable)
 import qualified Builder.SchemaFilter   as SchemaFilter (filterSchema)
 import qualified Optimiser.Optimiser    as Optimiser (optimise)
-import           Options                (SuccOptions (..))
 import           Types.AssemblySchema
 import           Types.Error            (CompilerError (FatalError),
                                          FatalError (BuilderBug))
 import           Types.Operator         (BinaryOp (..))
-import           Types.SuccTokens       (Optimise (..), TopLevelItem (..))
+import           Types.SuccTokens       (Optimise (..), SuccOptions (..),
+                                         TopLevelItem (..))
 import           Types.Type             (Type (..))
 import           Types.Variables        (Scope (..), VarType (..))
 

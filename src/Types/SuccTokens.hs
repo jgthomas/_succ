@@ -39,3 +39,10 @@ data TopLevelItem = Function
                   | InitialisedVariable
                   | UninitialisedVariable
                   | InitialisedPointer
+
+
+-- | Compiler options data type
+data SuccOptions = SuccOptions {
+        debugSet    :: Debug
+      , optimiseSet :: Optimise
+}

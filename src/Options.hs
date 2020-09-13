@@ -11,7 +11,7 @@ module Options
 import System.Console.CmdArgs
 import System.FilePath        (dropExtension)
 
-import Types.SuccTokens       (Debug (..), Optimise (..))
+import Types.SuccTokens       (Debug (..), Optimise (..), SuccOptions (..))
 
 
 data SuccArgs = SuccArgs {
@@ -45,13 +45,6 @@ setFileNames arguments = (infileName, outfileName)
 setOutFile :: FilePath -> FilePath -> FilePath
 setOutFile infile ""       = dropExtension infile ++ ".s"
 setOutFile _      filename = filename ++ ".s"
-
-
--- | Compiler options data type
-data SuccOptions = SuccOptions {
-        debugSet    :: Debug
-      , optimiseSet :: Optimise
-}
 
 
 -- | Build compiler options data container

@@ -8,8 +8,8 @@ module Builder.BuildState
         ) where
 
 
-import Options         (SuccOptions (..))
-import Types.SuccState (SuccStateM, evaluate, getState, putState, throwError)
+import Types.SuccState  (SuccStateM, evaluate, getState, putState, throwError)
+import Types.SuccTokens (SuccOptions (..))
 
 
 -- | State definition
