@@ -3,7 +3,6 @@
 module Options
         (options,
          setFileNames,
-         SuccOptions(..),
          buildCompilerOptions
         ) where
 

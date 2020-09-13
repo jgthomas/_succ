@@ -11,10 +11,9 @@ import qualified Builder.Builder       as Builder (build)
 import qualified Converter.Converter   as Converter (convert)
 import qualified Debug.Debug           as Debug (debug, debugPair)
 import qualified Lexer.Lexer           as Lexer (tokenize)
-import           Options               (SuccOptions (..))
 import qualified Parser.Parser         as Parser (parse)
 import qualified PrintError.PrintError as PrintError (handleError)
-import           Types.SuccTokens      (Stage (..))
+import           Types.SuccTokens      (Stage (..), SuccOptions (..))
 
 
 -- | Run the compilation process
