@@ -8,9 +8,9 @@ module Builder.BuildState
         ) where
 
 
-import Types.SuccState  (SuccStateM, evaluate, getState, putState, throwError)
-import Types.SuccTokens (Optimise (..))
+import Options         (SuccOptions (..))
+import Types.SuccState (SuccStateM, evaluate, getState, putState, throwError)
 
 
 -- | State definition
-type BuildState = SuccStateM Optimise
+type BuildState = SuccStateM SuccOptions

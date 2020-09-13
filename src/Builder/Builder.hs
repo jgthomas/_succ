@@ -34,6 +34,7 @@ import qualified Builder.BuildVariables as BuildVariables (addressOf,
                                                            storeVariable)
 import qualified Builder.SchemaFilter   as SchemaFilter (filterSchema)
 import qualified Optimiser.Optimiser    as Optimiser (optimise)
+import           Options                (SuccOptions (..))
 import           Types.AssemblySchema
 import           Types.Error            (CompilerError (FatalError),
                                          FatalError (BuilderBug))
@@ -44,13 +45,13 @@ import           Types.Variables        (Scope (..), VarType (..))
 
 
 -- | Builds output assembly code
-build :: Optimise -> AssemblySchema -> Either CompilerError String
-build optimise schema = BuildState.evaluate processSchema schema optimise
+build :: SuccOptions -> AssemblySchema -> Either CompilerError String
+build options schema = BuildState.evaluate processSchema schema options
 
 
 processSchema :: AssemblySchema -> BuildState String
 processSchema schema = do
-        optimiseState <- BuildState.getState
+        optimiseState <- optimiseSet <$> BuildState.getState
         case optimiseState of
              OptimiseOff -> buildASM schema
              OptimiseOn  -> buildASM . Optimiser.optimise $ schema

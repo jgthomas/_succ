@@ -24,10 +24,9 @@ compile input options = do
         toks   <- debugLexer . errorHandler . Lexer.tokenize $ input'
         ast    <- debugParser . errorHandler . Parser.parse $ toks
         schema <- fmap fst . debugSchema . errorHandler . Converter.convert $ ast
-        debugAssembly . errorHandler . Builder.build optimiseFlag $ schema
+        debugAssembly . errorHandler . Builder.build options $ schema
         where
                 debugFlag     = debugSet options
-                optimiseFlag  = optimiseSet options
                 debugInput    = Debug.debug debugFlag Input
                 debugLexer    = Debug.debug debugFlag Lexer
                 debugParser   = Debug.debug debugFlag Parser
