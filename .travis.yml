@@ -23,5 +23,5 @@ install:
 
 # Build the package, docs, and run tests
 script:
-  - stack --no-terminal build --test --fast --haddock --no-haddock-deps
+  - stack --no-terminal build --test --fast --coverage --haddock --no-haddock-deps
   - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint src/ app/
