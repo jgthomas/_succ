@@ -30,7 +30,7 @@ script:
 # Send code coverage report
 after_script:
   - hpcroot=$(stack path --local-hpc-root)
-  - tix=$(find $hpcroot -name 'test-main.tix')
-  - mix=$(stack path --distdir)/hpc
+  - tix=$(find $hpcroot -name 'succ-test.tix')
+  - mix=$(stack path --dist-dir)/hpc
   - hpc-codecov --mix=$mix --exclude=Paths_hpc_codecov -o codecov.json $tix
   - bash <(curl -s https://codecov.io/bash)
