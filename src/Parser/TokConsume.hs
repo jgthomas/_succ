@@ -20,9 +20,9 @@ consume :: Int -> [Token] -> ParserState [Token]
 consume n tokens = consumeNToks n tokens
 
 
--- | Checks the type of a token, then consumes that token if as expected
+-- | Checks the type of a token, then consumes token if type is correct
 checkAndConsume :: SynTok -> [Token] -> ParserState [Token]
-checkAndConsume _ []    = throwError $ ParserError (LexDataError [])
+checkAndConsume _ [] = throwError $ ParserError (LexDataError [])
 checkAndConsume synTok tokens = do
         token <- synTokToToken synTok $ head tokens
         verifyAndConsume token tokens
