@@ -31,25 +31,25 @@ parseStatement tokens@(first:_) =
              Keyword For _           -> parseForLoop tokens
              Keyword Break _         -> parseBreak tokens
              Keyword Continue _      -> parseContinue tokens
-             OpenBracket OpenBrace _ -> parseCompoundStmt tokens
+             OpenBracket OpenBrace _ -> parseCompound tokens
              _                       -> parseExprStatement tokens
 
 
-parseCompoundStmt :: [Token] -> ParserState (Tree, [Token])
-parseCompoundStmt tokens = do
+parseCompound :: [Token] -> ParserState (Tree, [Token])
+parseCompound tokens = do
         dat               <- makeNodeDat tokens
         tokens'           <- checkAndConsume (Open OpenBrace) tokens
-        (items, tokens'') <- parseStatementBlock [] tokens'
+        (items, tokens'') <- parseBlockItems [] tokens'
         tokens'''         <- checkAndConsume (Close CloseBrace) tokens''
         pure (CompoundStmtNode items dat, tokens''')
 
 
-parseStatementBlock :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
-parseStatementBlock stmts tokens@(CloseBracket CloseBrace _:_) =
+parseBlockItems :: [Tree] -> [Token] -> ParserState ([Tree], [Token])
+parseBlockItems stmts tokens@(CloseBracket CloseBrace _:_) =
         pure (reverse stmts, tokens)
-parseStatementBlock stmts tokens = do
+parseBlockItems stmts tokens = do
         (tree, tokens') <- parseBlockItem tokens
-        parseStatementBlock (tree:stmts) tokens'
+        parseBlockItems (tree:stmts) tokens'
 
 
 parseBlockItem :: [Token] -> ParserState (Tree, [Token])
