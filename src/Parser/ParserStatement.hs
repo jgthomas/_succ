@@ -6,7 +6,6 @@ Parses lexed tokens representing statements.
 -}
 module Parser.ParserStatement (parseStatement) where
 
-
 import Control.Monad            (unless)
 
 import Parser.ParserDeclaration (parseDeclaration)
@@ -20,6 +19,7 @@ import Types.Error              (CompilerError (ParserError, SyntaxError),
 import Types.Tokens
 
 
+-- | Parse tokens for a statement into an AST
 parseStatement :: [Token] -> ParserState (Tree, [Token])
 parseStatement [] = throwError $ ParserError (LexDataError [])
 parseStatement tokens@(first:_) =
