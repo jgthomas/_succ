@@ -23,17 +23,16 @@ consume n tokens = consumeNToks n tokens
 -- | Checks the type of a token, then consumes that token if as expected
 checkAndConsume :: SynTok -> [Token] -> ParserState [Token]
 checkAndConsume _ []    = throwError $ ParserError (LexDataError [])
-checkAndConsume synTok tokens =
-        let token = synTokToToken synTok $ head tokens
-            in
+checkAndConsume synTok tokens = do
+        token <- synTokToToken synTok $ head tokens
         verifyAndConsume token tokens
 
 
-synTokToToken :: SynTok -> Token -> Token
-synTokToToken (Open open) token   = OpenBracket open $ tokenData token
-synTokToToken (Close close) token = CloseBracket close $ tokenData token
-synTokToToken (Word word) token   = Keyword word $ tokenData token
-synTokToToken (Sep sep) token     = Separator sep $ tokenData token
+synTokToToken :: SynTok -> Token -> ParserState Token
+synTokToToken (Open open) token   = pure $ OpenBracket open $ tokenData token
+synTokToToken (Close close) token = pure $ CloseBracket close $ tokenData token
+synTokToToken (Word word) token   = pure $ Keyword word $ tokenData token
+synTokToToken (Sep sep) token     = pure $ Separator sep $ tokenData token
 
 
 verifyAndConsume :: Token -> [Token] -> ParserState [Token]
