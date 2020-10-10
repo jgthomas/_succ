@@ -12,7 +12,7 @@ import Control.Monad   (unless)
 import Parser.ParState (ParserState, throwError)
 import Types.Error     (CompilerError (ImpossibleError, ParserError, SyntaxError),
                         ParserError (..), SyntaxError (..))
-import Types.Tokens
+import Types.Tokens    (SynTok (..), Token (..), tokenData)
 
 
 -- | Consumes the next n tokens in the list
