@@ -4,15 +4,11 @@ module Types.Tokens where
 
 data Token = OpenBracket OpenBracket LexDat
            | CloseBracket CloseBracket LexDat
-           -- | SemiColon LexDat
            | OpTok OpTok LexDat
            | Ident String LexDat
            | ConstInt Int LexDat
            | Keyword Keyword LexDat
            | Separator Separator LexDat
-           -- | Colon LexDat
-           -- | QuestMark LexDat
-           -- | Comma LexDat
            deriving (Show, Eq)
 
 
