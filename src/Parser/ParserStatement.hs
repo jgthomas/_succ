@@ -97,6 +97,11 @@ parseContinue (Keyword Continue _:d:_) =
 parseContinue tokens = throwError $ ParserError (LexDataError tokens)
 
 
+{-
+- The three elements of the traditional for loop are all optional, that is
+- it can be declared as: for (;;;). However, the C standard says to insert
+- a constant 1 for the middle *condition* element, if nothing is provided.
+-}
 parseForLoop :: [Token] -> ParserState (Tree, [Token])
 parseForLoop tokens = do
         dat                    <- makeNodeDat tokens
