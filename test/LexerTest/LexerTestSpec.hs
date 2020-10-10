@@ -33,10 +33,10 @@ lexerTest = hspec $ do
                    CloseBracket CloseParen dummyLexDat,
                    OpenBracket OpenBrace dummyLexDat,
                    CloseBracket CloseBrace dummyLexDat,
-                   SemiColon dummyLexDat,
-                   Colon dummyLexDat,
-                   QuestMark dummyLexDat,
-                   Comma dummyLexDat,
+                   Separator SemiColon dummyLexDat,
+                   Separator Colon dummyLexDat,
+                   Separator QuestMark dummyLexDat,
+                   Separator Comma dummyLexDat,
                    OpenBracket OpenSqBracket dummyLexDat,
                    CloseBracket CloseSqBracket dummyLexDat]
 
@@ -186,7 +186,7 @@ lexerTest = hspec $ do
                 it "Should correctly lex a variable declaration" $
                   (dummyData $
                   fromRight [] (tokenize "int a;"))
-                  `shouldBe` [Keyword Int dummyLexDat,Ident "a" dummyLexDat,SemiColon dummyLexDat]
+                  `shouldBe` [Keyword Int dummyLexDat,Ident "a" dummyLexDat,Separator SemiColon dummyLexDat]
 
                 it "Should correctly lex a simple function" $
                   (dummyData $
@@ -198,7 +198,7 @@ lexerTest = hspec $ do
                               OpenBracket OpenBrace dummyLexDat,
                               Keyword Return dummyLexDat,
                               ConstInt 2 dummyLexDat,
-                              SemiColon dummyLexDat,
+                              Separator SemiColon dummyLexDat,
                               CloseBracket CloseBrace dummyLexDat]
 
                 it "Should record the correct line for each token" $

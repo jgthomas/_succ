@@ -72,7 +72,7 @@ extractFullProgramError toks = getError . parse $ toks
 - an extra token here to prevent that error.
 -}
 addExtraToken :: [Token] -> [Token]
-addExtraToken toks = toks ++ [SemiColon dummyLexDat]
+addExtraToken toks = toks ++ [Separator SemiColon dummyLexDat]
 
 
 extractTree :: ([Token] -> ParserState (Tree, [Token]))

@@ -12,7 +12,7 @@ import           Parser.ParserExpression (parseExpression)
 import           Parser.ParserType       (parseType)
 import           Parser.ParState         (ParserState, throwError)
 import qualified Parser.TokClass         as TokClass (isAssign)
-import           Parser.TokConsume       (consumeTok, verifyAndConsume)
+import           Parser.TokConsume       (checkAndConsume, consumeTok)
 import           Parser.TokToNodeData    (makeNodeDat)
 import           Types.AST               (ArrayNode (..), Tree (..))
 import           Types.Error             (CompilerError (ParserError, SyntaxError),
@@ -82,7 +82,7 @@ inferredLen _                                             = Undeclared
 parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
 parseOptAssign tokens = do
         (tree, tokens') <- parseOptionalAssign tokens
-        tokens''        <- verifyAndConsume (SemiColon $ headTokenData tokens') tokens'
+        tokens''        <- checkAndConsume (Sep SemiColon) tokens'
         pure (tree, tokens'')
 
 

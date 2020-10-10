@@ -29,11 +29,11 @@ parseBracketedSeq trees tokens@(OpenBracket _ _:CloseBracket _ _:_) _ = do
 
 parseBracketedSeq trees tokens@(CloseBracket _ _:_) _ = pure (reverse trees, tokens)
 
-parseBracketedSeq _ (token@(Comma _):CloseBracket _ _:_) _ =
+parseBracketedSeq _ (token@(Separator Comma _):CloseBracket _ _:_) _ =
         throwError $ SyntaxError (UnexpectedLexDat token)
 
-parseBracketedSeq trees (OpenBracket _ _:rest) f = f trees rest
+parseBracketedSeq trees (OpenBracket _ _:rest) f   = f trees rest
 
-parseBracketedSeq trees (Comma _:rest) f         = f trees rest
+parseBracketedSeq trees (Separator Comma _:rest) f = f trees rest
 
 parseBracketedSeq _ (token:_) _ = throwError $ SyntaxError (UnexpectedLexDat token)

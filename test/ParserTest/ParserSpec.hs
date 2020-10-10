@@ -25,7 +25,7 @@ fullParserTest = hspec $ do
                                            OpenBracket OpenBrace dummyLexDat,
                                            Keyword Return dummyLexDat,
                                            ConstInt 2 dummyLexDat,
-                                           SemiColon dummyLexDat,
+                                           Separator SemiColon dummyLexDat,
                                            CloseBracket CloseBrace dummyLexDat])
                   `shouldBe`
                   ProgramNode [FunctionNode
@@ -48,7 +48,7 @@ fullParserTest = hspec $ do
                                            OpenBracket OpenBrace dummyLexDat,
                                            Keyword Return dummyLexDat,
                                            ConstInt 2 dummyLexDat,
-                                           SemiColon dummyLexDat,
+                                           Separator SemiColon dummyLexDat,
                                            CloseBracket CloseBrace dummyLexDat,
                                            Keyword Int dummyLexDat,
                                            Ident "main" dummyLexDat,
@@ -59,7 +59,7 @@ fullParserTest = hspec $ do
                                            Ident "dog" dummyLexDat,
                                            OpenBracket OpenParen dummyLexDat,
                                            CloseBracket CloseParen dummyLexDat,
-                                           SemiColon dummyLexDat,
+                                           Separator SemiColon dummyLexDat,
                                            CloseBracket CloseBrace dummyLexDat])
                   `shouldBe`
                   ProgramNode [FunctionNode
@@ -95,7 +95,7 @@ fullParserTest = hspec $ do
                                            Ident "a" dummyLexDat,
                                            OpTok EqualSign dummyLexDat,
                                            ConstInt 2 dummyLexDat,
-                                           SemiColon dummyLexDat,
+                                           Separator SemiColon dummyLexDat,
                                            Keyword Int dummyLexDat,
                                            Ident "main" dummyLexDat,
                                            OpenBracket OpenParen dummyLexDat,
@@ -103,7 +103,7 @@ fullParserTest = hspec $ do
                                            OpenBracket OpenBrace dummyLexDat,
                                            Keyword Return dummyLexDat,
                                            Ident "a" dummyLexDat,
-                                           SemiColon dummyLexDat,
+                                           Separator SemiColon dummyLexDat,
                                            CloseBracket CloseBrace dummyLexDat])
                   `shouldBe`
                   ProgramNode [DeclarationNode
@@ -143,13 +143,13 @@ fullParserTest = hspec $ do
                   ParserError (LexDataError $ [Keyword Int dummyLexDat])
 
                 it "Should throw an error on invalid top level items" $
-                  (extractFullProgramError [SemiColon dummyLexDat, OpTok PlusSign dummyLexDat])
+                  (extractFullProgramError [Separator SemiColon dummyLexDat, OpTok PlusSign dummyLexDat])
                   `shouldBe`
-                  ParserError (LexDataError $ [SemiColon dummyLexDat, OpTok PlusSign dummyLexDat])
+                  ParserError (LexDataError $ [Separator SemiColon dummyLexDat, OpTok PlusSign dummyLexDat])
 
                 it "Should throw error on invalid identifier for top level item" $
                   (extractFullProgramError [Keyword Int dummyLexDat,
-                                            SemiColon dummyLexDat,
+                                            Separator SemiColon dummyLexDat,
                                             OpTok PlusSign dummyLexDat])
                   `shouldBe`
-                  SyntaxError (NonValidIdentifier $ SemiColon dummyLexDat)
+                  SyntaxError (NonValidIdentifier $ Separator SemiColon dummyLexDat)

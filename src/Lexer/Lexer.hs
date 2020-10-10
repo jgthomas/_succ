@@ -64,10 +64,10 @@ lexSeparator (c:cs) = do
              ')' -> pure (CloseBracket CloseParen dat, cs)
              '}' -> pure (CloseBracket CloseBrace dat, cs)
              ']' -> pure (CloseBracket CloseSqBracket dat, cs)
-             ';' -> pure (SemiColon dat, cs)
-             ':' -> pure (Colon dat, cs)
-             '?' -> pure (QuestMark dat, cs)
-             ',' -> pure (Comma dat, cs)
+             ';' -> pure (Separator SemiColon dat, cs)
+             ':' -> pure (Separator Colon dat, cs)
+             '?' -> pure (Separator QuestMark dat, cs)
+             ',' -> pure (Separator Comma dat, cs)
              _   -> throwError $ LexerError (UnexpectedInput [c])
 
 

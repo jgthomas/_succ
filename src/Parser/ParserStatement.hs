@@ -12,7 +12,7 @@ import Control.Monad            (unless)
 import Parser.ParserDeclaration (parseDeclaration)
 import Parser.ParserExpression  (parseExpression)
 import Parser.ParState          (ParserState, throwError)
-import Parser.TokConsume        (checkAndConsume, verifyAndConsume)
+import Parser.TokConsume        (checkAndConsume)
 import Parser.TokToNodeData     (makeNodeDat)
 import Types.AST                (Tree (..))
 import Types.Error              (CompilerError (ParserError, SyntaxError),
@@ -71,29 +71,29 @@ parseBlockItem tokens = parseStatement tokens
 -
 -}
 parseExprStatement :: [Token] -> ParserState (Tree, [Token])
-parseExprStatement tokens@(SemiColon _:_) = parseNullStatement tokens
+parseExprStatement tokens@(Separator SemiColon _:_) = parseNullStatement tokens
 parseExprStatement tokens = do
         dat             <- makeNodeDat tokens
         (tree, tokens') <- parseExpression tokens
-        tokens''        <- verifyAndConsume (SemiColon $ headTokenData tokens') tokens'
+        tokens''        <- checkAndConsume (Sep SemiColon) tokens'
         pure (ExprStmtNode tree dat, tokens'')
 
 
 parseBreak :: [Token] -> ParserState (Tree, [Token])
-parseBreak tokens@(Keyword Break _:SemiColon _:rest) = do
+parseBreak tokens@(Keyword Break _:Separator SemiColon _:rest) = do
         dat <- makeNodeDat tokens
         pure (BreakNode dat, rest)
 parseBreak (Keyword Break _:d:_) =
-        throwError $ SyntaxError (MissingToken (SemiColon dummyLexDat) d)
+        throwError $ SyntaxError (MissingToken (Separator SemiColon dummyLexDat) d)
 parseBreak tokens = throwError $ ParserError (LexDataError tokens)
 
 
 parseContinue :: [Token] -> ParserState (Tree, [Token])
-parseContinue tokens@(Keyword Continue _:SemiColon _:rest) = do
+parseContinue tokens@(Keyword Continue _:Separator SemiColon _:rest) = do
         dat <- makeNodeDat tokens
         pure (ContinueNode dat, rest)
 parseContinue (Keyword Continue _:d:_) =
-        throwError $ SyntaxError (MissingToken (SemiColon dummyLexDat) d)
+        throwError $ SyntaxError (MissingToken (Separator SemiColon dummyLexDat) d)
 parseContinue tokens = throwError $ ParserError (LexDataError tokens)
 
 
@@ -117,12 +117,12 @@ parseForLoop tokens = do
 parsePostExp :: [Token] -> ParserState (Tree, [Token])
 parsePostExp tokens = do
         (tree, tokens') <- parseForLoopPostExp tokens
-        nextTokIsNot (SemiColon dummyLexDat) tokens'
+        nextTokIsNot (Separator SemiColon dummyLexDat) tokens'
         pure (tree, tokens')
 
 
 parseForLoopPostExp :: [Token] -> ParserState (Tree, [Token])
-parseForLoopPostExp (token@(SemiColon _):_) =
+parseForLoopPostExp (token@(Separator SemiColon _):_) =
         throwError $ SyntaxError (UnexpectedLexDat token)
 parseForLoopPostExp tokens@(CloseBracket CloseParen _:_) = do
         dat <- makeNodeDat tokens
@@ -138,7 +138,7 @@ parseDoWhile tokens@(Keyword Do _:OpenBracket OpenBrace _:_) = do
         case tokens'' of
              (Keyword While _:rest) -> do
                      (test, tokens''') <- parseConditionalParen rest
-                     tokens''''        <- verifyAndConsume (SemiColon $ headTokenData tokens''') tokens'''
+                     tokens''''        <- checkAndConsume (Sep SemiColon) tokens'''
                      pure (DoWhileNode stmts test dat, tokens'''')
              (_:token:_) -> throwError $ SyntaxError (MissingKeyword While token)
              [_]         -> throwError $ ParserError (LexDataError tokens'')
@@ -186,14 +186,14 @@ parseReturnStmt tokens = do
         dat              <- makeNodeDat tokens
         tokens'          <- checkAndConsume (Word Return) tokens
         (tree, tokens'') <- parseExpression tokens'
-        tokens'''        <- verifyAndConsume (SemiColon $ headTokenData tokens'') tokens''
+        tokens'''        <- checkAndConsume (Sep SemiColon) tokens''
         pure (ReturnNode tree dat, tokens''')
 
 
 parseNullStatement :: [Token] -> ParserState (Tree, [Token])
 parseNullStatement tokens = do
         dat     <- makeNodeDat tokens
-        tokens' <- verifyAndConsume (SemiColon $ headTokenData tokens) tokens
+        tokens' <- checkAndConsume (Sep SemiColon) tokens
         pure (NullExprNode dat, tokens')
 
 

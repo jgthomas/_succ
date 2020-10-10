@@ -27,6 +27,7 @@ synTokToToken :: SynTok -> Token -> Token
 synTokToToken (Open open) token   = OpenBracket open $ tokenData token
 synTokToToken (Close close) token = CloseBracket close $ tokenData token
 synTokToToken (Word word) token   = Keyword word $ tokenData token
+synTokToToken (Sep sep) token     = Separator sep $ tokenData token
 
 
 -- | Verifies the type of a token, then consumes that token

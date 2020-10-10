@@ -18,19 +18,19 @@ parserStatementTest = hspec $ do
         describe "Build abstract syntax trees for statements" $ do
 
                 it "Should build a tree for a continue statement" $
-                  (extractStatementTree [Keyword Continue dummyLexDat, SemiColon dummyLexDat])
+                  (extractStatementTree [Keyword Continue dummyLexDat, Separator SemiColon dummyLexDat])
                   `shouldBe`
                   ProgramNode [ContinueNode mockNodeDat]
 
                 it "Should build a tree for a break statement" $
-                  (extractStatementTree [Keyword Break dummyLexDat, SemiColon dummyLexDat])
+                  (extractStatementTree [Keyword Break dummyLexDat, Separator SemiColon dummyLexDat])
                   `shouldBe`
                   ProgramNode [BreakNode mockNodeDat]
 
                 it "Should build a tree for a return statement" $
                   (extractStatementTree [Keyword Return dummyLexDat,
                                          ConstInt 2 dummyLexDat,
-                                         SemiColon dummyLexDat])
+                                         Separator SemiColon dummyLexDat])
                   `shouldBe`
                   ProgramNode [ReturnNode
                                (ConstantNode 2 mockNodeDat)
@@ -38,7 +38,7 @@ parserStatementTest = hspec $ do
                               ]
 
                 it "Should build a tree for a null statement" $
-                  (extractStatementTree [SemiColon dummyLexDat])
+                  (extractStatementTree [Separator SemiColon dummyLexDat])
                   `shouldBe`
                   ProgramNode [NullExprNode mockNodeDat]
 
@@ -47,9 +47,9 @@ parserStatementTest = hspec $ do
                                          ConstInt 2 dummyLexDat,
                                          OpTok PlusSign dummyLexDat,
                                          ConstInt 2 dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          Keyword Break dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          CloseBracket CloseBrace dummyLexDat
                                         ])
                   `shouldBe`
@@ -73,12 +73,12 @@ parserStatementTest = hspec $ do
                                          ConstInt 2 dummyLexDat,
                                          OpTok PlusSign dummyLexDat,
                                          ConstInt 2 dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          Keyword Int dummyLexDat,
                                          Ident "a" dummyLexDat,
                                          OpTok EqualSign dummyLexDat,
                                          ConstInt 3 dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          CloseBracket CloseBrace dummyLexDat
                                         ])
                   `shouldBe`
@@ -113,7 +113,7 @@ parserStatementTest = hspec $ do
                                          Ident "b" dummyLexDat,
                                          OpTok EqualSign dummyLexDat,
                                          ConstInt 1 dummyLexDat,
-                                         SemiColon dummyLexDat
+                                         Separator SemiColon dummyLexDat
                                         ])
                   `shouldBe`
                   ProgramNode [IfNode
@@ -140,7 +140,7 @@ parserStatementTest = hspec $ do
                                          Ident "b" dummyLexDat,
                                          OpTok EqualSign dummyLexDat,
                                          ConstInt 1 dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          CloseBracket CloseBrace dummyLexDat
                                         ])
                   `shouldBe`
@@ -170,12 +170,12 @@ parserStatementTest = hspec $ do
                                          Ident "b" dummyLexDat,
                                          OpTok EqualSign dummyLexDat,
                                          ConstInt 1 dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          Keyword Else dummyLexDat,
                                          Ident "b" dummyLexDat,
                                          OpTok EqualSign dummyLexDat,
                                          ConstInt 2 dummyLexDat,
-                                         SemiColon dummyLexDat
+                                         Separator SemiColon dummyLexDat
                                         ])
                   `shouldBe`
                   ProgramNode [IfNode
@@ -210,14 +210,14 @@ parserStatementTest = hspec $ do
                                          Ident "b" dummyLexDat,
                                          OpTok EqualSign dummyLexDat,
                                          ConstInt 1 dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          CloseBracket CloseBrace dummyLexDat,
                                          Keyword Else dummyLexDat,
                                          OpenBracket OpenBrace dummyLexDat,
                                          Ident "b" dummyLexDat,
                                          OpTok EqualSign dummyLexDat,
                                          ConstInt 2 dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          CloseBracket CloseBrace dummyLexDat
                                         ])
                   `shouldBe`
@@ -256,7 +256,7 @@ parserStatementTest = hspec $ do
                                          Ident "a" dummyLexDat,
                                          OpTok PlusEqual dummyLexDat,
                                          ConstInt 2 dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          CloseBracket CloseBrace dummyLexDat,
                                          Keyword While dummyLexDat,
                                          OpenBracket OpenParen dummyLexDat,
@@ -264,7 +264,7 @@ parserStatementTest = hspec $ do
                                          OpTok LeftArrowEqual dummyLexDat,
                                          ConstInt 10 dummyLexDat,
                                          CloseBracket CloseParen dummyLexDat,
-                                         SemiColon dummyLexDat]
+                                         Separator SemiColon dummyLexDat]
                   )
                   `shouldBe`
                   ProgramNode [DoWhileNode
@@ -301,7 +301,7 @@ parserStatementTest = hspec $ do
                                          Ident "a" dummyLexDat,
                                          OpTok PlusEqual dummyLexDat,
                                          ConstInt 1 dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          CloseBracket CloseBrace dummyLexDat]
                   )
                   `shouldBe`
@@ -334,11 +334,11 @@ parserStatementTest = hspec $ do
                                          Ident "i" dummyLexDat,
                                          OpTok EqualSign dummyLexDat,
                                          ConstInt 0 dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          Ident "i" dummyLexDat,
                                          OpTok LeftArrow dummyLexDat,
                                          ConstInt 10 dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          Ident "i" dummyLexDat,
                                          OpTok PlusPlus dummyLexDat,
                                          CloseBracket CloseParen dummyLexDat,
@@ -346,7 +346,7 @@ parserStatementTest = hspec $ do
                                          Ident "a" dummyLexDat,
                                          OpTok PlusEqual dummyLexDat,
                                          ConstInt 1 dummyLexDat,
-                                         SemiColon dummyLexDat,
+                                         Separator SemiColon dummyLexDat,
                                          CloseBracket CloseBrace dummyLexDat
                                         ]
                   )
@@ -400,15 +400,15 @@ parserStatementTest = hspec $ do
                               Ident "a" dummyLexDat,
                               OpTok PlusEqual dummyLexDat,
                               ConstInt 2 dummyLexDat,
-                              SemiColon dummyLexDat,
+                              Separator SemiColon dummyLexDat,
                               CloseBracket CloseBrace dummyLexDat,
-                              SemiColon dummyLexDat,
+                              Separator SemiColon dummyLexDat,
                               OpenBracket OpenParen dummyLexDat,
                               Ident "a" dummyLexDat,
                               OpTok LeftArrowEqual dummyLexDat,
                               ConstInt 10 dummyLexDat,
                               CloseBracket CloseParen dummyLexDat,
-                              SemiColon dummyLexDat]
+                              Separator SemiColon dummyLexDat]
                       in
                   (extractStatementError toks)
                   `shouldBe`
@@ -420,21 +420,21 @@ parserStatementTest = hspec $ do
                               Ident "a" dummyLexDat,
                               OpTok PlusEqual dummyLexDat,
                               ConstInt 2 dummyLexDat,
-                              SemiColon dummyLexDat,
+                              Separator SemiColon dummyLexDat,
                               CloseBracket CloseBrace dummyLexDat,
                               Keyword While dummyLexDat,
-                              SemiColon dummyLexDat,
+                              Separator SemiColon dummyLexDat,
                               Ident "a" dummyLexDat,
                               OpTok LeftArrowEqual dummyLexDat,
                               ConstInt 10 dummyLexDat,
                               CloseBracket CloseParen dummyLexDat,
-                              SemiColon dummyLexDat]
+                              Separator SemiColon dummyLexDat]
                       in
                   (extractStatementError toks)
                   `shouldBe`
                   SyntaxError (MissingToken
                                (OpenBracket OpenParen dummyLexDat)
-                               $ SemiColon dummyLexDat
+                               $ Separator SemiColon dummyLexDat
                               )
 
                 it "Should throw error for do-while loop missing semicolon after while" $
@@ -443,7 +443,7 @@ parserStatementTest = hspec $ do
                               Ident "a" dummyLexDat,
                               OpTok PlusEqual dummyLexDat,
                               ConstInt 2 dummyLexDat,
-                              SemiColon dummyLexDat,
+                              Separator SemiColon dummyLexDat,
                               CloseBracket CloseBrace dummyLexDat,
                               Keyword While dummyLexDat,
                               OpenBracket OpenParen dummyLexDat,
@@ -451,8 +451,8 @@ parserStatementTest = hspec $ do
                               OpTok LeftArrowEqual dummyLexDat,
                               ConstInt 10 dummyLexDat,
                               CloseBracket CloseParen dummyLexDat,
-                              Colon dummyLexDat]
+                              Separator Colon dummyLexDat]
                       in
                   (extractStatementError toks)
                   `shouldBe`
-                  SyntaxError (MissingToken (SemiColon dummyLexDat) (Colon dummyLexDat))
+                  SyntaxError (MissingToken (Separator SemiColon dummyLexDat) (Separator Colon dummyLexDat))

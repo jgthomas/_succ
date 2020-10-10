@@ -11,8 +11,7 @@ import           Parser.ParserSequence (parseBracketedSeq)
 import           Parser.ParState       (ParserState, throwError)
 import           Parser.TokClass       (OpTokType (..))
 import qualified Parser.TokClass       as TokClass
-import           Parser.TokConsume     (checkAndConsume, consumeTok,
-                                        verifyAndConsume)
+import           Parser.TokConsume     (checkAndConsume, consumeTok)
 import qualified Parser.TokConvert     as TokConvert
 import           Parser.TokToNodeData  (makeNodeDat)
 import           Types.AST             (ArrayNode (..), Tree (..))
@@ -58,9 +57,9 @@ parseTernaryExp tokens = do
         dat             <- makeNodeDat tokens
         (cond, tokens') <- parseLogicalOrExp tokens
         case tokens' of
-             (QuestMark _:rest) -> do
+             (Separator QuestMark _:rest) -> do
                      (expr1, tokens'')   <- parseExpression rest
-                     tokens'''           <- verifyAndConsume (Colon $ headTokenData tokens'') tokens''
+                     tokens'''           <- checkAndConsume (Sep Colon) tokens''
                      (expr2, tokens'''') <- parseTernaryExp tokens'''
                      pure (TernaryNode cond expr1 expr2 dat, tokens'''')
              _ -> pure (cond, tokens')
@@ -130,7 +129,7 @@ parseFactor :: [Token] -> ParserState (Tree, [Token])
 parseFactor [] = throwError $ ParserError (LexDataError [])
 parseFactor tokens@(next:rest) =
         case next of
-             SemiColon _             -> parseNullExpression tokens
+             Separator SemiColon _   -> parseNullExpression tokens
              ConstInt _ _            -> parseConstant tokens
              OpTok Ampersand _       -> parseAddressOf tokens
              OpTok Asterisk _        -> parseDereference tokens
@@ -190,7 +189,7 @@ parseItem tokens = do
 parseNullExpression :: [Token] -> ParserState (Tree, [Token])
 parseNullExpression tokens = do
         dat     <- makeNodeDat tokens
-        tokens' <- verifyAndConsume (SemiColon $ headTokenData tokens) tokens
+        tokens' <- checkAndConsume (Sep SemiColon) tokens
         pure (NullExprNode dat, tokens')
 
 

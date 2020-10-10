@@ -39,10 +39,10 @@ buildTokMsg t = "'" ++ toStringToken t ++ "'"
 toStringToken :: Token -> String
 toStringToken tok =
         case tok of
-             SemiColon _                   -> ";"
-             Colon _                       -> ":"
-             QuestMark _                   -> "?"
-             Comma _                       -> ","
+             Separator SemiColon _         -> ";"
+             Separator Colon _             -> ":"
+             Separator QuestMark _         -> "?"
+             Separator Comma _             -> ","
              OpenBracket OpenParen _       -> "("
              OpenBracket OpenBrace _       -> "{"
              OpenBracket OpenSqBracket _   -> "["

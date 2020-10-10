@@ -21,7 +21,7 @@ parserFunctionTest = hspec $ do
                                         Ident "dog" dummyLexDat,
                                         OpenBracket OpenParen dummyLexDat,
                                         CloseBracket CloseParen dummyLexDat,
-                                        SemiColon dummyLexDat
+                                        Separator SemiColon dummyLexDat
                                        ])
                   `shouldBe`
                   ProgramNode [FunctionNode
@@ -54,7 +54,7 @@ parserFunctionTest = hspec $ do
                                         OpenBracket OpenParen dummyLexDat,
                                         Keyword Int dummyLexDat,
                                         Ident "a" dummyLexDat,
-                                        Comma dummyLexDat,
+                                        Separator Comma dummyLexDat,
                                         Keyword Int dummyLexDat,
                                         OpTok Asterisk dummyLexDat,
                                         Ident "b" dummyLexDat,
@@ -109,7 +109,7 @@ parserFunctionTest = hspec $ do
                                         OpenBracket OpenBrace dummyLexDat,
                                         Keyword Return dummyLexDat,
                                         ConstInt 2 dummyLexDat,
-                                        SemiColon dummyLexDat,
+                                        Separator SemiColon dummyLexDat,
                                         CloseBracket CloseBrace dummyLexDat
                                        ])
                   `shouldBe`
@@ -130,7 +130,7 @@ parserFunctionTest = hspec $ do
 
                 it "Should throw error on missing function identifier" $
                   (extractFunctionError [Keyword Int dummyLexDat,
-                                         Comma dummyLexDat,
+                                         Separator Comma dummyLexDat,
                                          OpenBracket OpenParen dummyLexDat,
                                          CloseBracket CloseParen dummyLexDat,
                                          OpenBracket OpenBrace dummyLexDat,

@@ -84,7 +84,7 @@ parseParamValue tokens = throwError $ ParserError (LexDataError tokens)
 
 
 parseFuncBody :: [Token] -> ParserState (Maybe Tree, [Token])
-parseFuncBody (SemiColon _:rest) = pure (Nothing, rest)
+parseFuncBody (Separator SemiColon _:rest) = pure (Nothing, rest)
 parseFuncBody body@(OpenBracket OpenBrace _:_) = do
         (tree, tokens') <- parseStatement body
         pure (Just tree, tokens')

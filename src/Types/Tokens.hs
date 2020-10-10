@@ -4,21 +4,30 @@ module Types.Tokens where
 
 data Token = OpenBracket OpenBracket LexDat
            | CloseBracket CloseBracket LexDat
-           | SemiColon LexDat
+           -- | SemiColon LexDat
            | OpTok OpTok LexDat
            | Ident String LexDat
            | ConstInt Int LexDat
            | Keyword Keyword LexDat
-           | Colon LexDat
-           | QuestMark LexDat
-           | Comma LexDat
+           | Separator Separator LexDat
+           -- | Colon LexDat
+           -- | QuestMark LexDat
+           -- | Comma LexDat
            deriving (Show, Eq)
 
 
 data SynTok = Open OpenBracket
             | Close CloseBracket
             | Word Keyword
+            | Sep Separator
             deriving (Show, Eq)
+
+
+data Separator = SemiColon
+               | Comma
+               | QuestMark
+               | Colon
+               deriving (Show, Eq)
 
 
 data OpenBracket = OpenParen
@@ -95,16 +104,16 @@ mkLexDat cs n = LexDat cs n
 
 
 tokenData :: Token -> LexDat
-tokenData (SemiColon dat)      = dat
-tokenData (Colon dat)          = dat
-tokenData (QuestMark dat)      = dat
-tokenData (Comma dat)          = dat
-tokenData (OpenBracket _ dat)  = dat
-tokenData (CloseBracket _ dat) = dat
-tokenData (Ident _ dat)        = dat
-tokenData (ConstInt _ dat)     = dat
-tokenData (Keyword _ dat)      = dat
-tokenData (OpTok _ dat)        = dat
+tokenData (Separator SemiColon dat) = dat
+tokenData (Separator Colon dat)     = dat
+tokenData (Separator QuestMark dat) = dat
+tokenData (Separator Comma dat)     = dat
+tokenData (OpenBracket _ dat)       = dat
+tokenData (CloseBracket _ dat)      = dat
+tokenData (Ident _ dat)             = dat
+tokenData (ConstInt _ dat)          = dat
+tokenData (Keyword _ dat)           = dat
+tokenData (OpTok _ dat)             = dat
 
 
 headTokenData :: [Token] -> LexDat

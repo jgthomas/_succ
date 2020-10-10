@@ -95,10 +95,10 @@ parserDeclarationTest = hspec $ do
                                            OpTok EqualSign dummyLexDat,
                                            OpenBracket OpenBrace dummyLexDat,
                                            ConstInt 10 dummyLexDat,
-                                           Comma dummyLexDat,
+                                           Separator Comma dummyLexDat,
                                            ConstInt 20 dummyLexDat,
                                            CloseBracket CloseBrace dummyLexDat,
-                                           SemiColon dummyLexDat
+                                           Separator SemiColon dummyLexDat
                                           ]
                   )
                   `shouldBe`
@@ -135,10 +135,10 @@ parserDeclarationTest = hspec $ do
                                            OpTok EqualSign dummyLexDat,
                                            OpenBracket OpenBrace dummyLexDat,
                                            ConstInt 10 dummyLexDat,
-                                           Comma dummyLexDat,
+                                           Separator Comma dummyLexDat,
                                            ConstInt 20 dummyLexDat,
                                            CloseBracket CloseBrace dummyLexDat,
-                                           SemiColon dummyLexDat
+                                           Separator SemiColon dummyLexDat
                                           ]
                   )
                   `shouldBe`
@@ -179,10 +179,10 @@ parserDeclarationTest = hspec $ do
                                             OpTok EqualSign dummyLexDat,
                                             OpenBracket OpenBrace dummyLexDat,
                                             ConstInt 10 dummyLexDat,
-                                            Comma dummyLexDat,
+                                            Separator Comma dummyLexDat,
                                             ConstInt 20 dummyLexDat,
                                             CloseBracket CloseBrace dummyLexDat,
-                                            SemiColon dummyLexDat
+                                            Separator SemiColon dummyLexDat
                                            ]
                   )
                   `shouldBe`

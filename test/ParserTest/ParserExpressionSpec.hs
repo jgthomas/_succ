@@ -39,7 +39,7 @@ parserExpressionTest = hspec $ do
                                mockNodeDat]
 
                 it "Should build a null expression tree" $
-                  (extractExpressionTree [SemiColon dummyLexDat])
+                  (extractExpressionTree [Separator SemiColon dummyLexDat])
                   `shouldBe`
                   ProgramNode [NullExprNode mockNodeDat]
 
@@ -67,11 +67,11 @@ parserExpressionTest = hspec $ do
                   (extractExpressionTree [ConstInt 2 dummyLexDat,
                                           OpTok EqualEqual dummyLexDat,
                                           ConstInt 2 dummyLexDat,
-                                          QuestMark dummyLexDat,
+                                          Separator QuestMark dummyLexDat,
                                           ConstInt 10 dummyLexDat,
-                                          Colon dummyLexDat,
+                                          Separator Colon dummyLexDat,
                                           ConstInt 6 dummyLexDat,
-                                          SemiColon dummyLexDat
+                                          Separator SemiColon dummyLexDat
                                          ]
                   )
                   `shouldBe`
@@ -98,7 +98,7 @@ parserExpressionTest = hspec $ do
                   (extractExpressionTree [Ident "cat" dummyLexDat,
                                           OpenBracket OpenParen dummyLexDat,
                                           ConstInt 3 dummyLexDat,
-                                          Comma dummyLexDat,
+                                          Separator Comma dummyLexDat,
                                           ConstInt 4 dummyLexDat,
                                           CloseBracket CloseParen dummyLexDat
                                          ])
@@ -124,7 +124,7 @@ parserExpressionTest = hspec $ do
                                           CloseBracket CloseParen dummyLexDat,
                                           OpTok Asterisk dummyLexDat,
                                           ConstInt 3 dummyLexDat,
-                                          SemiColon dummyLexDat
+                                          Separator SemiColon dummyLexDat
                                          ]
                   )
                   `shouldBe`
@@ -152,7 +152,7 @@ parserExpressionTest = hspec $ do
                                           OpenBracket OpenSqBracket dummyLexDat,
                                           ConstInt 1 dummyLexDat,
                                           CloseBracket CloseSqBracket dummyLexDat,
-                                          SemiColon dummyLexDat
+                                          Separator SemiColon dummyLexDat
                                          ]
                   )
                   `shouldBe`
@@ -176,7 +176,7 @@ parserExpressionTest = hspec $ do
                                           CloseBracket CloseSqBracket dummyLexDat,
                                           OpTok EqualSign dummyLexDat,
                                           ConstInt 10 dummyLexDat,
-                                          SemiColon dummyLexDat
+                                          Separator SemiColon dummyLexDat
                                          ]
                   )
                   `shouldBe`
@@ -200,7 +200,7 @@ parserExpressionTest = hspec $ do
                                           Ident "b" dummyLexDat,
                                           OpTok PlusEqual dummyLexDat,
                                           ConstInt 10 dummyLexDat,
-                                          SemiColon dummyLexDat
+                                          Separator SemiColon dummyLexDat
                                          ]
                   )
                   `shouldBe`
