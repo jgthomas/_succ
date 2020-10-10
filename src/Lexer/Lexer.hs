@@ -46,16 +46,16 @@ lexInput inputCode@(c:cs)
 lexToken :: String -> LexerState (Token, String)
 lexToken [] = throwError ImpossibleError
 lexToken inputCode@(c:_)
-        | isSeparator c = lexSeparator inputCode
-        | isOpSymbol c  = lexOperator inputCode
-        | identStart c  = lexIdentifier inputCode
-        | isDigit c     = lexNumber inputCode
-        | otherwise     = throwError $ LexerError (UnexpectedInput inputCode)
+        | isSingleSynTok c = lexSingleSynTok inputCode
+        | isOpSymbol c     = lexOperator inputCode
+        | identStart c     = lexIdentifier inputCode
+        | isDigit c        = lexNumber inputCode
+        | otherwise        = throwError $ LexerError (UnexpectedInput inputCode)
 
 
-lexSeparator :: String -> LexerState (Token, String)
-lexSeparator [] = throwError ImpossibleError
-lexSeparator (c:cs) = do
+lexSingleSynTok :: String -> LexerState (Token, String)
+lexSingleSynTok [] = throwError ImpossibleError
+lexSingleSynTok (c:cs) = do
         dat <- LexState.mkLexDat [c]
         case c of
              '(' -> pure (OpenBracket OpenParen dat, cs)
@@ -158,8 +158,8 @@ oneCharOperator inputCode@(c:cs) = do
              _   -> throwError $ LexerError (UnexpectedInput inputCode)
 
 
-isSeparator :: Char -> Bool
-isSeparator c = c `elem` separators
+isSingleSynTok :: Char -> Bool
+isSingleSynTok c = c `elem` singleSynToks
 
 
 isOpSymbol :: Char -> Bool
@@ -174,8 +174,8 @@ opSymbols :: String
 opSymbols = "+-*/~!|&<>=%^"
 
 
-separators :: String
-separators = "(){};:,?[]"
+singleSynToks :: String
+singleSynToks = "(){};:,?[]"
 
 
 identStart :: Char -> Bool
