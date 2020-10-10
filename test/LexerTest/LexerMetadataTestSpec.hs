@@ -9,9 +9,9 @@ import Lexer.Lexer
 import Types.Tokens
 
 
-lexerMetadataTest:: IO ()
+lexerMetadataTest :: IO ()
 lexerMetadataTest = hspec $ do
-        describe "Capture correct metadata on lexing" $ do
+        describe "Lexing input captures correct metadata" $ do
 
                 it "Should record the correct line for each token" $
                   (map (line . tokenData) $

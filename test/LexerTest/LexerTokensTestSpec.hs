@@ -7,13 +7,13 @@ import Test.Hspec
 
 import Lexer.Lexer
 import LexerTest.TestUtility (dummyData)
-import Types.Error
 import Types.Tokens
 
 
 lexerTokensTest :: IO ()
 lexerTokensTest = hspec $ do
         describe "Lex input string into tokens" $ do
+
                 it "Should correctly lex all separator characters" $
                   (dummyData $
                   concatMap
@@ -200,12 +200,3 @@ lexerTokensTest = hspec $ do
                               ConstInt 2 dummyLexDat,
                               Separator SemiColon dummyLexDat,
                               CloseBracket CloseBrace dummyLexDat]
-
-        describe "Throw errors on bad input" $ do
-                it "Should throw error for unrecognised character" $
-                  fromLeft ImpossibleError (tokenize "$")
-                  `shouldBe` LexerError (UnexpectedInput "$")
-
-                it "Should throw error for empty input" $
-                  fromLeft ImpossibleError (tokenize "")
-                  `shouldBe` LexerError EmptyInput
