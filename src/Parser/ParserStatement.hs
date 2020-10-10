@@ -133,7 +133,7 @@ parseForLoopPostExp tokens = parseExpression tokens
 parseDoWhile :: [Token] -> ParserState (Tree, [Token])
 parseDoWhile tokens@(Keyword Do _:OpenBracket OpenBrace _:_) = do
         dat               <- makeNodeDat tokens
-        tokens'           <- verifyAndConsume (Keyword Do $ headTokenData tokens) tokens
+        tokens'           <- checkAndConsume (Word Do) tokens
         (stmts, tokens'') <- parseStatement tokens'
         case tokens'' of
              (Keyword While _:rest) -> do
@@ -150,7 +150,7 @@ parseDoWhile [] = throwError $ ParserError (LexDataError [])
 parseWhileStatement :: [Token] -> ParserState (Tree, [Token])
 parseWhileStatement tokens = do
         dat                <- makeNodeDat tokens
-        tokens'            <- verifyAndConsume (Keyword While $ headTokenData tokens) tokens
+        tokens'            <- checkAndConsume (Word While) tokens
         (test, tokens'')   <- parseConditionalParen tokens'
         (stmts, tokens''') <- parseStatement tokens''
         pure (WhileNode test stmts dat, tokens''')
@@ -159,7 +159,7 @@ parseWhileStatement tokens = do
 parseIfStatement :: [Token] -> ParserState (Tree, [Token])
 parseIfStatement tokens = do
         dat                    <- makeNodeDat tokens
-        tokens'                <- verifyAndConsume (Keyword If $ headTokenData tokens) tokens
+        tokens'                <- checkAndConsume (Word If) tokens
         (test, tokens'')       <- parseConditionalParen tokens'
         (stmts, tokens''')     <- parseStatement tokens''
         (possElse, tokens'''') <- parseOptionalElse tokens'''
@@ -168,9 +168,9 @@ parseIfStatement tokens = do
 
 parseConditionalParen :: [Token] -> ParserState (Tree, [Token])
 parseConditionalParen tokens = do
-        tokens'             <- verifyAndConsume (OpenBracket OpenParen $ headTokenData tokens) tokens
+        tokens'             <- checkAndConsume (Open OpenParen) tokens
         (test, tokens'')    <- parseExpression tokens'
-        tokens'''           <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens'') tokens''
+        tokens'''           <- checkAndConsume (Close CloseParen) tokens''
         pure (test, tokens''')
 
 
@@ -184,7 +184,7 @@ parseOptionalElse tokens = pure (Nothing, tokens)
 parseReturnStmt :: [Token] -> ParserState (Tree, [Token])
 parseReturnStmt tokens = do
         dat              <- makeNodeDat tokens
-        tokens'          <- verifyAndConsume (Keyword Return $ headTokenData tokens) tokens
+        tokens'          <- checkAndConsume (Word Return) tokens
         (tree, tokens'') <- parseExpression tokens'
         tokens'''        <- verifyAndConsume (SemiColon $ headTokenData tokens'') tokens''
         pure (ReturnNode tree dat, tokens''')
