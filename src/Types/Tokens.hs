@@ -110,9 +110,3 @@ tokenData (Ident _ dat)             = dat
 tokenData (ConstInt _ dat)          = dat
 tokenData (Keyword _ dat)           = dat
 tokenData (OpTok _ dat)             = dat
-
-
-headTokenData :: [Token] -> LexDat
-headTokenData []      = dummyLexDat
-headTokenData [tok]   = tokenData tok
-headTokenData (tok:_) = tokenData tok
