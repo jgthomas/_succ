@@ -434,7 +434,7 @@ parserStatementTest = hspec $ do
                   `shouldBe`
                   SyntaxError (MissingToken
                                (OpenBracket OpenParen dummyLexDat)
-                               $ Keyword While dummyLexDat
+                               $ SemiColon dummyLexDat
                               )
 
                 it "Should throw error for do-while loop missing semicolon after while" $

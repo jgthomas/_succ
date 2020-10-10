@@ -136,15 +136,12 @@ parseDoWhile tokens@(Keyword Do _:OpenBracket OpenBrace _:_) = do
         tokens'           <- verifyAndConsume (Keyword Do $ headTokenData tokens) tokens
         (stmts, tokens'') <- parseStatement tokens'
         case tokens'' of
-             (Keyword While _:OpenBracket OpenParen _:rest) -> do
-                     (test, tokens''') <- parseExpression rest
-                     tokens''''        <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens''') tokens'''
-                     tokens'''''       <- verifyAndConsume (SemiColon $ headTokenData tokens'''') tokens''''
-                     pure (DoWhileNode stmts test dat, tokens''''')
+             (Keyword While _:rest) -> do
+                     (test, tokens''') <- parseConditionalParen rest
+                     tokens''''        <- verifyAndConsume (SemiColon $ headTokenData tokens''') tokens'''
+                     pure (DoWhileNode stmts test dat, tokens'''')
              (_:token@(OpenBracket OpenParen _):_) ->
                      throwError $ SyntaxError (MissingKeyword While token)
-             (token@(Keyword While _):_:_) ->
-                     throwError $ SyntaxError (MissingToken (OpenBracket OpenParen dummyLexDat) token)
              _ -> throwError $ ParserError (LexDataError tokens')
 parseDoWhile (token:_) = throwError $ SyntaxError (MissingToken (OpenBracket OpenBrace dummyLexDat) token)
 parseDoWhile [] = throwError $ ParserError (LexDataError [])
