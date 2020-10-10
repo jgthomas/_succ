@@ -8,6 +8,7 @@ coverage:
   status:
     project:
       default:
+        enabled: yes
         target: 75
 
 parsers:
