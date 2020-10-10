@@ -11,7 +11,8 @@ import           Parser.ParserSequence (parseBracketedSeq)
 import           Parser.ParState       (ParserState, throwError)
 import           Parser.TokClass       (OpTokType (..))
 import qualified Parser.TokClass       as TokClass
-import           Parser.TokConsume     (consumeTok, verifyAndConsume)
+import           Parser.TokConsume     (checkAndConsume, consumeTok,
+                                        verifyAndConsume)
 import qualified Parser.TokConvert     as TokConvert
 import           Parser.TokToNodeData  (makeNodeDat)
 import           Types.AST             (ArrayNode (..), Tree (..))
@@ -164,7 +165,7 @@ parseArrayItems tokens@(Ident name _:OpenBracket OpenBrace _:_) = do
         tokens'           <- consumeTok tokens
         dat               <- makeNodeDat tokens'
         (items, tokens'') <- parseItems [] tokens'
-        tokens'''         <- verifyAndConsume (CloseBracket CloseBrace $ headTokenData tokens'') tokens''
+        tokens'''         <- checkAndConsume (Close CloseBrace) tokens''
         pure (ArrayNode (ArrayItemsNode (VarNode name varDat) items dat), tokens''')
 parseArrayItems tokens = throwError $ ParserError (LexDataError tokens)
 
@@ -229,7 +230,7 @@ parseArrayIndex tokens = throwError $ ParserError (LexDataError tokens)
 parseParenExp :: [Token] -> ParserState (Tree, [Token])
 parseParenExp tokens = do
         (tree, tokens') <- parseExpression tokens
-        tokens''        <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens') tokens'
+        tokens''        <- checkAndConsume (Close CloseParen) tokens'
         pure (tree, tokens'')
 
 
@@ -254,7 +255,7 @@ parseFuncCall tokens@(Ident a _:OpenBracket OpenParen _:_) = do
         dat              <- makeNodeDat tokens
         tokens'          <- consumeTok tokens
         (tree, tokens'') <- parseArgs [] tokens'
-        tokens'''        <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens'') tokens''
+        tokens'''        <- checkAndConsume (Close CloseParen) tokens''
         pure (FuncCallNode a tree dat, tokens''')
 parseFuncCall (token@(Ident _ _):_:_) =
         throwError $ SyntaxError (MissingToken (OpenBracket OpenParen dummyLexDat) token)
