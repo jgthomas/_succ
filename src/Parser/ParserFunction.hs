@@ -12,7 +12,7 @@ import Parser.ParserSequence   (parseBracketedSeq)
 import Parser.ParserStatement  (parseStatement)
 import Parser.ParserType       (parseType)
 import Parser.ParState         (ParserState, throwError)
-import Parser.TokConsume       (consumeNToks, consumeTok, verifyAndConsume)
+import Parser.TokConsume       (checkAndConsume, consumeNToks, consumeTok)
 import Parser.TokToNodeData    (makeNodeDat)
 import Types.AST               (Tree (..))
 import Types.Error             (CompilerError (ParserError, SyntaxError),
@@ -51,7 +51,7 @@ parseFuncParams tokens = throwError $ ParserError (LexDataError tokens)
 parseAllParams :: [Token] -> ParserState ([Tree], [Token])
 parseAllParams tokens = do
         (params, tokens') <- parseParams [] tokens
-        tokens''          <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens') tokens'
+        tokens''          <- checkAndConsume (Close CloseParen) tokens'
         pure (params, tokens'')
 
 
