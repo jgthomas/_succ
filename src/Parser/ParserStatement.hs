@@ -107,11 +107,10 @@ parseForLoop tokens = do
         (change, tokens''''')  <- parsePostExp tokens''''
         tokens''''''           <- checkAndConsume (Close CloseParen) tokens'''''
         (stmts, tokens''''''') <- parseStatement tokens''''''
-        case test of
-             (NullExprNode _) ->
-                     pure (ForLoopNode ini (ConstantNode 1 dat) change stmts dat, tokens''''''')
-             _                ->
-                     pure (ForLoopNode ini test change stmts dat, tokens''''''')
+        let testCond = case test of
+                            NullExprNode _ -> ConstantNode 1 dat
+                            _              -> test
+        pure (ForLoopNode ini testCond change stmts dat, tokens''''''')
 
 
 parsePostExp :: [Token] -> ParserState (Tree, [Token])
