@@ -8,7 +8,7 @@ module Parser.ParserSequence (parseBracketedSeq) where
 
 
 import Parser.ParState   (ParserState, throwError)
-import Parser.TokConsume (consumeTok)
+import Parser.TokConsume (consume)
 import Types.AST         (Tree)
 import Types.Error       (CompilerError (ParserError, SyntaxError),
                           ParserError (..), SyntaxError (..))
@@ -24,7 +24,7 @@ parseBracketedSeq :: [Tree]
 parseBracketedSeq _ [] _ = throwError $ ParserError (LexDataError [])
 
 parseBracketedSeq trees tokens@(OpenBracket _ _:CloseBracket _ _:_) _ = do
-                                      tokens' <- consumeTok tokens
+                                      tokens' <- consume 1 tokens
                                       pure (reverse trees, tokens')
 
 parseBracketedSeq trees tokens@(CloseBracket _ _:_) _ = pure (reverse trees, tokens)

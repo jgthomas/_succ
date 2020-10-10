@@ -12,7 +12,7 @@ import           Parser.ParserExpression (parseExpression)
 import           Parser.ParserType       (parseType)
 import           Parser.ParState         (ParserState, throwError)
 import qualified Parser.TokClass         as TokClass (isAssign)
-import           Parser.TokConsume       (checkAndConsume, consumeTok)
+import           Parser.TokConsume       (checkAndConsume, consume)
 import           Parser.TokToNodeData    (makeNodeDat)
 import           Types.AST               (ArrayNode (..), Tree (..))
 import           Types.Error             (CompilerError (ParserError, SyntaxError),
@@ -102,7 +102,7 @@ parseOptionalAssign (_:OpenBracket OpenSqBracket _:
                      CloseBracket CloseSqBracket _:
                      rest) = pure (Nothing, rest)
 parseOptionalAssign tokens = do
-        tokens' <- consumeTok tokens
+        tokens' <- consume 1 tokens
         pure (Nothing, tokens')
 
 
@@ -119,5 +119,5 @@ findVarName :: [Token] -> ParserState [Token]
 findVarName [] = pure []
 findVarName tokens@(Ident _ _:_) = pure tokens
 findVarName tokens = do
-        tokens' <- consumeTok tokens
+        tokens' <- consume 1 tokens
         findVarName tokens'

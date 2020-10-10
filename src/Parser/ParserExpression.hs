@@ -11,7 +11,7 @@ import           Parser.ParserSequence (parseBracketedSeq)
 import           Parser.ParState       (ParserState, throwError)
 import           Parser.TokClass       (OpTokType (..))
 import qualified Parser.TokClass       as TokClass
-import           Parser.TokConsume     (checkAndConsume, consumeTok)
+import           Parser.TokConsume     (checkAndConsume, consume)
 import qualified Parser.TokConvert     as TokConvert
 import           Parser.TokToNodeData  (makeNodeDat)
 import           Types.AST             (ArrayNode (..), Tree (..))
@@ -161,7 +161,7 @@ parseIdent tokens = throwError $ ParserError (LexDataError tokens)
 parseArrayItems :: [Token] -> ParserState (Tree, [Token])
 parseArrayItems tokens@(Ident name _:OpenBracket OpenBrace _:_) = do
         varDat            <- makeNodeDat tokens
-        tokens'           <- consumeTok tokens
+        tokens'           <- consume 1 tokens
         dat               <- makeNodeDat tokens'
         (items, tokens'') <- parseItems [] tokens'
         tokens'''         <- checkAndConsume (Close CloseBrace) tokens''
@@ -252,7 +252,7 @@ parseDereference tokens = throwError $ ParserError (LexDataError tokens)
 parseFuncCall :: [Token] -> ParserState (Tree, [Token])
 parseFuncCall tokens@(Ident a _:OpenBracket OpenParen _:_) = do
         dat              <- makeNodeDat tokens
-        tokens'          <- consumeTok tokens
+        tokens'          <- consume 1 tokens
         (tree, tokens'') <- parseArgs [] tokens'
         tokens'''        <- checkAndConsume (Close CloseParen) tokens''
         pure (FuncCallNode a tree dat, tokens''')

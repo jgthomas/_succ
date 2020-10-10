@@ -12,7 +12,7 @@ import Parser.ParserSequence   (parseBracketedSeq)
 import Parser.ParserStatement  (parseStatement)
 import Parser.ParserType       (parseType)
 import Parser.ParState         (ParserState, throwError)
-import Parser.TokConsume       (checkAndConsume, consumeNToks, consumeTok)
+import Parser.TokConsume       (checkAndConsume, consume)
 import Parser.TokToNodeData    (makeNodeDat)
 import Types.AST               (Tree (..))
 import Types.Error             (CompilerError (ParserError, SyntaxError),
@@ -40,10 +40,10 @@ parseFuncName [] = throwError $ ParserError (LexDataError [])
 
 parseFuncParams :: [Token] -> ParserState ([Tree], [Token])
 parseFuncParams tokens@(_:OpTok Asterisk _:_:OpenBracket OpenParen _:_) = do
-        tokens' <- consumeNToks 3 tokens
+        tokens' <- consume 3 tokens
         parseAllParams tokens'
 parseFuncParams tokens@(_:Ident _ _:OpenBracket OpenParen _:_) = do
-        tokens' <- consumeNToks 2 tokens
+        tokens' <- consume 2 tokens
         parseAllParams tokens'
 parseFuncParams tokens = throwError $ ParserError (LexDataError tokens)
 
@@ -70,7 +70,7 @@ parseParam :: [Token] -> ParserState (Tree, [Token])
 parseParam tokens = do
         nodeDat          <- makeNodeDat tokens
         typ              <- parseType tokens
-        tokens'          <- consumeTok tokens
+        tokens'          <- consume 1 tokens
         (tree, tokens'') <- parseParamValue tokens'
         case tree of
              VarNode{} -> pure (ParamNode typ tree nodeDat, tokens'')
