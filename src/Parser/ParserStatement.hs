@@ -24,9 +24,9 @@ parseStatement :: [Token] -> ParserState (Tree, [Token])
 parseStatement [] = throwError $ ParserError (LexDataError [])
 parseStatement tokens@(first:_) =
         case first of
-             Keyword Return _        -> parseReturnStmt tokens
-             Keyword If _            -> parseIfStatement tokens
-             Keyword While _         -> parseWhileStatement tokens
+             Keyword Return _        -> parseReturn tokens
+             Keyword If _            -> parseIf tokens
+             Keyword While _         -> parseWhile tokens
              Keyword Do _            -> parseDoWhile tokens
              Keyword For _           -> parseForLoop tokens
              Keyword Break _         -> parseBreak tokens
@@ -145,8 +145,8 @@ parseDoWhile tokens = do
         pure (DoWhileNode stmts test dat, tokens''''')
 
 
-parseWhileStatement :: [Token] -> ParserState (Tree, [Token])
-parseWhileStatement tokens = do
+parseWhile :: [Token] -> ParserState (Tree, [Token])
+parseWhile tokens = do
         dat                <- makeNodeDat tokens
         tokens'            <- checkAndConsume (Word While) tokens
         (test, tokens'')   <- parseConditionalParen tokens'
@@ -154,8 +154,8 @@ parseWhileStatement tokens = do
         pure (WhileNode test stmts dat, tokens''')
 
 
-parseIfStatement :: [Token] -> ParserState (Tree, [Token])
-parseIfStatement tokens = do
+parseIf :: [Token] -> ParserState (Tree, [Token])
+parseIf tokens = do
         dat                    <- makeNodeDat tokens
         tokens'                <- checkAndConsume (Word If) tokens
         (test, tokens'')       <- parseConditionalParen tokens'
@@ -179,8 +179,8 @@ parseOptionalElse (Keyword Else _:rest) = do
 parseOptionalElse tokens = pure (Nothing, tokens)
 
 
-parseReturnStmt :: [Token] -> ParserState (Tree, [Token])
-parseReturnStmt tokens = do
+parseReturn :: [Token] -> ParserState (Tree, [Token])
+parseReturn tokens = do
         dat              <- makeNodeDat tokens
         tokens'          <- checkAndConsume (Word Return) tokens
         (tree, tokens'') <- parseExpression tokens'
