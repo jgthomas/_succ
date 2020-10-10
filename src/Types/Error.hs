@@ -5,7 +5,7 @@ module Types.Error where
 import Types.AssemblySchema (AssemblySchema)
 import Types.AST            (Tree)
 import Types.Operator       (Operator)
-import Types.Tokens         (Keyword, Token)
+import Types.Tokens         (Token)
 import Types.Type           (Type)
 
 
@@ -34,7 +34,6 @@ data ParserError = TreeError Tree
 data SyntaxError = NonValidIdentifier Token
                  | MissingToken Token Token
                  | UnexpectedLexDat Token
-                 | MissingKeyword Keyword Token
                  | LengthMismatch Tree Int Int
                  | UndeclaredLen Tree
                  | BadType Token

@@ -29,10 +29,6 @@ syntaxErrorMsg (NonValidIdentifier d) = (msg, mkRange d)
                     ++ "Invalid identifier "
                     ++ PrintErrorTokens.buildTokMsg d
 
-syntaxErrorMsg (MissingKeyword kwd d) = (msg, mkRange d)
-        where msg = buildLineMsg d
-                    ++ "Expected keyword " ++ show kwd
-
 syntaxErrorMsg err = (show err, All)
 
 
