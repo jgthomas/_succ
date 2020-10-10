@@ -4,7 +4,7 @@ Description  : Verifies and consumes lexed tokens
 
 Verifies and consumes tokens created by the lexer.
 -}
-module Parser.TokConsume (verifyAndConsume, consumeNToks, consumeTok) where
+module Parser.TokConsume (verifyAndConsume, consumeNToks, consumeTok, checkAndConsume) where
 
 
 import Control.Monad   (unless)
@@ -12,7 +12,21 @@ import Control.Monad   (unless)
 import Parser.ParState (ParserState, throwError)
 import Types.Error     (CompilerError (ImpossibleError, ParserError, SyntaxError),
                         ParserError (..), SyntaxError (..))
-import Types.Tokens    (Token)
+import Types.Tokens
+
+
+checkAndConsume :: SynTok -> [Token] -> ParserState [Token]
+checkAndConsume _ []    = throwError $ ParserError (LexDataError [])
+checkAndConsume synTok tokens =
+        let token = synTokToToken synTok $ head tokens
+            in
+        verifyAndConsume token tokens
+
+
+synTokToToken :: SynTok -> Token -> Token
+synTokToToken (Open open) token   = OpenBracket open $ tokenData token
+synTokToToken (Close close) token = CloseBracket close $ tokenData token
+synTokToToken (Word word) token   = Keyword word $ tokenData token
 
 
 -- | Verifies the type of a token, then consumes that token

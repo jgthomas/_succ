@@ -12,7 +12,7 @@ import Control.Monad            (unless)
 import Parser.ParserDeclaration (parseDeclaration)
 import Parser.ParserExpression  (parseExpression)
 import Parser.ParState          (ParserState, throwError)
-import Parser.TokConsume        (verifyAndConsume)
+import Parser.TokConsume        (checkAndConsume, verifyAndConsume)
 import Parser.TokToNodeData     (makeNodeDat)
 import Types.AST                (Tree (..))
 import Types.Error              (CompilerError (ParserError, SyntaxError),
@@ -38,9 +38,9 @@ parseStatement tokens@(first:_) =
 parseCompoundStmt :: [Token] -> ParserState (Tree, [Token])
 parseCompoundStmt tokens = do
         dat               <- makeNodeDat tokens
-        tokens'           <- verifyAndConsume (OpenBracket OpenBrace $ headTokenData tokens) tokens
+        tokens'           <- checkAndConsume (Open OpenBrace) tokens
         (items, tokens'') <- parseStatementBlock [] tokens'
-        tokens'''         <- verifyAndConsume (CloseBracket CloseBrace $ headTokenData tokens'') tokens''
+        tokens'''         <- checkAndConsume (Close CloseBrace) tokens''
         pure (CompoundStmtNode items dat, tokens''')
 
 
@@ -100,12 +100,12 @@ parseContinue tokens = throwError $ ParserError (LexDataError tokens)
 parseForLoop :: [Token] -> ParserState (Tree, [Token])
 parseForLoop tokens = do
         dat                    <- makeNodeDat tokens
-        tokens'                <- verifyAndConsume (Keyword For $ headTokenData tokens) tokens
-        tokens''               <- verifyAndConsume (OpenBracket OpenParen $ headTokenData tokens') tokens'
+        tokens'                <- checkAndConsume (Word For) tokens
+        tokens''               <- checkAndConsume (Open OpenParen) tokens'
         (ini, tokens''')       <- parseBlockItem tokens''
         (test, tokens'''')     <- parseExprStatement tokens'''
         (change, tokens''''')  <- parsePostExp tokens''''
-        tokens''''''           <- verifyAndConsume (CloseBracket CloseParen $ headTokenData tokens''''') tokens'''''
+        tokens''''''           <- checkAndConsume (Close CloseParen) tokens'''''
         (stmts, tokens''''''') <- parseStatement tokens''''''
         case test of
              (NullExprNode _) ->

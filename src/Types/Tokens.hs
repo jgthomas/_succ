@@ -15,6 +15,12 @@ data Token = OpenBracket OpenBracket LexDat
            deriving (Show, Eq)
 
 
+data SynTok = Open OpenBracket
+            | Close CloseBracket
+            | Word Keyword
+            deriving (Show, Eq)
+
+
 data OpenBracket = OpenParen
                  | OpenBrace
                  | OpenSqBracket
