@@ -412,7 +412,7 @@ parserStatementTest = hspec $ do
                       in
                   (extractStatementError toks)
                   `shouldBe`
-                  SyntaxError (MissingKeyword While $ OpenBracket OpenParen dummyLexDat)
+                  SyntaxError (MissingToken (Keyword While dummyLexDat) (Separator SemiColon dummyLexDat))
 
                 it "Should throw error for do-while loop missing while open paren" $
                   let toks = [Keyword Do dummyLexDat,

@@ -131,20 +131,14 @@ parseForLoopPostExp tokens = parseExpression tokens
 
 
 parseDoWhile :: [Token] -> ParserState (Tree, [Token])
-parseDoWhile tokens@(Keyword Do _:OpenBracket OpenBrace _:_) = do
-        dat               <- makeNodeDat tokens
-        tokens'           <- checkAndConsume (Word Do) tokens
-        (stmts, tokens'') <- parseStatement tokens'
-        case tokens'' of
-             (Keyword While _:rest) -> do
-                     (test, tokens''') <- parseConditionalParen rest
-                     tokens''''        <- checkAndConsume (Sep SemiColon) tokens'''
-                     pure (DoWhileNode stmts test dat, tokens'''')
-             (_:token:_) -> throwError $ SyntaxError (MissingKeyword While token)
-             [_]         -> throwError $ ParserError (LexDataError tokens'')
-             []          -> throwError $ ParserError (LexDataError tokens'')
-parseDoWhile (token:_) = throwError $ SyntaxError (MissingToken (OpenBracket OpenBrace dummyLexDat) token)
-parseDoWhile [] = throwError $ ParserError (LexDataError [])
+parseDoWhile tokens = do
+        dat                <- makeNodeDat tokens
+        tokens'            <- checkAndConsume (Word Do) tokens
+        (stmts, tokens'')  <- parseStatement tokens'
+        tokens'''          <- checkAndConsume (Word While) tokens''
+        (test, tokens'''') <- parseConditionalParen tokens'''
+        tokens'''''        <- checkAndConsume (Sep SemiColon) tokens''''
+        pure (DoWhileNode stmts test dat, tokens''''')
 
 
 parseWhileStatement :: [Token] -> ParserState (Tree, [Token])
