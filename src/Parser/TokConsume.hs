@@ -4,7 +4,7 @@ Description  : Verifies and consumes lexed tokens
 
 Verifies and consumes tokens created by the lexer.
 -}
-module Parser.TokConsume (verifyAndConsume, consumeNToks, consumeTok, checkAndConsume) where
+module Parser.TokConsume (consumeNToks, consumeTok, checkAndConsume) where
 
 
 import Control.Monad   (unless)
@@ -15,6 +15,7 @@ import Types.Error     (CompilerError (ImpossibleError, ParserError, SyntaxError
 import Types.Tokens
 
 
+-- | Checks the type of a token, then consumes that token if as expected
 checkAndConsume :: SynTok -> [Token] -> ParserState [Token]
 checkAndConsume _ []    = throwError $ ParserError (LexDataError [])
 checkAndConsume synTok tokens =
@@ -30,7 +31,6 @@ synTokToToken (Word word) token   = Keyword word $ tokenData token
 synTokToToken (Sep sep) token     = Separator sep $ tokenData token
 
 
--- | Verifies the type of a token, then consumes that token
 verifyAndConsume :: Token -> [Token] -> ParserState [Token]
 verifyAndConsume t tokens = do
         nextTokIs t tokens
