@@ -2,11 +2,11 @@
 
 **S**uper **U**seless **C** **C**ompiler
 
-Compiling a laughably small subset of C to unoptimised assembly since 2019
-
-## what it does
-
-C goes in, x86-64 assembly code comes out
+* Multi-pass compiler
+* Growing support for C language features
+* Compiles C to x86-64 assembly
+* Robust error handling system, with pretty printed error messages
+* Basic type checking, supports int, int* and int[]
 
 ## testing
 
