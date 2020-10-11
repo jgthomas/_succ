@@ -16,9 +16,19 @@ lexerMetadataTest = hspec $ do
 
                 it "Should correctly extract metadata for syntactic tokens" $
                   (map metaData $ fromRight []
-                   (tokenize "(\n)\n"))
+                   (tokenize "(\n)\n{\n}\n;\n:\n?\n,\n[\n]"))
                   `shouldBe`
-                  [("(", 1), (")", 2)]
+                  [("(", 1),
+                   (")", 2),
+                   ("{", 3),
+                   ("}", 4),
+                   (";", 5),
+                   (":", 6),
+                   ("?", 7),
+                   (",", 8),
+                   ("[", 9),
+                   ("]", 10)
+                  ]
 
                 it "Should record the correct line for each token" $
                   (map (line . tokenData) $
