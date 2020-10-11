@@ -14,7 +14,7 @@ lexerTokensTest :: IO ()
 lexerTokensTest = hspec $ do
         describe "Lex input string into tokens" $ do
 
-                it "Should correctly lex all separator characters" $
+                it "Should correctly lex all syntactic characters" $
                   (dummyData $
                   concatMap
                   (fromRight [] . tokenize)
