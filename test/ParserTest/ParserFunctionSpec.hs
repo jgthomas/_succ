@@ -32,6 +32,23 @@ parserFunctionTest = hspec $ do
                                mockNodeDat
                               ]
 
+                it "Should build a tree for a function declaration returning a pointer" $
+                  (extractFunctionTree [Keyword Int dummyLexDat,
+                                        OpTok Asterisk dummyLexDat,
+                                        Ident "cat" dummyLexDat,
+                                        OpenBracket OpenParen dummyLexDat,
+                                        CloseBracket CloseParen dummyLexDat,
+                                        Separator SemiColon dummyLexDat
+                                       ])
+                  `shouldBe`
+                  ProgramNode [FunctionNode
+                               IntPointer
+                               "cat"
+                               []
+                               Nothing
+                               mockNodeDat
+                              ]
+
                 it "Should build a tree for a function definition" $
                   (extractFunctionTree [Keyword Int dummyLexDat,
                                         Ident "main" dummyLexDat,
