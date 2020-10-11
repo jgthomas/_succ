@@ -35,7 +35,7 @@ parseTopLevelItems [] = ProgramNode . reverse <$> ParState.getState
 parseTopLevelItems tokens@(Keyword _ _:_) = do
         items           <- ParState.getState
         (item, tokens') <- parseTopLevelItem tokens
-        ParState.putState $ ProgramNode (item:items)
+        ParState.putState (item:items)
         parseTopLevelItems tokens'
 parseTopLevelItems tokens = throwError $ ParserError (LexDataError tokens)
 

@@ -116,5 +116,5 @@ runTheParse :: ([Token] -> ParserState (Tree, [Token]))
             -> ParserState Tree
 runTheParse f tokens = do
         (item, _) <- f tokens
-        putState $ ProgramNode [item]
+        putState [item]
         ProgramNode . reverse <$> getState

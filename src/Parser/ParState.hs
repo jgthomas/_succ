@@ -14,24 +14,14 @@ module Parser.ParState
         ) where
 
 
-import           Types.AST       (Tree (ProgramNode))
-import           Types.SuccState (SuccStateM, evaluate, putState, throwError)
-import qualified Types.SuccState as SuccState (getState)
+import Types.AST       (Tree)
+import Types.SuccState (SuccStateM, evaluate, getState, putState, throwError)
 
 
 -- | State definition
-type ParserState = SuccStateM Tree
+type ParserState = SuccStateM [Tree]
 
 
 -- | State constructor
-startState :: Tree
-startState = ProgramNode []
-
-
--- | Get the state
-getState :: ParserState [Tree]
-getState = do
-        ast <- SuccState.getState
-        case ast of
-             (ProgramNode treeList) -> pure treeList
-             _                      -> pure []
+startState :: [Tree]
+startState = []
