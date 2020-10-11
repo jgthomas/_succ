@@ -45,11 +45,12 @@ optimiseBinarySchema schema = schema
 
 
 buildLiteral :: Int -> ExpressionSchema
-buildLiteral n
-        | n >= 0    = LiteralSchema n
-        | otherwise = UnarySchema
-                      (ExpressionSchema (LiteralSchema (abs n)))
-                      (Unary Negate)
+buildLiteral n =
+        if n >= 0
+           then LiteralSchema n
+           else UnarySchema
+                (ExpressionSchema (LiteralSchema (abs n)))
+                (Unary Negate)
 
 
 hasOptimised :: ExpressionSchema -> ExpressionSchema -> Bool
