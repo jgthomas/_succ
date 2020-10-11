@@ -107,6 +107,24 @@ lexerMetadataTest = hspec $ do
                    (">>=", 2)
                   ]
 
+                it "Should build metadata for valid numbers" $
+                  (map metaData $ fromRight []
+                   (tokenize "123\n1\n0"))
+                  `shouldBe`
+                  [("123", 1),
+                   ("1", 2),
+                   ("0", 3)
+                  ]
+
+                it "Should build metadata for easily confused operators" $
+                 (map metaData $ fromRight []
+                  (tokenize "+++\n+="))
+                 `shouldBe`
+                 [("++", 1),
+                  ("+", 1),
+                  ("+=", 2)
+                 ]
+
                 it "Should record the correct line for each token" $
                   (map (line . tokenData) $
                   fromRight [] (tokenize "int main() { \n return 2;\n}"))
