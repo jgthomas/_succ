@@ -14,7 +14,7 @@ lexerMetadataTest :: IO ()
 lexerMetadataTest = hspec $ do
         describe "Lexing input captures correct metadata" $ do
 
-                it "Should correctly extract metadata for syntactic tokens" $
+                it "Should correctly build metadata for syntactic tokens" $
                   (map metaData $ fromRight []
                    (tokenize "(\n)\n{\n}\n;\n:\n?\n,\n[\n]"))
                   `shouldBe`
@@ -28,6 +28,21 @@ lexerMetadataTest = hspec $ do
                    (",", 8),
                    ("[", 9),
                    ("]", 10)
+                  ]
+
+                it "Should correctly build metadata for language keywords" $
+                  (map metaData $ fromRight []
+                   (tokenize "int\nreturn\nif\nelse\nfor\nwhile\ndo\nbreak\ncontinue"))
+                  `shouldBe`
+                  [("int", 1),
+                   ("return", 2),
+                   ("if", 3),
+                   ("else", 4),
+                   ("for", 5),
+                   ("while", 6),
+                   ("do", 7),
+                   ("break", 8),
+                   ("continue", 9)
                   ]
 
                 it "Should record the correct line for each token" $
