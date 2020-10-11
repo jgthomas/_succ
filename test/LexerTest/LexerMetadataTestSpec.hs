@@ -14,7 +14,7 @@ lexerMetadataTest :: IO ()
 lexerMetadataTest = hspec $ do
         describe "Lexing input captures correct metadata" $ do
 
-                it "Should correctly build metadata for syntactic tokens" $
+                it "Should build metadata for syntactic tokens" $
                   (map metaData $ fromRight []
                    (tokenize "(\n)\n{\n}\n;\n:\n?\n,\n[\n]"))
                   `shouldBe`
@@ -30,7 +30,7 @@ lexerMetadataTest = hspec $ do
                    ("]", 10)
                   ]
 
-                it "Should correctly build metadata for language keywords" $
+                it "Should build metadata for language keywords" $
                   (map metaData $ fromRight []
                    (tokenize "int\nreturn\nif\nelse\nfor\nwhile\ndo\nbreak\ncontinue"))
                   `shouldBe`
@@ -43,6 +43,68 @@ lexerMetadataTest = hspec $ do
                    ("do", 7),
                    ("break", 8),
                    ("continue", 9)
+                  ]
+
+                it "Should build metadata for valid identifiers" $
+                  (map metaData $ fromRight []
+                   (tokenize "main\ndog\n_cat\nMouse"))
+                  `shouldBe`
+                  [("main", 1),
+                   ("dog", 2),
+                   ("_cat", 3),
+                   ("Mouse", 4)
+                  ]
+
+                it "Should build metadata for single-character operators" $
+                  (map metaData $ fromRight []
+                   (tokenize "+\n-\n*\n%\n/\n~\n!\n>\n<\n=\n&\n^\n|\n"))
+                  `shouldBe`
+                  [("+", 1),
+                   ("-", 2),
+                   ("*", 3),
+                   ("%", 4),
+                   ("/", 5),
+                   ("~", 6),
+                   ("!", 7),
+                   (">", 8),
+                   ("<", 9),
+                   ("=", 10),
+                   ("&", 11),
+                   ("^", 12),
+                   ("|", 13)
+                  ]
+
+                it "Should build metadata for two-character operators" $
+                  (map metaData $ fromRight []
+                   (tokenize
+                    "||\n&&\n>=\n<=\n==\n!=\n+=\n-=\n*=\n/=\n%=\n++\n--\n&=\n^=\n|=\n<<\n>>\n"))
+                  `shouldBe`
+                  [("||", 1),
+                   ("&&", 2),
+                   (">=", 3),
+                   ("<=", 4),
+                   ("==", 5),
+                   ("!=", 6),
+                   ("+=", 7),
+                   ("-=", 8),
+                   ("*=", 9),
+                   ("/=", 10),
+                   ("%=", 11),
+                   ("++", 12),
+                   ("--", 13),
+                   ("&=", 14),
+                   ("^=", 15),
+                   ("|=", 16),
+                   ("<<", 17),
+                   (">>", 18)
+                  ]
+
+                it "Should build metadata for three-character operators" $
+                  (map metaData $ fromRight []
+                   (tokenize "<<=\n>>="))
+                  `shouldBe`
+                  [("<<=", 1),
+                   (">>=", 2)
                   ]
 
                 it "Should record the correct line for each token" $
