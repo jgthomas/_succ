@@ -9,7 +9,8 @@ module Debug.DebugPrint
 where
 
 import Text.Pretty.Simple
-  ( OutputOptions (..),
+  ( CheckColorTty (..),
+    OutputOptions (..),
     defaultOutputOptionsNoColor,
     pPrint,
     pPrintOpt,
@@ -85,7 +86,7 @@ printTitleAndMessage title msg = do
 
 printCode :: Show a => a -> IO ()
 printCode content = do
-  pPrintOpt options content
+  pPrintOpt NoCheckColorTty options content
   putStr "\n"
   where
     options = defaultOutputOptionsNoColor {outputOptionsIndentAmount = 0}

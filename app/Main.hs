@@ -17,7 +17,6 @@ import System.IO
     hClose,
     hGetContents,
     openFile,
-    writeFile,
   )
 import System.Process (system)
 
