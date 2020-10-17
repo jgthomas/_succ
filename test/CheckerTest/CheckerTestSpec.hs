@@ -1,6 +1,4 @@
-
 module CheckerTest.CheckerTestSpec where
-
 
 --import Test.Hspec
 --

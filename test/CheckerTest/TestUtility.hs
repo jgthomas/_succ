@@ -1,6 +1,4 @@
-
 module CheckerTest.TestUtility where
-
 
 --import Checker.Checker (check)
 --import Types.AST
