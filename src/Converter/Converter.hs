@@ -248,8 +248,13 @@ convertToSchemaArray (ArrayDeclareNode len var typ Nothing dat) = do
   declareSchema <- convertToSchema (DeclarationNode var typ Nothing dat)
   FuncState.incrementOffsetByN (len - 1)
   pure declareSchema
-convertToSchemaArray (ArrayDeclareNode _ var typ assign dat) =
-  convertToSchema (DeclarationNode var typ assign dat)
+convertToSchemaArray (ArrayDeclareNode _ var@(VarNode name _) typ assign dat) = do
+  currScope <- State.getScope
+  if currScope == Local
+    then convertToSchema (DeclarationNode var typ assign dat)
+    else do
+      GlobalState.defineGlobal name
+      convertToSchema (DeclarationNode var typ assign dat)
 convertToSchemaArray (ArrayItemsNode varNode items _) =
   processArrayItems varNode items
 convertToSchemaArray (ArraySingleItemNode item _) =
