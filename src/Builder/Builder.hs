@@ -87,7 +87,7 @@ buildASM
       SkipSchema
       Global
       _
-    ) = pure $ BuildVariables.declareGlobal global 0
+    ) = pure $ BuildVariables.declareGlobal global [0]
 buildASM
   ( DeclarationSchema
       (ExpressionSchema VariableSchema {})
@@ -130,7 +130,7 @@ buildStatementASM
       (ExpressionSchema (VariableSchema globalVar@GlobalVar {} _))
       (ExpressionSchema (LiteralSchema n))
       Global
-    ) = pure $ BuildVariables.declareGlobal globalVar n
+    ) = pure $ BuildVariables.declareGlobal globalVar [n]
 buildStatementASM
   ( AssignmentSchema
       (ExpressionSchema (VariableSchema varType _))
