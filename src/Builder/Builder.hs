@@ -91,10 +91,10 @@ buildASM
 buildASM
   ( DeclarationSchema
       (ExpressionSchema (VariableSchema global@GlobalVar {} _))
-      (StatementSchema ArrayItemsSchema {})
+      (StatementSchema (ArrayItemsSchema _ items))
       Global
       IntArray
-    ) = pure $ BuildVariables.declareGlobal global [1, 7]
+    ) = pure $ BuildVariables.declareGlobal global $ globalArrayValues items
 buildASM
   ( DeclarationSchema
       (ExpressionSchema VariableSchema {})
@@ -264,3 +264,11 @@ buildExpressionASM (AddressOfSchema (ExpressionSchema (VariableSchema varType _)
 buildExpressionASM (DereferenceSchema (ExpressionSchema (VariableSchema varType _))) =
   pure $ BuildVariables.derefLoad varType
 buildExpressionASM schema = throwError $ FatalError (BuilderBug $ ExpressionSchema schema)
+
+globalArrayValues :: [AssemblySchema] -> [Int]
+globalArrayValues arrayItems = fmap globalArrayValue arrayItems
+
+globalArrayValue :: AssemblySchema -> Int
+globalArrayValue (StatementSchema (AssignmentSchema _ (ExpressionSchema (LiteralSchema n)) _)) =
+  n
+globalArrayValue _ = undefined
