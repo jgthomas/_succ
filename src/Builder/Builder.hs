@@ -94,7 +94,7 @@ buildASM
       (StatementSchema ArrayItemsSchema {})
       Global
       IntArray
-    ) = pure $ BuildVariables.declareGlobal global [1, 2, 3]
+    ) = pure $ BuildVariables.declareGlobal global [1, 7]
 buildASM
   ( DeclarationSchema
       (ExpressionSchema VariableSchema {})
