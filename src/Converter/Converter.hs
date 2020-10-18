@@ -515,7 +515,7 @@ adjustVariable Nothing (Just total) (LocalVar offset multiplier _) =
 adjustVariable (Just offset) _ (ParamVar position _) =
   ParamVar position offset
 adjustVariable (Just offset) _ (GlobalVar label _) =
-  GlobalVar label (abs $ offset * State.memOffset)
+  GlobalVar label (div (abs $ offset * State.memOffset) 2)
 adjustVariable _ _ varType = varType
 
 binaryLeftSchema :: Tree -> GenState AssemblySchema
