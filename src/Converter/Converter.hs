@@ -293,8 +293,7 @@ getArrayIndexItem _ node = throwError $ FatalError (ConverterBug node)
 processArrayItems :: Tree -> [Tree] -> GenState AssemblySchema
 processArrayItems varNode items = do
   arrayItems <- mapM (processArrayItem varNode) (zip items [0 ..])
-  FuncState.incrementOffsetByN (length items - 1)
-  adjust <- FuncState.stackPointerValue
+  adjust <- stackPointerAdjustMent items
   pure
     ( StatementSchema
         ( ArrayItemsSchema
@@ -316,6 +315,15 @@ processArrayItem varNode (item, pos) = do
             currScope
         )
     )
+
+stackPointerAdjustMent :: [Tree] -> GenState Int
+stackPointerAdjustMent items = do
+  currScope <- State.getScope
+  if currScope == Global
+    then pure 0
+    else do
+      FuncState.incrementOffsetByN (length items - 1)
+      FuncState.stackPointerValue
 
 setSchemaOffset :: Int -> AssemblySchema -> AssemblySchema
 setSchemaOffset n (ExpressionSchema (VariableSchema varType varValue)) =
