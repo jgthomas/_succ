@@ -90,6 +90,13 @@ buildASM
     ) = pure $ BuildVariables.declareGlobal global [0]
 buildASM
   ( DeclarationSchema
+      (ExpressionSchema (VariableSchema global@GlobalVar {} _))
+      (StatementSchema ArrayItemsSchema {})
+      Global
+      IntArray
+    ) = pure $ BuildVariables.declareGlobal global [1, 2, 3]
+buildASM
+  ( DeclarationSchema
       (ExpressionSchema VariableSchema {})
       SkipSchema
       Local
