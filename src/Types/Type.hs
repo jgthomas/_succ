@@ -8,6 +8,7 @@ where
 
 import Data.Data (Data)
 
+-- | Variable type definitions
 data Type
   = IntVar
   | IntPointer
@@ -21,6 +22,7 @@ instance Show Type where
   show (IntArray n) = "int [] " ++ show n
   show Label = "@label"
 
+-- | Calculate the size of a variable in bytes
 typeSize :: Type -> Int
 typeSize IntVar = inBytes Bits32
 typeSize IntPointer = inBytes Bits64
