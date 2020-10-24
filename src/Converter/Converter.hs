@@ -245,14 +245,20 @@ convertToSchema node = throwError $ FatalError (ConverterBug node)
 
 convertToSchemaArray :: ArrayNode -> GenState AssemblySchema
 convertToSchemaArray (ArrayDeclareNode len var typ Nothing dat) = do
+  currScope <- State.getScope
   declareSchema <- convertToSchema (DeclarationNode var typ Nothing dat)
-  FuncState.incrementOffsetByN (len - 1)
-  pure declareSchema
+  case currScope of
+    Local -> do
+      FuncState.incrementOffsetByN (len - 1)
+      pure declareSchema
+    Global ->
+      pure declareSchema
 convertToSchemaArray (ArrayDeclareNode _ var@(VarNode name _) typ assign dat) = do
   currScope <- State.getScope
   schema <- convertToSchema (DeclarationNode var typ assign dat)
   case currScope of
-    Local -> pure schema
+    Local ->
+      pure schema
     Global -> do
       GlobalState.defineGlobal name
       pure schema
