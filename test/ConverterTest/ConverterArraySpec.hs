@@ -4,6 +4,7 @@ module ConverterTest.ConverterArraySpec
 where
 
 import ConverterTest.TestUtility (extractSchema)
+import Data.Map as M
 import Test.Hspec
 import TestUtility (mockNodeDat)
 import Types.AST
@@ -54,6 +55,25 @@ converterArrayTest = hspec $ do
                       StatementSchema $ ReturnSchema (ExpressionSchema $ LiteralSchema 190)
                     ]
               )
+          ]
+    it "Should create a schema for global array declaration" $
+      ( extractSchema
+          ( ProgramNode
+              [ DeclarationNode
+                  (VarNode "a" mockNodeDat)
+                  (IntArray 2)
+                  Nothing
+                  mockNodeDat
+              ]
+          )
+      )
+        `shouldBe` ProgramSchema
+          [ DeclarationSchema
+              (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) (MultiValue $ M.fromList [(0, 0), (1, 0)]))
+              SkipSchema
+              Global
+              (IntArray 2),
+            SkipSchema
           ]
     it "Should create a schema for a function with local array declaration with assignment" $
       ( extractSchema
