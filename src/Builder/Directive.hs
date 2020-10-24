@@ -2,6 +2,7 @@ module Builder.Directive
   ( outputInit,
     initializedGlobal,
     uninitializedGlobal,
+    uninitializedGlobalArray,
     declareGlobl,
     globlLabel,
     emitLabel,
@@ -37,6 +38,16 @@ uninitializedGlobal label =
     ++ globlLabel label
     ++ section TEXT
 
+-- | Output asm for an uninitialized global array
+uninitializedGlobalArray :: String -> Int -> String
+uninitializedGlobalArray label n =
+  declareGlobl label
+    ++ section BSS
+    ++ align
+    ++ globlLabel label
+    ++ space n
+    ++ section TEXT
+
 -- | Create a label
 emitLabel :: Int -> String
 emitLabel n = "_label_" ++ show n ++ ":\n"
@@ -48,6 +59,9 @@ declareGlobl name = ".globl " ++ name ++ "\n"
 -- | Create a .globl label
 globlLabel :: String -> String
 globlLabel name = name ++ ":\n"
+
+space :: Int -> String
+space n = ".space " ++ show (n * 4) ++ "\n"
 
 section :: Section -> String
 section sect =

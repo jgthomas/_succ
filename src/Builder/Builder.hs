@@ -86,15 +86,15 @@ buildASM
       (ExpressionSchema (VariableSchema global@GlobalVar {} _))
       SkipSchema
       Global
-      _
-    ) = pure $ BuildVariables.declareGlobal global [0]
+      typ
+    ) = pure $ BuildVariables.declareGlobal global typ [0]
 buildASM
   ( DeclarationSchema
       (ExpressionSchema (VariableSchema global@GlobalVar {} _))
       (StatementSchema (ArrayItemsSchema _ items))
       Global
-      (IntArray _)
-    ) = pure $ BuildVariables.declareGlobal global $ globalArrayValues items
+      typ@(IntArray _)
+    ) = pure $ BuildVariables.declareGlobal global typ $ globalArrayValues items
 buildASM
   ( DeclarationSchema
       (ExpressionSchema VariableSchema {})
@@ -137,7 +137,7 @@ buildStatementASM
       (ExpressionSchema (VariableSchema globalVar@GlobalVar {} _))
       (ExpressionSchema (LiteralSchema n))
       Global
-    ) = pure $ BuildVariables.declareGlobal globalVar [n]
+    ) = pure $ BuildVariables.declareGlobal globalVar IntVar [n]
 buildStatementASM
   ( AssignmentSchema
       (ExpressionSchema (VariableSchema varType _))
