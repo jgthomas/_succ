@@ -16,7 +16,7 @@ import Builder.Directive (initializedGlobal, uninitializedGlobal, uninitializedG
 import Builder.Instruction (literal, loadAddOf, move, sub)
 import Builder.Register (Register (..), reg, scratch, selectRegister)
 import Data.List (intercalate)
-import Types.Type (Type (..))
+import Types.Type (Type (..), typeSize)
 import Types.Variables (VarType (..))
 
 -- | Load a literal value into return register
@@ -28,7 +28,7 @@ outputInit :: String -> String
 outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
 
 declareGlobal :: VarType -> Type -> [Int] -> String
-declareGlobal (GlobalVar label _) (IntArray n) [0] = uninitializedGlobalArray label n
+declareGlobal (GlobalVar label _) typ@IntArray{} [0] = uninitializedGlobalArray label (typeSize typ)
 declareGlobal (GlobalVar label _) _ [0] = uninitializedGlobal label
 declareGlobal (GlobalVar label _) _ vals = initializedGlobal label (buildGlobalValue vals)
 declareGlobal _ _ _ = undefined

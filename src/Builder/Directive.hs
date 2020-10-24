@@ -61,7 +61,7 @@ globlLabel :: String -> String
 globlLabel name = name ++ ":\n"
 
 space :: Int -> String
-space n = ".space " ++ show (n * 4) ++ "\n"
+space n = ".space " ++ show n ++ "\n"
 
 section :: Section -> String
 section sect =
