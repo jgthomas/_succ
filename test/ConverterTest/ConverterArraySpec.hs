@@ -77,6 +77,55 @@ converterArrayTest = hspec $ do
               (IntArray 2),
             SkipSchema
           ]
+    it "Should create a schema for global array declaration with assignment" $
+      ( extractSchema
+          ( ProgramNode
+              [ ArrayNode $
+                  ArrayDeclareNode
+                    2
+                    (VarNode "a" mockNodeDat)
+                    (IntArray 2)
+                    ( Just $
+                        ArrayNode
+                          ( ArrayItemsNode
+                              (VarNode "a" mockNodeDat)
+                              [ ArrayNode $
+                                  ArraySingleItemNode
+                                    (ConstantNode 3 mockNodeDat)
+                                    mockNodeDat,
+                                ArrayNode $
+                                  ArraySingleItemNode
+                                    (ConstantNode 4 mockNodeDat)
+                                    mockNodeDat
+                              ]
+                              mockNodeDat
+                          )
+                    )
+                    mockNodeDat
+              ]
+          )
+      )
+        `shouldBe` ProgramSchema
+          [ DeclarationSchema
+              (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) UntrackedValue)
+              ( StatementSchema $
+                  ArrayItemsSchema
+                    0
+                    [ StatementSchema $
+                        AssignmentSchema
+                          (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) UntrackedValue)
+                          (ExpressionSchema (LiteralSchema 3))
+                          Global,
+                      StatementSchema $
+                        AssignmentSchema
+                          (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 4) UntrackedValue)
+                          (ExpressionSchema (LiteralSchema 4))
+                          Global
+                    ]
+              )
+              Global
+              (IntArray 2)
+          ]
     it "Should create a schema for a function with local array declaration with assignment" $
       ( extractSchema
           ( ProgramNode
