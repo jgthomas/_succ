@@ -12,6 +12,7 @@ import qualified Analyser.Analyser as Analyser (analyse)
 import Control.Monad (unless)
 import qualified Converter.Checker as Checker (check)
 import qualified Converter.Valuer as Valuer
+import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import qualified State.FuncState as FuncState
 import State.GenState (GenState, throwError)
@@ -441,10 +442,15 @@ defineGlobal tree = throwError $ FatalError (ConverterBug tree)
 buildUndefinedSchema :: (String, Type) -> AssemblySchema
 buildUndefinedSchema (label, typ) =
   DeclarationSchema
-    (ExpressionSchema $ VariableSchema (GlobalVar label 0) (SingleValue 0))
+    (ExpressionSchema $ VariableSchema (GlobalVar label 0) (setUndefinedValue typ))
     SkipSchema
     Global
     typ
+
+setUndefinedValue :: Type -> VarValue
+setUndefinedValue IntVar = SingleValue 0
+setUndefinedValue IntArray = MultiValue M.empty
+setUndefinedValue _ = UntrackedValue
 
 -- Variables Local
 
