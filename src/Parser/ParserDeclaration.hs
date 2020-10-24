@@ -22,6 +22,7 @@ import Types.Error
     SyntaxError (..),
   )
 import Types.Tokens
+import Types.Type
 
 data Declaration
   = ValueDec
@@ -66,10 +67,10 @@ parseDec decType name tokens = do
     ValueDec -> pure (DeclarationNode var typ tree dat, tokens'')
     ArrayDec -> do
       len <- findArraylen var (inferredLen tree) Undeclared
-      pure (ArrayNode (ArrayDeclareNode len var typ tree dat), tokens'')
+      pure (ArrayNode (ArrayDeclareNode len var (storeArrayLen typ len) tree dat), tokens'')
     (ArrayDecExplicit n) -> do
       len <- findArraylen var (inferredLen tree) (Declared n)
-      pure (ArrayNode (ArrayDeclareNode len var typ tree dat), tokens'')
+      pure (ArrayNode (ArrayDeclareNode len var (storeArrayLen typ len) tree dat), tokens'')
 
 findArraylen :: Tree -> ArrayLen -> ArrayLen -> ParserState Int
 findArraylen node (Declared n) (Declared m)
@@ -83,6 +84,10 @@ inferredLen :: Maybe Tree -> ArrayLen
 inferredLen (Just (ArrayNode (ArrayItemsNode _ items _))) = Declared (length items)
 inferredLen Nothing = Undeclared
 inferredLen _ = Undeclared
+
+storeArrayLen :: Type -> Int -> Type
+storeArrayLen (IntArray _) n = IntArray n
+storeArrayLen typ _ = typ
 
 parseOptAssign :: [Token] -> ParserState (Maybe Tree, [Token])
 parseOptAssign tokens = do
