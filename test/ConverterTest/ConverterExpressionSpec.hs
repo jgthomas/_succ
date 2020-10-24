@@ -15,6 +15,46 @@ import Types.Variables
 converterExpressionTest :: IO ()
 converterExpressionTest = hspec $ do
   describe "Build assembly schemas for expressions" $ do
+    it "Should create a schema for a function with a null expression" $
+      ( extractSchema
+          ( ProgramNode
+              [ FunctionNode
+                  IntVar
+                  "main"
+                  []
+                  ( Just $
+                      CompoundStmtNode
+                        [ DeclarationNode
+                            (VarNode "a" mockNodeDat)
+                            IntVar
+                            Nothing
+                            mockNodeDat,
+                          NullExprNode mockNodeDat,
+                          ReturnNode
+                            (ConstantNode 190 mockNodeDat)
+                            mockNodeDat
+                        ]
+                        mockNodeDat
+                  )
+                  mockNodeDat
+              ]
+          )
+      )
+        `shouldBe` ProgramSchema
+          [ FunctionSchema
+              "main"
+              ( StatementSchema $
+                  CompoundStatementSchema
+                    [ DeclarationSchema
+                        (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16) UntrackedValue)
+                        SkipSchema
+                        Local
+                        IntVar,
+                      SkipSchema,
+                      StatementSchema $ ReturnSchema (ExpressionSchema $ LiteralSchema 190)
+                    ]
+              )
+          ]
     it "Should create a schema for a function with local declaration" $
       ( extractSchema
           ( ProgramNode
