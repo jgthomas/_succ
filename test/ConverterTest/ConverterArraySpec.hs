@@ -28,7 +28,7 @@ converterArrayTest = hspec $ do
                             ArrayDeclareNode
                               2
                               (VarNode "a" mockNodeDat)
-                              (IntArray 0)
+                              (IntArray 2)
                               Nothing
                               mockNodeDat,
                           ReturnNode
@@ -50,7 +50,7 @@ converterArrayTest = hspec $ do
                         (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16) UntrackedValue)
                         SkipSchema
                         Local
-                        (IntArray 0),
+                        (IntArray 2),
                       StatementSchema $ ReturnSchema (ExpressionSchema $ LiteralSchema 190)
                     ]
               )
@@ -68,7 +68,7 @@ converterArrayTest = hspec $ do
                             ArrayDeclareNode
                               2
                               (VarNode "a" mockNodeDat)
-                              (IntArray 0)
+                              (IntArray 2)
                               ( Just $ ArrayNode $
                                   ArrayItemsNode
                                     (VarNode "a" mockNodeDat)
@@ -117,7 +117,7 @@ converterArrayTest = hspec $ do
                               ]
                         )
                         Local
-                        (IntArray 0),
+                        (IntArray 2),
                       StatementSchema $ ReturnSchema (ExpressionSchema $ LiteralSchema 190)
                     ]
               )
@@ -135,7 +135,7 @@ converterArrayTest = hspec $ do
                             ArrayDeclareNode
                               2
                               (VarNode "a" mockNodeDat)
-                              (IntArray 0)
+                              (IntArray 2)
                               ( Just $ ArrayNode $
                                   ArrayItemsNode
                                     (VarNode "a" mockNodeDat)
@@ -189,7 +189,7 @@ converterArrayTest = hspec $ do
                               ]
                         )
                         Local
-                        (IntArray 0),
+                        (IntArray 2),
                       StatementSchema $
                         ReturnSchema
                           (ExpressionSchema $ VariableSchema (LocalVar (-16) (-8) 24) UntrackedValue)
@@ -209,7 +209,7 @@ converterArrayTest = hspec $ do
                             ArrayDeclareNode
                               1
                               (VarNode "a" mockNodeDat)
-                              (IntArray 0)
+                              (IntArray 1)
                               ( Just $ ArrayNode $
                                   ArrayItemsNode
                                     (VarNode "a" mockNodeDat)
@@ -266,7 +266,7 @@ converterArrayTest = hspec $ do
                               ]
                         )
                         Local
-                        (IntArray 0),
+                        (IntArray 1),
                       ( StatementSchema $
                           AssignmentSchema
                             (ExpressionSchema $ VariableSchema (LocalVar (-16) 0 16) UntrackedValue)
@@ -294,7 +294,7 @@ converterArrayTest = hspec $ do
                             ArrayDeclareNode
                               2
                               (VarNode "a" mockNodeDat)
-                              (IntArray 0)
+                              (IntArray 2)
                               ( Just $ ArrayNode $
                                   ArrayItemsNode
                                     (VarNode "a" mockNodeDat)
@@ -370,7 +370,7 @@ converterArrayTest = hspec $ do
                               ]
                         )
                         Local
-                        (IntArray 0),
+                        (IntArray 2),
                       ( StatementSchema $
                           AssignmentSchema
                             (ExpressionSchema $ VariableSchema (LocalVar (-16) (-8) 24) UntrackedValue)

@@ -14,5 +14,5 @@ data Type
 instance Show Type where
   show IntVar = "int"
   show IntPointer = "int *"
-  show (IntArray n) = "int []" ++ show n
+  show (IntArray n) = "int [] " ++ show n
   show Label = "@label"
