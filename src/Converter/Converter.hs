@@ -450,7 +450,7 @@ buildUndefinedSchema (label, typ) =
 setUndefinedValue :: Type -> VarValue
 setUndefinedValue IntVar = SingleValue 0
 setUndefinedValue IntPointer = SingleValue 0
-setUndefinedValue (IntArray _) = MultiValue M.empty
+setUndefinedValue (IntArray n) = MultiValue $ M.fromList $ zip [0..] (replicate n 0)
 setUndefinedValue _ = UntrackedValue
 
 -- Variables Local
