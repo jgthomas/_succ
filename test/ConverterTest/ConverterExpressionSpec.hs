@@ -15,6 +15,40 @@ import Types.Variables
 converterExpressionTest :: IO ()
 converterExpressionTest = hspec $ do
   describe "Build assembly schemas for expressions" $ do
+    it "Should build a schema for a global variable with a unary assignment" $
+      ( extractSchema
+          ( ProgramNode
+              [ DeclarationNode
+                  (VarNode "a" mockNodeDat)
+                  IntVar
+                  ( Just $
+                      AssignmentNode
+                        (VarNode "a" mockNodeDat)
+                        ( UnaryNode
+                            (ConstantNode 1 mockNodeDat)
+                            (Unary Negate)
+                            mockNodeDat
+                        )
+                        Assignment
+                        mockNodeDat
+                  )
+                  mockNodeDat
+              ]
+          )
+      )
+        `shouldBe` ProgramSchema
+          [ DeclarationSchema
+              (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) (SingleValue 0))
+              (StatementSchema
+               (AssignmentSchema
+                (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) (SingleValue 0))
+                (ExpressionSchema $ UnarySchema (ExpressionSchema $ LiteralSchema 1) (Unary Negate))
+                Global
+               )
+              )
+              Global
+              IntVar
+          ]
     it "Should create a schema for a function with a null expression" $
       ( extractSchema
           ( ProgramNode
