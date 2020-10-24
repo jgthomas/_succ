@@ -1,5 +1,10 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
+-- |
+-- Module       : Type
+-- Description  : Defines supported types
+--
+-- Defines variable types and calculates type sizes.
 module Types.Type
   ( Type (..),
     typeSize,
