@@ -59,11 +59,13 @@ converterArrayTest = hspec $ do
     it "Should create a schema for global array declaration" $
       ( extractSchema
           ( ProgramNode
-              [ DeclarationNode
-                  (VarNode "a" mockNodeDat)
-                  (IntArray 2)
-                  Nothing
-                  mockNodeDat
+              [ ArrayNode $
+                  ArrayDeclareNode
+                    2
+                    (VarNode "a" mockNodeDat)
+                    (IntArray 2)
+                    Nothing
+                    mockNodeDat
               ]
           )
       )
