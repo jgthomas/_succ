@@ -98,7 +98,7 @@ parserDeclarationTest = hspec $ do
               ( ArrayDeclareNode
                   2
                   (VarNode "a" mockNodeDat)
-                  IntArray
+                  (IntArray 0)
                   Nothing
                   mockNodeDat
               )
@@ -124,7 +124,7 @@ parserDeclarationTest = hspec $ do
               ( ArrayDeclareNode
                   2
                   (VarNode "a" mockNodeDat)
-                  IntArray
+                  (IntArray 0)
                   ( Just $
                       ArrayNode
                         ( ArrayItemsNode
@@ -166,7 +166,7 @@ parserDeclarationTest = hspec $ do
               ( ArrayDeclareNode
                   2
                   (VarNode "a" mockNodeDat)
-                  IntArray
+                  (IntArray 0)
                   ( Just $
                       ArrayNode
                         ( ArrayItemsNode

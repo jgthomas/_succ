@@ -7,12 +7,12 @@ import Data.Data (Data)
 data Type
   = IntVar
   | IntPointer
-  | IntArray
+  | IntArray Int
   | Label
   deriving (Eq, Data)
 
 instance Show Type where
   show IntVar = "int"
   show IntPointer = "int *"
-  show IntArray = "int []"
+  show (IntArray n) = "int []" ++ show n
   show Label = "@label"

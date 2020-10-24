@@ -26,7 +26,7 @@ parseType tokens = throwError $ ParserError (LexDataError tokens)
 parseIntType :: [Token] -> ParserState Type
 parseIntType tokens
   | isIntPointer tokens = pure IntPointer
-  | isIntArray tokens = pure IntArray
+  | isIntArray tokens = pure (IntArray 0)
   | otherwise = pure IntVar
 
 isIntArray :: [Token] -> Bool

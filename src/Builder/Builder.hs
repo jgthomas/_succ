@@ -93,7 +93,7 @@ buildASM
       (ExpressionSchema (VariableSchema global@GlobalVar {} _))
       (StatementSchema (ArrayItemsSchema _ items))
       Global
-      IntArray
+      (IntArray _)
     ) = pure $ BuildVariables.declareGlobal global $ globalArrayValues items
 buildASM
   ( DeclarationSchema
@@ -107,7 +107,7 @@ buildASM
       (ExpressionSchema VariableSchema {})
       arrayItems@(StatementSchema (ArrayItemsSchema finalPos _))
       Local
-      IntArray
+      (IntArray _)
     ) = do
     assignAsm <- processSchema arrayItems
     pure $ assignAsm ++ BuildVariables.postDeclareAction (LocalVar 0 0 finalPos)

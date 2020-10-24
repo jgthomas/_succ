@@ -655,7 +655,7 @@ converterErrorTest = hspec $ do
           ( ProgramNode
               [ DeclarationNode
                   (VarNode "b" mockNodeDat)
-                  IntArray
+                  (IntArray 0)
                   ( Just $
                       AssignmentNode
                         (VarNode "b" mockNodeDat)
@@ -667,7 +667,7 @@ converterErrorTest = hspec $ do
               ]
           )
       )
-        `shouldBe` TypeError (TypeMismatch [IntArray] [IntVar] (VarNode "b" mockNodeDat))
+        `shouldBe` TypeError (TypeMismatch [(IntArray 0)] [IntVar] (VarNode "b" mockNodeDat))
     it "Should throw an error if variable re-declarations have different types" $
       ( extractError
           ( ProgramNode
@@ -700,7 +700,7 @@ converterErrorTest = hspec $ do
           ( ProgramNode
               [ DeclarationNode
                   (VarNode "b" mockNodeDat)
-                  IntArray
+                  (IntArray 0)
                   ( Just $
                       AssignmentNode
                         (VarNode "b" mockNodeDat)
@@ -717,13 +717,13 @@ converterErrorTest = hspec $ do
               ]
           )
       )
-        `shouldBe` TypeError (TypeMismatch [IntArray] [IntVar] (VarNode "b" mockNodeDat))
+        `shouldBe` TypeError (TypeMismatch [(IntArray 0)] [IntVar] (VarNode "b" mockNodeDat))
     it "Should throw an error if attempting to assign a ternary node of the wrong type" $
       ( extractError
           ( ProgramNode
               [ DeclarationNode
                   (VarNode "b" mockNodeDat)
-                  IntArray
+                  (IntArray 0)
                   ( Just $
                       AssignmentNode
                         (VarNode "b" mockNodeDat)
@@ -745,7 +745,7 @@ converterErrorTest = hspec $ do
               ]
           )
       )
-        `shouldBe` TypeError (TypeMismatch [IntArray] [IntVar] (VarNode "b" mockNodeDat))
+        `shouldBe` TypeError (TypeMismatch [IntArray 0] [IntVar] (VarNode "b" mockNodeDat))
     it "Should throw error if function declaration types don't match" $
       ( extractError
           ( ProgramNode

@@ -111,7 +111,7 @@ getArrayType (ArrayItemAssign _ var _) = getType var >>= getArrayItemType
 getArrayType arrayNode = throwError $ TypeError (NotTyped (ArrayNode arrayNode))
 
 getArrayItemType :: Type -> GenState Type
-getArrayItemType IntArray = pure IntVar
+getArrayItemType (IntArray _) = pure IntVar
 getArrayItemType _ = undefined
 
 getVarType :: Tree -> String -> GenState Type
@@ -172,7 +172,7 @@ permitted typ =
   case typ of
     IntVar -> pure [IntVar, IntPointer]
     IntPointer -> pure [IntVar, IntPointer]
-    IntArray -> pure [IntArray]
+    t@(IntArray _) -> pure [t]
     Label -> undefined
 
 getFuncType :: Tree -> String -> GenState Type
