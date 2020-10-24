@@ -250,11 +250,12 @@ convertToSchemaArray (ArrayDeclareNode len var typ Nothing dat) = do
   pure declareSchema
 convertToSchemaArray (ArrayDeclareNode _ var@(VarNode name _) typ assign dat) = do
   currScope <- State.getScope
-  if currScope == Local
-    then convertToSchema (DeclarationNode var typ assign dat)
-    else do
+  schema <- convertToSchema (DeclarationNode var typ assign dat)
+  case currScope of
+    Local -> pure schema
+    Global -> do
       GlobalState.defineGlobal name
-      convertToSchema (DeclarationNode var typ assign dat)
+      pure schema
 convertToSchemaArray (ArrayItemsNode varNode items _) =
   processArrayItems varNode items
 convertToSchemaArray (ArraySingleItemNode item _) =
