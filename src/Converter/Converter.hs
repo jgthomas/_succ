@@ -449,6 +449,7 @@ buildUndefinedSchema (label, typ) =
 
 setUndefinedValue :: Type -> VarValue
 setUndefinedValue IntVar = SingleValue 0
+setUndefinedValue IntPointer = SingleValue 0
 setUndefinedValue IntArray = MultiValue M.empty
 setUndefinedValue _ = UntrackedValue
 
