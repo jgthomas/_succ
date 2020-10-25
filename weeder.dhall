@@ -1,7 +1,8 @@
 { roots =
    [
      "^Main.main$",
-     "^Paths_.*"
+     "^Paths_.*",
+     "^Succ.compile$"
    ],
 
    type-class-roots = True
