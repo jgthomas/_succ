@@ -30,7 +30,7 @@ docs:
 	stack haddock --no-haddock-deps ${PROJECT}
 
 graph:
-	find src -name '*.hs' | xargs graphmod -q | xdot -
+	find src -name '*.hs' | xargs stack exec -- graphmod -q | xdot -
 
 weed:
 	stack exec weeder
