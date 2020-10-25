@@ -4,7 +4,7 @@ PROJECT=succ
 .PHONY: test lint clean coverage graph
 
 
-all: test lint
+all: test lint weed
 
 
 build:
@@ -41,3 +41,7 @@ docs:
 
 graph:
 	find src -name '*.hs' | xargs graphmod -q | xdot -
+
+
+weed:
+	stack exec -- weeder
