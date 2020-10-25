@@ -3,7 +3,6 @@ module Builder.BuildVariables
     storeVariable,
     loadVariable,
     addressOf,
-    addressStore,
     derefLoad,
     derefStore,
     declareGlobal,
@@ -28,7 +27,7 @@ outputInit :: String -> String
 outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
 
 declareGlobal :: VarType -> Type -> [Int] -> String
-declareGlobal (GlobalVar label _) typ@IntArray{} [0] = uninitializedGlobalArray label (typeSize typ)
+declareGlobal (GlobalVar label _) typ@IntArray {} [0] = uninitializedGlobalArray label (typeSize typ)
 declareGlobal (GlobalVar label _) _ [0] = uninitializedGlobal label
 declareGlobal (GlobalVar label _) _ vals = initializedGlobal label (buildGlobalValue vals)
 declareGlobal _ _ _ = undefined
@@ -61,12 +60,6 @@ updateParam n = move (reg RAX) (selectRegister n)
 saveGlobal :: String -> Int -> String
 saveGlobal label offset =
   move (reg RAX) (fromInstructionPointerOffset label offset)
-
--- | Store the address of a variable
-addressStore :: VarType -> String
-addressStore localVar@LocalVar {} = storeVariable localVar
-addressStore ParamVar {} = undefined
-addressStore globalVar@GlobalVar {} = storeVariable globalVar
 
 -- | Load a variable value to %rax
 loadVariable :: VarType -> String
