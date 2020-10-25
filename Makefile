@@ -1,7 +1,14 @@
 
 PROJECT=succ
 
-.PHONY: test lint clean coverage graph weed ide
+LINTER=hlint
+FORMATTER=ormolu
+DEAD_CODE=weeder
+GRAPHS=graphmod
+IDE=ghcid
+
+
+.PHONY: test lint clean coverage graph weed ide setup
 
 
 all: test lint weed
@@ -30,10 +37,13 @@ docs:
 	stack haddock --no-haddock-deps ${PROJECT}
 
 graph:
-	find src -name '*.hs' | xargs stack exec -- graphmod -q | xdot -
+	find src -name '*.hs' | xargs stack exec -- ${GRAPHS} -q | xdot -
 
 weed:
-	stack exec weeder
+	stack exec ${DEAD_CODE}
 
 ide:
-	stack exec ghcid
+	stack exec ${IDE}
+
+setup:
+	stack build --copy-compiler-tool ${LINTER} ${FORMATTER} ${DEAD_CODE} ${GRAPHS} ${IDE}
