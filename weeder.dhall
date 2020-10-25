@@ -2,7 +2,8 @@
    [
      "^Main.main$",
      "^Paths_.*",
-     "^Succ.compile$"
+     "^Succ.compile$",
+     "Options.*"
    ],
 
    type-class-roots = True
