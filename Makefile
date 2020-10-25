@@ -1,7 +1,7 @@
 
 PROJECT=succ
 
-.PHONY: test lint clean coverage graph
+.PHONY: test lint clean coverage graph weed ide
 
 
 all: test lint weed
