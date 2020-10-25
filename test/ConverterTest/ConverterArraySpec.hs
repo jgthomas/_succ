@@ -1,5 +1,5 @@
 module ConverterTest.ConverterArraySpec
-  ( converterArrayTest,
+  ( spec,
   )
 where
 
@@ -13,8 +13,8 @@ import Types.Operator
 import Types.Type
 import Types.Variables
 
-converterArrayTest :: IO ()
-converterArrayTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Build assembly schemas for arrays" $ do
     it "Should create a schema for a function with local array declaration" $
       ( extractSchema

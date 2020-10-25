@@ -1,5 +1,5 @@
 module ComputeTest.ComputeTestSpec
-  ( computeTest,
+  ( spec,
   )
 where
 
@@ -8,8 +8,8 @@ import Data.Bits
 import Test.Hspec
 import Types.Operator
 
-computeTest :: IO ()
-computeTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Compute binary expressions" $ do
     it "Should compute addition" $
       binaryFunction Plus (5 :: Int) (4 :: Int)

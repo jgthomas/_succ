@@ -1,11 +1,11 @@
-module ParserTest.TokClassSpec where
+module ParserTest.TokClassSpec (spec) where
 
 import Parser.TokClass
 import Test.Hspec
 import Types.Tokens
 
-tokClassTest :: IO ()
-tokClassTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Assign tokens to correct class" $ do
     it "Should correctly identify assignments" $
       map

@@ -1,5 +1,5 @@
 module ConverterTest.ConverterStatementSpec
-  ( converterStatementTest,
+  ( spec,
   )
 where
 
@@ -12,8 +12,8 @@ import Types.Operator
 import Types.Type
 import Types.Variables
 
-converterStatementTest :: IO ()
-converterStatementTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Build assembly schemas for loops and conditionals" $ do
     it "Should build a schema for a basic if statement" $
       ( extractSchema $

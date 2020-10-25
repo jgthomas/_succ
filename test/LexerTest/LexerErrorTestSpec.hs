@@ -1,5 +1,5 @@
 module LexerTest.LexerErrorTestSpec
-  ( lexerErrorTest,
+  ( spec,
   )
 where
 
@@ -8,8 +8,8 @@ import Lexer.Lexer
 import Test.Hspec
 import Types.Error
 
-lexerErrorTest :: IO ()
-lexerErrorTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Lexing bad input throws correct errors" $ do
     it "Should throw error for unrecognised character" $
       fromLeft ImpossibleError (tokenize "$")

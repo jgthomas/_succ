@@ -1,5 +1,5 @@
 module ConverterTest.ConverterDeclarationSpec
-  ( converterDeclarationTest,
+  ( spec,
   )
 where
 
@@ -12,8 +12,8 @@ import Types.Operator
 import Types.Type
 import Types.Variables
 
-converterDeclarationTest :: IO ()
-converterDeclarationTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Build assembly schemas for declarations" $ do
     it "Should create a global declaration schema" $
       ( extractSchema $

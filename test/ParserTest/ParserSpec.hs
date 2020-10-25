@@ -1,5 +1,5 @@
 module ParserTest.ParserSpec
-  ( fullParserTest,
+  ( spec,
   )
 where
 
@@ -12,8 +12,8 @@ import Types.Operator
 import Types.Tokens
 import Types.Type
 
-fullParserTest :: IO ()
-fullParserTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Build abstract syntax trees for full programs" $ do
     it "Should build a tree for a simple program returning a constant" $
       ( extractFullProgramTree

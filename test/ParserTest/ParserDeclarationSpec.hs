@@ -1,5 +1,5 @@
 module ParserTest.ParserDeclarationSpec
-  ( parserDeclarationTest,
+  ( spec,
   )
 where
 
@@ -12,8 +12,8 @@ import Types.Operator
 import Types.Tokens
 import Types.Type
 
-parserDeclarationTest :: IO ()
-parserDeclarationTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Build abstract syntax trees for declarations" $ do
     it "Should build a tree for variable declaration" $
       (extractDeclarationTree [Keyword Int dummyLexDat, Ident "a" dummyLexDat])

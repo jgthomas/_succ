@@ -1,5 +1,5 @@
 module ConverterTest.ConverterFuncCallSpec
-  ( converterFuncCallTest,
+  ( spec,
   )
 where
 
@@ -10,8 +10,8 @@ import Types.AST
 import Types.AssemblySchema
 import Types.Type
 
-converterFuncCallTest :: IO ()
-converterFuncCallTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Build assembly schemas for function calls" $ do
     it "Should build a schema for a repeat declaration" $
       ( extractSchema $

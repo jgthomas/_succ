@@ -1,5 +1,5 @@
 module OptimiserTest.OptimiserExpressionTestSpec
-  ( optimiserExpressionTest,
+  ( spec,
   )
 where
 
@@ -8,8 +8,8 @@ import Test.Hspec
 import Types.AssemblySchema
 import Types.Operator
 
-optimiserExpressionTest :: IO ()
-optimiserExpressionTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Optimise expressions to reduce code size" $ do
     it "Should return a literal schema unchanged" $
       optimise (ExpressionSchema $ LiteralSchema 200)

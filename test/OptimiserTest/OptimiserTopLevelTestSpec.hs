@@ -1,5 +1,5 @@
 module OptimiserTest.OptimiserTopLevelTestSpec
-  ( optimiserTopLevelTest,
+  ( spec,
   )
 where
 
@@ -9,8 +9,8 @@ import Types.AssemblySchema
 import Types.Type (Type (..))
 import Types.Variables (Scope (..))
 
-optimiserTopLevelTest :: IO ()
-optimiserTopLevelTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Optimise top level schema to reduce code size" $ do
     it "Should return a program schema unchanged" $
       optimise (ProgramSchema [])

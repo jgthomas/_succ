@@ -1,5 +1,5 @@
 module ParserTest.ParserStatementSpec
-  ( parserStatementTest,
+  ( spec,
   )
 where
 
@@ -12,8 +12,8 @@ import Types.Operator
 import Types.Tokens
 import Types.Type
 
-parserStatementTest :: IO ()
-parserStatementTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Build abstract syntax trees for statements" $ do
     it "Should build a tree for a continue statement" $
       (extractStatementTree [Keyword Continue dummyLexDat, Separator SemiColon dummyLexDat])

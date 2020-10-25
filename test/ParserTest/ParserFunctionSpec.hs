@@ -1,5 +1,5 @@
 module ParserTest.ParserFunctionSpec
-  ( parserFunctionTest,
+  ( spec,
   )
 where
 
@@ -11,8 +11,8 @@ import Types.Error
 import Types.Tokens
 import Types.Type
 
-parserFunctionTest :: IO ()
-parserFunctionTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Build abstract syntax trees for functions" $ do
     it "Should build a tree for a function declaration" $
       ( extractFunctionTree

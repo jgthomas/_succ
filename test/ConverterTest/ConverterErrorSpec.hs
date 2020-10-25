@@ -1,5 +1,5 @@
 module ConverterTest.ConverterErrorSpec
-  ( converterErrorTest,
+  ( spec,
   )
 where
 
@@ -11,8 +11,8 @@ import Types.Error
 import Types.Operator
 import Types.Type
 
-converterErrorTest :: IO ()
-converterErrorTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Check abstract syntax tree for scope errors" $ do
     it "Should throw error if attempting to use an undeclared variable" $
       ( extractError $

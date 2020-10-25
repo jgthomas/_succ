@@ -1,5 +1,5 @@
 module LexerTest.LexerMetadataTestSpec
-  ( lexerMetadataTest,
+  ( spec,
   )
 where
 
@@ -9,8 +9,8 @@ import LexerTest.TestUtility (metaData)
 import Test.Hspec
 import Types.Tokens
 
-lexerMetadataTest :: IO ()
-lexerMetadataTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Lexing input captures correct metadata" $ do
     it "Should build metadata for syntactic tokens" $
       ( map metaData $

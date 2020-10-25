@@ -1,5 +1,5 @@
 module LexerTest.LexerTokensTestSpec
-  ( lexerTokensTest,
+  ( spec,
   )
 where
 
@@ -9,8 +9,8 @@ import LexerTest.TestUtility (dummyData)
 import Test.Hspec
 import Types.Tokens
 
-lexerTokensTest :: IO ()
-lexerTokensTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Lex input string into tokens" $ do
     it "Should correctly lex all syntactic characters" $
       ( dummyData $

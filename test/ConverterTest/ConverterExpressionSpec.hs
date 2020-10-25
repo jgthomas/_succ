@@ -1,5 +1,5 @@
 module ConverterTest.ConverterExpressionSpec
-  ( converterExpressionTest,
+  ( spec,
   )
 where
 
@@ -12,8 +12,8 @@ import Types.Operator
 import Types.Type
 import Types.Variables
 
-converterExpressionTest :: IO ()
-converterExpressionTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Build assembly schemas for expressions" $ do
     it "Should build a schema for a global variable with a unary assignment" $
       ( extractSchema

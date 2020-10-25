@@ -1,5 +1,5 @@
 module ParserTest.ParserExpressionSpec
-  ( parserExpressionTest,
+  ( spec,
   )
 where
 
@@ -12,8 +12,8 @@ import Types.Error
 import Types.Operator
 import Types.Tokens
 
-parserExpressionTest :: IO ()
-parserExpressionTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Build abstract syntax trees for expressions" $ do
     it "Should build a constant tree" $
       (extractExpressionTree [ConstInt 3 dummyLexDat])

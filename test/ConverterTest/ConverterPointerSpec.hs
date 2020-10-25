@@ -1,5 +1,5 @@
 module ConverterTest.ConverterPointerSpec
-  ( converterPointerTest,
+  ( spec,
   )
 where
 
@@ -12,8 +12,8 @@ import Types.Operator
 import Types.Type
 import Types.Variables
 
-converterPointerTest :: IO ()
-converterPointerTest = hspec $ do
+spec :: Spec
+spec = do
   describe "Build assembly schemas for pointers" $ do
     it "Should create a schema for a global pointer declaration" $
       ( extractSchema $
