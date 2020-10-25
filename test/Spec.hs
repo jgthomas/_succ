@@ -2,7 +2,6 @@
 module Main where
 
 
---import CheckerTest.CheckerTestSpec     (checkerTest)
 import ComputeTest.ComputeTestSpec     (computeTest)
 import ConverterTest.ConverterTestSpec (converterTest)
 import LexerTest.LexerTestSpec         (lexerTest)
@@ -15,6 +14,5 @@ main = do
         computeTest
         lexerTest
         parserTest
-        --checkerTest
         converterTest
         optimiserTest

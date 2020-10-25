@@ -1,3 +1,8 @@
+-- |
+-- Module       : BuildVariables
+-- Description  : Build assembly for variables
+--
+-- Builds output assembly code for variables.
 module Builder.BuildVariables
   ( loadLiteral,
     storeVariable,
@@ -26,6 +31,7 @@ loadLiteral n = move (literal n) (reg RAX)
 outputInit :: String -> String
 outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
 
+-- | Declare a global variable
 declareGlobal :: VarType -> Type -> [Int] -> String
 declareGlobal (GlobalVar label _) typ@IntArray {} [0] = uninitializedGlobalArray label (typeSize typ)
 declareGlobal (GlobalVar label _) _ [0] = uninitializedGlobal label
@@ -35,6 +41,7 @@ declareGlobal _ _ _ = undefined
 buildGlobalValue :: [Int] -> String
 buildGlobalValue values = intercalate ", " (map show values)
 
+-- | Execute follow up actions after declaration
 postDeclareAction :: VarType -> String
 postDeclareAction GlobalVar {} = ""
 postDeclareAction ParamVar {} = ""

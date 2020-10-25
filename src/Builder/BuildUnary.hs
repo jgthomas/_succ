@@ -1,3 +1,8 @@
+-- |
+-- Module       : BuildUnary
+-- Description  : Build assembly for unary ops
+--
+-- Builds output assembly code for unary operators.
 module Builder.BuildUnary
   ( unary,
   )
