@@ -23,8 +23,7 @@ func:
 
 
 lint:
-	hlint src/ app/
-
+	stack exec -- hlint src/ app/
 
 
 coverage: clean
