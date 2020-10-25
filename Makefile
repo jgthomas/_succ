@@ -25,7 +25,7 @@ func:
 	./func_test.sh
 
 lint:
-	stack exec -- hlint src/ app/
+	stack exec -- ${LINTER} src/ app/
 
 coverage: clean
 	stack test --coverage && stack hpc report ${PROJECT} --open
