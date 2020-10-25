@@ -94,9 +94,6 @@ data LexDat
 dummyLexDat :: LexDat
 dummyLexDat = LexDat "" 0
 
-mkLexDat :: String -> Int -> LexDat
-mkLexDat cs n = LexDat cs n
-
 tokenData :: Token -> LexDat
 tokenData (Separator SemiColon dat) = dat
 tokenData (Separator Colon dat) = dat

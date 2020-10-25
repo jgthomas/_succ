@@ -1,6 +1,5 @@
 module Builder.Directive
-  ( outputInit,
-    initializedGlobal,
+  ( initializedGlobal,
     uninitializedGlobal,
     uninitializedGlobalArray,
     declareGlobl,
@@ -14,10 +13,6 @@ data Section
   | DATA
   | BSS
   deriving (Eq)
-
--- | Setup initialisation block
-outputInit :: String -> String
-outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
 
 -- | Output asm for an initialized global variable
 initializedGlobal :: String -> String -> String

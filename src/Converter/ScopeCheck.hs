@@ -14,7 +14,6 @@ module Converter.ScopeCheck
     validateGlobalDeclaration,
     variableExists,
     checkGotoJump,
-    validatePrevDecGlobal,
   )
 where
 
@@ -164,12 +163,3 @@ checkGotoJump node@ContinueNode {} = do
     $ throwError
     $ ScopeError (UnexpectedNode node)
 checkGotoJump node = throwError $ ScopeError (UnexpectedNode node)
-
--- | Throw error if attempting to assign invalid node to global variable
-validatePrevDecGlobal :: Maybe String -> Tree -> GenState ()
-validatePrevDecGlobal Nothing node =
-  throwError $ ScopeError (UndeclaredNode node)
-validatePrevDecGlobal _ (AssignmentNode _ valNode _ _) =
-  throwError $ ScopeError (UnexpectedNode valNode)
-validatePrevDecGlobal _ tree =
-  throwError $ ScopeError (UnexpectedNode tree)
