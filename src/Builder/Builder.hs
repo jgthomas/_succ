@@ -269,6 +269,5 @@ globalArrayValues :: [AssemblySchema] -> [Int]
 globalArrayValues arrayItems = fmap globalArrayValue arrayItems
 
 globalArrayValue :: AssemblySchema -> Int
-globalArrayValue (StatementSchema (AssignmentSchema _ (ExpressionSchema (LiteralSchema n)) _)) =
-  n
+globalArrayValue (StatementSchema (AssignmentSchema _ (ExpressionSchema (LiteralSchema n)) _)) =  n
 globalArrayValue _ = undefined
