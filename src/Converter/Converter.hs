@@ -533,9 +533,7 @@ adjustVariable (Just offset) _ (ParamVar position _) =
   pure $ ParamVar position offset
 adjustVariable (Just offset) _ (GlobalVar label _) = do
   typ <- GlobalState.typeFromLabel label
-  case typ of
-    (IntArray _) -> pure $ GlobalVar label (offset * typeSize IntVar)
-    _ -> pure $ GlobalVar label (offset * typeSize typ)
+  pure $ GlobalVar label (offset * typeSize typ)
 adjustVariable _ _ varType = pure varType
 
 binaryLeftSchema :: Tree -> GenState AssemblySchema
