@@ -531,8 +531,12 @@ adjustVariable Nothing (Just total) (LocalVar offset multiplier _) =
   pure $ LocalVar offset multiplier total
 adjustVariable (Just offset) _ (ParamVar position _) =
   pure $ ParamVar position offset
-adjustVariable (Just offset) _ (GlobalVar label _) =
-  pure $ GlobalVar label (div (abs $ offset * State.memOffset) 2)
+adjustVariable (Just offset) _ (GlobalVar label _) = do
+  typ <- GlobalState.typeFromLabel label
+  case typ of
+    Nothing -> undefined
+    Just (IntArray _) -> pure $ GlobalVar label (offset * typeSize IntVar)
+    Just t -> pure $ GlobalVar label (offset * typeSize t)
 adjustVariable _ _ varType = pure varType
 
 binaryLeftSchema :: Tree -> GenState AssemblySchema

@@ -23,7 +23,7 @@ module State.GlobalState
     incrementDecSeq,
     previouslyDeclaredFunc,
     previouslyDeclaredVar,
-    nameFromLabel,
+    typeFromLabel,
   )
 where
 
@@ -68,24 +68,29 @@ previouslyDeclaredVar name = do
 
 -- | Get the assembly label associated with a named variable
 getLabel :: String -> GenState (Maybe String)
-getLabel name = extract globLabel <$> getGlobalVar name
+getLabel name = extract globLabel <$> getGlobalVar (Just name)
 
 -- | Get the type of a named variable
 getType :: String -> GenState (Maybe Type)
-getType name = extract globType <$> getGlobalVar name
+getType name = extract globType <$> getGlobalVar (Just name)
 
 -- | Get the current value of a named variable
 getValue :: String -> GenState (Maybe VarValue)
-getValue name = extract globValue <$> getGlobalVar name
+getValue name = extract globValue <$> getGlobalVar (Just name)
 
--- | Get variable name from label
 nameFromLabel :: String -> GenState (Maybe String)
 nameFromLabel label = lookUp label labelToName
+
+-- | Get variable type from label
+typeFromLabel :: String -> GenState (Maybe Type)
+typeFromLabel label = do
+  name <- nameFromLabel label
+  extract globType <$> getGlobalVar name
 
 -- | Update value of named variable
 setValue :: String -> VarValue -> GenState ()
 setValue name value = do
-  globVar <- getGlobalVar name
+  globVar <- getGlobalVar (Just name)
   case globVar of
     Nothing -> throwError $ StateError (NoStateFound name)
     Just gv -> setGlobalVar name $ gv {globValue = value}
@@ -174,8 +179,9 @@ getUndefinedVarNames = do
       declaredSet = M.keysSet $ declaredVars gscope
   pure $ S.difference declaredSet definedSet
 
-getGlobalVar :: String -> GenState (Maybe GlobalVar)
-getGlobalVar name = extract id <$> lookUp name declaredVars
+getGlobalVar :: Maybe String -> GenState (Maybe GlobalVar)
+getGlobalVar (Just name) = extract id <$> lookUp name declaredVars
+getGlobalVar Nothing = pure Nothing
 
 setGlobalVar :: String -> GlobalVar -> GenState ()
 setGlobalVar name globalVar = do
