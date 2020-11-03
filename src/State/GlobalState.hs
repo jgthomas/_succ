@@ -52,17 +52,16 @@ decSeqNumber name = lookUp name funcDecSeq
 
 -- | Check whether a function has been declared before
 previouslyDeclaredFunc :: String -> GenState Bool
-previouslyDeclaredFunc name = do
-  n <- decSeqNumber name
-  case n of
-    Nothing -> pure False
-    Just _ -> pure True
+previouslyDeclaredFunc name = prevDeclared name decSeqNumber
 
 -- | Check whether a variable has been declared before
 previouslyDeclaredVar :: String -> GenState Bool
-previouslyDeclaredVar name = do
-  label <- getLabel name
-  case label of
+previouslyDeclaredVar name = prevDeclared name getLabel
+
+prevDeclared :: String -> (String -> GenState (Maybe a)) -> GenState Bool
+prevDeclared name f = do
+  found <- f name
+  case found of
     Nothing -> pure False
     Just _ -> pure True
 
