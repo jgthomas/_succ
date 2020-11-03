@@ -37,7 +37,8 @@ import Types.Error
     FatalError (ConverterBug),
   )
 import Types.Operator
-import Types.Type
+import Types.Type (Type (..))
+import qualified Types.Type as Type (typeSize)
 import Types.Variables
 
 -- | Builds an assembly schema
@@ -533,7 +534,7 @@ adjustVariable (Just offset) _ (ParamVar position _) =
   pure $ ParamVar position offset
 adjustVariable (Just offset) _ (GlobalVar label _) = do
   typ <- GlobalState.typeFromLabel label
-  pure $ GlobalVar label (offset * typeSize typ)
+  pure $ GlobalVar label (offset * Type.typeSize typ)
 adjustVariable _ _ varType = pure varType
 
 binaryLeftSchema :: Tree -> GenState AssemblySchema
