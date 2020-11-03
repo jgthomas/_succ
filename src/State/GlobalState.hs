@@ -82,10 +82,13 @@ nameFromLabel :: String -> GenState (Maybe String)
 nameFromLabel label = lookUp label labelToName
 
 -- | Get variable type from label
-typeFromLabel :: String -> GenState (Maybe Type)
+typeFromLabel :: String -> GenState Type
 typeFromLabel label = do
   name <- nameFromLabel label
-  extract globType <$> getGlobalVar name
+  typ <- extract globType <$> getGlobalVar name
+  case typ of
+    Nothing -> throwError $ StateError (NoStateFound label)
+    Just t -> pure t
 
 -- | Update value of named variable
 setValue :: String -> VarValue -> GenState ()
