@@ -125,7 +125,8 @@ declareGlobal name typ label = do
   gscope <- getGlobalScope
   let globVar = SymbolTable.mkGloVar label typ
       declaredVars' = M.insert name globVar $ declaredVars gscope
-  putGlobalScope $ gscope {declaredVars = declaredVars'}
+      labelToName' = M.insert label name $ labelToName gscope
+  putGlobalScope $ gscope {declaredVars = declaredVars', labelToName = labelToName'}
 
 -- | Define a global variable
 defineGlobal :: String -> GenState ()
