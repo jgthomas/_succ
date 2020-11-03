@@ -300,7 +300,9 @@ convertToSchemaArray node = throwError $ FatalError (ConverterBug $ ArrayNode no
 -- Array
 
 getArrayIndexItem :: Int -> Tree -> GenState AssemblySchema
-getArrayIndexItem pos varNode@VarNode {} = setSchemaOffset pos <$> convertToSchema varNode
+getArrayIndexItem pos varNode@VarNode {} = do
+  schema <- convertToSchema varNode
+  setSchemaOffset pos schema
 getArrayIndexItem _ node = throwError $ FatalError (ConverterBug node)
 
 processArrayItems :: Tree -> [Tree] -> GenState AssemblySchema
@@ -338,9 +340,10 @@ stackPointerAdjustMent items = do
       FuncState.incrementOffsetByN (length items - 1)
       FuncState.stackPointerValue
 
-setSchemaOffset :: Int -> AssemblySchema -> AssemblySchema
-setSchemaOffset n (ExpressionSchema (VariableSchema varType varValue)) =
-  ExpressionSchema $ VariableSchema (adjustVariable (Just n) Nothing varType) varValue
+setSchemaOffset :: Int -> AssemblySchema -> GenState AssemblySchema
+setSchemaOffset n (ExpressionSchema (VariableSchema varType varValue)) = do
+  varType' <- adjustVariable (Just n) Nothing varType
+  pure $ ExpressionSchema $ VariableSchema varType' varValue
 setSchemaOffset _ _ = undefined
 
 -- Function
@@ -450,7 +453,7 @@ buildUndefinedSchema (label, typ) =
 setUndefinedValue :: Type -> VarValue
 setUndefinedValue IntVar = SingleValue 0
 setUndefinedValue IntPointer = SingleValue 0
-setUndefinedValue (IntArray n) = MultiValue $ M.fromList $ zip [0..] (replicate n 0)
+setUndefinedValue (IntArray n) = MultiValue $ M.fromList $ zip [0 ..] (replicate n 0)
 setUndefinedValue _ = UntrackedValue
 
 -- Variables Local
@@ -519,18 +522,18 @@ processPossibleNode (Just node) = convertToSchema node
 analyseAndConvert :: Tree -> GenState AssemblySchema
 analyseAndConvert tree = Analyser.analyse tree >>= convertToSchema
 
-adjustVariable :: Maybe Int -> Maybe Int -> VarType -> VarType
+adjustVariable :: Maybe Int -> Maybe Int -> VarType -> GenState VarType
 adjustVariable (Just multiplier) (Just total) (LocalVar offset _ _) =
-  LocalVar offset (multiplier * State.memOffset) total
+  pure $ LocalVar offset (multiplier * State.memOffset) total
 adjustVariable (Just multiplier) Nothing (LocalVar offset _ total) =
-  LocalVar offset (multiplier * State.memOffset) (total - (multiplier * State.memOffset))
+  pure $ LocalVar offset (multiplier * State.memOffset) (total - (multiplier * State.memOffset))
 adjustVariable Nothing (Just total) (LocalVar offset multiplier _) =
-  LocalVar offset multiplier total
+  pure $ LocalVar offset multiplier total
 adjustVariable (Just offset) _ (ParamVar position _) =
-  ParamVar position offset
+  pure $ ParamVar position offset
 adjustVariable (Just offset) _ (GlobalVar label _) =
-  GlobalVar label (div (abs $ offset * State.memOffset) 2)
-adjustVariable _ _ varType = varType
+  pure $ GlobalVar label (div (abs $ offset * State.memOffset) 2)
+adjustVariable _ _ varType = pure varType
 
 binaryLeftSchema :: Tree -> GenState AssemblySchema
 binaryLeftSchema (ArrayNode (ArrayItemAssign pos varNode _)) = getArrayIndexItem pos varNode
