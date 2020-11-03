@@ -23,6 +23,7 @@ module State.GlobalState
     incrementDecSeq,
     previouslyDeclaredFunc,
     previouslyDeclaredVar,
+    nameFromLabel,
   )
 where
 
@@ -76,6 +77,10 @@ getType name = extract globType <$> getGlobalVar name
 -- | Get the current value of a named variable
 getValue :: String -> GenState (Maybe VarValue)
 getValue name = extract globValue <$> getGlobalVar name
+
+-- | Get variable name from label
+nameFromLabel :: String -> GenState (Maybe String)
+nameFromLabel label = lookUp label labelToName
 
 -- | Update value of named variable
 setValue :: String -> VarValue -> GenState ()
