@@ -31,7 +31,7 @@ instance Show Type where
 typeSize :: Type -> Int
 typeSize IntVar = inBytes Bits32
 typeSize IntPointer = inBytes Bits64
-typeSize (IntArray _) = inBytes Bits32
+typeSize (IntArray _) = typeSize IntVar
 typeSize Label = inBytes Unsized
 
 data SizeBits
