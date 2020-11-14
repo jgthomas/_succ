@@ -491,3 +491,15 @@ spec = do
     it "Should throw error on empty list of tokens" $
       (extractStatementError [])
         `shouldBe` ParserError (LexDataError [])
+    it "Should throw error for a continue statement not followed by a semicolon" $
+      (extractStatementError [Keyword Continue dummyLexDat, OpTok Asterisk dummyLexDat])
+        `shouldBe` SyntaxError (MissingToken (Separator SemiColon dummyLexDat) (OpTok Asterisk dummyLexDat))
+    it "Should throw error for a break statement not followed by a semicolon" $
+      (extractStatementError [Keyword Break dummyLexDat, OpTok Asterisk dummyLexDat])
+        `shouldBe` SyntaxError (MissingToken (Separator SemiColon dummyLexDat) (OpTok Asterisk dummyLexDat))
+    it "Should throw error for a continue statement not followed by anything" $
+      (extractStatementError [Keyword Continue dummyLexDat])
+        `shouldBe` ParserError (LexDataError [Keyword Continue dummyLexDat])
+    it "Should throw error for a break statement not followed by anything" $
+      (extractStatementError [Keyword Break dummyLexDat])
+        `shouldBe` ParserError (LexDataError [Keyword Break dummyLexDat])
