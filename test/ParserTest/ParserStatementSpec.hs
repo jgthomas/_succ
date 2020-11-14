@@ -459,3 +459,6 @@ spec = do
             ]
        in (extractStatementError toks)
             `shouldBe` SyntaxError (MissingToken (Separator SemiColon dummyLexDat) (Separator Colon dummyLexDat))
+    it "Should throw error on empty list of tokens" $
+      (extractStatementError [])
+        `shouldBe` ParserError (LexDataError [])
