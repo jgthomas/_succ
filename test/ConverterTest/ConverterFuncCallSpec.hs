@@ -151,7 +151,7 @@ spec = do
                   )
               )
           ]
-    it "Should build a schema for a main function with explicit return statement" $
+    it "Should build a schema for a main function with no explicit return statement" $
       ( extractSchema $
           ProgramNode
             [ FunctionNode
