@@ -438,9 +438,6 @@ defineGlobal :: Tree -> GenState AssemblySchema
 defineGlobal (AssignmentNode varNode@(VarNode name _) valNode _ dat) = do
   GlobalState.defineGlobal name
   processAssignment name dat varNode valNode
-defineGlobal (AssignmentNode derefNode@(DereferenceNode name _) valNode _ dat) = do
-  GlobalState.defineGlobal name
-  processAssignment name dat derefNode valNode
 defineGlobal tree = throwError $ FatalError (ConverterBug tree)
 
 buildUndefinedSchema :: (String, Type) -> AssemblySchema
