@@ -167,3 +167,13 @@ spec = do
     it "Should throw error on unfinished function" $
       (extractFunctionError [Keyword Int dummyLexDat, Ident "a" dummyLexDat])
         `shouldBe` ParserError (LexDataError [Keyword Int dummyLexDat, Ident "a" dummyLexDat])
+    it "Should throw an error on invalid type" $
+      ( extractFunctionError
+          [ Separator SemiColon dummyLexDat,
+            Ident "dog" dummyLexDat,
+            OpenBracket OpenParen dummyLexDat,
+            CloseBracket CloseParen dummyLexDat,
+            Separator SemiColon dummyLexDat
+          ]
+      )
+        `shouldBe` SyntaxError (BadType $ Separator SemiColon dummyLexDat)
