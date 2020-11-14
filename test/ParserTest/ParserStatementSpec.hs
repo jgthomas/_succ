@@ -101,6 +101,35 @@ spec = do
               ]
               mockNodeDat
           ]
+    it "Should build a tree for compound statement with a pointer declaration" $
+      ( extractStatementTree
+          [ OpenBracket OpenBrace dummyLexDat,
+            Keyword Int dummyLexDat,
+            OpTok Asterisk dummyLexDat,
+            Ident "a" dummyLexDat,
+            OpTok EqualSign dummyLexDat,
+            OpTok Ampersand dummyLexDat,
+            Ident "b" dummyLexDat,
+            Separator SemiColon dummyLexDat,
+            CloseBracket CloseBrace dummyLexDat
+          ]
+      )
+        `shouldBe` ProgramNode
+          [ CompoundStmtNode
+              [ PointerNode
+                  (VarNode "a" mockNodeDat)
+                  IntPointer
+                  ( Just $
+                      AssignmentNode
+                        (VarNode "a" mockNodeDat)
+                        (AddressOfNode "b" mockNodeDat)
+                        Assignment
+                        mockNodeDat
+                  )
+                  mockNodeDat
+              ]
+              mockNodeDat
+          ]
     it "Should build a tree for a simple if statement" $
       ( extractStatementTree
           [ Keyword If dummyLexDat,
