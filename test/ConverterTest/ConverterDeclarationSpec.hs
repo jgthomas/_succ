@@ -33,6 +33,30 @@ spec = do
               IntVar,
             SkipSchema
           ]
+    it "Should create a global declaration schema repeat declaration" $
+      ( extractSchema $
+          ProgramNode
+            [ DeclarationNode
+                (VarNode "a" mockNodeDat)
+                IntVar
+                Nothing
+                mockNodeDat,
+              DeclarationNode
+                (VarNode "a" mockNodeDat)
+                IntVar
+                Nothing
+                mockNodeDat
+            ]
+      )
+        `shouldBe` ProgramSchema
+          [ DeclarationSchema
+              (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) (SingleValue 0))
+              SkipSchema
+              Global
+              IntVar,
+            SkipSchema,
+            SkipSchema
+          ]
     it "Should create a schema for a global declaration with assignment" $
       ( extractSchema $
           ProgramNode
@@ -56,6 +80,45 @@ spec = do
                   AssignmentSchema
                     (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) (SingleValue 0))
                     (ExpressionSchema $ LiteralSchema 10)
+                    Global
+              )
+              Global
+              IntVar
+          ]
+    it "Should create a schema for a global declaration with dereferencing assignment" $
+      ( extractSchema $
+          ProgramNode
+            [ DeclarationNode
+                (VarNode "a" mockNodeDat)
+                IntPointer
+                Nothing
+                mockNodeDat,
+              DeclarationNode
+                (VarNode "b" mockNodeDat)
+                IntVar
+                ( Just $
+                    AssignmentNode
+                      (VarNode "b" mockNodeDat)
+                      (DereferenceNode "a" mockNodeDat)
+                      Assignment
+                      mockNodeDat
+                )
+                mockNodeDat
+            ]
+      )
+        `shouldBe` ProgramSchema
+          [ DeclarationSchema
+              (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) (SingleValue 0))
+              SkipSchema
+              Global
+              IntPointer,
+            SkipSchema,
+            DeclarationSchema
+              (ExpressionSchema $ VariableSchema (GlobalVar "_b2" 0) (SingleValue 0))
+              ( StatementSchema $
+                  AssignmentSchema
+                    (ExpressionSchema $ VariableSchema (GlobalVar "_b2" 0) (SingleValue 0))
+                    (ExpressionSchema $ DereferenceSchema (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) UntrackedValue))
                     Global
               )
               Global
