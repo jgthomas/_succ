@@ -8,6 +8,7 @@ import Test.Hspec
 import TestUtility (mockNodeDat)
 import Types.AST
 import Types.AssemblySchema
+import Types.Operator
 import Types.Type
 
 spec :: Spec
@@ -128,5 +129,67 @@ spec = do
                                 [(ExpressionSchema $ LiteralSchema 29)]
                           )
                     ]
+              )
+          ]
+    it "Should build a schema for a main function with no statements" $
+      ( extractSchema $
+          ProgramNode
+            [ FunctionNode
+                IntVar
+                "main"
+                []
+                (Just $ CompoundStmtNode [] mockNodeDat)
+                mockNodeDat
+            ]
+      )
+        `shouldBe` ProgramSchema
+          [ FunctionSchema
+              "main"
+              ( StatementSchema
+                  ( CompoundStatementSchema
+                      [StatementSchema $ ReturnSchema (ExpressionSchema $ LiteralSchema 0)]
+                  )
+              )
+          ]
+    it "Should build a schema for a main function with explicit return statement" $
+      ( extractSchema $
+          ProgramNode
+            [ FunctionNode
+                IntVar
+                "main"
+                []
+                ( Just $
+                    CompoundStmtNode
+                      [ ExprStmtNode
+                          ( BinaryNode
+                              (ConstantNode 10 mockNodeDat)
+                              (ConstantNode 10 mockNodeDat)
+                              Plus
+                              mockNodeDat
+                          )
+                          mockNodeDat
+                      ]
+                      mockNodeDat
+                )
+                mockNodeDat
+            ]
+      )
+        `shouldBe` ProgramSchema
+          [ FunctionSchema
+              "main"
+              ( StatementSchema
+                  ( CompoundStatementSchema
+                      [ ExpressionSchema
+                          ( BinarySchema
+                              (ExpressionSchema (LiteralSchema 10))
+                              (ExpressionSchema (LiteralSchema 10))
+                              Plus
+                              (LocalLabel 1)
+                              (LocalLabel 2)
+                          ),
+                        StatementSchema
+                          (ReturnSchema (ExpressionSchema $ LiteralSchema 0))
+                      ]
+                  )
               )
           ]
