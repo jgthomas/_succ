@@ -85,22 +85,40 @@ spec = do
               Global
               IntVar
           ]
-    it "Should create a schema for a global declaration with dereferencing assignment" $
+    it "Should create a schema for a global declaration with local dereferencing assignment" $
       ( extractSchema $
           ProgramNode
             [ DeclarationNode
                 (VarNode "a" mockNodeDat)
-                IntPointer
+                IntVar
                 Nothing
                 mockNodeDat,
               DeclarationNode
                 (VarNode "b" mockNodeDat)
-                IntVar
+                IntPointer
                 ( Just $
                     AssignmentNode
                       (VarNode "b" mockNodeDat)
-                      (DereferenceNode "a" mockNodeDat)
+                      (AddressOfNode "a" mockNodeDat)
                       Assignment
+                      mockNodeDat
+                )
+                mockNodeDat,
+              FunctionNode
+                IntVar
+                "main"
+                []
+                ( Just $
+                    CompoundStmtNode
+                      [ AssignmentNode
+                          (DereferenceNode "b" mockNodeDat)
+                          (ConstantNode 10 mockNodeDat)
+                          Assignment
+                          mockNodeDat,
+                        ReturnNode
+                          (VarNode "a" mockNodeDat)
+                          mockNodeDat
+                      ]
                       mockNodeDat
                 )
                 mockNodeDat
@@ -111,18 +129,31 @@ spec = do
               (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) (SingleValue 0))
               SkipSchema
               Global
-              IntPointer,
+              IntVar,
             SkipSchema,
             DeclarationSchema
-              (ExpressionSchema $ VariableSchema (GlobalVar "_b2" 0) (SingleValue 0))
+              (ExpressionSchema $ VariableSchema (GlobalVar "_b2" 0) UntrackedValue)
               ( StatementSchema $
                   AssignmentSchema
-                    (ExpressionSchema $ VariableSchema (GlobalVar "_b2" 0) (SingleValue 0))
-                    (ExpressionSchema $ DereferenceSchema (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) UntrackedValue))
+                    (ExpressionSchema $ VariableSchema (GlobalVar "_b2" 0) UntrackedValue)
+                    (ExpressionSchema $ AddressOfSchema (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) (SingleValue 0)))
                     Global
               )
               Global
-              IntVar
+              IntPointer,
+            FunctionSchema
+              "main"
+              ( StatementSchema $
+                  CompoundStatementSchema
+                    [ ( StatementSchema $
+                          AssignmentSchema
+                            (ExpressionSchema $ DereferenceSchema $ ExpressionSchema (VariableSchema (GlobalVar "_b2" 0) UntrackedValue))
+                            (ExpressionSchema $ LiteralSchema 10)
+                            Local
+                      ),
+                      StatementSchema $ ReturnSchema $ (ExpressionSchema $ VariableSchema (GlobalVar "_a1" 0) (SingleValue 0))
+                    ]
+              )
           ]
     it "Should create a schema for a function with local declaration with assignment" $
       ( extractSchema
