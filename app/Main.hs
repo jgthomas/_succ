@@ -3,7 +3,6 @@ module Main
   )
 where
 
-import Control.DeepSeq (deepseq)
 import qualified Options
   ( buildCompilerOptions,
     options,
@@ -28,8 +27,7 @@ main = do
   cFile <- openFile infileName ReadMode
   cCode <- hGetContents cFile
   asm <- Succ.compile cCode compileOptions
-  -- force evaluation before writing to file
-  asm `deepseq` writeFile outfileName asm
+  writeFile outfileName asm
   let gccOpts = "gcc -g "
       output = " -o " ++ dropExtension outfileName
       toMachineCode = gccOpts ++ outfileName ++ output
