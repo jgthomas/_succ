@@ -3,6 +3,7 @@ module Main
   )
 where
 
+import qualified Assembler.Assembler as Assembler (assemble)
 import qualified Options
   ( buildCompilerOptions,
     options,
@@ -10,7 +11,6 @@ import qualified Options
   )
 import qualified Succ (compile)
 import System.Console.CmdArgs (cmdArgs)
-import System.FilePath (dropExtension)
 import System.IO
   ( IOMode (ReadMode),
     hClose,
@@ -28,10 +28,6 @@ main = do
   cCode <- hGetContents cFile
   asm <- Succ.compile cCode compileOptions
   writeFile outfileName asm
-  let gccOpts = "gcc -g "
-      output = " -o " ++ dropExtension outfileName
-      toMachineCode = gccOpts ++ outfileName ++ output
-      deleteFile = "rm " ++ outfileName
-  _ <- system toMachineCode
-  _ <- system deleteFile
+  _ <- Assembler.assemble outfileName
+  _ <- system $ "rm " ++ outfileName
   hClose cFile
