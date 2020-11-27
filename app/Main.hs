@@ -5,7 +5,8 @@ where
 
 import qualified Assembler.Assembler as Assembler (assemble)
 import qualified Options
-  ( buildCompilerOptions,
+  ( SuccArgs (..),
+    buildCompilerOptions,
     options,
     setFileNames,
   )
@@ -18,6 +19,7 @@ import System.IO
     openFile,
   )
 import System.Process (system)
+import Control.Monad (unless)
 
 main :: IO ()
 main = do
@@ -29,5 +31,7 @@ main = do
   asm <- Succ.compile cCode compileOptions
   writeFile outfileName asm
   _ <- Assembler.assemble outfileName
-  _ <- system $ "rm " ++ outfileName
+  unless (Options.keep arguments) $ do
+    _ <- system $ "rm " ++ outfileName
+    hClose cFile
   hClose cFile
