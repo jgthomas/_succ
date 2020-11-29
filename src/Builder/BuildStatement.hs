@@ -5,7 +5,6 @@ module Builder.BuildStatement
     ifStatement,
     breakStatement,
     continueStatement,
-    emptyStatement,
   )
 where
 
@@ -76,10 +75,6 @@ breakStatement n = setGotoPoint n
 -- | Output asm for a continue statement
 continueStatement :: Int -> String
 continueStatement n = setGotoPoint n
-
--- | Output asm for an empty statement
-emptyStatement :: String
-emptyStatement = ""
 
 ifOnly :: String -> String -> Int -> String
 ifOnly test action testLab =

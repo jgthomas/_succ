@@ -20,7 +20,6 @@ import qualified Builder.BuildStatement as BuildStatement
   ( breakStatement,
     continueStatement,
     doWhile,
-    emptyStatement,
     forLoop,
     ifStatement,
     while,
@@ -101,7 +100,7 @@ buildASM
       SkipSchema
       Local
       _
-    ) = pure BuildStatement.emptyStatement
+    ) = pure mempty
 buildASM
   ( DeclarationSchema
       (ExpressionSchema VariableSchema {})
@@ -122,7 +121,7 @@ buildASM
     pure $ assignAsm <> BuildVariables.postDeclareAction varType
 buildASM (StatementSchema statement) = buildStatementASM statement
 buildASM (ExpressionSchema expression) = buildExpressionASM expression
-buildASM SkipSchema = pure BuildStatement.emptyStatement
+buildASM SkipSchema = pure mempty
 buildASM schema = throwError $ FatalError (BuilderBug schema)
 
 buildStatementASM :: StatementSchema -> BuildState String
@@ -269,5 +268,5 @@ globalArrayValues :: [AssemblySchema] -> [Int]
 globalArrayValues arrayItems = fmap globalArrayValue arrayItems
 
 globalArrayValue :: AssemblySchema -> Int
-globalArrayValue (StatementSchema (AssignmentSchema _ (ExpressionSchema (LiteralSchema n)) _)) =  n
+globalArrayValue (StatementSchema (AssignmentSchema _ (ExpressionSchema (LiteralSchema n)) _)) = n
 globalArrayValue _ = undefined
