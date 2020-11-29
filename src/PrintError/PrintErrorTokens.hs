@@ -46,7 +46,7 @@ toStringToken tok =
     CloseBracket CloseSqBracket _ -> "]"
     Ident a _ -> a
     ConstInt n _ -> show n
-    Keyword kwd _ -> map toLower (show kwd)
+    Keyword kwd _ -> fmap toLower (show kwd)
     OpTok op _ -> toStringOpTok op
 
 toStringOpTok :: OpTok -> String

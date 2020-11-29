@@ -157,7 +157,7 @@ makeLabel name = do
 getUndefinedVarData :: GenState [(String, Type)]
 getUndefinedVarData = do
   undefinedSet <- getUndefinedVarNames
-  map getGlobalData
+  fmap getGlobalData
     . M.elems
     . M.filterWithKey (\k _ -> k `elem` undefinedSet)
     . declaredVars

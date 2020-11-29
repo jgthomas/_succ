@@ -36,20 +36,20 @@ setStatementsSkipped :: Tree -> Tree
 setStatementsSkipped (IfNode cond (ExprStmtNode assign@AssignmentNode {} d) e d') =
   IfNode cond (ExprStmtNode (setAsSkipped assign) d) e d'
 setStatementsSkipped (IfNode cond (CompoundStmtNode statements d) e d') =
-  IfNode cond (CompoundStmtNode (map setAsSkipped statements) d) e d'
+  IfNode cond (CompoundStmtNode (fmap setAsSkipped statements) d) e d'
 setStatementsSkipped tree = tree
 
 setVarsUntracked :: Tree -> Tree
 setVarsUntracked (WhileNode cond (CompoundStmtNode statements d) d') =
-  WhileNode cond (CompoundStmtNode (map setNotTracked statements) d) d'
+  WhileNode cond (CompoundStmtNode (fmap setNotTracked statements) d) d'
 setVarsUntracked (DoWhileNode (CompoundStmtNode statements d) cond d') =
-  DoWhileNode (CompoundStmtNode (map setNotTracked statements) d) cond d'
+  DoWhileNode (CompoundStmtNode (fmap setNotTracked statements) d) cond d'
 setVarsUntracked (ForLoopNode ini test iter (CompoundStmtNode statements d) d') =
   ForLoopNode
     (setNotTracked ini)
     (setNotTracked test)
     (setNotTracked iter)
-    (CompoundStmtNode (map setNotTracked statements) d)
+    (CompoundStmtNode (fmap setNotTracked statements) d)
     d'
 setVarsUntracked (ForLoopNode ini test iter statement d) =
   ForLoopNode ini test iter (setNotTracked statement) d
@@ -64,11 +64,11 @@ setVarsUntracked
     ) =
     IfNode
       cond
-      (CompoundStmtNode (map setNotTracked statements) d)
-      (Just $ CompoundStmtNode (map setNotTracked elseStatements) d')
+      (CompoundStmtNode (fmap setNotTracked statements) d)
+      (Just $ CompoundStmtNode (fmap setNotTracked elseStatements) d')
       d''
 setVarsUntracked (IfNode cond (CompoundStmtNode statements d) e d') =
-  IfNode cond (CompoundStmtNode (map setNotTracked statements) d) e d'
+  IfNode cond (CompoundStmtNode (fmap setNotTracked statements) d) e d'
 setVarsUntracked tree = tree
 
 setAsSkipped :: Tree -> Tree

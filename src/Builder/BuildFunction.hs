@@ -56,7 +56,7 @@ saveRegisters :: [Register] -> String
 saveRegisters rs = concatMap (push . reg) rs
 
 restoreRegisters :: [Register] -> String
-restoreRegisters rs = concatMap pop . reverse . map reg $ rs
+restoreRegisters rs = concatMap pop . reverse . fmap reg $ rs
 
 saveBasePointer :: String
 saveBasePointer =

@@ -39,7 +39,7 @@ declareGlobal (GlobalVar label _) _ vals = initializedGlobal label (buildGlobalV
 declareGlobal _ _ _ = undefined
 
 buildGlobalValue :: [Int] -> String
-buildGlobalValue values = intercalate ", " (map show values)
+buildGlobalValue values = intercalate ", " (fmap show values)
 
 -- | Execute follow up actions after declaration
 postDeclareAction :: VarType -> String

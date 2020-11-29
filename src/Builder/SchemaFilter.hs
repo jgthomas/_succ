@@ -25,7 +25,7 @@ getInitialisedInt :: [AssemblySchema] -> [AssemblySchema]
 getInitialisedInt items = filter isInitialisedInt items
 
 getUninitialised :: [AssemblySchema] -> [AssemblySchema]
-getUninitialised items = map convertForInit . filter needsInit $ items
+getUninitialised items = fmap convertForInit . filter needsInit $ items
 
 getPointersAssignmentsForInit :: [AssemblySchema] -> [AssemblySchema]
 getPointersAssignmentsForInit items = filter isInitialisedPointer items
