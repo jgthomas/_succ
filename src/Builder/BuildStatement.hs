@@ -1,3 +1,8 @@
+-- |
+-- Module       : BuildStatement
+-- Description  : Build assembly for statements
+--
+-- Builds output assembly code for statements.
 module Builder.BuildStatement
   ( while,
     doWhile,
