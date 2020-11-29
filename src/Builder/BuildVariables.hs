@@ -43,8 +43,8 @@ buildGlobalValue values = intercalate ", " (fmap show values)
 
 -- | Execute follow up actions after declaration
 postDeclareAction :: VarType -> String
-postDeclareAction GlobalVar {} = ""
-postDeclareAction ParamVar {} = ""
+postDeclareAction GlobalVar {} = mempty
+postDeclareAction ParamVar {} = mempty
 postDeclareAction (LocalVar _ _ sp) = adjustStackPointer sp
 
 adjustStackPointer :: Int -> String

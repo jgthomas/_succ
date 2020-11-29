@@ -60,7 +60,7 @@ unaryOp :: Unary -> String
 unaryOp unOp =
   case unOp of
     Negate -> makeNegative (reg RAX)
-    Positive -> ""
+    Positive -> mempty
     BitwiseComp -> invertBits (reg RAX)
     LogicalNeg -> logNeg
 

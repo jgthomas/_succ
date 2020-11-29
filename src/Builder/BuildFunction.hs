@@ -25,7 +25,7 @@ funcPrologue funcName =
 
 runInit :: String -> String
 runInit "main" = "jmp init\n" <> "init_done:\n"
-runInit _ = ""
+runInit _ = mempty
 
 funcEpilogue :: String
 funcEpilogue =
