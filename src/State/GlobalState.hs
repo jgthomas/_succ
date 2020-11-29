@@ -151,7 +151,7 @@ defineGlobal name = do
 makeLabel :: String -> GenState String
 makeLabel name = do
   labnum <- GenState.labelNum
-  pure $ "_" ++ name ++ show labnum
+  pure $ "_" <> name <> show labnum
 
 -- | Get list of all undefined global variable data
 getUndefinedVarData :: GenState [(String, Type)]

@@ -12,8 +12,8 @@ assemble :: FilePath -> IO ExitCode
 assemble asmFileName = gccAssemble asmFileName
 
 gccAssemble :: FilePath -> IO ExitCode
-gccAssemble asmFileName = system $ assembler ++ opts ++ asmFileName ++ binaryOut
+gccAssemble asmFileName = system $ assembler <> opts <> asmFileName <> binaryOut
   where
     assembler = "gcc "
     opts = "-g "
-    binaryOut = " -o " ++ dropExtension asmFileName
+    binaryOut = " -o " <> dropExtension asmFileName

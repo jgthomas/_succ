@@ -23,8 +23,8 @@ lexerErrorMsg EmptyInput = (msg, None)
 lexerUnexpectedMsg :: String -> String
 lexerUnexpectedMsg str =
   case str of
-    [] -> msg ++ "Empty file"
-    [c] -> msg ++ "'" ++ [c] ++ "'"
-    (c : _) -> msg ++ "'" ++ [c] ++ "'"
+    [] -> msg <> "Empty file"
+    [c] -> msg <> "'" <> [c] <> "'"
+    (c : _) -> msg <> "'" <> [c] <> "'"
   where
     msg = "Unexpected input: "

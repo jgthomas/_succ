@@ -78,4 +78,4 @@ mkVarGlobal (Just s) = VarType (GlobalVar s 0)
 mkVarGlobal Nothing = NotFound
 
 errMsg :: String -> String
-errMsg varName = "Variable: " ++ varName
+errMsg varName = "Variable: " <> varName

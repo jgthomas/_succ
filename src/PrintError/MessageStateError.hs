@@ -16,12 +16,12 @@ stateErrorMsg :: StateError -> (String, PrintRange)
 stateErrorMsg (NoStateFound name) = (msg, None)
   where
     msg =
-      "Unable to locate any state for '" ++ name
-        ++ "' compilation terminated"
+      "Unable to locate any state for '" <> name
+        <> "' compilation terminated"
 stateErrorMsg (UndefinedScope name scope) = (msg, None)
   where
     msg =
-      "Unable to locate state for scope '" ++ show scope
-        ++ "' in '"
-        ++ name
-        ++ "' compilation terminated"
+      "Unable to locate state for scope '" <> show scope
+        <> "' in '"
+        <> name
+        <> "' compilation terminated"

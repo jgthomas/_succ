@@ -18,30 +18,30 @@ import Builder.Register
 funcPrologue :: String -> String
 funcPrologue funcName =
   declareGlobl funcName
-    ++ globlLabel funcName
-    ++ runInit funcName
-    ++ saveBasePointer
-    ++ saveRegisters allScratch
+    <> globlLabel funcName
+    <> runInit funcName
+    <> saveBasePointer
+    <> saveRegisters allScratch
 
 runInit :: String -> String
-runInit "main" = "jmp init\n" ++ "init_done:\n"
+runInit "main" = "jmp init\n" <> "init_done:\n"
 runInit _ = ""
 
 funcEpilogue :: String
 funcEpilogue =
   restoreRegisters allScratch
-    ++ restoreBasePointer
-    ++ returnControl
+    <> restoreBasePointer
+    <> returnControl
 
 functionCall :: String -> [(String, Int)] -> String
 functionCall name args =
   saveCallerRegisters
-    ++ concatMap passArgument args
-    ++ call name
-    ++ restoreCallerRegisters
+    <> concatMap passArgument args
+    <> call name
+    <> restoreCallerRegisters
 
 passArgument :: (String, Int) -> String
-passArgument (argAsm, pos) = argAsm ++ putInRegister pos
+passArgument (argAsm, pos) = argAsm <> putInRegister pos
 
 putInRegister :: Int -> String
 putInRegister r = move (reg RAX) (selectRegister r)
@@ -61,9 +61,9 @@ restoreRegisters rs = concatMap pop . reverse . map reg $ rs
 saveBasePointer :: String
 saveBasePointer =
   push (reg RBP)
-    ++ move (reg RSP) (reg RBP)
+    <> move (reg RSP) (reg RBP)
 
 restoreBasePointer :: String
 restoreBasePointer =
   move (reg RBP) (reg RSP)
-    ++ pop (reg RBP)
+    <> pop (reg RBP)

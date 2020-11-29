@@ -18,45 +18,45 @@ data Section
 initializedGlobal :: String -> String -> String
 initializedGlobal label val =
   declareGlobl label
-    ++ section DATA
-    ++ align
-    ++ globlLabel label
-    ++ asLong val
-    ++ section TEXT
+    <> section DATA
+    <> align
+    <> globlLabel label
+    <> asLong val
+    <> section TEXT
 
 -- | Output asm for an uninitialized global variable
 uninitializedGlobal :: String -> String
 uninitializedGlobal label =
   declareGlobl label
-    ++ section BSS
-    ++ align
-    ++ globlLabel label
-    ++ section TEXT
+    <> section BSS
+    <> align
+    <> globlLabel label
+    <> section TEXT
 
 -- | Output asm for an uninitialized global array
 uninitializedGlobalArray :: String -> Int -> String
 uninitializedGlobalArray label n =
   declareGlobl label
-    ++ section BSS
-    ++ align
-    ++ globlLabel label
-    ++ space n
-    ++ section TEXT
+    <> section BSS
+    <> align
+    <> globlLabel label
+    <> space n
+    <> section TEXT
 
 -- | Create a label
 emitLabel :: Int -> String
-emitLabel n = "_label_" ++ show n ++ ":\n"
+emitLabel n = "_label_" <> show n <> ":\n"
 
 -- | Declare .globl
 declareGlobl :: String -> String
-declareGlobl name = ".globl " ++ name ++ "\n"
+declareGlobl name = ".globl " <> name <> "\n"
 
 -- | Create a .globl label
 globlLabel :: String -> String
-globlLabel name = name ++ ":\n"
+globlLabel name = name <> ":\n"
 
 space :: Int -> String
-space n = ".space " ++ show n ++ "\n"
+space n = ".space " <> show n <> "\n"
 
 section :: Section -> String
 section sect =
@@ -69,4 +69,4 @@ align :: String
 align = ".align 4\n"
 
 asLong :: String -> String
-asLong l = ".long " ++ l ++ "\n"
+asLong l = ".long " <> l <> "\n"

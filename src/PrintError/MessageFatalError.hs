@@ -15,21 +15,21 @@ import Types.Error (FatalError (..))
 fatalErrorMsg :: FatalError -> (String, PrintRange)
 fatalErrorMsg err@(LexerBug input) = (msg, None)
   where
-    msg = fatalErrorMsgIntro err ++ input ++ fatalErrorMsgOutro
+    msg = fatalErrorMsgIntro err <> input <> fatalErrorMsgOutro
 fatalErrorMsg err@(ParserBug lexData) = (msg, None)
   where
-    msg = fatalErrorMsgIntro err ++ show lexData ++ fatalErrorMsgOutro
+    msg = fatalErrorMsgIntro err <> show lexData <> fatalErrorMsgOutro
 fatalErrorMsg err@(ConverterBug tree) = (msg, None)
   where
-    msg = fatalErrorMsgIntro err ++ show tree ++ fatalErrorMsgOutro
+    msg = fatalErrorMsgIntro err <> show tree <> fatalErrorMsgOutro
 fatalErrorMsg err@(BuilderBug schema) = (msg, None)
   where
-    msg = fatalErrorMsgIntro err ++ show schema ++ fatalErrorMsgOutro
+    msg = fatalErrorMsgIntro err <> show schema <> fatalErrorMsgOutro
 
 fatalErrorMsgIntro :: FatalError -> String
 fatalErrorMsgIntro err =
-  "There is a bug in the " ++ component
-    ++ ", this is the state I was working with: "
+  "There is a bug in the " <> component
+    <> ", this is the state I was working with: "
   where
     component = fatalComponent err
 

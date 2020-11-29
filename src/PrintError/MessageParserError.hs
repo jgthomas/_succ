@@ -26,16 +26,16 @@ parserErrorMsg (LexDataError [d]) = (msg, range)
   where
     msg =
       buildLineMsg d
-        ++ "Unexpected input "
-        ++ PrintErrorTokens.buildTokMsg d
+        <> "Unexpected input "
+        <> PrintErrorTokens.buildTokMsg d
     range = Exact (line . tokenData $ d)
 parserErrorMsg (LexDataError (d : _)) = (msg, range)
   where
     msg =
       buildLineMsg d
-        ++ "Unexpected input starting at '"
-        ++ PrintErrorTokens.buildTokMsg d
-        ++ "'"
+        <> "Unexpected input starting at '"
+        <> PrintErrorTokens.buildTokMsg d
+        <> "'"
     range = From (line . tokenData $ d)
 
 buildLineMsg :: Token -> String

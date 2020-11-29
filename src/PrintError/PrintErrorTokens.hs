@@ -25,11 +25,11 @@ data PrintRange
 
 -- | Builds a message about the line where an error occurred
 buildLineMsg :: Int -> String
-buildLineMsg n = "Line " ++ show n ++ ": "
+buildLineMsg n = "Line " <> show n <> ": "
 
 -- | Builds a message about the token involved in the error
 buildTokMsg :: Token -> String
-buildTokMsg t = "'" ++ toStringToken t ++ "'"
+buildTokMsg t = "'" <> toStringToken t <> "'"
 
 toStringToken :: Token -> String
 toStringToken tok =
@@ -74,7 +74,7 @@ toStringOpTok opTok =
     BackslashEqual -> "/="
     PercentEqual -> "%="
     Ampersand -> "&"
-    PlusPlus -> "++"
+    PlusPlus -> "<>"
     MinusMinus -> "--"
     Caret -> "^"
     Pipe -> "|"

@@ -16,14 +16,14 @@ syntaxErrorMsg (MissingToken t1 t2) = (msg, mkRange t2)
   where
     msg =
       unexpectedLexDatMsg t2
-        ++ ", Expected "
-        ++ PrintErrorTokens.buildTokMsg t1
+        <> ", Expected "
+        <> PrintErrorTokens.buildTokMsg t1
 syntaxErrorMsg (BadType d) = (msg, mkRange d)
   where
     msg =
       buildLineMsg d
-        ++ "Invalid type "
-        ++ PrintErrorTokens.buildTokMsg d
+        <> "Invalid type "
+        <> PrintErrorTokens.buildTokMsg d
 syntaxErrorMsg (UnexpectedLexDat d) = (msg, mkRange d)
   where
     msg = unexpectedLexDatMsg d
@@ -31,8 +31,8 @@ syntaxErrorMsg (NonValidIdentifier d) = (msg, mkRange d)
   where
     msg =
       buildLineMsg d
-        ++ "Invalid identifier "
-        ++ PrintErrorTokens.buildTokMsg d
+        <> "Invalid identifier "
+        <> PrintErrorTokens.buildTokMsg d
 syntaxErrorMsg err = (show err, All)
 
 mkRange :: Token -> PrintRange
@@ -46,5 +46,5 @@ buildLineMsg token = PrintErrorTokens.buildLineMsg . line . tokenData $ token
 unexpectedLexDatMsg :: Token -> String
 unexpectedLexDatMsg token =
   buildLineMsg token
-    ++ "Unexpected token "
-    ++ PrintErrorTokens.buildTokMsg token
+    <> "Unexpected token "
+    <> PrintErrorTokens.buildTokMsg token

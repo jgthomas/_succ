@@ -43,8 +43,8 @@ setFileNames arguments = (infileName, outfileName)
     outfileName = setOutFile infileName (asmfile arguments)
 
 setOutFile :: FilePath -> FilePath -> FilePath
-setOutFile infile "" = dropExtension infile ++ ".s"
-setOutFile _ filename = filename ++ ".s"
+setOutFile infile "" = dropExtension infile <> ".s"
+setOutFile _ filename = filename <> ".s"
 
 -- | Build compiler options data container
 buildCompilerOptions :: SuccArgs -> SuccOptions

@@ -29,7 +29,7 @@ loadLiteral n = move (literal n) (reg RAX)
 
 -- | Setup initialisation block
 outputInit :: String -> String
-outputInit toInit = "init:\n" ++ toInit ++ "jmp init_done\n"
+outputInit toInit = "init:\n" <> toInit <> "jmp init_done\n"
 
 -- | Declare a global variable
 declareGlobal :: VarType -> Type -> [Int] -> String
@@ -50,7 +50,7 @@ postDeclareAction (LocalVar _ _ sp) = adjustStackPointer sp
 adjustStackPointer :: Int -> String
 adjustStackPointer offset =
   move (reg RBP) (reg RSP)
-    ++ sub (literal offset) (reg RSP)
+    <> sub (literal offset) (reg RSP)
 
 -- | Store a variable value currently held in %rax
 storeVariable :: VarType -> String
@@ -111,7 +111,7 @@ derefLoad (GlobalVar s o) = derefLoadGlobal s o
 derefLoadLocal :: Int -> String
 derefLoadLocal offset =
   move (fromBasePointer offset) scratch
-    ++ move (valueFromAddressIn scratch) (reg RAX)
+    <> move (valueFromAddressIn scratch) (reg RAX)
 
 derefLoadParam :: Int -> String
 derefLoadParam r =
@@ -120,7 +120,7 @@ derefLoadParam r =
 derefLoadGlobal :: String -> Int -> String
 derefLoadGlobal label offset =
   move (fromInstructionPointerOffset label offset) scratch
-    ++ move (valueFromAddressIn scratch) (reg RAX)
+    <> move (valueFromAddressIn scratch) (reg RAX)
 
 -- | Store a dereferenced pointer value
 derefStore :: VarType -> String
@@ -131,7 +131,7 @@ derefStore (GlobalVar s o) = derefStoreGlobal s o
 derefStoreLocal :: Int -> String
 derefStoreLocal offset =
   move (fromBasePointer offset) scratch
-    ++ move (reg RAX) (addressIn scratch)
+    <> move (reg RAX) (addressIn scratch)
 
 derefStoreParam :: Int -> String
 derefStoreParam r =
@@ -140,11 +140,11 @@ derefStoreParam r =
 derefStoreGlobal :: String -> Int -> String
 derefStoreGlobal label offset =
   move (fromInstructionPointerOffset label offset) scratch
-    ++ move (reg RAX) (addressIn scratch)
+    <> move (reg RAX) (addressIn scratch)
 
 fromInstructionPointerOffset :: String -> Int -> String
 fromInstructionPointerOffset lab off =
-  lab ++ "+" ++ show off ++ indirectAddressing (reg RIP)
+  lab <> "+" <> show off <> indirectAddressing (reg RIP)
 
 addressIn :: String -> String
 addressIn s = indirectAddressing s
@@ -153,7 +153,7 @@ valueFromAddressIn :: String -> String
 valueFromAddressIn s = indirectAddressing s
 
 fromBasePointer :: Int -> String
-fromBasePointer n = show n ++ indirectAddressing (reg RBP)
+fromBasePointer n = show n <> indirectAddressing (reg RBP)
 
 indirectAddressing :: String -> String
-indirectAddressing s = "(" ++ s ++ ")"
+indirectAddressing s = "(" <> s <> ")"

@@ -72,7 +72,7 @@ printSourceLine :: M.Map Int String -> Int -> IO ()
 printSourceLine lineMap n =
   unless (isNothing sourceLine)
     $ putStrLn
-    $ show n ++ "  |  " ++ fromMaybe "" sourceLine
+    $ show n <> "  |  " <> fromMaybe "" sourceLine
   where
     sourceLine = M.lookup n lineMap
 

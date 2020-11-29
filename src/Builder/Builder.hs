@@ -72,7 +72,7 @@ buildASM (ProgramSchema topLevelItems) = do
   bssSection <- concatMapM processSchema uninitialised
   initSection <- BuildVariables.outputInit <$> concatMapM processSchema pointersToInit
   textSection <- concatMapM processSchema functions
-  pure $ initSection ++ dataSection ++ bssSection ++ textSection
+  pure $ initSection <> dataSection <> bssSection <> textSection
   where
     initialised = SchemaFilter.filterSchema InitialisedVariable topLevelItems
     uninitialised = SchemaFilter.filterSchema UninitialisedVariable topLevelItems
@@ -80,7 +80,7 @@ buildASM (ProgramSchema topLevelItems) = do
     functions = SchemaFilter.filterSchema Function topLevelItems
 buildASM (FunctionSchema name bodyBlock) = do
   body <- processSchema bodyBlock
-  pure $ BuildFunction.funcPrologue name ++ body
+  pure $ BuildFunction.funcPrologue name <> body
 buildASM
   ( DeclarationSchema
       (ExpressionSchema (VariableSchema global@GlobalVar {} _))
@@ -110,7 +110,7 @@ buildASM
       (IntArray _)
     ) = do
     assignAsm <- processSchema arrayItems
-    pure $ assignAsm ++ BuildVariables.postDeclareAction (LocalVar 0 0 finalPos)
+    pure $ assignAsm <> BuildVariables.postDeclareAction (LocalVar 0 0 finalPos)
 buildASM
   ( DeclarationSchema
       (ExpressionSchema (VariableSchema varType _))
@@ -119,7 +119,7 @@ buildASM
       _
     ) = do
     assignAsm <- processSchema assign
-    pure $ assignAsm ++ BuildVariables.postDeclareAction varType
+    pure $ assignAsm <> BuildVariables.postDeclareAction varType
 buildASM (StatementSchema statement) = buildStatementASM statement
 buildASM (ExpressionSchema expression) = buildExpressionASM expression
 buildASM SkipSchema = pure BuildStatement.emptyStatement
@@ -128,7 +128,7 @@ buildASM schema = throwError $ FatalError (BuilderBug schema)
 buildStatementASM :: StatementSchema -> BuildState String
 buildStatementASM (ReturnSchema expression) = do
   returnAsm <- processSchema expression
-  pure $ returnAsm ++ BuildFunction.funcEpilogue
+  pure $ returnAsm <> BuildFunction.funcEpilogue
 buildStatementASM (CompoundStatementSchema items) = concatMapM processSchema items
 buildStatementASM (BreakSchema (LocalLabel n)) = pure $ BuildStatement.breakStatement n
 buildStatementASM (ContinueSchema (LocalLabel n)) = pure $ BuildStatement.continueStatement n
@@ -145,7 +145,7 @@ buildStatementASM
       _
     ) = do
     valueAsm <- processSchema derefSchema
-    pure $ valueAsm ++ BuildVariables.derefStore varType
+    pure $ valueAsm <> BuildVariables.derefStore varType
 buildStatementASM
   ( AssignmentSchema
       (ExpressionSchema (VariableSchema varType _))
@@ -153,7 +153,7 @@ buildStatementASM
       _
     ) = do
     valueAsm <- processSchema valSchema
-    pure $ valueAsm ++ BuildVariables.storeVariable varType
+    pure $ valueAsm <> BuildVariables.storeVariable varType
 buildStatementASM
   ( AssignmentSchema
       (ExpressionSchema (DereferenceSchema (ExpressionSchema (VariableSchema varType _))))
@@ -161,7 +161,7 @@ buildStatementASM
       _
     ) = do
     valueAsm <- processSchema valSchema
-    pure $ valueAsm ++ BuildVariables.derefStore varType
+    pure $ valueAsm <> BuildVariables.derefStore varType
 buildStatementASM
   ( WhileSchema
       expressionSchema
@@ -217,10 +217,10 @@ buildExpressionASM :: ExpressionSchema -> BuildState String
 buildExpressionASM (LiteralSchema n) = pure $ BuildVariables.loadLiteral n
 buildExpressionASM (UnarySchema varSchema@(ExpressionSchema (VariableSchema varType _)) operator) = do
   expressionAsm <- processSchema varSchema
-  pure $ expressionAsm ++ BuildUnary.unary operator varType
+  pure $ expressionAsm <> BuildUnary.unary operator varType
 buildExpressionASM (UnarySchema expressionSchema operator) = do
   expressionAsm <- processSchema expressionSchema
-  pure $ expressionAsm ++ BuildUnary.unary operator (LocalVar 0 0 0)
+  pure $ expressionAsm <> BuildUnary.unary operator (LocalVar 0 0 0)
 buildExpressionASM
   ( BinarySchema
       exprSchema1

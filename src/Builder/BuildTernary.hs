@@ -11,10 +11,10 @@ import Builder.Register (Register (..), reg)
 ternary :: String -> String -> String -> Int -> Int -> String
 ternary testExpr trueExpr falseExpr trueLabNum falseLabNum =
   testExpr
-    ++ comp (literal 0) (reg RAX)
-    ++ emitJump JE falseLabNum
-    ++ trueExpr
-    ++ emitJump JMP trueLabNum
-    ++ emitLabel falseLabNum
-    ++ falseExpr
-    ++ emitLabel trueLabNum
+    <> comp (literal 0) (reg RAX)
+    <> emitJump JE falseLabNum
+    <> trueExpr
+    <> emitJump JMP trueLabNum
+    <> emitLabel falseLabNum
+    <> falseExpr
+    <> emitLabel trueLabNum

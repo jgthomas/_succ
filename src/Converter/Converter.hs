@@ -55,7 +55,7 @@ convertToSchema :: Tree -> GenState AssemblySchema
 convertToSchema (ProgramNode trees) = do
   schemas <- mapM convertToSchema trees
   undefSchemas <- map buildUndefinedSchema <$> GlobalState.getUndefinedVarData
-  pure (ProgramSchema $ undefSchemas ++ schemas)
+  pure (ProgramSchema $ undefSchemas <> schemas)
 convertToSchema funcNode@(FunctionNode _ _ _ Nothing _) = do
   Checker.check funcNode
   declareFunction funcNode
@@ -393,7 +393,7 @@ checkReturn _ schema = schema
 addReturnZero :: [AssemblySchema] -> [AssemblySchema]
 addReturnZero bodySchema =
   bodySchema
-    ++ [ StatementSchema
+    <> [ StatementSchema
            ( ReturnSchema
                ( ExpressionSchema
                    (LiteralSchema 0)

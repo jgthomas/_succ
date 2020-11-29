@@ -20,24 +20,24 @@ typeErrorMsg (TypeMismatch a b (FunctionNode _ name _ _ dat)) =
   where
     msg =
       buildLineMsg (startLine dat)
-        ++ "Parameter type mismatch between declarations of '"
-        ++ name
-        ++ "' was '"
-        ++ typeString a
-        ++ "' now '"
-        ++ typeString b
-        ++ "'"
+        <> "Parameter type mismatch between declarations of '"
+        <> name
+        <> "' was '"
+        <> typeString a
+        <> "' now '"
+        <> typeString b
+        <> "'"
 typeErrorMsg (TypeMismatch a b (AssignmentNode (VarNode name _) _ _ dat)) =
   (msg, Exact $ startLine dat)
   where
     msg =
       buildLineMsg (startLine dat)
-        ++ "Type mismatch for '"
-        ++ name
-        ++ "' between declaration '"
-        ++ typeString a
-        ++ "' and assignment '"
-        ++ typeString b
+        <> "Type mismatch for '"
+        <> name
+        <> "' between declaration '"
+        <> typeString a
+        <> "' and assignment '"
+        <> typeString b
 typeErrorMsg err = (show err, All)
 
 typeString :: [Type] -> String

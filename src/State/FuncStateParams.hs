@@ -192,4 +192,4 @@ extract f (Just pv) = Just . f $ pv
 extract _ Nothing = Nothing
 
 errMsg :: String -> String -> String
-errMsg funcName paramName = "Function: " ++ funcName ++ ", Parameter: " ++ paramName
+errMsg funcName paramName = "Function: " <> funcName <> ", Parameter: " <> paramName
